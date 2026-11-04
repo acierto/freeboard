@@ -130,6 +130,8 @@ pub struct AppCore {
     scan: Mutex<ScanRuntime>,
     scan_cancel: Arc<AtomicBool>,
     notifications_paused: AtomicBool,
+    /// macOS local snapshot count per mount point, with the time it was read.
+    snapshots: Mutex<std::collections::HashMap<String, (i64, Option<u32>)>>,
     clock: Clock,
     platform: &'static str,
 }
@@ -190,6 +192,7 @@ impl AppCore {
             scan: Mutex::new(ScanRuntime::default()),
             scan_cancel: Arc::new(AtomicBool::new(false)),
             notifications_paused: AtomicBool::new(paused),
+            snapshots: Mutex::new(Default::default()),
             clock: cfg.clock,
             platform: cfg.platform,
         })
@@ -278,10 +281,11 @@ impl AppCore {
             self.tick_monitor()?;
         }
         let now = self.now();
-        let (volumes, status) = {
+        let (mut volumes, status) = {
             let m = self.monitor.lock().unwrap();
             (m.latest().to_vec(), m.overall())
         };
+        self.add_platform_details(&mut volumes, now);
         let samples = self.store.samples("home", now - monitor::forecast::WINDOW_SECS)?;
         let mut pts: Vec<(i64, u64)> = samples.iter().map(|(t, f, _)| (*t, *f)).collect();
         if let Some(h) = volumes.first() {
@@ -305,6 +309,27 @@ impl AppCore {
             platform: self.platform.to_string(),
             first_run: !s.onboarding_complete,
         })
+    }
+
+    /// macOS: APFS purgeable space and Time Machine local snapshots, reported
+    /// separately because Finder may count them as free (platform notes).
+    #[allow(unused_variables)]
+    fn add_platform_details(&self, volumes: &mut [VolumeStatus], now: i64) {
+        #[cfg(target_os = "macos")]
+        for v in volumes.iter_mut() {
+            let mount = PathBuf::from(&v.mount_point);
+            v.purgeable_bytes = crate::platform::macos::purgeable_bytes(&mount, v.free_bytes);
+            let mut cache = self.snapshots.lock().unwrap();
+            let fresh = cache.get(&v.mount_point).filter(|(t, _)| now - t < 600).map(|(_, c)| *c);
+            v.snapshot_count = match fresh {
+                Some(c) => c,
+                None => {
+                    let c = crate::platform::macos::local_snapshot_count(&mount, &self.runner);
+                    cache.insert(v.mount_point.clone(), (now, c));
+                    c
+                }
+            };
+        }
     }
 
     fn scan_state(&self) -> ScanState {
@@ -799,6 +824,30 @@ pub(crate) mod tests {
         assert!(core.get_status().unwrap().scan.last_finished_at.is_some());
     }
 
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn macos_reports_purgeable_and_snapshots_separately() {
+        // Uses the real home volume through CoreFoundation, and a fake tmutil.
+        let d = tempfile::tempdir().unwrap();
+        let tools = d.path().join(".fake-tools");
+        std::fs::create_dir_all(&tools).unwrap();
+        crate::runner::fake::tool(&tools, "tmutil", "echo 'Snapshots for disk /:'; echo com.apple.TimeMachine.2026-11-04-101010.local");
+        let (core, ..) = core_with(50, d.path());
+        let mut vols = vec![VolumeStatus {
+            id: "home".into(),
+            name: "Disk".into(),
+            mount_point: "/".into(),
+            free_bytes: 1,
+            total_bytes: 2,
+            status: DiskStatus::Healthy,
+            purgeable_bytes: None,
+            snapshot_count: None,
+        }];
+        core.add_platform_details(&mut vols, core.now());
+        assert!(vols[0].purgeable_bytes.is_some());
+        assert_eq!(vols[0].snapshot_count, Some(1));
+    }
+
     #[test]
     fn state_survives_webview_destruction() {
         // The core has no dependency on a webview: status, settings and
@@ -809,6 +858,8 @@ pub(crate) mod tests {
         let before = core.get_status().unwrap();
         let again = core.get_status().unwrap();
         assert_eq!(before.status, again.status);
-        assert_eq!(before.volumes, again.volumes);
+        // Purgeable space is read live from the OS and may move between calls.
+        let strip = |v: &[VolumeStatus]| v.iter().map(|v| (v.id.clone(), v.free_bytes, v.total_bytes, v.status)).collect::<Vec<_>>();
+        assert_eq!(strip(&before.volumes), strip(&again.volumes));
     }
 }

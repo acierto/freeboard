@@ -67,7 +67,11 @@ function removeForecast() {
 }
 
 function emptyGroups() {
-  document.getElementById("groups").innerHTML = '<p class="muted">No suggestions yet. Run a scan to look for space you can reclaim.</p>';
+  // Supplemental: empty-results sentence plus the prototype's own .actions /
+  // .btn components (Scan now, Scan folders now), reviewed 2026-11-04.
+  document.getElementById("groups").innerHTML =
+    '<p class="muted">No suggestions yet. Run a scan to look for space you can reclaim.</p>' +
+    '<div class="actions"><button class="btn primary">Scan now</button><button class="btn">Scan folders now</button></div>';
 }
 
 function emptyHistory() {
@@ -167,7 +171,7 @@ export const ENTRIES = [
   {
     id: "suggestions-empty", surface: "Suggestions", state: "Empty results", sizes: [DESKTOP, PHONE], query: "suggestions=empty",
     ref: [nav("suggestions"), ...uncheckSafe, evalRef(emptyGroups)], impl: [nav("suggestions")], supplemental: true,
-    note: "Group list replaced by the empty-results sentence; selection summary is the prototype's own 0-selected state.",
+    note: "Group list replaced by the empty-results sentence and Scan now / Scan folders now buttons built from the prototype's .actions and .btn; selection summary is the prototype's own 0-selected state.",
   },
   { id: "suggestions-windows", surface: "Suggestions", state: "Windows labels and paths", sizes: [DESKTOP, PHONE], query: "platform=windows", ref: [os("win"), nav("suggestions")], impl: [nav("suggestions")] },
   { id: "suggestions-linux", surface: "Suggestions", state: "Linux (no Docker Desktop note)", sizes: [DESKTOP, PHONE], query: "platform=linux", ref: [os("linux"), nav("suggestions")], impl: [nav("suggestions")] },

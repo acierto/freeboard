@@ -75,7 +75,7 @@ pub fn run_scan(ctx: &ScanContext, detectors: &[Box<dyn Detector>]) -> ScanOutco
                             return None;
                         }
                         (ctx.progress)("detector", Some(d.id()), 0);
-                        Some(run_one(d, ctx))
+                        Some(size::with_serial(|| run_one(d, ctx)))
                     })
                 })
                 .collect();

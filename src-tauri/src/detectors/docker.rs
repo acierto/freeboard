@@ -117,9 +117,21 @@ pub fn check_version(ctx: &ScanContext, det: &str) -> Result<(), DetectorError> 
 pub fn load(ctx: &ScanContext, det: &str) -> Result<Snapshot, DetectorError> {
     check_version(ctx, det)?;
     let mut snap = Snapshot::default();
+    // Independent read-only queries run concurrently; parsing below is unchanged.
+    let (ps_out, images_out, volumes_out, df_out, dfv_out) = std::thread::scope(|sc| {
+        let ps = sc.spawn(|| read(ctx, det, &["ps", "-a", "--no-trunc", "--format", "{{json .}}"]));
+        let im = sc.spawn(|| read(ctx, det, &["image", "ls", "--no-trunc", "--format", "{{json .}}"]));
+        let vo = sc.spawn(|| read(ctx, det, &["volume", "ls", "--format", "{{json .}}"]));
+        let df = sc.spawn(|| read(ctx, det, &["system", "df", "--format", "{{json .}}"]));
+        let dv = sc.spawn(|| read(ctx, det, &["system", "df", "-v", "--format", "{{json .}}"]));
+        let j = |h: std::thread::ScopedJoinHandle<'_, Result<String, DetectorError>>| {
+            h.join().unwrap_or_else(|_| Err(err(det, "error", "A Docker query stopped unexpectedly.")))
+        };
+        (j(ps), j(im), j(vo), j(df), j(dv))
+    });
 
     // Containers, including stopped ones.
-    let ids: Vec<String> = json_lines(det, &read(ctx, det, &["ps", "-a", "--no-trunc", "--format", "{{json .}}"])?)?
+    let ids: Vec<String> = json_lines(det, &ps_out?)?
         .iter()
         .map(|v| s(v, "ID"))
         .filter(|i| !i.is_empty())
@@ -159,7 +171,7 @@ pub fn load(ctx: &ScanContext, det: &str) -> Result<Snapshot, DetectorError> {
     }
 
     // Top-level images.
-    let img_ids: Vec<String> = json_lines(det, &read(ctx, det, &["image", "ls", "--no-trunc", "--format", "{{json .}}"])?)?
+    let img_ids: Vec<String> = json_lines(det, &images_out?)?
         .iter()
         .map(|v| s(v, "ID"))
         .filter(|i| !i.is_empty())
@@ -188,21 +200,21 @@ pub fn load(ctx: &ScanContext, det: &str) -> Result<Snapshot, DetectorError> {
     }
 
     // Volumes.
-    snap.volumes = json_lines(det, &read(ctx, det, &["volume", "ls", "--format", "{{json .}}"])?)?
+    snap.volumes = json_lines(det, &volumes_out?)?
         .iter()
         .map(|v| s(v, "Name"))
         .filter(|n| !n.is_empty())
         .collect();
 
     // Sizes: build cache and per-volume usage (estimates from `docker system df`).
-    if let Ok(out) = read(ctx, det, &["system", "df", "--format", "{{json .}}"]) {
+    if let Ok(out) = df_out {
         for row in json_lines(det, &out).unwrap_or_default() {
             if s(&row, "Type") == "Build Cache" {
                 snap.build_cache_reclaimable = parse_human(&s(&row, "Reclaimable"));
             }
         }
     }
-    if let Ok(out) = read(ctx, det, &["system", "df", "-v", "--format", "{{json .}}"]) {
+    if let Ok(out) = dfv_out {
         if let Ok(v) = serde_json::from_str::<Value>(out.trim()) {
             for vol in v.get("Volumes").and_then(|x| x.as_array()).cloned().unwrap_or_default() {
                 if let Some(sz) = parse_human(&s(&vol, "Size")) {
@@ -223,22 +235,22 @@ fn cache() -> &'static Slot {
     C.get_or_init(|| Mutex::new(None))
 }
 
-/// One snapshot per scan, shared by the five Docker detectors.
+/// One snapshot per scan, shared by the five Docker detectors. The lock is
+/// held while loading so detectors running in parallel wait for the first
+/// load instead of each querying Docker again.
 fn shared(ctx: &ScanContext, det: &str) -> Result<Arc<Snapshot>, DetectorError> {
     let key = ctx.cancel as *const _ as usize;
-    {
-        let c = cache().lock().unwrap_or_else(|e| e.into_inner());
-        if let Some((k, now, r)) = c.as_ref() {
-            if *k == key && *now == ctx.now {
-                return r.clone().map_err(|mut e| {
-                    e.detector = det.into();
-                    e
-                });
-            }
+    let mut c = cache().lock().unwrap_or_else(|e| e.into_inner());
+    if let Some((k, now, r)) = c.as_ref() {
+        if *k == key && *now == ctx.now {
+            return r.clone().map_err(|mut e| {
+                e.detector = det.into();
+                e
+            });
         }
     }
     let r = load(ctx, det).map(Arc::new);
-    *cache().lock().unwrap_or_else(|e| e.into_inner()) = Some((key, ctx.now, r.clone()));
+    *c = Some((key, ctx.now, r.clone()));
     r
 }
 

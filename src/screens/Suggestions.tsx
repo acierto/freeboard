@@ -95,7 +95,32 @@ export function Suggestions({ model, filter, setFilter }: { model: AppModel; fil
             </div>
           ))
         ) : model.suggestions.length === 0 ? (
-          <p className="muted">No suggestions yet. Run a scan to look for space you can reclaim.</p>
+          <>
+            <p className="muted">
+              {model.scanning
+                ? "Scanning. Suggestions appear here when the scan finishes."
+                : "No suggestions yet. Run a scan to look for space you can reclaim."}
+            </p>
+            {model.settings.scanFolders.length === 0 && (
+              <p className="muted" id="no-folders-note">
+                No folders are chosen yet, so projects, worktrees and old installers are not scanned. Choose them in Settings.
+              </p>
+            )}
+            <div className="actions">
+              <button className="btn primary" data-action="scan-empty" disabled={model.scanning} onClick={() => model.scan("quick")}>
+                Scan now
+              </button>
+              {model.settings.scanFolders.length === 0 ? (
+                <button className="btn" data-action="choose-folders" onClick={() => model.show("settings")}>
+                  Choose folders
+                </button>
+              ) : (
+                <button className="btn" data-action="scan-folders-empty" disabled={model.scanning} onClick={() => model.scan("deep")}>
+                  Scan folders now
+                </button>
+              )}
+            </div>
+          </>
         ) : (
           <p className="muted">No suggestions at this risk level.</p>
         )}

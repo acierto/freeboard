@@ -87,7 +87,7 @@ impl Confirmed {
     }
 }
 
-const PROGRAMS: &[&str] = &["docker", "git", "pnpm", "pip", "pip3", "brew", "xcrun", "npm", "lsof", "ps"];
+const PROGRAMS: &[&str] = &["docker", "git", "pnpm", "pip", "pip3", "brew", "xcrun", "npm", "lsof", "ps", "tmutil"];
 
 fn is_force_flag(a: &str) -> bool {
     if a == "--force" || a.starts_with("--force=") || a == "-f" {
@@ -176,6 +176,7 @@ fn read_only_allowed(cmd: &Cmd) -> bool {
         "brew" => starts(&a, &["--cache"]) || starts(&a, &["--version"]) || (starts(&a, &["cleanup"]) && (has_dry_run(&a))),
         "xcrun" => starts(&a, &["simctl", "list"]),
         "npm" => starts(&a, &["config", "get", "cache"]) || starts(&a, &["--version"]),
+        "tmutil" => a.len() == 2 && a[0] == "listlocalsnapshots",
         "lsof" => true,
         "ps" => true,
         _ => false,
@@ -462,6 +463,10 @@ mod tests {
         assert!(check(&c("brew", &["cleanup", "--dry-run"]), Policy::ReadOnly, None).is_ok());
         assert!(check(&c("docker", &["system", "df", "--format", "{{json .}}"]), Policy::ReadOnly, None).is_ok());
         assert!(check(&c("git", &["-C", "/r", "worktree", "list", "--porcelain"]), Policy::ReadOnly, None).is_ok());
+        assert!(check(&c("tmutil", &["listlocalsnapshots", "/"]), Policy::ReadOnly, None).is_ok());
+        assert!(check(&c("tmutil", &["deletelocalsnapshots", "/"]), Policy::ReadOnly, None).is_err());
+        assert!(check(&c("tmutil", &["thinlocalsnapshots", "/"]), Policy::ReadOnly, None).is_err());
+        assert!(check(&c("tmutil", &["deletelocalsnapshots", "/"]), Policy::Action, Some(&Confirmed::new("p"))).is_err());
     }
 
     #[test]

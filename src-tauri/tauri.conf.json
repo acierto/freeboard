@@ -45,9 +45,7 @@
       "app",
       "dmg",
       "deb",
-      "appimage",
-      "nsis",
-      "msi"
+      "appimage"
     ],
     "icon": [
       "icons/32x32.png",
@@ -59,7 +57,21 @@
     "category": "Utility",
     "shortDescription": "Disk space warnings and safe cleanup for developers",
     "copyright": "Copyright (c) 2026 Bogdan Nechyporenko. MIT License.",
-    "licenseFile": "../LICENSE"
+    "licenseFile": "../LICENSE",
+    "macOS": {
+      "signingIdentity": "-",
+      "hardenedRuntime": true,
+      "minimumSystemVersion": "11.0",
+      "entitlements": null
+    },
+    "linux": {
+      "deb": {
+        "depends": []
+      },
+      "appimage": {
+        "bundleMediaFramework": false
+      }
+    }
   },
   "plugins": {}
 }

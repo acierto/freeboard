@@ -491,6 +491,8 @@ impl CleanupEngine {
                         Err(e) => return (ItemState::Failed, Some(format!("Refused: {e}."))),
                     };
                     let bytes = measure(&checked.canonical, &MeasureOpts::default()).reclaimable();
+                    // Taken before the move; a rename into the Trash keeps it.
+                    let identity = trash::trash_identity(&checked.canonical);
                     if let Err(e) = self.trash.trash(&self.guard, &checked) {
                         let note = if moved > 0 { format!(" {moved} of {} items were already moved.", paths.len()) } else { String::new() };
                         return (
@@ -508,7 +510,7 @@ impl CleanupEngine {
                         original_path: checked.canonical.to_string_lossy().to_string(),
                         trashed_at: now_secs(),
                         bytes,
-                        identity: checked.id.map(|i| i.encode()),
+                        identity,
                     };
                     if let Err(e) = persist::insert_trash(&self.store.conn(), &rec) {
                         tracing::error!("could not record Trash item: {e}");

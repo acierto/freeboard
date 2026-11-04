@@ -10,3 +10,6 @@ test-results/
 .DS_Store
 dist-visual/
 visual/reference-live/
+linux-evidence/*.AppImage
+linux-evidence/*.deb
+linux-evidence/*.log

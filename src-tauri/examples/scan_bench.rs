@@ -21,6 +21,15 @@ fn main() {
     match args.first().map(|s| s.as_str()) {
         Some("make-fixture") => make_fixture(&args[1], args[2].parse().unwrap()),
         Some("quick") => bench(ScanKind::Quick, Settings::default()),
+        Some("each") => {
+            for d in default_detectors() {
+                if d.deep_only() { continue; }
+                let id = d.id();
+                let t = Instant::now();
+                run_one(vec![d]);
+                eprintln!("{:7.2}s {id}", t.elapsed().as_secs_f64());
+            }
+        }
         Some("deep") => {
             let mut s = Settings::default();
             s.scan_folders = vec![std::fs::canonicalize(&args[1]).unwrap().to_string_lossy().into_owned()];
@@ -29,6 +38,25 @@ fn main() {
         }
         _ => eprintln!("usage: scan_bench quick | deep <dir> | make-fixture <dir> <files>"),
     }
+}
+
+fn run_one(ds: Vec<Box<dyn freeboard_lib::scan::Detector>>) {
+    let runner = Runner::default();
+    let cancel = AtomicBool::new(false);
+    let pause = || false;
+    let progress = |_: &str, _: Option<&str>, _: u64| {};
+    let ctx = ScanContext {
+        runner: &runner,
+        home: freeboard_lib::monitor::home_or_root(),
+        settings: Settings::default(),
+        now: chrono::Utc::now().timestamp(),
+        kind: ScanKind::Quick,
+        cancel: &cancel,
+        should_pause: &pause,
+        progress: &progress,
+        platform: freeboard_lib::platform::platform_name(),
+    };
+    run_scan(&ctx, &ds);
 }
 
 fn bench(kind: ScanKind, settings: Settings) {
@@ -63,6 +91,16 @@ fn bench(kind: ScanKind, settings: Settings) {
         out.findings.len(),
         out.errors.len()
     );
+    let mut by: std::collections::BTreeMap<&str, (usize, u64, std::collections::BTreeMap<&str, usize>)> = Default::default();
+    for f in &out.findings {
+        let e = by.entry(f.suggestion.detector.as_str()).or_default();
+        e.0 += 1;
+        e.1 += f.suggestion.size_bytes;
+        *e.2.entry(f.suggestion.risk.as_str()).or_default() += 1;
+    }
+    for (d, (n, b, r)) in &by {
+        eprintln!("  {d:28} {n:4} items {:8.1} GB  {r:?}", *b as f64 / 1e9);
+    }
     for e in &out.errors {
         eprintln!("  {}: {} ({})", e.detector, e.kind, e.message);
     }

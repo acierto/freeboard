@@ -20,8 +20,8 @@
   "locale": "en-US",
   "timezone": "UTC",
   "adapter": "scripts/visual/lib.mjs referenceHtml(): local fonts, data-theme, prototype chrome (.proto, .menubar, #notice) hidden",
-  "acceptedAt": "2026-11-04T18:21:58.189Z",
-  "rationale": "Initial reference-derived baselines captured from the supplied prototype; supplemental states are derived from its own components as documented per entry in the manifest.",
+  "acceptedAt": "2026-11-04T20:13:54.904Z",
+  "rationale": "Suggestions empty state (supplemental) gains Scan now and Scan folders now buttons built from the prototype's .actions/.btn components, after a user found the empty screen had no way to start a scan (2026-11-04).",
   "entries": {
     "focus-nav--dark--1120x900": {
       "id": "focus-nav",
@@ -2672,8 +2672,8 @@
       "crop": ".app",
       "fixture": "suggestions=empty",
       "supplemental": true,
-      "note": "Group list replaced by the empty-results sentence; selection summary is the prototype's own 0-selected state.",
-      "sha256": "6ad71499ea8e9729de798c45400fb3a54005896da84c40c14616d5bdb550e60e"
+      "note": "Group list replaced by the empty-results sentence and Scan now / Scan folders now buttons built from the prototype's .actions and .btn; selection summary is the prototype's own 0-selected state.",
+      "sha256": "ec17d2f4e5796a23ce9cddafbd6742685f33546d5728b16110ef647c7d0476c6"
     },
     "suggestions-empty--dark--390x844": {
       "id": "suggestions-empty",
@@ -2689,8 +2689,8 @@
       "crop": ".app",
       "fixture": "suggestions=empty",
       "supplemental": true,
-      "note": "Group list replaced by the empty-results sentence; selection summary is the prototype's own 0-selected state.",
-      "sha256": "f4e87679bf97c3cddaf8d74855ede737bd1c6b44bd1d5a1fa51293f414cc6f6d"
+      "note": "Group list replaced by the empty-results sentence and Scan now / Scan folders now buttons built from the prototype's .actions and .btn; selection summary is the prototype's own 0-selected state.",
+      "sha256": "2a24be249cb9a86ee28f8216f9869fbdbdcd337e33ab82f98226a926a7373d35"
     },
     "suggestions-empty--light--1120x900": {
       "id": "suggestions-empty",
@@ -2706,8 +2706,8 @@
       "crop": ".app",
       "fixture": "suggestions=empty",
       "supplemental": true,
-      "note": "Group list replaced by the empty-results sentence; selection summary is the prototype's own 0-selected state.",
-      "sha256": "a16cb3843a04c44d7a8482531b265f0005c02244438eed4cdc7cf9c538793fcd"
+      "note": "Group list replaced by the empty-results sentence and Scan now / Scan folders now buttons built from the prototype's .actions and .btn; selection summary is the prototype's own 0-selected state.",
+      "sha256": "d632c7e3554c108763241296651c0c4812f848f25f31215ee04c0d6c34ac6887"
     },
     "suggestions-empty--light--390x844": {
       "id": "suggestions-empty",
@@ -2723,8 +2723,8 @@
       "crop": ".app",
       "fixture": "suggestions=empty",
       "supplemental": true,
-      "note": "Group list replaced by the empty-results sentence; selection summary is the prototype's own 0-selected state.",
-      "sha256": "34e675f6d6b88ba1723aa16ac2c9b8e800ba07a85c91ebf98b7d6837ea680118"
+      "note": "Group list replaced by the empty-results sentence and Scan now / Scan folders now buttons built from the prototype's .actions and .btn; selection summary is the prototype's own 0-selected state.",
+      "sha256": "3f088228e1f2f80abca7926b38ec8801c86415b6067d20b9941e646ee27a08ff"
     },
     "suggestions-expanded--dark--1120x900": {
       "id": "suggestions-expanded",

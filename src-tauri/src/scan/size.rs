@@ -87,6 +87,19 @@ fn excluded(p: &Path, ex: &[PathBuf]) -> bool {
     ex.iter().any(|x| p.starts_with(x))
 }
 
+thread_local! {
+    static FORCE_SERIAL: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
+
+/// Run `f` with every `measure` on this thread walking serially. Quick scans
+/// already run detectors in parallel; nested walker pools would only compete.
+pub fn with_serial<T>(f: impl FnOnce() -> T) -> T {
+    FORCE_SERIAL.with(|c| c.set(true));
+    let r = f();
+    FORCE_SERIAL.with(|c| c.set(false));
+    r
+}
+
 pub fn measure(path: &Path, opts: &MeasureOpts) -> Measured {
     let meta = match std::fs::symlink_metadata(path) {
         Ok(m) => m,
@@ -105,7 +118,7 @@ pub fn measure(path: &Path, opts: &MeasureOpts) -> Measured {
         return acc.finish();
     }
     let ex = Arc::new(opts.exclusions.clone());
-    let par = if opts.serial {
+    let par = if opts.serial || FORCE_SERIAL.with(|c| c.get()) {
         jwalk::Parallelism::Serial
     } else {
         let n = std::thread::available_parallelism().map(|n| n.get()).unwrap_or(2).clamp(2, 8);

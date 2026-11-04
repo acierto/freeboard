@@ -7,6 +7,8 @@ use std::path::{Path, PathBuf};
 mod unix;
 #[cfg(windows)]
 mod windows;
+#[cfg(target_os = "macos")]
+pub mod macos;
 
 #[cfg(unix)]
 pub use unix::*;

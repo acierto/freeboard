@@ -51,16 +51,35 @@ impl TrashBackend for NativeTrash {
     }
 }
 
+/// Identity of an item moved to the Trash: device and inode (or volume and
+/// file ID), plus its kind, modification time to the nanosecond and, for
+/// files, its length. A move to the Trash is a rename, which keeps all of
+/// these. Inode numbers alone are not enough: Linux reuses them immediately,
+/// so an unrelated item created after the original was deleted could carry
+/// the same device and inode.
+pub fn trash_identity(path: &Path) -> Option<String> {
+    let m = std::fs::symlink_metadata(path).ok()?;
+    let id = platform::file_id(path, &m)?;
+    let kind = if platform::is_link_meta(path, &m) {
+        "l"
+    } else if m.is_dir() {
+        "d"
+    } else {
+        "f"
+    };
+    let mtime = m.modified().ok()?.duration_since(std::time::UNIX_EPOCH).ok()?;
+    let len = if kind == "f" { m.len() } else { 0 };
+    Some(format!("{}:{kind}:{}.{:09}:{len}", id.encode(), mtime.as_secs(), mtime.subsec_nanos()))
+}
+
 /// Find the top-level entry in `dirs` whose file identity matches.
 pub fn find_by_identity(dirs: &[PathBuf], identity: &str) -> Option<PathBuf> {
     for d in dirs {
         let Ok(rd) = std::fs::read_dir(d) else { continue };
         for e in rd.flatten() {
             let p = e.path();
-            if let Ok(m) = std::fs::symlink_metadata(&p) {
-                if platform::file_id(&p, &m).map(|i| i.encode()).as_deref() == Some(identity) {
-                    return Some(p);
-                }
+            if trash_identity(&p).as_deref() == Some(identity) {
+                return Some(p);
             }
         }
     }
@@ -112,10 +131,7 @@ fn purge_native(guard: &Guard, rec: &TrashRecord) -> Result<PurgeOutcome, String
             let info = PathBuf::from(&it.id);
             let files = info.parent().and_then(|p| p.parent()).map(|t| t.join("files").join(&it.name));
             let matches = match (files, rec.identity.as_deref()) {
-                (Some(f), Some(id)) => std::fs::symlink_metadata(&f)
-                    .ok()
-                    .and_then(|m| platform::file_id(&f, &m))
-                    .is_some_and(|fid| fid.encode() == id),
+                (Some(f), Some(id)) => trash_identity(&f).as_deref() == Some(id),
                 _ => false,
             };
             if !matches {
@@ -173,5 +189,39 @@ impl TrashBackend for DirTrash {
             }
             None => Ok(PurgeOutcome::Gone),
         }
+    }
+}
+
+#[cfg(test)]
+mod identity_tests {
+    use super::trash_identity;
+
+    #[test]
+    fn rename_keeps_identity() {
+        let d = tempfile::tempdir().unwrap();
+        let a = d.path().join("a");
+        std::fs::create_dir(&a).unwrap();
+        std::fs::write(a.join("x"), b"x").unwrap();
+        let before = trash_identity(&a).unwrap();
+        let b = d.path().join("trash-b");
+        std::fs::rename(&a, &b).unwrap();
+        assert_eq!(trash_identity(&b).unwrap(), before);
+    }
+
+    #[test]
+    fn same_inode_with_different_content_is_a_different_item() {
+        // Simulates inode reuse: the device and inode stay equal, but the
+        // modification time (and here also the length) differ.
+        let d = tempfile::tempdir().unwrap();
+        let p = d.path().join("f");
+        std::fs::write(&p, b"original").unwrap();
+        let f = std::fs::File::options().write(true).open(&p).unwrap();
+        f.set_modified(std::time::UNIX_EPOCH + std::time::Duration::from_secs(1_700_000_000)).unwrap();
+        let original = trash_identity(&p).unwrap();
+        f.set_modified(std::time::UNIX_EPOCH + std::time::Duration::from_secs(1_700_000_001)).unwrap();
+        assert_ne!(trash_identity(&p).unwrap(), original, "mtime is part of the identity");
+        std::fs::write(&p, b"a different item").unwrap();
+        f.set_modified(std::time::UNIX_EPOCH + std::time::Duration::from_secs(1_700_000_000)).unwrap();
+        assert_ne!(trash_identity(&p).unwrap(), original, "length is part of the identity");
     }
 }
