@@ -1,0 +1,139 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  CI: "true"
+
+jobs:
+  core:
+    name: core tests (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-22.04, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+      - name: Configure git for fixture repositories
+        run: |
+          git config --global user.name "Freeboard CI"
+          git config --global user.email "ci@freeboard.invalid"
+          git config --global init.defaultBranch main
+      - name: Core library tests (fixtures and fake tools only)
+        working-directory: src-tauri
+        run: cargo test --no-default-features --locked
+      - name: Safety traceability report
+        shell: bash
+        run: |
+          if [ -f scripts/safety-traceability.mjs ]; then node scripts/safety-traceability.mjs --check; fi
+
+  desktop:
+    name: desktop build (${{ matrix.os }})
+    needs: core
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            bundles: app,dmg
+          - os: ubuntu-22.04
+            bundles: deb,appimage
+          - os: windows-latest
+            bundles: nsis,msi
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+      - name: Linux system dependencies (WebKitGTK, appindicator)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf
+      - run: npm ci
+      - name: Frontend type check and build
+        run: |
+          npx tsc --noEmit
+          npm run build
+      - name: Shell tests (desktop feature)
+        working-directory: src-tauri
+        run: cargo test --locked
+      - name: Unsigned installers
+        run: npx tauri build --bundles ${{ matrix.bundles }}
+      - name: Installer size report
+        shell: bash
+        run: node scripts/perf/installer-size.mjs >> "$GITHUB_STEP_SUMMARY" || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installers-${{ matrix.os }}
+          path: |
+            src-tauri/target/release/bundle/**/*.dmg
+            src-tauri/target/release/bundle/**/*.deb
+            src-tauri/target/release/bundle/**/*.AppImage
+            src-tauri/target/release/bundle/**/*.exe
+            src-tauri/target/release/bundle/**/*.msi
+          retention-days: 14
+          if-no-files-found: error
+
+  visual:
+    name: visual verification (browser)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Compare implementation screenshots with the prototype baselines
+        run: npm run verify:visual
+      - name: Visual tool self-test (must detect deliberate mismatches)
+        run: npm run verify:visual:selftest
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: visual-report
+          path: |
+            visual/report/
+            visual/actual/
+            visual/diff/
+            visual/baseline/
+          retention-days: 90
+          if-no-files-found: error
+
+  gate:
+    name: milestone gate
+    needs: [core, desktop, visual]
+    if: always()
+    runs-on: ubuntu-22.04
+    steps:
+      - name: All platform builds, tests and visual evidence must pass
+        run: |
+          echo "core=${{ needs.core.result }} desktop=${{ needs.desktop.result }} visual=${{ needs.visual.result }}"
+          test "${{ needs.core.result }}" = success
+          test "${{ needs.desktop.result }}" = success
+          test "${{ needs.visual.result }}" = success

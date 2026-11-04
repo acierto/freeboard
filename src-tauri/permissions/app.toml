@@ -1,0 +1,23 @@
+[[permission]]
+identifier = "allow-app-commands"
+description = "Freeboard's own typed commands. Inputs are IDs, enums and numbers only."
+commands.allow = [
+  "get_status",
+  "start_scan",
+  "get_suggestions",
+  "create_plan",
+  "create_permanent_plan",
+  "get_plan",
+  "acknowledge_item",
+  "run_plan",
+  "cancel_run",
+  "get_run",
+  "get_trash",
+  "empty_freeboard_trash",
+  "list_history",
+  "get_settings",
+  "update_settings",
+  "add_folder",
+  "remove_folder",
+  "set_notifications_paused"
+]

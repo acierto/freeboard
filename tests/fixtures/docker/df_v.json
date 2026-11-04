@@ -1,0 +1,1 @@
+{"Images":[],"Containers":[],"Volumes":[{"Name":"web_data","Links":1,"Size":"1.2GB"},{"Name":"cache_vol","Links":1,"Size":"700MB"},{"Name":"billing_pgdata","Links":0,"Size":"7.6GB"}],"BuildCache":[]}

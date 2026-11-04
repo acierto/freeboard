@@ -1,0 +1,14 @@
+/* Supplemental rules for states the prototype does not contain (failure,
+   cancellation, onboarding, run details, folder controls). These rules only
+   introduce new class names and never override a prototype selector. The
+   visual verifier injects this file into the reference for entries marked
+   "supplemental" in visual/baseline/manifest.json. */
+.result.fail { color: var(--crit); }
+.folder-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.folder-row > span { min-width: 0; overflow-wrap: anywhere; }
+.chip.small { padding: 0 8px; font-size: 12px; font-family: var(--body); }
+.set .actions { margin-top: 4px; }
+.notes { display: flex; flex-direction: column; gap: 4px; }
+.steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; }
+tr.link { cursor: pointer; }
+tr.link:hover td:first-child { color: var(--accent); }

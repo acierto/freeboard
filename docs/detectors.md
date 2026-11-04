@@ -1,0 +1,103 @@
+# Detectors
+
+Source: `docs/reference/FREEBOARD_SPEC.md`, "Scans and detectors". Code:
+`src-tauri/src/detectors/`, `src-tauri/src/scan/`.
+
+Each source detector ID is one `Detector` (`Detector::id()` equals the
+`detector` field of its suggestions). Detectors only read: they receive a
+runner that enforces the read-only command policy and no mutation API. One
+detector failing never stops the others; its error is reported with a kind
+(`unavailable`, `timeout`, `permission`, `malformed`, `error`).
+
+## Scan kinds
+
+| Kind | Detectors | Notes |
+| --- | --- | --- |
+| Quick | docker.\*, cache.\*, files.\* | Tool reports and known cache locations. |
+| Deep | all, plus git.worktrees, project.dependencies, project.build_output | One discovery walk of the configured scan folders per scan, shared by the deep detectors. |
+
+Discovery (`scan/walk.rs`) reads directory entries only. It never follows
+symlinks, junctions or reparse points, never descends into `.git` or
+generated folders (`node_modules`, `target`, `.venv`, `dist`, `build`,
+`.next`), skips exclusions and WSL paths, pauses while on battery (deep scans,
+default setting) and stops on cancel. Deep scans lower the scanning thread's
+priority (`platform::lower_thread_priority`); callers run scans on a dedicated
+thread.
+
+Size (`scan/size.rs`) is allocated size (`st_blocks`, `GetCompressedFileSizeW`),
+each hard-linked file counted once by device/inode or volume/file ID. A file
+whose hard links are not all inside the measured tree is "shared" and not
+counted as reclaimable; this is how pnpm-linked `node_modules` and pnpm's
+store report only space removal would free. Shared or unreadable data marks
+the size as an estimate (the interface shows "about").
+
+## Detector summary
+
+| Detector | Finds | Risk | Action | Platforms | Tests |
+| --- | --- | --- | --- | --- | --- |
+| `docker.build_cache` | Reclaimable build cache from `docker system df` | Safe | `docker builder prune --force --filter until=<scan age>` | All | `tests::docker::classifies_fixture_state`, `build_cache_growth_is_detected` |
+| `docker.dangling_images` | Untagged images no container (running or stopped) uses | Safe | `docker image rm <exact IDs>` | All | `classifies_fixture_state`, `cleanup::tests::aggregate_commands_stay_within_the_plan` |
+| `docker.unused_images` | Tagged images no container uses | Review | `docker image rm <tags>` | All | `classifies_fixture_state`, `probe_detects_container_using_image_and_volume` |
+| `docker.stopped_containers` | Containers stopped 14+ days | Review | `docker container rm <ids>` | All | `classifies_fixture_state` |
+| `docker.volumes` | Volumes no container mounts | Risky, individual acknowledgment | `docker volume rm <name>` | All | `inv10_volumes_never_preselected_and_need_ack` |
+| `git.worktrees` | Linked worktrees | Review or Risky; removal disabled | `git worktree remove <path>` (not run, see cleanup.md) | All | `tests::git::worktree_state_matrix` |
+| `project.dependencies` | `node_modules`, `.venv` | Safe / Review | Delete / Trash | All | `tests::projects::ownership_evidence_table` |
+| `project.build_output` | `target`, `dist`, `build`, `.next` | Safe | Delete | All | `ownership_evidence_table` |
+| `cache.pnpm` | Store files no project links to | Safe | `pnpm store prune` | All | `tests::caches::pnpm_reports_only_unreferenced_packages` |
+| `cache.pip` | pip download cache | Safe | `pip3 cache purge` (or `pip`) | All | `pip_cache_and_missing_tool`, `pip_timeout_reports_timeout` |
+| `cache.npm` | `_cacache` | Safe | Delete the folder (never `npm cache clean`) | All | `npm_cache_is_deleted_as_a_folder_never_with_force` |
+| `cache.homebrew` | What `brew cleanup` would remove | Safe | `brew cleanup` | macOS, Linux | `homebrew_dry_run_and_growth`, `homebrew_excluded_on_windows` |
+| `cache.cargo` | `registry/cache`, `registry/src`, `git/db`, `git/checkouts` | Review | Trash | All | `cargo_and_gradle_are_review_trash` |
+| `cache.gradle` | `~/.gradle/caches` | Review; blocked while a daemon runs or when unknown | Trash | All | `gradle_blocked_while_daemon_runs_or_unknown`, `gradle_probe_rechecks_daemon` |
+| `cache.xcode` | DerivedData | Safe | Delete | macOS | `xcode_and_simulators_are_macos_only` |
+| `cache.simulators` | Unavailable simulators | Review | `xcrun simctl delete <exact UDIDs>` | macOS | `xcode_and_simulators_are_macos_only` |
+| `files.installers` | `.dmg .pkg .exe .msi .AppImage .deb .rpm .iso` in Downloads not opened or modified for 90 days | Review | Trash | All | `tests::files::downloads_only_old_installers` |
+| `files.windows_temp` | `%TEMP%` entries unchanged for 14 days | Review | Recycle Bin | Windows | `windows_temp_old_entries_go_to_recycle_bin` |
+
+Failure modes per detector (missing tool, timeout, malformed output, daemon
+down, permission) are covered by `missing_docker_is_unavailable`,
+`daemon_down_marks_all_docker_detectors_unavailable_and_others_continue`,
+`inv11_timeout_is_unavailable_not_safe`, `malformed_json_is_reported`,
+`git_missing_is_unavailable`, `pip_timeout_reports_timeout`,
+`xcode_and_simulators_are_macos_only` (malformed simctl output) and
+`tests::scan::one_failing_detector_does_not_stop_others`.
+
+## CLI formats relied on
+
+Validated on 2026-11-04 against the installed tools on macOS (arm64) with
+read-only commands only.
+
+| Tool | Version checked | Commands and format |
+| --- | --- | --- |
+| Docker CLI | 29.8.2 | `docker version --format '{{json .}}'` (`Server` is `null` when the daemon is down; captured live). `ps -a --no-trunc`, `image ls --no-trunc`, `volume ls` and `system df` with `--format '{{json .}}'` (one JSON object per line); `container inspect --size` and `image inspect` (JSON arrays: `Id`, `Image`, `State.Status/Running/FinishedAt`, `Mounts[].Type/Name`, `SizeRw`, `RepoTags`, `Created`, `Size`); `system df -v --format '{{json .}}'` (`Volumes[].Name/Size`). The daemon was not running during development, so the list/inspect shapes are taken from the Docker CLI's documented JSON templates and kept as fixtures in `tests/fixtures/docker/`. Validate them against a running daemon before release. |
+| Git | 2.38.1 | `worktree list --porcelain`, `status --porcelain=v2 --branch --untracked-files=normal`, `rev-parse --absolute-git-dir`, `rev-parse --path-format=absolute --git-common-dir`, `merge-base --is-ancestor`, `symbolic-ref --short refs/remotes/origin/HEAD`, `check-ignore -q`, `log -1 --format=%ct`. Exercised against real temporary repositories in tests. |
+| Homebrew | installed | `brew cleanup --dry-run`: lines `Would remove: <path> (<details>, <size>)` and `==> This operation would free approximately <size> of disk space.` (captured live). |
+| xcrun simctl | Xcode installed | `simctl list devices unavailable --json` (`devices.<runtime>[].udid/isAvailable/dataPath/dataPathSize/logPathSize`; captured live, fixture in `tests/fixtures/simctl/`). |
+| pnpm | installed | `pnpm store path` prints the absolute store path. |
+| pip | installed | `pip3 cache dir` prints the absolute cache path. |
+| npm | installed | `npm config get cache` prints the cache root; `_cacache` lives inside it. |
+| ps / lsof | macOS | `ps -A -o args=` (Gradle daemon check); `lsof -a -d cwd -Fp +D <dir>` (processes in a folder; exit 1 means none). Linux reads `/proc/*/cwd`. |
+
+## Limitations
+
+- Docker sizes are Docker's own estimates (shared layers make per-image
+  sizes overlap); they are shown with "about". Docker Desktop may keep freed
+  space in its virtual disk, so cleanup reports the measured change.
+- Volume "last used" is not recorded by Docker; it is shown as unknown.
+- Process detection is unavailable on Windows (`processes_in_dir` returns
+  unknown). Projects there are raised from Safe to Review (moved to the
+  Recycle Bin instead of deleted) and worktrees are Risky. Gradle caches are
+  blocked on Windows because the daemon check is unavailable.
+- Project inactivity reads source file modification times, skipping
+  generated folders and `.git`. Projects with more than 200,000 source
+  entries are treated as unknown and not suggested.
+- `dist`, `build` and `.next` need Git ignore evidence; folders outside a Git
+  repository are not suggested.
+- Installer age uses the newest of modification and access time. Volumes
+  mounted with `noatime` can make a recently opened installer look old;
+  Spotlight's "last opened" date is not read.
+- `%TEMP%` entries are grouped into one item; open-file detection is not
+  available, so items are Review and go to the Recycle Bin.
+- Linked worktrees found through a `.git` file are resolved to their main
+  repository; worktrees under exclusions or WSL paths are skipped.
+- The quick and deep scan performance targets have not been measured yet.

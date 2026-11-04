@@ -1,0 +1,5 @@
+[
+  {"Id":"c1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","Created":"2026-10-01T10:00:00.000000000Z","Name":"/web","Image":"sha256:aaa1","State":{"Status":"running","Running":true,"StartedAt":"2026-11-01T00:00:00Z","FinishedAt":"0001-01-01T00:00:00Z"},"Mounts":[{"Type":"volume","Name":"web_data","Destination":"/data"}],"SizeRw":1000},
+  {"Id":"c2bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","Created":"2026-08-01T10:00:00.000000000Z","Name":"/old-cache","Image":"sha256:bbb2","State":{"Status":"exited","Running":false,"FinishedAt":"2026-09-01T10:00:00.123456789Z"},"Mounts":[{"Type":"volume","Name":"cache_vol","Destination":"/data"},{"Type":"bind","Source":"/tmp","Destination":"/tmp"}],"SizeRw":1100000000},
+  {"Id":"c3ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc","Created":"2026-10-30T10:00:00Z","Name":"/recent","Image":"sha256:dd3","State":{"Status":"exited","Running":false,"FinishedAt":"2026-11-01T10:00:00Z"},"Mounts":[],"SizeRw":5000}
+]

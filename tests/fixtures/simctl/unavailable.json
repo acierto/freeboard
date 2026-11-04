@@ -1,0 +1,32 @@
+{
+  "devices" : {
+    "com.apple.CoreSimulator.SimRuntime.iOS-27-0" : [
+
+    ],
+    "com.apple.CoreSimulator.SimRuntime.iOS-16-4" : [
+      {
+        "availabilityError" : "runtime profile not found using “System” match policy",
+        "dataPath" : "\/Users\/you\/Library\/Developer\/CoreSimulator\/Devices\/39BFA0C4-7702-4604-87BC-3902239F270A\/data",
+        "dataPathSize" : 323502080,
+        "logPath" : "\/Users\/you\/Library\/Logs\/CoreSimulator\/39BFA0C4-7702-4604-87BC-3902239F270A",
+        "udid" : "39BFA0C4-7702-4604-87BC-3902239F270A",
+        "lastUsedAt" : "2025-01-24T20:12:59Z",
+        "isAvailable" : false,
+        "logPathSize" : 45056,
+        "deviceTypeIdentifier" : "com.apple.CoreSimulator.SimDeviceType.iPhone-14-Pro",
+        "state" : "Shutdown",
+        "name" : "iPhone 14 Pro"
+      },
+      {
+        "availabilityError" : "runtime profile not found using “System” match policy",
+        "dataPath" : "\/Users\/you\/Library\/Developer\/CoreSimulator\/Devices\/1F38C5F6-0213-4A6B-999E-5A03A5831FA2\/data",
+        "dataPathSize" : 13316096,
+        "udid" : "1F38C5F6-0213-4A6B-999E-5A03A5831FA2",
+        "isAvailable" : false,
+        "deviceTypeIdentifier" : "com.apple.CoreSimulator.SimDeviceType.iPhone-14-Pro-Max",
+        "state" : "Shutdown",
+        "name" : "iPhone 14 Pro Max"
+      }
+    ]
+  }
+}

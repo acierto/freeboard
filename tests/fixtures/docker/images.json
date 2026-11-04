@@ -1,0 +1,8 @@
+[
+  {"Id":"sha256:aaa1","RepoTags":["web:latest"],"Created":"2026-09-01T00:00:00Z","Size":200000000},
+  {"Id":"sha256:bbb2","RepoTags":["redis:7"],"Created":"2026-07-01T00:00:00Z","Size":120000000},
+  {"Id":"sha256:ccc3","RepoTags":["postgres:14"],"Created":"2026-08-25T00:00:00Z","Size":3400000000},
+  {"Id":"sha256:dd1","RepoTags":[],"Created":"2026-09-10T00:00:00Z","Size":4000000000},
+  {"Id":"sha256:dd2","RepoTags":["<none>:<none>"],"Created":"2026-09-12T00:00:00Z","Size":2200000000},
+  {"Id":"sha256:dd3","RepoTags":[],"Created":"2026-10-29T00:00:00Z","Size":1000000000}
+]

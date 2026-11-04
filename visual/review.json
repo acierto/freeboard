@@ -1,0 +1,245 @@
+{
+  "note": "Dispositions per matrix entry id. Re-review any entry whose result or baseline changes.",
+  "reviews": {
+    "overview-healthy": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted",
+      "notes": "Pixel-identical to the supplied prototype in pinned Chromium; hull gauge, typography, colours and layout checked by eye."
+    },
+    "overview-low": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted",
+      "notes": "Pixel-identical to the supplied prototype in pinned Chromium; hull gauge, typography, colours and layout checked by eye."
+    },
+    "overview-critical": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted",
+      "notes": "Pixel-identical to the supplied prototype in pinned Chromium; hull gauge, typography, colours and layout checked by eye."
+    },
+    "overview-gauge-0": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted-supplemental",
+      "notes": "Reviewed reference/actual images: the supplemental design reuses prototype components and is pixel-identical to its documented reference derivation. Needs product-owner sign-off as a design addition."
+    },
+    "overview-gauge-120": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted",
+      "notes": "Pixel-identical to the supplied prototype in pinned Chromium; hull gauge, typography, colours and layout checked by eye."
+    },
+    "overview-gauge-over": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted-supplemental",
+      "notes": "Reviewed reference/actual images: the supplemental design reuses prototype components and is pixel-identical to its documented reference derivation. Needs product-owner sign-off as a design addition."
+    },
+    "overview-trash": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted",
+      "notes": "Pixel-identical to the supplied prototype in pinned Chromium; hull gauge, typography, colours and layout checked by eye."
+    },
+    "overview-trash-confirm": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted",
+      "notes": "Pixel-identical to the supplied prototype in pinned Chromium; hull gauge, typography, colours and layout checked by eye."
+    },
+    "overview-no-forecast": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted-supplemental",
+      "notes": "Reviewed reference/actual images: the supplemental design reuses prototype components and is pixel-identical to its documented reference derivation. Needs product-owner sign-off as a design addition."
+    },
+    "overview-motion": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted",
+      "notes": "Pixel-identical to the supplied prototype in pinned Chromium; hull gauge, typography, colours and layout checked by eye."
+    },
+    "suggestions-all": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted",
+      "notes": "Pixel-identical to the supplied prototype in pinned Chromium; hull gauge, typography, colours and layout checked by eye."
+    },
+    "suggestions-safe": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted",
+      "notes": "Pixel-identical to the supplied prototype in pinned Chromium; hull gauge, typography, colours and layout checked by eye."
+    },
+    "suggestions-review": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted",
+      "notes": "Pixel-identical to the supplied prototype in pinned Chromium; hull gauge, typography, colours and layout checked by eye."
+    },
+    "suggestions-risky": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted",
+      "notes": "Pixel-identical to the supplied prototype in pinned Chromium; hull gauge, typography, colours and layout checked by eye."
+    },
+    "suggestions-expanded": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted",
+      "notes": "Pixel-identical to the supplied prototype in pinned Chromium; hull gauge, typography, colours and layout checked by eye."
+    },
+    "suggestions-blocked": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted",
+      "notes": "Pixel-identical to the supplied prototype in pinned Chromium; hull gauge, typography, colours and layout checked by eye."
+    },
+    "suggestions-selection": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted",
+      "notes": "Pixel-identical to the supplied prototype in pinned Chromium; hull gauge, typography, colours and layout checked by eye."
+    },
+    "suggestions-empty": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted-supplemental",
+      "notes": "Reviewed reference/actual images: the supplemental design reuses prototype components and is pixel-identical to its documented reference derivation. Needs product-owner sign-off as a design addition."
+    },
+    "suggestions-windows": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted",
+      "notes": "Pixel-identical to the supplied prototype in pinned Chromium; hull gauge, typography, colours and layout checked by eye."
+    },
+    "suggestions-linux": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted",
+      "notes": "Pixel-identical to the supplied prototype in pinned Chromium; hull gauge, typography, colours and layout checked by eye."
+    },
+    "plan-empty": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted",
+      "notes": "Pixel-identical to the supplied prototype in pinned Chromium; hull gauge, typography, colours and layout checked by eye."
+    },
+    "plan-default": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted",
+      "notes": "Pixel-identical to the supplied prototype in pinned Chromium; hull gauge, typography, colours and layout checked by eye."
+    },
+    "plan-mixed": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted",
+      "notes": "Pixel-identical to the supplied prototype in pinned Chromium; hull gauge, typography, colours and layout checked by eye."
+    },
+    "plan-mixed-acked": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted",
+      "notes": "Pixel-identical to the supplied prototype in pinned Chromium; hull gauge, typography, colours and layout checked by eye."
+    },
+    "plan-expired": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted-supplemental",
+      "notes": "Reviewed reference/actual images: the supplemental design reuses prototype components and is pixel-identical to its documented reference derivation. Needs product-owner sign-off as a design addition."
+    },
+    "run-checking": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted-supplemental",
+      "notes": "Reviewed reference/actual images: the supplemental design reuses prototype components and is pixel-identical to its documented reference derivation. Needs product-owner sign-off as a design addition."
+    },
+    "run-success": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted",
+      "notes": "Pixel-identical to the supplied prototype in pinned Chromium; hull gauge, typography, colours and layout checked by eye."
+    },
+    "run-skipped": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted",
+      "notes": "Pixel-identical to the supplied prototype in pinned Chromium; hull gauge, typography, colours and layout checked by eye."
+    },
+    "run-trash-confirm": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted",
+      "notes": "Pixel-identical to the supplied prototype in pinned Chromium; hull gauge, typography, colours and layout checked by eye."
+    },
+    "run-failed": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted-supplemental",
+      "notes": "Reviewed reference/actual images: the supplemental design reuses prototype components and is pixel-identical to its documented reference derivation. Needs product-owner sign-off as a design addition."
+    },
+    "run-canceled": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted-supplemental",
+      "notes": "Reviewed reference/actual images: the supplemental design reuses prototype components and is pixel-identical to its documented reference derivation. Needs product-owner sign-off as a design addition."
+    },
+    "history-populated": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted",
+      "notes": "Pixel-identical to the supplied prototype in pinned Chromium; hull gauge, typography, colours and layout checked by eye."
+    },
+    "history-empty": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted-supplemental",
+      "notes": "Reviewed reference/actual images: the supplemental design reuses prototype components and is pixel-identical to its documented reference derivation. Needs product-owner sign-off as a design addition."
+    },
+    "history-detail": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted-supplemental",
+      "notes": "Reviewed reference/actual images: the supplemental design reuses prototype components and is pixel-identical to its documented reference derivation. Needs product-owner sign-off as a design addition."
+    },
+    "settings-defaults": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted-supplemental",
+      "notes": "Reviewed reference/actual images: the supplemental design reuses prototype components and is pixel-identical to its documented reference derivation. Needs product-owner sign-off as a design addition."
+    },
+    "settings-changed": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted-supplemental",
+      "notes": "Reviewed reference/actual images: the supplemental design reuses prototype components and is pixel-identical to its documented reference derivation. Needs product-owner sign-off as a design addition."
+    },
+    "settings-windows": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted-supplemental",
+      "notes": "Reviewed reference/actual images: the supplemental design reuses prototype components and is pixel-identical to its documented reference derivation. Needs product-owner sign-off as a design addition."
+    },
+    "overview-thresholds": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted",
+      "notes": "Pixel-identical to the supplied prototype in pinned Chromium; hull gauge, typography, colours and layout checked by eye."
+    },
+    "onboarding": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted-supplemental",
+      "notes": "Reviewed reference/actual images: the supplemental design reuses prototype components and is pixel-identical to its documented reference derivation. Needs product-owner sign-off as a design addition."
+    },
+    "focus-nav": {
+      "reviewer": "Claude (visual-capable verifier, frontend fork)",
+      "date": "2026-11-04",
+      "disposition": "accepted",
+      "notes": "Pixel-identical to the supplied prototype in pinned Chromium; hull gauge, typography, colours and layout checked by eye."
+    }
+  }
+}

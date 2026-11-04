@@ -1,0 +1,6 @@
+{"Containers":"N/A","CreatedAt":"2026-09-01 00:00:00 +0000 UTC","ID":"sha256:aaa1","Repository":"web","Size":"200MB","Tag":"latest"}
+{"Containers":"N/A","CreatedAt":"2026-07-01 00:00:00 +0000 UTC","ID":"sha256:bbb2","Repository":"redis","Size":"120MB","Tag":"7"}
+{"Containers":"N/A","CreatedAt":"2026-08-25 00:00:00 +0000 UTC","ID":"sha256:ccc3","Repository":"postgres","Size":"3.4GB","Tag":"14"}
+{"Containers":"N/A","CreatedAt":"2026-09-10 00:00:00 +0000 UTC","ID":"sha256:dd1","Repository":"<none>","Size":"4GB","Tag":"<none>"}
+{"Containers":"N/A","CreatedAt":"2026-09-12 00:00:00 +0000 UTC","ID":"sha256:dd2","Repository":"<none>","Size":"2.2GB","Tag":"<none>"}
+{"Containers":"N/A","CreatedAt":"2026-10-29 00:00:00 +0000 UTC","ID":"sha256:dd3","Repository":"<none>","Size":"1GB","Tag":"<none>"}
