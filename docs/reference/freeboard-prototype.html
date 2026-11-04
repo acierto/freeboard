@@ -1,0 +1,664 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Freeboard Prototype</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout concept: a working app window under a mock menu bar, led by a ship's hull gauge where the waterline rises as the disk fills. */
+:root {
+  --bg: #E9EEF0; --panel: #F7FAFA; --panel-2: #DDE5E8; --ink: #13262F; --muted: #4F626A; --line: #C4D0D4;
+  --accent: #0B6573; --accent-ink: #FFFFFF;
+  --hull: #22343D; --hull-ink: #EAF1F2; --oxide: #8E3A2B; --water: #2F8FA3;
+  --good: #1F7A50; --warn: #8A5700; --crit: #B02A22; --bar-warn: #E3AE55; --bar-crit: #F08378;
+  --display: "Barlow Condensed", "Arial Narrow", "Helvetica Neue", sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0F1B21; --panel: #16252C; --panel-2: #203239; --ink: #E4ECEE; --muted: #9DB0B6; --line: #2D4149;
+  --accent: #56BCCB; --accent-ink: #08252B;
+  --hull: #31464F; --hull-ink: #EAF1F2; --oxide: #A44A38; --water: #3AA0B5;
+  --good: #5CCB96; --warn: #E3AE55; --crit: #F08378; color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --bg: #0F1B21; --panel: #16252C; --panel-2: #203239; --ink: #E4ECEE; --muted: #9DB0B6; --line: #2D4149;
+  --accent: #56BCCB; --accent-ink: #08252B;
+  --hull: #31464F; --hull-ink: #EAF1F2; --oxide: #A44A38; --water: #3AA0B5;
+  --good: #5CCB96; --warn: #E3AE55; --crit: #F08378; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 400 15px/1.5 var(--body); }
+.page { max-width: 1120px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px;
+  padding-block: 16px 32px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--display); font-weight: 600; line-height: 1.1; margin: 0; text-wrap: balance; }
+h2 { font-size: 30px; } h3 { font-size: 21px; }
+p { margin: 0; }
+button, select, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mono { font-family: var(--mono); font-size: 12.5px; }
+.muted { color: var(--muted); }
+.num { font-variant-numeric: tabular-nums; }
+.btn { border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 8px 14px; font-weight: 500; }
+.btn:hover:not(:disabled) { border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn.danger { border-color: var(--crit); color: var(--crit); }
+
+/* Prototype controls */
+.proto { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; justify-content: space-between; }
+.proto-title { min-width: 0; flex: 1 1 300px; }
+.proto-title h1 { font-size: 26px; }
+.proto-tools { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; }
+.field { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+.field output { color: var(--ink); min-width: 62px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.seg button { border: 0; background: transparent; padding: 5px 10px; font-size: 13px; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+input[type="range"] { accent-color: var(--accent); max-width: 150px; }
+
+/* Mock menu bar */
+.menubar { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: var(--hull); color: var(--hull-ink); border-radius: 8px; padding: 5px 12px; font-size: 13px; }
+.tray-btn { display: inline-flex; align-items: center; gap: 8px; background: transparent; color: inherit; border: 0; padding: 3px 6px; border-radius: 4px; }
+.tray-btn:hover { background: rgba(255,255,255,.12); }
+.ring { width: 18px; height: 18px; flex: none; }
+.popover { position: absolute; right: 8px; top: calc(100% + 6px); z-index: 5; width: min(300px, calc(100% - 16px)); color: var(--ink);
+  background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 8px 24px rgba(10,30,38,.22); }
+.notice { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--st); border-radius: 6px; padding: 10px 14px; }
+.notice > div:first-child { min-width: 0; flex: 1 1 280px; }
+.notice-actions { display: flex; gap: 8px; }
+
+/* App window */
+.app { display: grid; grid-template-columns: 172px minmax(0, 1fr); background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.nav { background: var(--panel-2); padding: 12px 8px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.nav button { text-align: left; border: 0; background: transparent; padding: 8px 12px; border-radius: 6px; display: flex; justify-content: space-between; gap: 8px; white-space: nowrap; }
+.nav button:hover { background: var(--panel); }
+.nav button[aria-current="page"] { background: var(--panel); font-weight: 600; color: var(--accent); }
+.view { padding: 22px; min-width: 0; display: flex; flex-direction: column; gap: 18px; }
+.view-head { display: flex; flex-wrap: wrap; gap: 10px 16px; justify-content: space-between; align-items: center; }
+.view-head > div { min-width: 0; }
+
+/* Overview */
+.hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 24px; align-items: center; }
+.gauge { width: 100%; height: auto; display: block; --wy: 62px; }
+.gauge text { font-family: var(--mono); font-size: 11px; }
+#sub, .sea { transform: translateY(var(--wy)); transition: transform .9s cubic-bezier(.3,.7,.3,1); }
+.wave { animation: swell 5s linear infinite; }
+@keyframes swell { to { transform: translateX(-40px); } }
+.readout { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.bigfree { font-family: var(--display); font-weight: 700; font-size: 68px; line-height: 1; font-variant-numeric: tabular-nums; }
+.bigfree small { font-size: 26px; font-weight: 600; color: var(--muted); }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; letter-spacing: .03em; padding: 2px 9px; border-radius: 999px; color: var(--st); border: 1px solid var(--st); white-space: nowrap; }
+.pill::before { content: ""; width: 7px; height: 7px; background: var(--st); }
+.st-good, .r-safe { --st: var(--good); }
+.st-warn, .r-review { --st: var(--warn); }
+.st-crit, .r-risky { --st: var(--crit); }
+.r-review.pill::before { transform: rotate(45deg); }
+.r-risky.pill::before { clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.r-safe.pill::before { border-radius: 50%; }
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; }
+.two > section { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.bars { display: flex; flex-direction: column; gap: 10px; }
+.bar-row { display: flex; flex-direction: column; gap: 3px; }
+.bar-top { display: flex; justify-content: space-between; gap: 12px; font-size: 13.5px; }
+.bar { display: flex; height: 10px; background: var(--panel-2); border-radius: 2px; overflow: hidden; }
+.bar i { display: block; height: 100%; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12.5px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.legend i { width: 10px; height: 10px; display: block; }
+.trend { width: 100%; height: auto; display: block; }
+.trend text { font-family: var(--mono); font-size: 10.5px; fill: var(--muted); }
+.trash { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid var(--line); border-radius: 6px; padding: 10px 14px; }
+.trash > p { min-width: 0; flex: 1 1 240px; }
+.trash-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* Suggestions */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 1px solid var(--line); background: transparent; border-radius: 999px; padding: 4px 12px; font-size: 13px; }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.group { display: flex; flex-direction: column; }
+.group-head { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; padding-block: 4px 6px; border-bottom: 2px solid var(--ink); }
+.group-note { font-size: 13px; color: var(--muted); padding-top: 8px; }
+.item { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); align-items: start; }
+.item input[type="checkbox"] { width: 17px; height: 17px; margin: 3px 0 0; accent-color: var(--accent); }
+.item summary { cursor: pointer; list-style-position: outside; margin-left: 14px; }
+.item .name { font-weight: 600; }
+.item .sub { display: block; color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+.item dl { margin: 8px 0 4px 14px; display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 3px 12px; font-size: 13.5px; }
+.item dt { color: var(--muted); } .item dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.item-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.size { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.blocked { color: var(--crit); font-size: 13px; display: block; }
+.selbar { position: sticky; bottom: 0; background: var(--panel); border-top: 1px solid var(--line); padding-block: 12px 2px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: center; }
+
+/* Plan */
+.totals { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.total { border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; }
+.total b { display: block; font-family: var(--display); font-size: 34px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.total.bad b { color: var(--crit); }
+.plan-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 16px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.plan-row .sub { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+.ack { grid-column: 1 / -1; display: flex; gap: 8px; align-items: flex-start; color: var(--crit); font-size: 13.5px; font-weight: 500; }
+.ack input { margin-top: 3px; accent-color: var(--crit); }
+.result { font-size: 13px; font-weight: 600; white-space: nowrap; color: var(--muted); }
+.result.ok { color: var(--good); } .result.skip { color: var(--warn); }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+/* History and settings */
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 520px; font-size: 14px; }
+th { text-align: left; font-size: 12.5px; color: var(--muted); font-weight: 500; }
+th, td { padding: 8px 12px 8px 0; border-bottom: 1px solid var(--line); }
+td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+.settings { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px 28px; }
+.set { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.set label { font-weight: 500; }
+.set input[type="range"] { max-width: 100%; width: 100%; }
+.set select { padding: 6px; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; }
+.set ul { margin: 0; padding: 0; list-style: none; }
+.toggle { display: flex; gap: 8px; align-items: center; }
+.toggle input { accent-color: var(--accent); }
+
+@media (max-width: 760px) {
+  .app { grid-template-columns: minmax(0, 1fr); }
+  .nav { flex-direction: row; overflow-x: auto; padding: 8px; }
+  .nav button { flex: none; }
+  .view { padding: 16px; }
+  .hero, .two, .settings { grid-template-columns: minmax(0, 1fr); }
+  .bigfree { font-size: 56px; }
+}
+@media (max-width: 480px) {
+  .totals { grid-template-columns: minmax(0, 1fr); }
+  .item dl { grid-template-columns: minmax(0, 1fr); margin-left: 0; }
+  .field { flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wave { animation: none; }
+  #sub, .sea { transition: none; }
+}
+</style>
+
+<div class="page">
+  <header class="proto">
+    <div class="proto-title">
+      <h1>Freeboard prototype</h1>
+      <p class="muted">Sample data only. Nothing on your computer is scanned or changed.</p>
+    </div>
+    <div class="proto-tools">
+      <div class="field"><span>System</span>
+        <div class="seg" id="os-seg" role="group" aria-label="Simulated operating system">
+          <button data-os="mac" aria-pressed="true">macOS</button>
+          <button data-os="linux" aria-pressed="false">Linux</button>
+          <button data-os="win" aria-pressed="false">Windows</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="sim-free">Simulate free space</label>
+        <input id="sim-free" type="range" min="1" max="120" step="0.1" value="12.4">
+        <output id="sim-out" class="num" for="sim-free">12.4 GB</output>
+      </div>
+      <button class="btn" data-action="reset">Reset</button>
+    </div>
+  </header>
+
+  <div class="menubar">
+    <span id="menu-label">Menu bar</span>
+    <button class="tray-btn" id="tray-btn" aria-expanded="false" aria-controls="popover"></button>
+    <div class="popover" id="popover" hidden></div>
+  </div>
+
+  <div id="notice" aria-live="polite"></div>
+
+  <div class="app">
+    <nav class="nav" aria-label="Freeboard" id="nav">
+      <button data-view="overview" aria-current="page">Overview</button>
+      <button data-view="suggestions">Suggestions</button>
+      <button data-view="plan">Cleanup plan <span id="nav-count" class="num"></span></button>
+      <button data-view="history">History</button>
+      <button data-view="settings">Settings</button>
+    </nav>
+
+    <main>
+      <section class="view" id="v-overview">
+        <div class="hero">
+          <svg class="gauge" id="gauge" viewBox="0 0 420 300" role="img" aria-label="Hull gauge. The waterline rises toward the deck as free space runs out.">
+            <defs>
+              <clipPath id="hull-clip"><path d="M56 40H402L372 276Q362 288 342 288H56Z"/></clipPath>
+              <clipPath id="sea-clip"><rect x="52" y="0" width="368" height="300"/></clipPath>
+            </defs>
+            <text x="0" y="14" fill="var(--muted)">GB free, top 120 GB of disk</text>
+            <g clip-path="url(#sea-clip)"><g class="sea"><path class="wave" fill="var(--water)"/></g></g>
+            <path d="M56 40H402L372 276Q362 288 342 288H56Z" fill="var(--hull)"/>
+            <g clip-path="url(#hull-clip)"><rect id="sub" x="56" y="0" width="350" height="300" fill="var(--oxide)"/></g>
+            <g id="ticks"></g>
+            <g clip-path="url(#sea-clip)"><g class="sea"><path class="wave" fill="var(--water)" fill-opacity=".16" stroke="var(--water)" stroke-width="2"/></g></g>
+            <line x1="52" x2="406" y1="40" y2="40" stroke="var(--ink)" stroke-width="3"/>
+            <text x="404" y="31" text-anchor="end" fill="var(--muted)">Deck line: disk full</text>
+            <g id="loads"></g>
+          </svg>
+          <div class="readout">
+            <div><span class="pill" id="st-pill"></span></div>
+            <div class="bigfree"><span id="big-free"></span> <small>GB free</small></div>
+            <p class="muted" id="free-of"></p>
+            <p id="forecast"></p>
+            <div class="actions">
+              <button class="btn primary" data-action="go-suggestions" id="cta"></button>
+              <button class="btn" data-action="scan" id="scan-btn">Scan now</button>
+            </div>
+            <p class="muted" style="font-size:13px" id="scan-note">Last scan 18 minutes ago</p>
+          </div>
+        </div>
+        <div id="ov-trash"></div>
+        <div class="two">
+          <section>
+            <h3>Where the reclaimable space is</h3>
+            <div class="bars" id="bars"></div>
+            <div class="legend">
+              <span><i style="background:var(--good)"></i>Safe</span>
+              <span><i style="background:var(--warn)"></i>Review</span>
+              <span><i style="background:var(--crit)"></i>Risky</span>
+            </div>
+          </section>
+          <section>
+            <h3>Free space, last 14 days</h3>
+            <div id="trend"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="v-suggestions" hidden>
+        <div class="view-head">
+          <div><h2>Suggestions</h2><p class="muted">Open a row to see why it is listed, what will run and how to get it back.</p></div>
+          <div class="chips" id="chips"></div>
+        </div>
+        <div id="groups" style="display:flex;flex-direction:column;gap:20px"></div>
+        <div class="selbar">
+          <span id="sel-total" class="num"></span>
+          <button class="btn primary" data-action="go-plan" id="sel-go">Review cleanup plan</button>
+        </div>
+      </section>
+
+      <section class="view" id="v-plan" hidden></section>
+
+      <section class="view" id="v-history" hidden>
+        <h2>History</h2>
+        <p class="muted">Every cleanup keeps a local record of what ran and what changed.</p>
+        <div class="table-wrap" id="history"></div>
+      </section>
+
+      <section class="view" id="v-settings" hidden>
+        <h2>Settings</h2>
+        <div class="settings">
+          <div class="set">
+            <label for="warn-gb">Low space warning</label>
+            <input id="warn-gb" type="range" min="15" max="60" step="5" value="20">
+            <span class="muted num" id="warn-out"></span>
+          </div>
+          <div class="set">
+            <label for="crit-gb">Critical warning</label>
+            <input id="crit-gb" type="range" min="3" max="10" step="1" value="8">
+            <span class="muted num" id="crit-out"></span>
+          </div>
+          <div class="set">
+            <label for="scan-freq">Quick scan</label>
+            <select id="scan-freq"><option>Every hour</option><option>Every 6 hours</option><option>Every day</option><option>Only when I ask</option></select>
+          </div>
+          <div class="set">
+            <span style="font-weight:500">Background behavior</span>
+            <label class="toggle" style="font-weight:400"><input type="checkbox" id="set-notify" checked>Send notifications</label>
+            <label class="toggle" style="font-weight:400"><input type="checkbox" id="set-battery" checked>Pause deep scans on battery</label>
+            <label class="toggle" style="font-weight:400"><input type="checkbox" id="set-login" checked>Start at login</label>
+          </div>
+          <div class="set">
+            <span style="font-weight:500">Folders to scan</span>
+            <ul class="mono"><li>~/projects</li><li>~/work</li><li>~/Downloads</li></ul>
+          </div>
+          <div class="set">
+            <span style="font-weight:500">Never touched</span>
+            <ul class="mono muted"><li>System and application folders</li><li>Repository roots and .git</li><li>Paths you exclude</li></ul>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>
+(function () {
+  var CATS = [
+    { id: 'docker', name: 'Docker' },
+    { id: 'worktrees', name: 'Git worktrees' },
+    { id: 'builds', name: 'Dependencies and build output' },
+    { id: 'caches', name: 'Package and tool caches' },
+    { id: 'files', name: 'Old files' }
+  ];
+  var ITEMS = [
+    { id: 'd-cache', cat: 'docker', name: 'Docker build cache', path: '142 cache layers', size: 14.8, last: 'Last used 23 days ago', risk: 'Safe', action: 'native', cmd: 'docker builder prune', why: 'Build layers that no recent build has reused.', recover: 'Docker rebuilds the layers on the next build.' },
+    { id: 'd-dangling', cat: 'docker', name: 'Untagged Docker images', path: '31 dangling images', size: 6.2, last: 'Created over 30 days ago', risk: 'Safe', action: 'native', cmd: 'docker image prune', why: 'Old image layers with no tag and no container using them.', recover: 'Rebuild the image from its Dockerfile.' },
+    { id: 'd-pg', cat: 'docker', name: 'postgres:14 image', path: 'Not used by any container', size: 3.4, last: 'Last used 71 days ago', risk: 'Review', action: 'native', cmd: 'docker image rm postgres:14', why: 'A tagged image that no container uses.', recover: 'Run docker pull postgres:14.' },
+    { id: 'd-stopped', cat: 'docker', name: 'Stopped containers', path: '6 containers', size: 1.1, last: 'Stopped over 14 days ago', risk: 'Review', action: 'native', cmd: 'docker container rm <ids>', why: 'Their writable layers still take up space.', recover: 'Create them again. Files written inside them are lost.' },
+    { id: 'd-vol', cat: 'docker', name: 'Volume billing_pgdata', path: 'Not attached to a container', size: 7.6, last: 'Last attached 40 days ago', risk: 'Risky', action: 'native', cmd: 'docker volume rm billing_pgdata', why: 'Not attached to a container, but it may hold the only copy of this data.', recover: 'Not recoverable.', ack: true, ackName: 'billing_pgdata volume', unrecoverable: true },
+    { id: 'wt-auth', cat: 'worktrees', name: 'api-server: fix-auth', path: '~/work/api-server/.worktrees/fix-auth', size: 4.3, last: 'Merged 34 days ago', risk: 'Review', action: 'native', cmd: 'git worktree remove .worktrees/fix-auth', why: 'The branch is merged and the worktree has no local changes.', recover: 'Run git worktree add with the same branch.' },
+    { id: 'wt-exp', cat: 'worktrees', name: 'web-app: old-experiment', path: '~/work/web-app/.worktrees/old-experiment', size: 5.1, last: 'Last commit 52 days ago', risk: 'Review', action: 'native', cmd: 'git worktree remove .worktrees/old-experiment', why: 'No local changes, and the branch is pushed but not merged.', recover: 'Run git worktree add with the pushed branch.' },
+    { id: 'wt-pay', cat: 'worktrees', name: 'web-app: payments-v2', path: '~/work/web-app/.worktrees/payments-v2', size: 6.9, last: 'Edited 9 days ago', risk: 'Risky', action: 'native', cmd: 'None', why: '3 uncommitted files and 2 unpushed commits.', recover: 'Your work exists only here.', blocked: 'Blocked in v1. Commit and push this work first.' },
+    { id: 'b-node', cat: 'builds', name: 'node_modules in 14 inactive projects', path: '~/projects/*/node_modules', size: 18.7, last: 'Projects idle for 60+ days', risk: 'Safe', action: 'delete', cmd: 'Delete the 14 folders', why: 'Each project has a lockfile, so these can be installed again.', recover: 'Run pnpm install in the project.' },
+    { id: 'b-target', cat: 'builds', name: 'Rust target folder: rust-cli', path: '~/projects/rust-cli/target', size: 9.2, last: 'Last built 45 days ago', risk: 'Safe', action: 'delete', cmd: 'Delete the folder', why: 'Build output that Cargo can regenerate.', recover: 'Run cargo build.' },
+    { id: 'b-venv', cat: 'builds', name: '.venv in data-tools', path: '~/projects/data-tools/.venv', size: 2.4, last: 'Last used 88 days ago', risk: 'Review', action: 'trash', cmd: 'Move to Trash', why: 'Usually regenerable, but it may hold packages you installed by hand.', recover: 'Restore it from the Trash, or recreate it from requirements.txt.' },
+    { id: 'c-derived', cat: 'caches', name: 'Xcode DerivedData', path: '~/Library/Developer/Xcode/DerivedData', size: 11.3, last: 'Mostly older than 30 days', risk: 'Safe', action: 'delete', cmd: 'Delete the folder', why: 'Xcode regenerates this on the next build.', recover: 'Build the project again.', os: ['mac'] },
+    { id: 'c-sim', cat: 'caches', name: 'Unavailable iOS simulators', path: '9 simulator devices', size: 8.4, last: 'Runtime no longer installed', risk: 'Review', action: 'native', cmd: 'xcrun simctl delete unavailable', why: 'These simulators depend on runtimes that are gone.', recover: 'Create the simulator again in Xcode.', os: ['mac'] },
+    { id: 'c-pnpm', cat: 'caches', name: 'Unreferenced pnpm packages', path: 'pnpm content store', size: 5.6, last: 'Not linked to any project', risk: 'Safe', action: 'native', cmd: 'pnpm store prune', why: 'Packages in the store that no project links to.', recover: 'pnpm downloads them when needed.' },
+    { id: 'c-pip', cat: 'caches', name: 'pip download cache', path: 'pip cache', size: 2.6, last: 'Mostly older than 30 days', risk: 'Safe', action: 'native', cmd: 'pip cache purge', why: 'Downloaded wheels that pip can fetch again.', recover: 'pip downloads them when needed.' },
+    { id: 'c-brew', cat: 'caches', name: 'Old Homebrew downloads', path: 'Homebrew cache', size: 2.1, last: 'Older than 30 days', risk: 'Safe', action: 'native', cmd: 'brew cleanup', why: 'Old versions and downloads of installed packages.', recover: 'Homebrew downloads them when needed.', os: ['mac', 'linux'] },
+    { id: 'f-temp', cat: 'files', name: 'Old temporary files', path: '%TEMP%', size: 3.2, last: 'Older than 14 days', risk: 'Review', action: 'trash', cmd: 'Move to Recycle Bin', why: 'Temporary files that no running app has open.', recover: 'Restore them from the Recycle Bin.', os: ['win'] },
+    { id: 'f-dl', cat: 'files', name: 'Installers in Downloads', path: '~/Downloads', size: 4.6, last: 'Not opened in 90+ days', risk: 'Review', action: 'trash', cmd: 'Move to Trash', why: '12 installers and disk images that you have not opened recently.', recover: 'Restore them from the Trash.' }
+  ];
+  var SAMPLE_HISTORY = [
+    { date: 'Oct 28, 2026', items: 7, freed: 21.4, trash: 1.2, skipped: 0 },
+    { date: 'Oct 12, 2026', items: 11, freed: 34.9, trash: 3.0, skipped: 1 }
+  ];
+  var TREND = [41, 38.5, 37, 33, 31.2, 30, 26.4, 24, 23.1, 20.5, 18, 16.6, 14.1];
+  var RATE = 2.2, TOTAL = 512, SCALE = 120;
+
+  function fresh() {
+    var sel = {};
+    ITEMS.forEach(function (i) { if (i.risk === 'Safe') sel[i.id] = true; });
+    return { os: 'mac', free: 12.4, warn: 20, crit: 8, view: 'overview', filter: 'All', sel: sel, removed: {}, changed: {}, acks: {}, trash: 0, trashAsk: false,
+      phase: 'review', run: [], last: null, history: SAMPLE_HISTORY.slice(), dismissed: false, trayOpen: false };
+  }
+  var S = fresh();
+
+  var $ = function (id) { return document.getElementById(id); };
+  var gb = function (n) { return n.toFixed(1) + ' GB'; };
+  var sum = function (list) { return list.reduce(function (t, i) { return t + i.size; }, 0); };
+  var trashWord = function () { return S.os === 'win' ? 'Recycle Bin' : 'Trash'; };
+  var sleep = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
+  var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function visible() { return ITEMS.filter(function (i) { return !S.removed[i.id] && (!i.os || i.os.indexOf(S.os) > -1); }); }
+  function selected() { return visible().filter(function (i) { return S.sel[i.id] && !i.blocked; }); }
+  function pathFor(p) {
+    if (S.os === 'win' && p.indexOf('~/') === 0) return 'C:\\Users\\you\\' + p.slice(2).replace(/\//g, '\\');
+    if (S.os === 'linux' && p.indexOf('~/Library') === 0) return p;
+    return p;
+  }
+  function textFor(s) { return S.os === 'win' ? s.replace('Move to Trash', 'Move to Recycle Bin').replace(/the Trash/g, 'the Recycle Bin') : s; }
+  function status(free) {
+    if (free < S.crit) return { key: 'crit', label: 'Critical' };
+    if (free < S.warn) return { key: 'warn', label: 'Low' };
+    return { key: 'good', label: 'Healthy' };
+  }
+  function safeGB() { return sum(visible().filter(function (i) { return i.risk === 'Safe'; })); }
+
+  /* Gauge */
+  var yOf = function (v) { return 40 + Math.min(v, SCALE) / SCALE * 220; };
+  function buildGauge() {
+    var ticks = '';
+    [0, 30, 60, 90, 120].forEach(function (v) {
+      var y = yOf(v);
+      ticks += '<line x1="46" x2="56" y1="' + y + '" y2="' + y + '" stroke="var(--muted)"/><text x="42" y="' + (y + 4) + '" text-anchor="end" fill="var(--muted)">' + v + '</text>';
+    });
+    $('ticks').innerHTML = ticks;
+    var d = 'M-40 0';
+    for (var x = -40; x < 500; x += 40) d += ' q10 -8 20 0 t20 0';
+    Array.prototype.forEach.call(document.querySelectorAll('.wave'), function (w) { w.setAttribute('d', d + ' V320 H-40 Z'); });
+  }
+  function loadLines() {
+    var yw = yOf(S.warn), yc = yOf(S.crit);
+    $('loads').innerHTML =
+      '<line x1="56" x2="396" y1="' + yw + '" y2="' + yw + '" stroke="var(--hull-ink)" stroke-dasharray="6 4"/>' +
+      '<text x="384" y="' + (yw + 13) + '" text-anchor="end" fill="var(--hull-ink)">Low ' + S.warn + ' GB</text>' +
+      '<line x1="56" x2="398" y1="' + yc + '" y2="' + yc + '" stroke="var(--hull-ink)" stroke-dasharray="2 3"/>' +
+      '<text x="66" y="' + (yc + 13) + '" fill="var(--hull-ink)">Critical ' + S.crit + ' GB</text>';
+  }
+
+  /* Status surfaces */
+  function ringSVG(st) {
+    var used = 1 - Math.min(S.free, SCALE) / SCALE, c = 2 * Math.PI * 7;
+    var color = st.key === 'good' ? 'var(--hull-ink)' : st.key === 'warn' ? 'var(--bar-warn)' : 'var(--bar-crit)';
+    return '<svg class="ring st-' + st.key + '" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="7" fill="none" stroke="rgba(255,255,255,.28)" stroke-width="3"/>' +
+      '<circle cx="9" cy="9" r="7" fill="none" stroke="' + color + '" stroke-width="3" stroke-dasharray="' + (c * used).toFixed(1) + ' ' + c.toFixed(1) + '" transform="rotate(-90 9 9)"/></svg>';
+  }
+  function renderStatus() {
+    var st = status(S.free), safe = safeGB();
+    $('menu-label').textContent = S.os === 'win' ? 'System tray' : S.os === 'linux' ? 'Status area' : 'Menu bar';
+    $('tray-btn').innerHTML = ringSVG(st) + '<span class="num">' + gb(S.free) + ' free</span>';
+    $('tray-btn').setAttribute('aria-expanded', S.trayOpen ? 'true' : 'false');
+    var pop = $('popover'); pop.hidden = !S.trayOpen;
+    pop.innerHTML = '<div><span class="pill st-' + st.key + '">' + st.label + '</span></div>' +
+      '<p><b class="num">' + gb(S.free) + '</b> free of ' + TOTAL + ' GB</p>' +
+      '<p class="muted num">' + gb(safe) + ' can be freed from Safe items</p>' +
+      '<div class="actions"><button class="btn primary" data-action="go-suggestions">Open suggestions</button></div>';
+
+    var n = $('notice');
+    if (st.key === 'good' || S.dismissed) { n.innerHTML = ''; }
+    else {
+      n.innerHTML = '<div class="notice st-' + st.key + '"><div><b>' + (st.key === 'crit' ? 'Disk space is critical' : 'Disk space is low') + '</b>' +
+        '<p class="muted num">' + gb(S.free) + ' left. ' + gb(safe) + ' can be freed from Safe items. This is how the notification would read.</p></div>' +
+        '<div class="notice-actions"><button class="btn" data-action="go-suggestions">Review</button><button class="btn" data-action="dismiss">Dismiss</button></div></div>';
+    }
+
+    var pill = $('st-pill'); pill.className = 'pill st-' + st.key; pill.textContent = st.label;
+    $('big-free').textContent = S.free.toFixed(1);
+    $('free-of').textContent = 'of ' + TOTAL + ' GB. ' + (TOTAL - S.free).toFixed(1) + ' GB used.';
+    var days = Math.round(S.free / RATE);
+    $('forecast').textContent = 'At about ' + RATE + ' GB a day, this disk fills in ' + (days <= 1 ? 'about a day' : 'about ' + days + ' days') + '.';
+    $('cta').textContent = 'Review ' + gb(safe) + ' of Safe items';
+    $('gauge').style.setProperty('--wy', yOf(S.free) + 'px');
+    $('sim-free').value = Math.min(S.free, 120);
+    $('sim-out').textContent = gb(S.free);
+    renderTrend();
+    renderBars();
+    renderTrashBoxes();
+  }
+  function renderTrend() {
+    var pts = TREND.concat([S.free]), max = Math.max(45, S.free, S.warn), W = 320, H = 118, L = 8, R = 62, T = 10, B = 22;
+    var x = function (i) { return L + i / (pts.length - 1) * (W - L - R); };
+    var y = function (v) { return T + (1 - v / max) * (H - T - B); };
+    var line = pts.map(function (v, i) { return (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(v).toFixed(1); }).join(' ');
+    var end = pts.length - 1, yw = y(S.warn);
+    $('trend').innerHTML = '<svg class="trend" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Sample free space falling from 41 GB to ' + gb(S.free) + ' over 14 days">' +
+      '<path d="' + line + ' L' + x(end) + ' ' + (H - B) + ' L' + L + ' ' + (H - B) + ' Z" fill="var(--water)" fill-opacity=".18"/>' +
+      '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + (H - B) + '" y2="' + (H - B) + '" stroke="var(--line)"/>' +
+      '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + yw + '" y2="' + yw + '" stroke="var(--warn)" stroke-dasharray="4 3"/>' +
+      '<path d="' + line + '" fill="none" stroke="var(--accent)" stroke-width="2"/>' +
+      '<circle cx="' + x(end) + '" cy="' + y(S.free) + '" r="3.5" fill="var(--accent)"/>' +
+      '<text x="' + (x(end) + 7) + '" y="' + (y(S.free) + 4) + '" style="fill:var(--ink)">' + gb(S.free) + '</text>' +
+      '<text x="' + (x(0)) + '" y="' + (yw - 4) + '">Low ' + S.warn + ' GB</text>' +
+      '<text x="' + L + '" y="' + (H - 7) + '">14 days ago</text><text x="' + (W - R) + '" y="' + (H - 7) + '" text-anchor="end">Today</text></svg>';
+  }
+  function renderBars() {
+    var vis = visible(), rows = CATS.map(function (c) {
+      var list = vis.filter(function (i) { return i.cat === c.id; });
+      return { c: c, list: list, t: sum(list) };
+    }).filter(function (r) { return r.t > 0; }).sort(function (a, b) { return b.t - a.t; });
+    var max = rows.reduce(function (m, r) { return Math.max(m, r.t); }, 1);
+    var color = { Safe: 'var(--good)', Review: 'var(--warn)', Risky: 'var(--crit)' };
+    $('bars').innerHTML = rows.length ? rows.map(function (r) {
+      var segs = ['Safe', 'Review', 'Risky'].map(function (k) {
+        var v = sum(r.list.filter(function (i) { return i.risk === k; }));
+        return v ? '<i style="width:' + (v / max * 100).toFixed(1) + '%;background:' + color[k] + '" title="' + k + ' ' + gb(v) + '"></i>' : '';
+      }).join('');
+      return '<div class="bar-row"><div class="bar-top"><span>' + r.c.name + '</span><span class="num">' + gb(r.t) + '</span></div><div class="bar">' + segs + '</div></div>';
+    }).join('') : '<p class="muted">Nothing left to suggest. Run another scan later.</p>';
+  }
+  function trashBox() {
+    if (S.trash <= 0) return '';
+    var w = trashWord();
+    if (S.trashAsk) return '<div class="trash"><p><b>Permanently delete what Freeboard moved to the ' + w + '?</b> This frees ' + gb(S.trash) + ' and cannot be undone.</p>' +
+      '<div class="trash-actions"><button class="btn danger" data-action="empty-yes">Delete permanently</button><button class="btn" data-action="empty-no">Keep it</button></div></div>';
+    return '<div class="trash"><p class="num"><b>' + gb(S.trash) + '</b> is still held in the ' + w + '. It does not count as free space yet.</p>' +
+      '<div class="trash-actions"><button class="btn" data-action="empty-ask">Empty items from ' + w + '</button></div></div>';
+  }
+  function renderTrashBoxes() {
+    $('ov-trash').innerHTML = trashBox();
+    var t = $('plan-trash'); if (t) t.innerHTML = trashBox();
+  }
+
+  /* Suggestions */
+  function renderChips() {
+    $('chips').innerHTML = ['All', 'Safe', 'Review', 'Risky'].map(function (f) {
+      return '<button class="chip" data-filter="' + f + '" aria-pressed="' + (S.filter === f) + '">' + f + '</button>';
+    }).join('');
+  }
+  function itemRow(i) {
+    var box = '<input type="checkbox" id="sel-' + i.id + '" aria-label="Select ' + esc(i.name) + '"' + (S.sel[i.id] && !i.blocked ? ' checked' : '') + (i.blocked ? ' disabled' : '') + ' data-sel="' + i.id + '">';
+    return '<div class="item">' + box + '<details><summary><span class="name">' + esc(i.name) + '</span>' +
+      '<span class="sub mono">' + esc(pathFor(i.path)) + '</span><span class="sub">' + esc(i.last) + '</span>' +
+      (i.blocked ? '<span class="blocked">' + i.blocked + '</span>' : '') +
+      (S.changed[i.id] ? '<span class="blocked">Changed during the last cleanup. Scan again before removing it.</span>' : '') +
+      '</summary><dl><dt>Why it is listed</dt><dd>' + esc(i.why) + '</dd><dt>What would run</dt><dd class="mono">' + esc(textFor(i.cmd)) + '</dd><dt>How to get it back</dt><dd>' + esc(textFor(i.recover)) + '</dd></dl></details>' +
+      '<div class="item-right"><span class="size">' + gb(i.size) + '</span><span class="pill r-' + i.risk.toLowerCase() + '">' + i.risk + '</span></div></div>';
+  }
+  function renderGroups() {
+    var vis = visible().filter(function (i) { return S.filter === 'All' || i.risk === S.filter; });
+    var html = CATS.map(function (c) {
+      var list = vis.filter(function (i) { return i.cat === c.id; });
+      if (!list.length) return '';
+      list.sort(function (a, b) { return b.size - a.size; });
+      var note = c.id === 'docker' && S.os !== 'linux' ? '<p class="group-note">Docker Desktop keeps this data in a virtual disk, so space may not return to your main drive right away.</p>' : '';
+      return '<div class="group"><div class="group-head"><h3>' + c.name + '</h3><span class="num muted">' + gb(sum(list)) + '</span></div>' + note + list.map(itemRow).join('') + '</div>';
+    }).join('');
+    $('groups').innerHTML = html || '<p class="muted">No suggestions at this risk level.</p>';
+  }
+  function renderSelection() {
+    var sel = selected();
+    $('sel-total').textContent = sel.length + ' selected, ' + gb(sum(sel));
+    $('sel-go').disabled = !sel.length;
+    $('nav-count').textContent = sel.length ? sel.length : '';
+  }
+
+  /* Plan */
+  function renderPlan() {
+    var v = $('v-plan');
+    if (S.phase === 'review') {
+      var sel = selected();
+      if (!sel.length) {
+        v.innerHTML = '<h2>Cleanup plan</h2><p class="muted">No items selected yet.</p><div class="actions"><button class="btn primary" data-action="go-suggestions">Choose suggestions</button></div>' + '<div id="plan-trash"></div>';
+        renderTrashBoxes(); return;
+      }
+      var now = sum(sel.filter(function (i) { return i.action !== 'trash'; }));
+      var held = sum(sel.filter(function (i) { return i.action === 'trash'; }));
+      var lost = sel.filter(function (i) { return i.unrecoverable; });
+      var needAck = sel.filter(function (i) { return i.ack; });
+      var ready = needAck.every(function (i) { return S.acks[i.id]; });
+      v.innerHTML = '<div><h2>Cleanup plan</h2><p class="muted">Nothing runs until you confirm. Each item is checked again just before cleanup.</p></div>' +
+        '<div class="totals">' +
+        '<div class="total"><b>' + gb(now) + '</b>Freed right away</div>' +
+        '<div class="total"><b>' + gb(held) + '</b>Held in the ' + trashWord() + ' until you empty it</div>' +
+        '<div class="total' + (lost.length ? ' bad' : '') + '"><b>' + lost.length + ' item' + (lost.length === 1 ? '' : 's') + '</b>Cannot be recovered' + (lost.length ? ' (' + gb(sum(lost)) + ')' : '') + '</div></div>' +
+        '<p class="num">Free space after cleanup: <b>' + gb(S.free) + ' to ' + gb(S.free + now) + '</b></p>' +
+        '<div>' + sel.map(function (i) {
+          return '<div class="plan-row"><div><b>' + esc(i.name) + '</b><div class="sub mono">' + esc(textFor(i.cmd)) + '</div><div class="sub">' + esc(textFor(i.recover)) + '</div></div><span class="size">' + gb(i.size) + '</span>' +
+            (i.ack ? '<label class="ack"><input type="checkbox" id="ack-' + i.id + '" data-ack="' + i.id + '"' + (S.acks[i.id] ? ' checked' : '') + '>I understand the ' + esc(i.ackName) + ' will be deleted and cannot be recovered.</label>' : '') + '</div>';
+        }).join('') + '</div>' +
+        '<div class="actions"><button class="btn primary" id="confirm-plan" data-action="confirm"' + (ready ? '' : ' disabled') + '>Confirm and clean up ' + sel.length + ' item' + (sel.length === 1 ? '' : 's') + '</button><button class="btn" data-action="go-suggestions">Change selection</button></div>';
+      return;
+    }
+    var running = S.phase === 'running';
+    var head = running ? '<h2>Cleaning up</h2><p class="muted">Each item is checked again first. Anything that changed is skipped.</p>'
+      : '<h2>Cleanup finished</h2><p class="num">Freed <b>' + gb(S.last.freed) + '</b>. Free space is now <b>' + gb(S.free) + '</b>.' + (S.last.skipped ? ' ' + S.last.skipped + ' item was skipped.' : '') + '</p>' +
+        (S.last.docker && S.os !== 'linux' ? '<p class="muted">Docker Desktop may take time to return space to your main drive.</p>' : '');
+    v.innerHTML = '<div>' + head + '</div><div>' + S.run.map(function (r) {
+      var cls = r.state === 'skip' ? 'skip' : r.state === 'done' ? 'ok' : '';
+      return '<div class="plan-row"><div><b>' + esc(r.item.name) + '</b>' + (r.note ? '<div class="sub">' + esc(r.note) + '</div>' : '') + '</div><span class="result ' + cls + '">' + r.label + '</span></div>';
+    }).join('') + '</div>' + (running ? '' : '<div id="plan-trash"></div><div class="actions"><button class="btn primary" data-action="go-overview">Back to overview</button><button class="btn" data-action="plan-more">Plan another cleanup</button></div>');
+    renderTrashBoxes();
+  }
+  async function runPlan() {
+    var sel = selected(), step = reduced ? 60 : 320, freed = 0, held = 0, skipped = 0;
+    S.phase = 'running'; S.run = sel.map(function (i) { return { item: i, label: 'Waiting', state: 'wait', note: '' }; });
+    renderPlan();
+    for (var n = 0; n < S.run.length; n++) {
+      var r = S.run[n], i = r.item;
+      r.label = 'Checking'; renderPlan(); await sleep(step);
+      if (i.id === 'wt-exp') {
+        r.label = 'Skipped'; r.state = 'skip'; r.note = 'A new commit appeared after the scan.';
+        skipped++; S.changed[i.id] = true; delete S.sel[i.id];
+      } else if (i.action === 'trash') {
+        r.label = 'Moved to ' + trashWord(); r.state = 'done'; held += i.size; S.trash += i.size; S.removed[i.id] = true;
+      } else {
+        r.label = 'Cleaned'; r.state = 'done'; freed += i.size; S.free += i.size; S.removed[i.id] = true;
+      }
+      renderStatus(); renderPlan(); await sleep(step / 2);
+    }
+    S.last = { freed: freed, skipped: skipped, docker: sel.some(function (i) { return i.cat === 'docker'; }) };
+    S.history.unshift({ date: 'Today', items: sel.length, freed: freed, trash: held, skipped: skipped });
+    S.acks = {}; S.phase = 'done'; S.dismissed = false;
+    renderAll();
+  }
+
+  /* History */
+  function renderHistory() {
+    $('history').innerHTML = '<table><thead><tr><th scope="col">Date</th><th class="n" scope="col">Items</th><th class="n" scope="col">Freed</th><th class="n" scope="col">Sent to ' + trashWord() + '</th><th class="n" scope="col">Skipped</th></tr></thead><tbody>' +
+      S.history.map(function (h) { return '<tr><td>' + h.date + '</td><td class="n">' + h.items + '</td><td class="n">' + gb(h.freed) + '</td><td class="n">' + gb(h.trash) + '</td><td class="n">' + h.skipped + '</td></tr>'; }).join('') + '</tbody></table>';
+  }
+
+  function show(view) {
+    S.view = view; S.trayOpen = false;
+    ['overview', 'suggestions', 'plan', 'history', 'settings'].forEach(function (v) { $('v-' + v).hidden = v !== view; });
+    Array.prototype.forEach.call($('nav').querySelectorAll('button'), function (b) {
+      if (b.dataset.view === view) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    });
+    if (view === 'plan') renderPlan();
+    renderStatus();
+  }
+  function renderSettings() {
+    $('warn-gb').value = S.warn; $('crit-gb').value = S.crit;
+    $('warn-out').textContent = 'Warn below ' + S.warn + ' GB free';
+    $('crit-out').textContent = 'Warn urgently below ' + S.crit + ' GB free';
+    loadLines();
+  }
+  function renderAll() {
+    renderSettings(); renderChips(); renderGroups(); renderSelection(); renderHistory(); renderPlan(); renderStatus();
+    Array.prototype.forEach.call($('os-seg').querySelectorAll('button'), function (b) { b.setAttribute('aria-pressed', b.dataset.os === S.os); });
+  }
+
+  /* Events */
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('button'); if (!t) { if (S.trayOpen && !e.target.closest('.popover')) { S.trayOpen = false; renderStatus(); } return; }
+    if (t.id === 'tray-btn') { S.trayOpen = !S.trayOpen; renderStatus(); return; }
+    if (t.dataset.view) { show(t.dataset.view); return; }
+    if (t.dataset.os) { S.os = t.dataset.os; renderAll(); return; }
+    if (t.dataset.filter) { S.filter = t.dataset.filter; renderChips(); renderGroups(); return; }
+    var a = t.dataset.action;
+    if (a === 'go-suggestions') { if (S.phase === 'done') S.phase = 'review'; show('suggestions'); }
+    else if (a === 'go-plan') { if (S.phase === 'done') S.phase = 'review'; show('plan'); }
+    else if (a === 'go-overview') show('overview');
+    else if (a === 'plan-more') { S.phase = 'review'; renderAll(); show('suggestions'); }
+    else if (a === 'dismiss') { S.dismissed = true; renderStatus(); }
+    else if (a === 'confirm') runPlan();
+    else if (a === 'empty-ask') { S.trashAsk = true; renderTrashBoxes(); }
+    else if (a === 'empty-no') { S.trashAsk = false; renderTrashBoxes(); }
+    else if (a === 'empty-yes') { S.free += S.trash; S.trash = 0; S.trashAsk = false; renderStatus(); }
+    else if (a === 'scan') scan();
+    else if (a === 'reset') { S = fresh(); renderAll(); show('overview'); $('scan-note').textContent = 'Last scan 18 minutes ago'; }
+  });
+  document.addEventListener('change', function (e) {
+    var t = e.target;
+    if (t.dataset.sel) { if (t.checked) S.sel[t.dataset.sel] = true; else delete S.sel[t.dataset.sel]; if (S.phase === 'done') S.phase = 'review'; renderSelection(); }
+    if (t.dataset.ack) { S.acks[t.dataset.ack] = t.checked; var b = $('confirm-plan'); if (b) b.disabled = !selected().filter(function (i) { return i.ack; }).every(function (i) { return S.acks[i.id]; }); }
+  });
+  $('sim-free').addEventListener('input', function (e) {
+    var before = status(S.free).key;
+    S.free = parseFloat(e.target.value);
+    if (status(S.free).key !== before) S.dismissed = false;
+    renderStatus();
+  });
+  $('warn-gb').addEventListener('input', function (e) { S.warn = +e.target.value; renderSettings(); renderStatus(); });
+  $('crit-gb').addEventListener('input', function (e) { S.crit = +e.target.value; renderSettings(); renderStatus(); });
+  async function scan() {
+    var b = $('scan-btn'), n = $('scan-note'), steps = ['Checking Docker', 'Checking Git worktrees', 'Checking project folders', 'Checking caches'];
+    b.disabled = true;
+    for (var i = 0; i < steps.length; i++) { n.textContent = steps[i]; await sleep(reduced ? 80 : 380); }
+    n.textContent = 'Last scan just now'; b.disabled = false;
+  }
+
+  buildGauge();
+  renderAll();
+})();
+</script>
+
+</body></html>
