@@ -50,6 +50,10 @@ Docker 29 leaves untagged images out of a plain `docker image ls`. Freeboard now
 
 A download page (`site/`, GitHub Pages) and preview installers on GitHub Releases, built by `.github/workflows/release.yml` from a `v*` tag: a universal macOS `.dmg` (ad-hoc signed, not notarized) and Linux `.deb`/AppImage for x86_64 and arm64. Releases are labeled preview and the page explains the macOS "Open Anyway" step. This relaxes the earlier rule that nothing ships before signed artifacts exist; signed, notarized builds remain open (task 5.7). The page uses the prototype-derived fixture screenshots, not captures of a real machine.
 
+## 2026-11-05 — macOS free space excludes purgeable space
+
+The headline free space on macOS is now what the volume has free right now (`statvfs`, the figure `df` shows). It was `sysinfo`'s figure, which on macOS is the important-usage capacity: free plus purgeable space, the figure Finder shows. Purgeable space was then computed as that capacity minus itself, so it was always near zero and never reported, against the platform note "Report APFS purgeable space and local snapshots separately". Found by the user comparing the app (174.4 GB) with `df -h` (116 GiB = 124.6 GB). Thresholds and notifications use the same, more conservative figure.
+
 ## Source conflicts
 
 **Repository roots vs. linked worktree removal (task 4.1, decided 2026-11-04 by the user).** The source protects repository roots (invariant 5) but also lists `git worktree remove <path>` for linked worktrees, whose directories are themselves repository roots. Decision: linked worktree roots are the single exception. Only clean Review worktrees (merged, or pushed but not merged) can be removed; removal uses plain `git worktree remove` (never `--force`) after the pre-cleanup probe and `Guard::check_linked_worktree`, which accepts only a non-link directory whose `.git` file points into the main repository's `.git/worktrees/`. The main worktree, `.git` and all other repository roots stay protected. Details and tests: `docs/cleanup.md`.

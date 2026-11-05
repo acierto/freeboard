@@ -28,6 +28,22 @@ extern "C" {
     fn CFRelease(cf: CFTypeRef);
 }
 
+/// Space free right now, without purgeable space: `statvfs` `f_bavail`,
+/// the figure `df` shows. `sysinfo` reports the important-usage capacity on
+/// macOS, which already includes purgeable space (Finder's figure), so the
+/// two could not be reported separately.
+pub fn available_bytes(path: &Path) -> Option<u64> {
+    let c = std::ffi::CString::new(path.as_os_str().as_encoded_bytes()).ok()?;
+    // SAFETY: valid NUL-terminated path and a zeroed out-parameter.
+    unsafe {
+        let mut st: libc::statvfs = std::mem::zeroed();
+        if libc::statvfs(c.as_ptr(), &mut st) != 0 {
+            return None;
+        }
+        Some((st.f_bavail as u64).saturating_mul(st.f_frsize as u64))
+    }
+}
+
 /// Capacity available for important usage: free space plus space macOS can
 /// purge on demand (caches, local snapshots).
 pub fn important_usage_capacity(path: &Path) -> Option<u64> {
@@ -95,6 +111,8 @@ mod tests {
     fn important_usage_is_at_least_free_space() {
         let home = crate::platform::home_dir().unwrap();
         let cap = important_usage_capacity(&home).expect("CoreFoundation reports capacity");
+        let free = available_bytes(&home).expect("statvfs reports free space");
+        assert!(free <= cap + 1024 * 1024 * 1024, "free {free} should not exceed important-usage capacity {cap}");
         assert!(cap > 0);
     }
 }

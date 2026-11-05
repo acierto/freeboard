@@ -43,7 +43,7 @@ impl VolumeSource for SysVolumes {
                 id: d.mount_point().to_string_lossy().into_owned(),
                 name: d.name().to_string_lossy().into_owned(),
                 mount_point: d.mount_point().to_string_lossy().into_owned(),
-                free: d.available_space(),
+                free: real_free(d),
                 total: d.total_space(),
             })
             .collect();
@@ -63,6 +63,16 @@ impl VolumeSource for SysVolumes {
         }
         out
     }
+}
+
+/// macOS: `sysinfo` reports Finder's figure (free plus purgeable). Freeboard
+/// shows space that is free now and reports purgeable space separately.
+fn real_free(d: &sysinfo::Disk) -> u64 {
+    #[cfg(target_os = "macos")]
+    if let Some(b) = crate::platform::macos::available_bytes(d.mount_point()) {
+        return b;
+    }
+    d.available_space()
 }
 
 fn containing<'a>(list: &'a [VolumeReading], p: &Path) -> Option<&'a VolumeReading> {
