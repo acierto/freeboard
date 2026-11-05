@@ -100,7 +100,9 @@ jobs:
 
   visual:
     name: visual verification (browser)
-    runs-on: ubuntu-22.04
+    # Baselines are rendered on macOS (decision 2026-11-04); Linux Chromium
+    # rasterizes text differently, so every comparison would differ there.
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -108,7 +110,7 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: Compare implementation screenshots with the prototype baselines
         run: npm run verify:visual
       - name: Visual tool self-test (must detect deliberate mismatches)
