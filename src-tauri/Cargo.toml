@@ -20,7 +20,7 @@ default = ["desktop"]
 # The `desktop` feature pulls in the Tauri shell. The core library (guard,
 # runner, store, monitor, scan, detectors, cleanup) builds and tests without it.
 test-support = []
-desktop = ["dep:tauri", "dep:tauri-build", "dep:tauri-plugin-notification", "dep:tauri-plugin-autostart", "dep:tauri-plugin-dialog"]
+desktop = ["dep:tauri", "dep:tauri-build", "dep:tauri-plugin-notification", "dep:tauri-plugin-autostart", "dep:tauri-plugin-dialog", "dep:notify-rust"]
 
 [build-dependencies]
 tauri-build = { version = "2", features = [], optional = true }
@@ -42,6 +42,11 @@ tracing-appender = "0.2"
 sha2 = "0.10"
 thiserror = "2"
 chrono = { version = "0.4", default-features = false, features = ["clock", "std", "serde"] }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+# Already used by tauri-plugin-notification; used directly on Linux to receive
+# notification clicks ("default" action), which the plugin does not report.
+notify-rust = { version = "4", optional = true }
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"

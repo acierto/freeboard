@@ -12,6 +12,7 @@
 //   skipped=a,b          suggestion ids skipped in the last cleanup
 //   history=empty        no cleanup history
 //   suggestions=empty    no suggestions
+//   scan=never           no scan has finished yet
 //   low=<GB>&critical=<GB> thresholds
 //   run=hold             runs stay at "first item checking"
 //   fail=<id>            that item fails during a run
@@ -195,7 +196,7 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
     scan: {
       running: null,
       phase: null,
-      lastFinishedAt: new Date(Date.now() - 18 * 60000).toISOString(),
+      lastFinishedAt: params.get("scan") === "never" ? null : new Date(Date.now() - 18 * 60000).toISOString(),
       detectorErrors:
         params.get("unavailable") === "docker"
           ? // Same shape as the real backend: one error per Docker detector.

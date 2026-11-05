@@ -1146,6 +1146,7 @@ dependencies = [
  "chrono",
  "jwalk",
  "libc",
+ "notify-rust",
  "rusqlite",
  "serde",
  "serde_json",

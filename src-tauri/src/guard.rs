@@ -300,7 +300,9 @@ impl Guard {
         if now.canonical != checked.canonical || now.id != checked.id {
             return Err(GuardError::Moved);
         }
-        if !now.is_link {
+        // Only directories can contain a .git entry; files and links are moved as they are.
+        let is_dir = fs::symlink_metadata(&now.canonical).map(|m| m.is_dir()).unwrap_or(false);
+        if !now.is_link && is_dir {
             preflight_tree(&now.canonical)?;
         }
         trash::delete(&now.canonical).map_err(|e| GuardError::Io(format!("Trash unavailable: {e}")))
@@ -465,6 +467,19 @@ mod tests {
         let link = main.join("linkwt");
         std::os::unix::fs::symlink(&real, &link).unwrap();
         assert!(f.guard.check_linked_worktree(&link, &main, &link).is_err());
+    }
+
+    #[test]
+    fn single_file_passes_trash_preflight() {
+        // Regression: the .git preflight ran read_dir on files, so moving any
+        // single file (e.g. an installer) to the Trash failed.
+        let f = fx();
+        let file = f.root.join("home/projects/app/node_modules/pkg/index.js");
+        let c = f.guard.check(&file).unwrap();
+        let is_dir = fs::symlink_metadata(&c.canonical).unwrap().is_dir();
+        assert!(!is_dir);
+        // The preflight itself must not be applied to files.
+        assert!(preflight_tree(&c.canonical).is_err(), "read_dir on a file fails, so callers must skip it");
     }
 
     #[test]

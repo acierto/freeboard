@@ -102,7 +102,9 @@ export function Suggestions({ model, filter, setFilter }: { model: AppModel; fil
             <p className="muted">
               {model.scanning
                 ? "Scanning. Suggestions appear here when the scan finishes."
-                : "No suggestions yet. Run a scan to look for space you can reclaim."}
+                : model.status.scan.lastFinishedAt
+                  ? "The last scan found nothing to reclaim. Scan again later, or choose more folders."
+                  : "No suggestions yet. Run a scan to look for space you can reclaim."}
             </p>
             {model.settings.scanFolders.length === 0 && (
               <p className="muted" id="no-folders-note">

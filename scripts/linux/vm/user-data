@@ -1,0 +1,37 @@
+#cloud-config
+# Disposable Freeboard test VM: Ubuntu 24.04 ARM64 + GNOME, auto-login.
+hostname: freeboard-linux
+users:
+  - name: dev
+    groups: [sudo, adm]
+    shell: /bin/bash
+    sudo: "ALL=(ALL) NOPASSWD:ALL"
+    lock_passwd: false
+    plain_text_passwd: freeboard
+    ssh_authorized_keys:
+      - __SSH_PUBKEY__
+ssh_pwauth: false
+package_update: true
+packages:
+  - ubuntu-desktop-minimal
+  - gnome-shell-extension-appindicator
+  - libayatana-appindicator3-1
+  - libwebkit2gtk-4.1-0
+  - xdotool
+  - gnome-screenshot
+  - imagemagick
+  - libnotify-bin
+write_files:
+  - path: /etc/gdm3/custom.conf
+    content: |
+      [daemon]
+      AutomaticLoginEnable=true
+      AutomaticLogin=dev
+      # Xorg session so xdotool can drive input from SSH.
+      WaylandEnable=false
+runcmd:
+  - systemctl set-default graphical.target
+  - sudo -u dev dbus-launch gsettings set org.gnome.desktop.session idle-delay 0 || true
+  - sudo -u dev dbus-launch gsettings set org.gnome.desktop.screensaver lock-enabled false || true
+  - touch /var/lib/freeboard-provisioned
+  - reboot

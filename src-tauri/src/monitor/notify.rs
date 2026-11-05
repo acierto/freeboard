@@ -76,7 +76,12 @@ pub fn notice_text(kind: NoticeKind, free_gb: f64, safe_gb: f64) -> Notice {
     Notice {
         kind,
         title: title.into(),
-        body: format!("{free_gb:.1} GB left. {safe_gb:.1} GB can be freed from Safe items."),
+        // Before any scan (or with nothing Safe found), don't claim "0.0 GB".
+        body: if safe_gb >= 0.05 {
+            format!("{free_gb:.1} GB left. {safe_gb:.1} GB can be freed from Safe items.")
+        } else {
+            format!("{free_gb:.1} GB left. Open Freeboard to see what you can remove.")
+        },
     }
 }
 
@@ -143,5 +148,7 @@ mod tests {
         let n = notice_text(NoticeKind::EnteredLow, 12.4, 54.6);
         assert_eq!(n.title, "Disk space is low");
         assert_eq!(n.body, "12.4 GB left. 54.6 GB can be freed from Safe items.");
+        let n = notice_text(NoticeKind::EnteredLow, 34.4, 0.0);
+        assert_eq!(n.body, "34.4 GB left. Open Freeboard to see what you can remove.");
     }
 }

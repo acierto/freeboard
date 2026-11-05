@@ -84,6 +84,14 @@ function dockerUnavailable() {
   g.insertAdjacentHTML("afterbegin", '<div class="notes"><p class="group-note">Docker is installed but not running.</p></div>');
 }
 
+function nothingFound() {
+  // Supplemental: a finished scan that found nothing (same components as the
+  // never-scanned empty state, different sentence).
+  document.getElementById("groups").innerHTML =
+    '<p class="muted">The last scan found nothing to reclaim. Scan again later, or choose more folders.</p>' +
+    '<div class="actions"><button class="btn primary">Scan now</button><button class="btn">Run deep scan now</button></div>';
+}
+
 function emptyHistory() {
   document.getElementById("history").innerHTML = '<p class="muted">No cleanups yet. Each cleanup you confirm is recorded here.</p>';
 }
@@ -179,9 +187,14 @@ export const ENTRIES = [
     ...both([nav("suggestions"), check("d-cache", false), check("d-pg"), check("b-venv")]),
   },
   {
-    id: "suggestions-empty", surface: "Suggestions", state: "Empty results", sizes: [DESKTOP, PHONE], query: "suggestions=empty",
+    id: "suggestions-empty", surface: "Suggestions", state: "Empty results, never scanned", sizes: [DESKTOP, PHONE], query: "suggestions=empty&scan=never",
     ref: [nav("suggestions"), ...uncheckSafe, evalRef(emptyGroups)], impl: [nav("suggestions")], supplemental: true,
     note: "Group list replaced by the empty-results sentence and Scan now / Run deep scan now buttons built from the prototype's .actions and .btn; selection summary is the prototype's own 0-selected state.",
+  },
+  {
+    id: "suggestions-nothing-found", surface: "Suggestions", state: "Scan finished, nothing found", sizes: [DESKTOP, PHONE], query: "suggestions=empty",
+    ref: [nav("suggestions"), ...uncheckSafe, evalRef(nothingFound)], impl: [nav("suggestions")], supplemental: true,
+    note: "Same as the empty state, but the sentence says the last scan found nothing (found on a real Linux VM with no developer tools).",
   },
   {
     id: "suggestions-docker-unavailable", surface: "Suggestions", state: "Docker unavailable (one note for five detectors)", sizes: [DESKTOP, PHONE], query: "unavailable=docker",

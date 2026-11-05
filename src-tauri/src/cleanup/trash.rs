@@ -72,18 +72,28 @@ pub fn trash_identity(path: &Path) -> Option<String> {
     Some(format!("{}:{kind}:{}.{:09}:{len}", id.encode(), mtime.as_secs(), mtime.subsec_nanos()))
 }
 
+/// Message shown when the Trash cannot be read (macOS needs Full Disk Access).
+pub const TRASH_NOT_READABLE: &str = "Freeboard can't look inside the Trash. On macOS, allow Full Disk Access for Freeboard in System Settings → Privacy & Security, then try again. Nothing was deleted";
+
 /// Find the top-level entry in `dirs` whose file identity matches.
-pub fn find_by_identity(dirs: &[PathBuf], identity: &str) -> Option<PathBuf> {
+/// A Trash directory that exists but cannot be read is an error, never
+/// "not found": reporting an item as gone when Freeboard simply could not
+/// look would hide space that is still held.
+pub fn find_by_identity(dirs: &[PathBuf], identity: &str) -> Result<Option<PathBuf>, String> {
     for d in dirs {
-        let Ok(rd) = std::fs::read_dir(d) else { continue };
-        for e in rd.flatten() {
-            let p = e.path();
+        let rd = match std::fs::read_dir(d) {
+            Ok(rd) => rd,
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => continue,
+            Err(_) => return Err(TRASH_NOT_READABLE.into()),
+        };
+        for e in rd {
+            let p = e.map_err(|_| TRASH_NOT_READABLE.to_string())?.path();
             if trash_identity(&p).as_deref() == Some(identity) {
-                return Some(p);
+                return Ok(Some(p));
             }
         }
     }
-    None
+    Ok(None)
 }
 
 /// Remove a located Trash entry through the guard (never follows links).
@@ -104,7 +114,7 @@ fn purge_native(guard: &Guard, rec: &TrashRecord) -> Result<PurgeOutcome, String
             dirs.push(Path::new("/Volumes").join(vol).join(".Trashes").join(uid.to_string()));
         }
     }
-    match find_by_identity(&dirs, identity) {
+    match find_by_identity(&dirs, identity)? {
         Some(p) => remove_entry(guard, &p).map(|_| PurgeOutcome::Purged),
         None => Ok(PurgeOutcome::Gone),
     }
@@ -177,7 +187,7 @@ impl TrashBackend for DirTrash {
     }
     fn purge(&self, _guard: &Guard, rec: &TrashRecord) -> Result<PurgeOutcome, String> {
         let id = rec.identity.as_deref().ok_or("no identity")?;
-        match find_by_identity(std::slice::from_ref(&self.dir), id) {
+        match find_by_identity(std::slice::from_ref(&self.dir), id)? {
             Some(p) => {
                 let m = std::fs::symlink_metadata(&p).map_err(|e| e.to_string())?;
                 if m.is_dir() {
@@ -195,6 +205,26 @@ impl TrashBackend for DirTrash {
 #[cfg(test)]
 mod identity_tests {
     use super::trash_identity;
+
+    #[cfg(unix)]
+    #[test]
+    fn unreadable_trash_is_an_error_not_gone() {
+        use std::os::unix::fs::PermissionsExt;
+        let d = tempfile::tempdir().unwrap();
+        let t = d.path().join("Trash");
+        std::fs::create_dir(&t).unwrap();
+        std::fs::write(t.join("item"), b"x").unwrap();
+        let id = super::trash_identity(&t.join("item")).unwrap();
+        std::fs::set_permissions(&t, std::fs::Permissions::from_mode(0o000)).unwrap();
+        let r = super::find_by_identity(std::slice::from_ref(&t), &id);
+        std::fs::set_permissions(&t, std::fs::Permissions::from_mode(0o755)).unwrap();
+        // Root can read anything; the check only means something as a normal user.
+        if unsafe { libc::geteuid() } != 0 {
+            assert_eq!(r, Err(super::TRASH_NOT_READABLE.to_string()));
+        }
+        // A missing Trash directory is simply "not found".
+        assert_eq!(super::find_by_identity(&[d.path().join("missing")], &id), Ok(None));
+    }
 
     #[test]
     fn rename_keeps_identity() {

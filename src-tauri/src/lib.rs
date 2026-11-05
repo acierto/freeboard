@@ -50,6 +50,30 @@ mod shell {
     struct TauriShell(AppHandle);
     impl Shell for TauriShell {
         fn notify(&self, title: &str, body: &str) {
+            #[cfg(target_os = "linux")]
+            {
+                // Linux: show through the desktop notification service directly
+                // so a click (the "default" action) opens Suggestions.
+                let shown = notify_rust::Notification::new()
+                    .appname("Freeboard")
+                    .summary(title)
+                    .body(body)
+                    .icon("freeboard")
+                    .action("default", "Open Suggestions")
+                    .show();
+                if let Ok(handle) = shown {
+                    let app = self.0.clone();
+                    std::thread::spawn(move || {
+                        handle.wait_for_action(|action| {
+                            if action == "default" {
+                                let a2 = app.clone();
+                                let _ = app.run_on_main_thread(move || open_window(&a2));
+                            }
+                        });
+                    });
+                    return;
+                }
+            }
             let _ = self.0.notification().builder().title(title).body(body).show();
         }
         fn update_tray(&self, status: DiskStatus, free_bytes: u64) {

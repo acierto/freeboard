@@ -710,14 +710,21 @@ fn unavailable_trash_needs_a_separate_permanent_plan() {
 #[test]
 #[ignore]
 fn native_trash_round_trip_with_disposable_file() {
+    // Two disposable files: Freeboard trashes and records one; the other is
+    // trashed outside Freeboard and must survive emptying.
     let t = tempfile::tempdir_in(crate::platform::home_dir().unwrap()).unwrap();
-    let f = t.path().join(format!("freeboard-disposable-{}.txt", std::process::id()));
-    std::fs::write(&f, "disposable").unwrap();
+    let pid = std::process::id();
+    let mine = t.path().join(format!("freeboard-disposable-{pid}.txt"));
+    let other = t.path().join(format!("freeboard-unrelated-{pid}.txt"));
+    std::fs::write(&mine, "disposable").unwrap();
+    std::fs::write(&other, "unrelated").unwrap();
     let guard = Guard::for_system(&crate::platform::home_dir().unwrap(), &[]);
-    let checked = guard.check(&f).unwrap();
+    let checked = guard.check(&mine).unwrap();
+    let identity = trash::trash_identity(&checked.canonical);
     let backend = trash::NativeTrash;
     backend.trash(&guard, &checked).unwrap();
-    assert!(!f.exists());
+    assert!(!mine.exists());
+    ::trash::delete(&other).unwrap();
     let rec = trash::TrashRecord {
         id: 1,
         run_id: "r".into(),
@@ -725,7 +732,37 @@ fn native_trash_round_trip_with_disposable_file() {
         original_path: checked.canonical.to_string_lossy().to_string(),
         trashed_at: now_secs(),
         bytes: 0,
-        identity: checked.id.map(|i| i.encode()),
+        identity,
     };
-    assert_eq!(backend.purge(&guard, &rec).unwrap(), trash::PurgeOutcome::Purged);
+    let first = backend.purge(&guard, &rec);
+    #[cfg(target_os = "macos")]
+    if first == Err(trash::TRASH_NOT_READABLE.to_string()) {
+        // Without Full Disk Access macOS hides ~/.Trash. Freeboard must say
+        // so (never report the item as already gone). The two disposable
+        // files stay in the Trash until the user empties it.
+        eprintln!("~/.Trash is not readable without Full Disk Access; verified the explicit error path");
+        return;
+    }
+    assert_eq!(first, Ok(trash::PurgeOutcome::Purged));
+    // Purging again finds nothing: the item is gone, not re-matched.
+    assert_eq!(backend.purge(&guard, &rec).unwrap(), trash::PurgeOutcome::Gone);
+    // The unrelated item is still in the Trash; restore-free cleanup of the
+    // test leftovers goes through the platform API, matching the exact path.
+    #[cfg(not(target_os = "macos"))]
+    {
+        let items = ::trash::os_limited::list().unwrap();
+        let left: Vec<_> = items.into_iter().filter(|i| i.original_path() == other).collect();
+        assert_eq!(left.len(), 1, "unrelated Trash item must survive");
+        ::trash::os_limited::purge_all(left).unwrap();
+    }
+    #[cfg(target_os = "macos")]
+    {
+        let home = crate::platform::home_dir().unwrap();
+        let survivor = std::fs::read_dir(home.join(".Trash"))
+            .unwrap()
+            .flatten()
+            .find(|e| e.file_name().to_string_lossy().starts_with(&format!("freeboard-unrelated-{pid}")))
+            .expect("unrelated Trash item must survive");
+        std::fs::remove_file(survivor.path()).unwrap();
+    }
 }

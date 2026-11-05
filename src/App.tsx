@@ -115,7 +115,12 @@ export function App() {
       on("cleanup_finished", (e) => {
         if (e.runId === runIdRef.current) void refreshRun();
       }),
-      on("navigate", (e) => setView(e.view)),
+      // Tray and notification navigation wins over the unfinished welcome
+      // screen: the person asked to see that view.
+      on("navigate", (e) => {
+        setSkipOnboarding(true);
+        setView(e.view);
+      }),
     ];
     return () => subs.forEach((s) => void s.then((off) => off()));
   }, [refreshStatus, refreshSuggestions, refreshTrash, refreshHistory, refreshRun]);

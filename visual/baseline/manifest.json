@@ -20,8 +20,8 @@
   "locale": "en-US",
   "timezone": "UTC",
   "adapter": "scripts/visual/lib.mjs referenceHtml(): local fonts, data-theme, prototype chrome (.proto, .menubar, #notice) hidden",
-  "acceptedAt": "2026-11-05T06:14:53.815Z",
-  "rationale": "Correct the docker-unavailable supplemental reference: the Docker group is absent when Docker is unavailable, matching the backend (2026-11-05).",
+  "acceptedAt": "2026-11-05T07:36:43.740Z",
+  "rationale": "Suggestions: distinguish 'never scanned' from 'scan found nothing' (found on the Linux VM); new supplemental state suggestions-nothing-found (2026-11-05).",
   "entries": {
     "focus-nav--dark--1120x900": {
       "id": "focus-nav",
@@ -2729,7 +2729,7 @@
     "suggestions-empty--dark--1120x900": {
       "id": "suggestions-empty",
       "surface": "Suggestions",
-      "state": "Empty results",
+      "state": "Empty results, never scanned",
       "theme": "dark",
       "viewport": {
         "width": 1120,
@@ -2738,7 +2738,7 @@
       "deviceScaleFactor": 1,
       "reducedMotion": true,
       "crop": ".app",
-      "fixture": "suggestions=empty",
+      "fixture": "suggestions=empty&scan=never",
       "supplemental": true,
       "note": "Group list replaced by the empty-results sentence and Scan now / Run deep scan now buttons built from the prototype's .actions and .btn; selection summary is the prototype's own 0-selected state.",
       "sha256": "b1bc29b808213bda3b96f567de1ee33fdffe36bba589c3f2fd5ffe3d1b43145c"
@@ -2746,7 +2746,7 @@
     "suggestions-empty--dark--390x844": {
       "id": "suggestions-empty",
       "surface": "Suggestions",
-      "state": "Empty results",
+      "state": "Empty results, never scanned",
       "theme": "dark",
       "viewport": {
         "width": 390,
@@ -2755,7 +2755,7 @@
       "deviceScaleFactor": 1,
       "reducedMotion": true,
       "crop": ".app",
-      "fixture": "suggestions=empty",
+      "fixture": "suggestions=empty&scan=never",
       "supplemental": true,
       "note": "Group list replaced by the empty-results sentence and Scan now / Run deep scan now buttons built from the prototype's .actions and .btn; selection summary is the prototype's own 0-selected state.",
       "sha256": "0c23fa1c3c3ad8f49916b0b47a28407d8a388c5ebebe3f012469b6b8920edd56"
@@ -2763,7 +2763,7 @@
     "suggestions-empty--light--1120x900": {
       "id": "suggestions-empty",
       "surface": "Suggestions",
-      "state": "Empty results",
+      "state": "Empty results, never scanned",
       "theme": "light",
       "viewport": {
         "width": 1120,
@@ -2772,7 +2772,7 @@
       "deviceScaleFactor": 1,
       "reducedMotion": true,
       "crop": ".app",
-      "fixture": "suggestions=empty",
+      "fixture": "suggestions=empty&scan=never",
       "supplemental": true,
       "note": "Group list replaced by the empty-results sentence and Scan now / Run deep scan now buttons built from the prototype's .actions and .btn; selection summary is the prototype's own 0-selected state.",
       "sha256": "e7db4227d3403f55f0355f2acb3e8fda99baa1f7e54a14f4e0058a2ad67880bf"
@@ -2780,7 +2780,7 @@
     "suggestions-empty--light--390x844": {
       "id": "suggestions-empty",
       "surface": "Suggestions",
-      "state": "Empty results",
+      "state": "Empty results, never scanned",
       "theme": "light",
       "viewport": {
         "width": 390,
@@ -2789,7 +2789,7 @@
       "deviceScaleFactor": 1,
       "reducedMotion": true,
       "crop": ".app",
-      "fixture": "suggestions=empty",
+      "fixture": "suggestions=empty&scan=never",
       "supplemental": true,
       "note": "Group list replaced by the empty-results sentence and Scan now / Run deep scan now buttons built from the prototype's .actions and .btn; selection summary is the prototype's own 0-selected state.",
       "sha256": "08ec4b0b47872592a57004bbefcefb875c949c3216f8f1ba33d9b00cee4dc61b"
@@ -2997,6 +2997,74 @@
       "supplemental": false,
       "note": null,
       "sha256": "3bed2b8e5189506fc74fee36e3a198d9589ece5bd7f76833b1d63712ce0f82e5"
+    },
+    "suggestions-nothing-found--dark--1120x900": {
+      "id": "suggestions-nothing-found",
+      "surface": "Suggestions",
+      "state": "Scan finished, nothing found",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": ".app",
+      "fixture": "suggestions=empty",
+      "supplemental": true,
+      "note": "Same as the empty state, but the sentence says the last scan found nothing (found on a real Linux VM with no developer tools).",
+      "sha256": "faa4ffbf6d667b93f5d1fc3a7f62d12d589e5c67b162a5a2c6b50fc418ab0b33"
+    },
+    "suggestions-nothing-found--dark--390x844": {
+      "id": "suggestions-nothing-found",
+      "surface": "Suggestions",
+      "state": "Scan finished, nothing found",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": ".app",
+      "fixture": "suggestions=empty",
+      "supplemental": true,
+      "note": "Same as the empty state, but the sentence says the last scan found nothing (found on a real Linux VM with no developer tools).",
+      "sha256": "cf56d9bbbc9ccedfbfec0eb745ea39276a985571db9c4157aac9a9b7e72e91d4"
+    },
+    "suggestions-nothing-found--light--1120x900": {
+      "id": "suggestions-nothing-found",
+      "surface": "Suggestions",
+      "state": "Scan finished, nothing found",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": ".app",
+      "fixture": "suggestions=empty",
+      "supplemental": true,
+      "note": "Same as the empty state, but the sentence says the last scan found nothing (found on a real Linux VM with no developer tools).",
+      "sha256": "de09016ba939c7f19d431b432792c2d2577eda0c87ef6ae9c3f41bb2146b78ad"
+    },
+    "suggestions-nothing-found--light--390x844": {
+      "id": "suggestions-nothing-found",
+      "surface": "Suggestions",
+      "state": "Scan finished, nothing found",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": ".app",
+      "fixture": "suggestions=empty",
+      "supplemental": true,
+      "note": "Same as the empty state, but the sentence says the last scan found nothing (found on a real Linux VM with no developer tools).",
+      "sha256": "f13a25fa0744d3932bcff2a287399c4736628322a83211c3511b9bb0d9138eda"
     },
     "suggestions-review--dark--1120x900": {
       "id": "suggestions-review",
