@@ -16,7 +16,7 @@ if [ ! -f "$V/disk.qcow2" ]; then
   "$IMG" create -q -f qcow2 "$V/disk.qcow2" 64G
   truncate -s 64M "$V/vars.fd"
   rm -rf "$V/unattend" && mkdir -p "$V/unattend"
-  cp "$HERE/autounattend.xml" "$V/unattend/"
+  cp "$HERE/autounattend.xml" "$HERE/install.cmd" "$V/unattend/"
   sed "s|__SSH_PUBKEY__|$(cat "$KEY.pub")|" "$HERE/setup.ps1" > "$V/unattend/setup.ps1"
   rm -f "$V/unattend.iso"
   hdiutil makehybrid -quiet -o "$V/unattend.iso" -iso -joliet -default-volume-name UNATTEND "$V/unattend"

@@ -36,7 +36,8 @@ elif sys.argv[1] == "type":
     import time
     sym = {" ": "spc", "\\": "backslash", ":": "shift-semicolon", ".": "dot", "-": "minus", "_": "shift-minus",
            "/": "slash", ";": "semicolon", "=": "equal", ",": "comma", "'": "apostrophe", '"': "shift-apostrophe",
-           "|": "shift-backslash", "$": "shift-4", "(": "shift-9", ")": "shift-0", "*": "shift-8", "&": "shift-7"}
+           "|": "shift-backslash", "$": "shift-4", "%": "shift-5", ">": "shift-dot", "<": "shift-comma",
+           "~": "shift-grave_accent", "@": "shift-2", "#": "shift-3", "!": "shift-1", "+": "shift-equal", "(": "shift-9", ")": "shift-0", "*": "shift-8", "&": "shift-7"}
     for ch in sys.argv[2]:
         if ch in sym:
             k = sym[ch]
@@ -44,8 +45,10 @@ elif sys.argv[1] == "type":
             k = "shift-" + ch.lower()
         else:
             k = ch
-        cmd("send-key", keys=[{"type": "qcode", "data": p} for p in k.split("-")])
-        time.sleep(0.03)
+        r = cmd("send-key", keys=[{"type": "qcode", "data": p} for p in k.split("-")], **{"hold-time": 40})
+        if "error" in r:
+            sys.exit(f"cannot type {ch!r}: {r['error']['desc']}")
+        time.sleep(0.09)
 elif sys.argv[1] == "keys":
     for k in sys.argv[2:]:
         keys = [{"type": "qcode", "data": p} for p in k.split("-")]
