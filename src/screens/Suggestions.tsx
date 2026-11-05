@@ -46,7 +46,10 @@ function Row({ s, model }: { s: Suggestion; model: AppModel }) {
 
 export function Suggestions({ model, filter, setFilter }: { model: AppModel; filter: Filter; setFilter: (f: Filter) => void }) {
   const vis = model.suggestions.filter((s) => filter === "All" || RISK_LABEL[s.risk] === filter);
-  const errors = model.status.scan.detectorErrors;
+  // Related detectors (docker.*) report the same cause; show each message once.
+  const errors = model.status.scan.detectorErrors.filter(
+    (e, i, all) => all.findIndex((o) => o.message === e.message && o.detector.split(".")[0] === e.detector.split(".")[0]) === i,
+  );
   const groups = CATEGORIES.map((c) => {
     const list = vis.filter((s) => s.category === c.id).sort((a, b) => b.sizeBytes - a.sizeBytes);
     return { c, list };
@@ -73,7 +76,7 @@ export function Suggestions({ model, filter, setFilter }: { model: AppModel; fil
         {errors.length > 0 && (
           <div className="notes">
             {errors.map((e) => (
-              <p className="group-note" key={e.detector}>
+              <p className="group-note" key={e.detector + e.message}>
                 {e.message}
               </p>
             ))}
@@ -116,7 +119,7 @@ export function Suggestions({ model, filter, setFilter }: { model: AppModel; fil
                 </button>
               ) : (
                 <button className="btn" data-action="scan-folders-empty" disabled={model.scanning} onClick={() => model.scan("deep")}>
-                  Scan folders now
+                  Run deep scan now
                 </button>
               )}
             </div>

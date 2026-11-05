@@ -198,7 +198,12 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
       lastFinishedAt: new Date(Date.now() - 18 * 60000).toISOString(),
       detectorErrors:
         params.get("unavailable") === "docker"
-          ? [{ detector: "docker", kind: "unavailable", message: "Docker is not running, so Docker items were not checked." }]
+          ? // Same shape as the real backend: one error per Docker detector.
+            ["build_cache", "dangling_images", "unused_images", "stopped_containers", "volumes"].map((d) => ({
+              detector: "docker." + d,
+              kind: "unavailable",
+              message: "Docker is installed but not running.",
+            }))
           : [],
     },
     notificationsPaused: false,

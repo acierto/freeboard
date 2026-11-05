@@ -31,7 +31,22 @@ export function Overview({ model }: { model: AppModel }) {
   const max = rows.reduce((m, r) => Math.max(m, r.t), GB);
   const note = model.scanning
     ? phaseLabel(model.scanNote && model.scanNote !== "scan" ? model.scanNote : null)
-    : "Last scan " + relativeTime(status.scan.lastFinishedAt);
+    : status.scan.lastFinishedAt
+      ? "Last scan " + relativeTime(status.scan.lastFinishedAt)
+      : "Not scanned yet";
+  // macOS: mention purgeable space and local snapshots only when there is
+  // something worth reporting (at least 0.1 GB, or any snapshot).
+  const purgeable = vol?.purgeableBytes ?? 0;
+  const snapshots = vol?.snapshotCount ?? 0;
+  const showPurgeable = purgeable >= 0.05 * GB;
+  const apfsNote =
+    showPurgeable || snapshots > 0
+      ? "macOS also reports " +
+        [showPurgeable ? gb(purgeable) + " of purgeable space" : "", snapshots ? snapshots + " local snapshot" + (snapshots === 1 ? "" : "s") : ""]
+          .filter(Boolean)
+          .join(" and ") +
+        ". Finder may count " + (showPurgeable ? "it" : "them") + " as free."
+      : null;
 
   return (
     <section className="view" id="v-overview">
@@ -52,7 +67,7 @@ export function Overview({ model }: { model: AppModel }) {
           {forecast !== null && <p id="forecast">{forecast}</p>}
           <div className="actions">
             <button className="btn primary" data-action="go-suggestions" id="cta" onClick={model.goSuggestions}>
-              {"Review " + gb(safe) + " of Safe items"}
+              {safe > 0 ? "Review " + gb(safe) + " of Safe items" : "Review suggestions"}
             </button>
             <button className="btn" data-action="scan" id="scan-btn" disabled={model.scanning} onClick={() => model.scan("quick")}>
               Scan now
@@ -61,9 +76,9 @@ export function Overview({ model }: { model: AppModel }) {
           <p className="muted" style={{ fontSize: "13px" }} id="scan-note" aria-live="polite">
             {note}
           </p>
-          {vol && (vol.purgeableBytes ?? 0) > 0 && (
-            <p className="muted" style={{ fontSize: "13px" }}>
-              {"macOS also reports " + gb(vol.purgeableBytes!) + " of purgeable space" + (vol.snapshotCount ? " and " + vol.snapshotCount + " local snapshots" : "") + ". Finder may count it as free."}
+          {apfsNote && (
+            <p className="muted" style={{ fontSize: "13px" }} id="apfs-note">
+              {apfsNote}
             </p>
           )}
         </div>
