@@ -1,0 +1,16 @@
+{"kind":"Deep","seconds":6.35,"findings":1005,"bytes":3970310349,"detectorErrors":2}
+  cache.npm                       1 items      0.1 GB  {"safe": 1}
+  cache.pip                       1 items      0.0 GB  {"safe": 1}
+  docker.unused_images            2 items      0.1 GB  {"review": 2}
+  docker.volumes                  1 items      0.0 GB  {"risky": 1}
+  project.dependencies         1000 items      3.7 GB  {"safe": 1000}
+  cache.pnpm: unavailable (pnpm is not installed.)
+  cache.homebrew: unavailable (brew is not installed.)
+{"kind":"Deep","seconds":6.41,"findings":1005,"bytes":3970310349,"detectorErrors":2}
+  cache.npm                       1 items      0.1 GB  {"safe": 1}
+  cache.pip                       1 items      0.0 GB  {"safe": 1}
+  docker.unused_images            2 items      0.1 GB  {"review": 2}
+  docker.volumes                  1 items      0.0 GB  {"risky": 1}
+  project.dependencies         1000 items      3.7 GB  {"safe": 1000}
+  cache.pnpm: unavailable (pnpm is not installed.)
+  cache.homebrew: unavailable (brew is not installed.)

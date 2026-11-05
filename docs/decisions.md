@@ -42,6 +42,10 @@ Product and implementation decisions, with date and reason (source instruction 5
 
 Closing the window hides it; a timer destroys the webview after 60 seconds hidden (generation counter cancels the timer when reopened). `RunEvent::ExitRequested` without an exit code is prevented so the app stays in the tray; only the tray's Quit exits. Reopening recreates the webview, which reloads all state from the backend. Login startup is registered only from release builds.
 
+## 2026-11-05 — Docker 29 image listing
+
+Docker 29 leaves untagged images out of a plain `docker image ls`. Freeboard now also runs `docker image ls --filter dangling=true` (read-only, already allowed) and merges the two lists. `--all` is not used because it also lists intermediate build layers, which are not dangling. The test fake behaves like Docker 29 and answers `image inspect` only for the requested IDs, so the test fails without the fix.
+
 ## Source conflicts
 
 **Repository roots vs. linked worktree removal (task 4.1, decided 2026-11-04 by the user).** The source protects repository roots (invariant 5) but also lists `git worktree remove <path>` for linked worktrees, whose directories are themselves repository roots. Decision: linked worktree roots are the single exception. Only clean Review worktrees (merged, or pushed but not merged) can be removed; removal uses plain `git worktree remove` (never `--force`) after the pre-cleanup probe and `Guard::check_linked_worktree`, which accepts only a non-link directory whose `.git` file points into the main repository's `.git/worktrees/`. The main worktree, `.git` and all other repository roots stay protected. Details and tests: `docs/cleanup.md`.

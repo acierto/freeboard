@@ -118,16 +118,22 @@ pub fn load(ctx: &ScanContext, det: &str) -> Result<Snapshot, DetectorError> {
     check_version(ctx, det)?;
     let mut snap = Snapshot::default();
     // Independent read-only queries run concurrently; parsing below is unchanged.
-    let (ps_out, images_out, volumes_out, df_out, dfv_out) = std::thread::scope(|sc| {
+    // Docker 29 and later leave untagged (dangling) images out of a plain
+    // `image ls`, so they are listed with their own filter and merged.
+    // (`--all` would add intermediate build layers, which are not dangling.)
+    let (ps_out, images_out, dangling_out, volumes_out, df_out, dfv_out) = std::thread::scope(|sc| {
         let ps = sc.spawn(|| read(ctx, det, &["ps", "-a", "--no-trunc", "--format", "{{json .}}"]));
         let im = sc.spawn(|| read(ctx, det, &["image", "ls", "--no-trunc", "--format", "{{json .}}"]));
+        let da = sc.spawn(|| {
+            read(ctx, det, &["image", "ls", "--no-trunc", "--filter", "dangling=true", "--format", "{{json .}}"])
+        });
         let vo = sc.spawn(|| read(ctx, det, &["volume", "ls", "--format", "{{json .}}"]));
         let df = sc.spawn(|| read(ctx, det, &["system", "df", "--format", "{{json .}}"]));
         let dv = sc.spawn(|| read(ctx, det, &["system", "df", "-v", "--format", "{{json .}}"]));
         let j = |h: std::thread::ScopedJoinHandle<'_, Result<String, DetectorError>>| {
             h.join().unwrap_or_else(|_| Err(err(det, "error", "A Docker query stopped unexpectedly.")))
         };
-        (j(ps), j(im), j(vo), j(df), j(dv))
+        (j(ps), j(im), j(da), j(vo), j(df), j(dv))
     });
 
     // Containers, including stopped ones.
@@ -171,7 +177,9 @@ pub fn load(ctx: &ScanContext, det: &str) -> Result<Snapshot, DetectorError> {
     }
 
     // Top-level images.
-    let img_ids: Vec<String> = json_lines(det, &images_out?)?
+    let mut image_lines = json_lines(det, &images_out?)?;
+    image_lines.extend(json_lines(det, &dangling_out?)?);
+    let img_ids: Vec<String> = image_lines
         .iter()
         .map(|v| s(v, "ID"))
         .filter(|i| !i.is_empty())

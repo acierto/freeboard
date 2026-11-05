@@ -1,0 +1,11 @@
+== KDE lifecycle 2026-11-05T12:13:51Z
+before: 29853 freeboard --tray
+after close: pids=29853  visible windows=0
+after 77s: 31328 /usr/bin/freeboard --tray --after-pid 29853
+2026-11-05T12:14:51.926848Z  INFO freeboard_lib::shell: restarting in tray mode as pid 31328
+tray mode: PSS avg 26224 kB over 300 s; CPU ticks used 221 (of 30000 at 100 Hz)
+settled tray mode: CPU ticks 34 of 30000 = .113%; PSS 26186 kB
+after Open: 31328 /usr/bin/freeboard --tray --after-pid 29853 visible=0
+false
+after Open: 31328 /usr/bin/freeboard --tray --after-pid 29853 visible=1
+after Quit: processes=0

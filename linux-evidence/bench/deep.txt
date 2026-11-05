@@ -1,0 +1,11 @@
+     0.00s git.worktrees
+     0.09s git.worktrees
+     0.09s git.worktrees
+{"kind":"Deep","seconds":0.90,"findings":5,"bytes":247046349,"detectorErrors":2}
+
+real	0m14.887s
+user	0m0.706s
+sys	0m11.761s
+1002000
+{"kind":"Deep","seconds":2.22,"findings":5,"bytes":247046349,"detectorErrors":2}
+{"kind":"Deep","seconds":2.04,"findings":5,"bytes":247046349,"detectorErrors":2}

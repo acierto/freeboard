@@ -133,6 +133,13 @@ impl Fx {
         for (n, c) in files {
             std::fs::write(s.join(n), c).unwrap();
         }
+        // One file per image so `image inspect` returns only the IDs asked for.
+        std::fs::create_dir_all(s.join("img")).unwrap();
+        let imgs: Vec<serde_json::Value> = serde_json::from_str(files[5].1).unwrap();
+        for i in imgs {
+            let id = i["Id"].as_str().unwrap().replace(':', "_");
+            std::fs::write(s.join("img").join(format!("{id}.json")), i.to_string()).unwrap();
+        }
         if !up {
             std::fs::write(s.join("down"), "").unwrap();
         }
@@ -147,8 +154,9 @@ container) case "$2" in
   rm) shift 2; echo "container rm $*" >> "$S/actions"; [ -f "$S/fail_rm" ] && {{ echo "Error: failed" >&2; exit 1; }};;
   *) exit 2;; esac;;
 image) case "$2" in
-  ls) cat "$S/images.jsonl";;
-  inspect) cat "$S/images.json";;
+  # Like Docker 29: untagged images appear only with the dangling filter.
+  ls) case "$*" in *dangling=true*) grep '"Tag":"<none>"' "$S/images.jsonl";; *) grep -v '"Tag":"<none>"' "$S/images.jsonl";; esac;;
+  inspect) shift 2; printf '['; sep=''; for i in "$@"; do f="$S/img/$(printf %s "$i" | tr ':' '_').json"; [ -f "$f" ] && {{ printf '%s' "$sep"; cat "$f"; sep=','; }}; done; printf ']';;
   rm) shift 2; [ -f "$S/rm_sleep" ] && sleep "$(cat "$S/rm_sleep")"; echo "image rm $*" >> "$S/actions"; [ -f "$S/fail_rm" ] && {{ echo "Error: conflict" >&2; exit 1; }};;
   *) echo "image $*" >> "$S/actions";; esac;;
 volume) case "$2" in

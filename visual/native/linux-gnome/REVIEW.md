@@ -18,4 +18,4 @@ Defects found here and fixed: notification click did nothing on Linux (now handl
 
 Hidden memory: first measured at 100 MB PSS (81.5 MB main process, 18.5 MB WebKitNetworkProcess) after the webview was destroyed. Fixed by restarting into tray mode 60 s after the window is hidden: 22.8 MB PSS, idle CPU 0.026% over 300 s. Verified: the restart (logged, `--tray --after-pid`), Open Freeboard from the tray-mode process, and a second launch handing over to the running copy (one process, window shown).
 
-Not covered: KDE Plasma, dark appearance.
+Not covered: dark appearance. KDE Plasma: `visual/native/linux-kde/REVIEW.md`.

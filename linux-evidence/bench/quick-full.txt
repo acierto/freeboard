@@ -1,0 +1,20 @@
+     0.00s start
+     0.00s docker.volumes
+     0.00s cache.pip
+     0.00s docker.build_cache
+     0.00s docker.unused_images
+     0.00s docker.stopped_containers
+     0.00s cache.homebrew
+     0.00s cache.npm
+     0.00s cache.cargo
+     0.00s files.installers
+     0.00s cache.gradle
+     0.00s docker.dangling_images
+     0.38s cache.pnpm
+{"kind":"Quick","seconds":0.39,"findings":5,"bytes":247046349,"detectorErrors":2}
+  cache.npm                       1 items      0.1 GB  {"safe": 1}
+  cache.pip                       1 items      0.0 GB  {"safe": 1}
+  docker.unused_images            2 items      0.1 GB  {"review": 2}
+  docker.volumes                  1 items      0.0 GB  {"risky": 1}
+  cache.pnpm: unavailable (pnpm is not installed.)
+  cache.homebrew: unavailable (brew is not installed.)
