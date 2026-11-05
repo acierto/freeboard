@@ -111,10 +111,14 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install chromium
-      - name: Compare implementation screenshots with the prototype baselines
-        run: npm run verify:visual
+      # Pixel baselines are specific to the machine that rendered them (text
+      # rasterization differs between OS versions), so CI compares the app
+      # with the prototype rendered on the same runner (decision 2026-11-05).
+      # Stored baselines are never updated here.
+      - name: Compare implementation screenshots with the prototype (same runner)
+        run: npm run verify:visual -- --live
       - name: Visual tool self-test (must detect deliberate mismatches)
-        run: npm run verify:visual:selftest
+        run: npm run verify:visual:selftest -- --live
       - uses: actions/upload-artifact@v4
         if: always()
         with:

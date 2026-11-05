@@ -22,4 +22,5 @@ dism /apply-image /imagefile:%SRC%\sources\install.wim /name:"Windows 11 Pro" /a
 bcdboot W:\Windows /s S: /f UEFI || exit /b 1
 mkdir W:\Windows\Panther
 copy /y %UNA%\autounattend.xml W:\Windows\Panther\unattend.xml
-wpeutil reboot
+rem Power off: start.sh then marks the VM installed and boots the disk.
+wpeutil shutdown

@@ -7,7 +7,8 @@
 //
 // Options:
 //   --only <regex>   limit to capture keys matching regex (report marks the run partial)
-//   --live           compare against a fresh reference render instead of baselines (iteration aid)
+//   --live           compare against a fresh reference render instead of baselines
+//                    (iteration aid, and CI: baselines are machine-specific)
 //   --require-native exit 2 when native evidence is missing (release gate)
 import { mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync, existsSync } from "node:fs";
 import { join } from "node:path";

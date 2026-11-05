@@ -8,7 +8,7 @@ Freeboard's interface must match the supplied design, `docs/reference/freeboard-
 | --- | --- |
 | `npm run verify:visual` | Builds `dist/` and the fixture bundle `dist-visual/`, then compares every matrix capture with its baseline. It exits 1 on any failure, 2 when evidence is incomplete, and 0 when all browser comparisons pass. Add `-- --require-native` to exit 2 while native evidence is missing. |
 | `npm run verify:visual -- --only '<regex>'` | Runs only the matching capture keys. The report is marked PARTIAL. |
-| `node scripts/visual/verify.mjs --live` | Compares against a fresh render of the prototype instead of the stored baselines. Use it while iterating. |
+| `node scripts/visual/verify.mjs --live` | Compares against a fresh render of the prototype instead of the stored baselines. Use it while iterating. CI uses it, because baselines are specific to the machine that rendered them (decision 2026-11-05). |
 | `npm run verify:visual:selftest` | Proves that the verifier fails when the font, gauge shape, colour or spacing changes, and reports a missing font as INCOMPLETE. |
 | `npm run verify:visual:baseline -- --accept "<rationale>"` | Regenerates the baselines from the prototype, never from the app. It refuses to run in CI, requires a rationale, and appends the rationale to `docs/decisions.md` under "Visual baselines". |
 

@@ -4,6 +4,8 @@
 // gauge-shape, colour and spacing mutations injected into the implementation
 // must FAIL against the committed baselines, the unmutated implementation must
 // PASS, and a missing font must be reported INCOMPLETE (never a silent pass).
+// --live: compare with a fresh render of the prototype on this machine
+// instead of the committed baseline (CI runners render text differently).
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { BASELINE_DIR, capture, launch, startServer } from "./lib.mjs";
@@ -12,12 +14,13 @@ import { captures } from "./matrix.mjs";
 
 const KEY = "overview-low--light--1120x900";
 const cap = captures().find((c) => c.key === KEY);
+const live = process.argv.includes("--live");
 const baseFile = join(BASELINE_DIR, KEY + ".png");
-if (!existsSync(baseFile)) {
+if (!live && !existsSync(baseFile)) {
   console.error(`Missing baseline ${baseFile}; generate baselines first.`);
   process.exit(1);
 }
-const baseline = readFileSync(baseFile);
+let baseline = live ? null : readFileSync(baseFile);
 
 const MUTATIONS = {
   none: null,
@@ -43,6 +46,14 @@ const MUTATIONS = {
 const { server, base } = await startServer();
 const browser = await launch();
 const results = [];
+if (live) {
+  const ref = await capture(browser, base, cap, "ref");
+  if (!ref.png) {
+    console.error("Reference render failed: " + ref.error);
+    process.exit(1);
+  }
+  baseline = ref.png;
+}
 for (const [name, mutate] of Object.entries(MUTATIONS)) {
   const r = await capture(browser, base, cap, "impl", { mutate: mutate ?? undefined });
   const cmp = comparePng(baseline, r.png);
