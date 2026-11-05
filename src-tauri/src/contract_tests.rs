@@ -53,6 +53,17 @@ fn inv03_app_commands_take_ids_not_paths() {
     // The handlers in commands/mod.rs must not accept free-form path or
     // command arguments.
     let src = std::fs::read_to_string(root().join("src/commands/mod.rs")).unwrap();
+    // Every command the shell defines is on the allowlist, or the interface
+    // cannot call it (a new command once shipped without it, 2026-11-05).
+    let mut lines = src.lines();
+    while let Some(l) = lines.next() {
+        if l.trim() == "#[tauri::command]" {
+            let f = lines.next().unwrap_or_default();
+            let name = f.split("fn ").nth(1).and_then(|r| r.split('(').next()).unwrap_or_default().trim();
+            assert!(!name.is_empty(), "unparsed command line: {f}");
+            assert!(toml.contains(&format!("\"{name}\"")), "command {name} is missing from permissions/app.toml");
+        }
+    }
     for bad in ["path: String", "path: PathBuf", "command: String", "program: String", "args: Vec<String>", "cmd: String"] {
         assert!(!src.contains(bad), "command handler takes `{bad}`");
     }

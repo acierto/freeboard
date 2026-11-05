@@ -45,7 +45,7 @@ fn classifies_fixture_state() {
 
     // Volumes mounted by any container (even stopped) are attached.
     let vols = by_detector(&o, VOLUMES);
-    assert_eq!(vols.len(), 1);
+    assert_eq!(vols.len(), 2, "one named volume and one group of unnamed volumes");
     assert_eq!(vols[0].title, "Volume billing_pgdata");
     assert_eq!(vols[0].size_bytes, 7_600_000_000);
 }
@@ -60,7 +60,7 @@ fn inv10_volumes_never_preselected_and_need_ack() {
         assert!(v.needs_confirmation);
         assert!(!v.recoverable);
         assert!(!v.preselected());
-        assert_eq!(v.ack_name.as_deref(), Some("billing_pgdata volume"));
+        assert!(v.ack_name.is_some());
         assert_eq!(v.recovery, "Not recoverable.");
     }
 }
@@ -160,4 +160,49 @@ fn build_cache_growth_is_detected() {
     let df = std::fs::read_to_string(s.join("df.jsonl")).unwrap().replace("\"Reclaimable\":\"14.8GB\"", "\"Reclaimable\":\"30GB\"");
     std::fs::write(s.join("df.jsonl"), df).unwrap();
     fx.with_ctx(ScanKind::Quick, |ctx| assert!(matches!(probe(&bc, ctx), Probe::Changed(_))));
+}
+
+#[test]
+fn named_volume_shows_compose_project_and_creation_date() {
+    let fx = Fx::new();
+    fx.docker(true);
+    let o = fx.scan(ScanKind::Quick, &docker_dets());
+    let v = by_detector(&o, VOLUMES).into_iter().find(|v| v.title == "Volume billing_pgdata").unwrap();
+    assert_eq!(v.location, "Compose project billing, not attached to a container");
+    assert_eq!(v.last_used_label, "Created 63 days ago. Docker does not record later use");
+    assert_eq!(v.ack_name.as_deref(), Some("billing_pgdata volume"));
+}
+
+#[test]
+fn unnamed_volumes_form_one_risky_group_with_one_acknowledgment() {
+    let fx = Fx::new();
+    fx.docker(true);
+    let o = fx.scan(ScanKind::Quick, &docker_dets());
+    let found: Vec<_> = o.findings.iter().filter(|f| f.suggestion.detector == VOLUMES && f.suggestion.title.contains("unnamed")).collect();
+    assert_eq!(found.len(), 1);
+    let g = &found[0];
+    let s = &g.suggestion;
+    assert_eq!(s.title, "2 unnamed volumes");
+    assert_eq!(s.size_bytes, 500_000_000);
+    assert_eq!(s.last_used_label, "Created 14 to 33 days ago");
+    assert_eq!((s.risk, s.needs_confirmation, s.recoverable, s.preselected()), (Risk::Risky, true, false, false));
+    assert_eq!(s.ack_name.as_deref(), Some("2 unnamed Docker volumes"));
+    let Target::Native { args, resources, .. } = &g.target else { panic!() };
+    assert_eq!(&args[..2], &["volume".to_string(), "rm".to_string()]);
+    assert_eq!(resources.len(), 2);
+    assert!(!args.iter().any(|a| a.starts_with('-')), "never a force flag: {args:?}");
+}
+
+#[test]
+fn unnamed_group_is_skipped_when_any_volume_changes() {
+    let fx = Fx::new();
+    fx.docker(true);
+    let o = fx.scan(ScanKind::Quick, &docker_dets());
+    let g = o.findings.iter().find(|f| f.suggestion.title == "2 unnamed volumes").unwrap().clone();
+    fx.with_ctx(ScanKind::Quick, |ctx| assert_eq!(probe(&g, ctx), Probe::Unchanged));
+    // One volume disappears: the whole group is skipped.
+    let vols = fx.root.join("docker-state/volumes.jsonl");
+    let kept: String = std::fs::read_to_string(&vols).unwrap().lines().filter(|l| !l.contains("bbbbbbbb")).map(|l| format!("{l}\n")).collect();
+    std::fs::write(&vols, kept).unwrap();
+    fx.with_ctx(ScanKind::Quick, |ctx| assert_eq!(probe(&g, ctx), Probe::Changed("A volume in this group no longer exists.".into())));
 }

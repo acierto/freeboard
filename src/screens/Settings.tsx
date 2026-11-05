@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { AppModel } from "../App";
 import { api } from "../lib/api";
 import { GB, displayPath } from "../lib/format";
@@ -15,7 +16,7 @@ const DEEP: [DeepScanSchedule, string][] = [
   ["daily", "Every day"],
 ];
 
-export function FolderList({ model, list, empty }: { model: AppModel; list: FolderList; empty: string }) {
+export function FolderList({ model, list, empty, before }: { model: AppModel; list: FolderList; empty: string; before?: ReactNode }) {
   const items = model.settings[list];
   const p = model.status.platform;
   return (
@@ -39,6 +40,7 @@ export function FolderList({ model, list, empty }: { model: AppModel; list: Fold
         )}
       </ul>
       <div className="actions">
+        {before}
         <button className="btn" data-action={"add-" + list} onClick={() => void track(api.addFolder(list)).then(model.setSettings)}>
           Add folder
         </button>

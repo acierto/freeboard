@@ -235,6 +235,10 @@ impl CleanupEngine {
             }
             picked.push(f);
         }
+        // Biggest wins first: the plan lists, and the run cleans, the largest
+        // items first (requested by the user, 2026-11-05). Stable, so equal
+        // sizes keep the selection order.
+        picked.sort_by(|a, b| b.suggestion.size_bytes.cmp(&a.suggestion.size_bytes));
         let snap = PlanSnapshot { findings: picked, permanent };
         let snapshot = serde_json::to_string(&snap).map_err(|e| CleanupError::Internal(e.to_string()))?;
         let row = PlanRow {

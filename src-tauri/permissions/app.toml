@@ -19,5 +19,7 @@ commands.allow = [
   "update_settings",
   "add_folder",
   "remove_folder",
+  "folder_suggestions",
+  "add_suggested_folder",
   "set_notifications_paused"
 ]

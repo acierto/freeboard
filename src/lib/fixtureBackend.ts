@@ -170,7 +170,12 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
     extraVolumes: [],
     onboardingComplete: params.get("onboarding") !== "1",
   };
-  if (params.get("onboarding") === "1") settings.scanFolders = [];
+  if (params.get("onboarding") === "1" || params.get("folders") === "none") settings.scanFolders = [];
+  // Folders the backend would offer (Git repositories found in the home folder).
+  const offers = [
+    { label: p === "windows" ? "C:\\Users\\you\\projects" : "~/projects", repos: 12, path: p === "windows" ? "C:\\Users\\you\\projects" : "/Users/you/projects" },
+    { label: p === "windows" ? "C:\\Users\\you\\work" : "~/work", repos: 3, path: p === "windows" ? "C:\\Users\\you\\work" : "/Users/you/work" },
+  ];
   const history: RunDetail[] = params.get("history") === "empty" ? [] : HISTORY_RUNS.map((r) => ({ ...r }));
   const plans = new Map<string, CleanupPlan>();
   const runs = new Map<string, RunDetail>();
@@ -180,7 +185,7 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
   const suggestions = () =>
     params.get("suggestions") === "empty"
       ? []
-      : ITEMS.filter((i) => vis(i, p) && !removed.has(i.id) && !(params.get("unavailable") === "docker" && i.cat === "docker")).map((i) =>
+      : ITEMS.filter((i) => vis(i, p) && !removed.has(i.id) && !(params.get("unavailable") === "docker" && i.cat === "docker") && !(settings.scanFolders.length === 0 && (i.cat === "worktrees" || i.cat === "builds"))).map((i) =>
           toSuggestion(i, p, skipped),
         );
 
@@ -214,7 +219,11 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
 
   const buildPlan = (ids: string[], acks: string[] = []): CleanupPlan => {
     const all = suggestions();
-    const items = ids.map((id) => all.find((s) => s.id === id)).filter((s): s is Suggestion => !!s && !s.blockedReason);
+    // Biggest first, like the backend (user decision 2026-11-05); stable sort.
+    const items = ids
+      .map((id) => all.find((s) => s.id === id))
+      .filter((s): s is Suggestion => !!s && !s.blockedReason)
+      .sort((a, b) => b.sizeBytes - a.sizeBytes);
     const sum = (l: Suggestion[]) => l.reduce((t, s) => t + s.sizeBytes, 0);
     const lost = items.filter((s) => !s.recoverable);
     const needAck = items.filter((s) => s.needsConfirmation).map((s) => s.id);
@@ -353,6 +362,13 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
     add_folder: (a) => {
       const k = a.list as "scanFolders" | "exclusions";
       settings = { ...settings, [k]: [...settings[k], p === "windows" ? "C:\\Users\\you\\code" : "/Users/you/code"] };
+      return settings;
+    },
+    folder_suggestions: () => offers.filter((o) => !settings.scanFolders.includes(o.path)).map(({ label, repos }) => ({ label, repos })),
+    add_suggested_folder: (a) => {
+      const o = offers.filter((x) => !settings.scanFolders.includes(x.path))[a.index as number];
+      if (!o) throw { code: "unknown_id", message: "That folder suggestion is no longer available." };
+      settings = { ...settings, scanFolders: [...settings.scanFolders, o.path] };
       return settings;
     },
     remove_folder: (a) => {

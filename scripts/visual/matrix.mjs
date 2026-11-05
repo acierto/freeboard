@@ -50,16 +50,69 @@ function addCancel() {
 }
 
 function runEdit(a) {
-  const rows = document.querySelectorAll("#v-plan .plan-row");
+  const rows = [...document.querySelectorAll("#v-plan .plan-row")];
   document.querySelector("#v-plan h2").textContent = a.title;
   document.querySelector("#v-plan p.num").innerHTML = a.head;
   for (const [i, label, cls, note] of a.rows) {
-    const r = rows[i];
+    // A row is addressed by position, or by its title when the item matters.
+    const r = typeof i === "string" ? rows.find((x) => x.querySelector("b").textContent === i) : rows[i];
     const span = r.querySelector(".result");
     span.textContent = label;
     span.className = cls;
     if (note) r.firstElementChild.insertAdjacentHTML("beforeend", '<div class="sub">' + note + "</div>");
   }
+}
+
+function noFolders() {
+  // Supplemental (2026-11-05): without project folders, worktrees and project
+  // items are not found, and Suggestions says so above the groups (.notes,
+  // .group-note, .actions, .btn) with folders that hold Git repositories.
+  const g = document.getElementById("groups");
+  for (const h of g.querySelectorAll(".group h3")) {
+    if (h.textContent === "Git worktrees" || h.textContent === "Dependencies and build output") h.closest(".group").remove();
+  }
+  g.insertAdjacentHTML(
+    "afterbegin",
+    '<div class="notes" id="no-folders-note"><p class="group-note">No project folders are chosen, so Git worktrees, dependencies and build output are not checked.</p>' +
+      '<div class="actions"><button class="btn primary" data-action="offer-0">Add ~/projects (12 repositories)</button><button class="btn" data-action="offer-1">Add ~/work (3 repositories)</button><button class="btn" data-action="choose-folder">Choose a folder</button></div></div>',
+  );
+}
+
+function sizeOrder() {
+  // Plans list and run the biggest items first (user decision 2026-11-05).
+  // The prototype keeps its items in a closure and builds the selection with
+  // Array.prototype.filter, so lists of its item objects are sorted by size
+  // (stable) as they are filtered. Only used for plan and run states.
+  const f = Array.prototype.filter;
+  Array.prototype.filter = function (...a) {
+    const r = f.apply(this, a);
+    if (r.length && r.every((x) => x && typeof x === "object" && "size" in x && "cat" in x && "risk" in x)) r.sort((p, q) => q.size - p.size);
+    return r;
+  };
+}
+
+function planWording(dockerNames) {
+  // User decisions 2026-11-05: only commands use the code font, and the
+  // free-space line gives a lower figure without Docker Desktop data (whose
+  // virtual disk may not return space right away) instead of "now to now +
+  // freed".
+  const v = document.getElementById("v-plan");
+  v.querySelectorAll(".plan-row .sub.mono").forEach((d) => {
+    if (/^(Delete the|Move to )/.test(d.textContent)) d.classList.remove("mono");
+  });
+  const p = v.querySelector("p.num");
+  const m = p && p.textContent.match(/to ([\d.]+) GB/);
+  if (!m) return;
+  const high = parseFloat(m[1]);
+  let slow = 0;
+  v.querySelectorAll(".plan-row").forEach((r) => {
+    if (dockerNames.includes(r.querySelector("b").textContent)) slow += parseFloat(r.querySelector(".size").textContent);
+  });
+  const low = high - slow;
+  p.innerHTML =
+    slow && low.toFixed(1) !== high.toFixed(1)
+      ? "Free space after cleanup: <b>" + low.toFixed(1) + " GB to " + high.toFixed(1) + " GB</b>. The higher figure needs Docker Desktop to return space from its virtual disk."
+      : "Free space after cleanup: <b>about " + high.toFixed(1) + " GB</b>";
 }
 
 function removeForecast() {
@@ -117,6 +170,9 @@ function planExpired() {
 }
 
 function onboarding() {
+  // No folders chosen: the two Safe project items are not found, so 6 items
+  // are preselected instead of 8 (2026-11-05).
+  document.getElementById("nav-count").textContent = "6";
   document.querySelectorAll("main > .view").forEach((v) => (v.hidden = true));
   document.querySelectorAll("nav button").forEach((b) => b.removeAttribute("aria-current"));
   document.querySelector("main").insertAdjacentHTML(
@@ -125,7 +181,7 @@ function onboarding() {
       '<div class="settings">' +
       '<div class="set"><span style="font-weight:500">What Freeboard reads</span><ul><li>Free space on your disks, every 5 minutes</li><li>Reports from Docker, Git, pnpm, pip and other developer tools</li><li>Sizes and dates of files in the folders you choose</li></ul></div>' +
       '<div class="set"><span style="font-weight:500">What it never does</span><ul><li>Remove anything without a plan you confirm</li><li>Send your data anywhere. Everything stays on this computer.</li><li>Ask for system permissions before a feature needs them</li></ul></div>' +
-      '<div class="set"><span style="font-weight:500">Folders to scan</span><ul class="mono"><li class="muted">No folders chosen yet</li></ul><div class="actions"><button class="btn" data-action="add-scanFolders">Add folder</button></div></div>' +
+      '<div class="set"><span style="font-weight:500">Folders to scan</span><ul class="mono"><li class="muted">No folders chosen yet</li></ul><div class="actions"><button class="btn" data-action="offer-0">Add ~/projects (12 repositories)</button><button class="btn" data-action="offer-1">Add ~/work (3 repositories)</button><button class="btn" data-action="add-scanFolders">Add folder</button></div></div>' +
       "</div>" +
       '<div class="actions"><button class="btn primary" data-action="onboarding-done" disabled>Start monitoring</button><button class="btn" data-action="onboarding-skip">Skip for now</button></div></section>',
   );
@@ -197,6 +253,11 @@ export const ENTRIES = [
     note: "Same as the empty state, but the sentence says the last scan found nothing (found on a real Linux VM with no developer tools).",
   },
   {
+    id: "suggestions-no-folders", surface: "Suggestions", state: "No project folders chosen (folders offered)", sizes: [DESKTOP, PHONE], query: "folders=none",
+    ref: [nav("suggestions"), check("b-node", false), check("b-target", false), evalRef(noFolders)], impl: [nav("suggestions")], supplemental: true,
+    note: "Worktree and project groups are absent (they come only from chosen folders); a .notes block with .group-note and .actions/.btn offers folders that hold Git repositories (found by the user, 2026-11-05).",
+  },
+  {
     id: "suggestions-docker-unavailable", surface: "Suggestions", state: "Docker unavailable (one note for five detectors)", sizes: [DESKTOP, PHONE], query: "unavailable=docker",
     ref: [nav("suggestions"), check("d-cache", false), check("d-dangling", false), evalRef(dockerUnavailable)], impl: [nav("suggestions")], supplemental: true,
     note: "No Docker group (Docker items are not returned) and a single .group-note above the groups; the backend reports the same cause for all five Docker detectors and the interface shows it once.",
@@ -244,7 +305,7 @@ export const ENTRIES = [
       evalRef(runEdit, {
         title: "Cleanup finished",
         head: "Freed <b>61.3 GB</b>. Free space is now <b>73.7 GB</b>. 1 item failed.",
-        rows: [[3, "Failed", "result fail", "The command exited with an error. Nothing was removed."]],
+        rows: [["Rust target folder: rust-cli", "Failed", "result fail", "The command exited with an error. Nothing was removed."]],
       }),
     ],
     impl: [nav("plan"), confirm], supplemental: true,
@@ -256,7 +317,7 @@ export const ENTRIES = [
       nav("plan"), confirm, finish,
       evalRef(runEdit, {
         title: "Cleanup canceled",
-        head: "Freed <b>39.7 GB</b>. Free space is now <b>52.1 GB</b>. 5 items did not start.",
+        head: "Freed <b>44.8 GB</b>. Free space is now <b>57.2 GB</b>. 5 items did not start.", // three largest first
         rows: [3, 4, 5, 6, 7].map((i) => [i, "Canceled", "result", null]),
       }),
     ],
@@ -307,6 +368,21 @@ export const ENTRIES = [
   // Keyboard focus
   { id: "focus-nav", surface: "Keyboard", state: "Focus ring on the second navigation item", sizes: [DESKTOP], query: "", ...both([{ key: "Tab" }, { key: "Tab" }]) },
 ];
+
+// Plan and run states: size order and plan wording (user decisions
+// 2026-11-05). Docker item names come from the prototype's own data.
+import { readFileSync as _read } from "node:fs";
+const _proto = _read(new URL("../../docs/reference/freeboard-prototype.html", import.meta.url), "utf8");
+const DOCKER_NAMES = [..._proto.matchAll(/cat: 'docker', name: '([^']+)'/g)].map((m) => m[1]);
+for (const e of ENTRIES) {
+  const plan = e.id.startsWith("plan-") && e.id !== "plan-empty";
+  const run = e.id.startsWith("run-");
+  if (!plan && !run) continue;
+  e.ref = [evalRef(sizeOrder), ...e.ref, ...(plan ? [evalRef(planWording, DOCKER_NAMES)] : [])];
+  e.supplemental = true;
+  e.note = (e.note ? e.note + " " : "") + "Items in size order" + (plan ? "; only commands in the code font; free-space line without Docker Desktop data as the lower figure" : "") + " (user decisions 2026-11-05).";
+}
+
 
 /** Native surfaces that browser comparison cannot establish. */
 export const NATIVE = [

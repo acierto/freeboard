@@ -135,6 +135,16 @@ pub struct AppCore {
     snapshots: Mutex<std::collections::HashMap<String, (i64, Option<u32>)>>,
     clock: Clock,
     platform: &'static str,
+    /// Folders last offered to the user; the interface picks one by index.
+    folder_offers: Mutex<Vec<PathBuf>>,
+}
+
+/// A folder Freeboard offers to scan (shown to the user; chosen by index).
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FolderSuggestion {
+    pub label: String,
+    pub repos: u32,
 }
 
 pub struct CoreConfig {
@@ -196,6 +206,7 @@ impl AppCore {
             snapshots: Mutex::new(Default::default()),
             clock: cfg.clock,
             platform: cfg.platform,
+            folder_offers: Mutex::new(Vec::new()),
         })
     }
 
@@ -559,6 +570,37 @@ impl AppCore {
         self.apply_patch(patch)
     }
 
+    /// Folders in the home folder that hold Git repositories and are not
+    /// chosen yet. The interface shows the labels and sends back an index.
+    pub fn folder_suggestions(&self) -> CmdResult<Vec<FolderSuggestion>> {
+        let s = self.settings();
+        // Chosen folders are stored canonical, so compare canonical paths.
+        let home = crate::platform::plain_path(&std::fs::canonicalize(&self.home).unwrap_or_else(|_| self.home.clone()));
+        let found = crate::scan::folders::suggest(&home, &s.scan_folders, 3);
+        let label = |p: &Path| -> String {
+            if self.platform != "windows" {
+                for h in [&self.home, &home] {
+                    if let Ok(rest) = p.strip_prefix(h) {
+                        return format!("~/{}", rest.display());
+                    }
+                }
+            }
+            p.display().to_string()
+        };
+        let out = found.iter().map(|c| FolderSuggestion { label: label(&c.path), repos: c.repos }).collect();
+        *self.folder_offers.lock().unwrap() = found.into_iter().map(|c| c.path).collect();
+        Ok(out)
+    }
+
+    /// Add a folder from the last `folder_suggestions` list.
+    pub fn add_suggested_folder(&self, index: u32) -> CmdResult<Settings> {
+        let path = self.folder_offers.lock().unwrap().get(index as usize).cloned();
+        match path {
+            Some(p) => self.add_folder(FolderList::ScanFolders, &p),
+            None => Err(CommandError::new("unknown_id", "That folder suggestion is no longer available.")),
+        }
+    }
+
     pub fn remove_folder(&self, list: FolderList, index: u32) -> CmdResult<Settings> {
         let s = self.settings();
         let mut patch = SettingsPatch::default();
@@ -791,6 +833,23 @@ pub(crate) mod tests {
         assert_eq!(bad.unwrap_err().code, "invalid_settings");
         // Persisted: a new core over the same store sees it.
         assert_eq!(core.store.load_settings().unwrap().low_threshold_bytes, 30 * GB);
+    }
+
+    #[test]
+    fn suggested_folders_are_added_by_index_only() {
+        let d = tempfile::tempdir().unwrap();
+        let (core, ..) = core_with(50, d.path());
+        std::fs::create_dir_all(core.home.join("proj/app/.git")).unwrap();
+        assert!(core.add_suggested_folder(0).is_err(), "nothing offered yet");
+        let offers = core.folder_suggestions().unwrap();
+        assert_eq!(offers.len(), 1);
+        assert_eq!(offers[0].repos, 1);
+        assert!(offers[0].label.ends_with("proj"));
+        let s = core.add_suggested_folder(0).unwrap();
+        assert_eq!(s.scan_folders.len(), 1);
+        assert!(s.scan_folders[0].ends_with("proj"));
+        assert!(core.add_suggested_folder(7).is_err());
+        assert!(core.folder_suggestions().unwrap().is_empty(), "chosen folders are not offered again");
     }
 
     #[test]

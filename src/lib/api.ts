@@ -8,6 +8,7 @@ import type {
   EmptyTrashResult,
   EventMap,
   FolderList,
+  FolderSuggestion,
   HistoryPage,
   Risk,
   RunDetail,
@@ -65,6 +66,10 @@ export const api = {
   /** Opens a native folder picker in the backend; the path never passes through the interface. */
   addFolder: (list: FolderList) => call<Settings>("add_folder", { list }),
   removeFolder: (list: FolderList, index: number) => call<Settings>("remove_folder", { list, index }),
+  /** Folders in the home folder that hold Git repositories (labels only). */
+  folderSuggestions: () => call<FolderSuggestion[]>("folder_suggestions"),
+  /** Adds an offered folder by its index; the path never passes through the interface. */
+  addSuggestedFolder: (index: number) => call<Settings>("add_suggested_folder", { index }),
   setNotificationsPaused: (paused: boolean) => call<boolean>("set_notifications_paused", { paused }),
 };
 

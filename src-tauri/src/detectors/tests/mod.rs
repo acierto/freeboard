@@ -119,7 +119,7 @@ impl Fx {
     pub fn docker(&self, up: bool) -> PathBuf {
         let s = self.root.join("docker-state");
         std::fs::create_dir_all(&s).unwrap();
-        let files: [(&str, &str); 9] = [
+        let files: [(&str, &str); 10] = [
             ("version_up.json", include_str!("../../../../tests/fixtures/docker/version_up.json")),
             ("version_down.json", include_str!("../../../../tests/fixtures/docker/version_down.json")),
             ("ps.jsonl", include_str!("../../../../tests/fixtures/docker/ps.jsonl")),
@@ -129,6 +129,7 @@ impl Fx {
             ("volumes.jsonl", include_str!("../../../../tests/fixtures/docker/volumes.jsonl")),
             ("df.jsonl", include_str!("../../../../tests/fixtures/docker/df.jsonl")),
             ("df_v.json", include_str!("../../../../tests/fixtures/docker/df_v.json")),
+            ("volume_inspect.jsonl", include_str!("../../../../tests/fixtures/docker/volume_inspect.jsonl")),
         ];
         for (n, c) in files {
             std::fs::write(s.join(n), c).unwrap();
@@ -161,6 +162,8 @@ image) case "$2" in
   *) echo "image $*" >> "$S/actions";; esac;;
 volume) case "$2" in
   ls) cat "$S/volumes.jsonl";;
+  # Like Docker: one JSON line per requested volume that exists.
+  inspect) shift 4; for v in "$@"; do grep -F "\"Name\":\"$v\"" "$S/volume_inspect.jsonl"; done;;
   rm) shift 2; printf 'volume rm' >> "$S/actions"; for a in "$@"; do printf ' [%s]' "$a" >> "$S/actions"; done; echo >> "$S/actions";;
   *) echo "volume $*" >> "$S/actions";; esac;;
 system) if [ "$3" = "-v" ]; then cat "$S/df_v.json"; else cat "$S/df.jsonl"; fi;;

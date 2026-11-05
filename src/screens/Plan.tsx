@@ -59,15 +59,14 @@ export function PlanScreen(props: Props) {
           {"Cannot be recovered" + (lost ? " (" + gb(plan.unrecoverableBytes) + ")" : "")}
         </div>
       </div>
-      <p className="num">
-        Free space after cleanup: <b>{gb(plan.freeBytesNow) + " to " + gb(plan.freeBytesNow + plan.bytesFreedNow)}</b>
-      </p>
+      <AfterCleanup plan={plan} platform={p} />
       <div>
         {plan.items.map((i) => (
           <div className="plan-row" key={i.id}>
             <div>
               <b>{i.title}</b>
-              <div className="sub mono">{i.actionLabel}</div>
+              {/* Only commands use the code font; "Delete the folder" is a sentence (user decision 2026-11-05). */}
+              <div className={i.action === "native_command" ? "sub mono" : "sub"}>{i.actionLabel}</div>
               <div className="sub">{i.recovery}</div>
             </div>
             <span className="size">{gb(i.sizeBytes)}</span>
@@ -177,5 +176,29 @@ function RunView({ model, run, onCancel, onOverview, onPlanMore }: Props & { run
         </>
       )}
     </section>
+  );
+}
+
+// Free space after cleanup. The prototype showed "now to now + freed", which
+// read as a puzzle (user, 2026-11-05). The lower figure now counts everything
+// except Docker Desktop data, whose virtual disk may not return space right
+// away; with no such data it is a single figure.
+function AfterCleanup({ plan, platform }: { plan: CleanupPlan; platform: string }) {
+  const desktop = platform !== "linux";
+  const slow = desktop
+    ? plan.items.filter((i) => i.category === "docker" && i.action !== "trash").reduce((t, i) => t + i.sizeBytes, 0)
+    : 0;
+  const high = plan.freeBytesNow + plan.bytesFreedNow;
+  const low = high - slow;
+  if (!slow || gb(low) === gb(high))
+    return (
+      <p className="num">
+        Free space after cleanup: <b>{"about " + gb(high)}</b>
+      </p>
+    );
+  return (
+    <p className="num">
+      Free space after cleanup: <b>{gb(low) + " to " + gb(high)}</b>. The higher figure needs Docker Desktop to return space from its virtual disk.
+    </p>
   );
 }

@@ -234,6 +234,11 @@ export interface CleanupFinished {
   measuredBytesFreed: number;
   skippedCount: number;
 }
+/** A folder Freeboard offers to scan; added by index, never by path. */
+export interface FolderSuggestion {
+  label: string;
+  repos: number;
+}
 export type View = "overview" | "suggestions" | "plan" | "history" | "settings";
 export interface Navigate {
   view: View;

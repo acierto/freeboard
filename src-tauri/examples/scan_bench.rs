@@ -104,6 +104,12 @@ fn bench(kind: ScanKind, settings: Settings) {
     for e in &out.errors {
         eprintln!("  {}: {} ({})", e.detector, e.kind, e.message);
     }
+    if std::env::var_os("SCAN_BENCH_LIST").is_some() {
+        for f in &out.findings {
+            let s = &f.suggestion;
+            eprintln!("    {:24} {:>7.1} GB  {:6}  {} | {} | {}", s.detector, s.size_bytes as f64 / 1e9, s.risk.as_str(), s.title, s.location, s.last_used_label);
+        }
+    }
 }
 
 /// 1 million small files spread over project-like folders: 1000 projects,

@@ -1,6 +1,7 @@
 import type { AppModel } from "../App";
 import { CATEGORIES, RISK_LABEL, displayPath, gb, selectable, sizeText } from "../lib/format";
 import type { Suggestion } from "../lib/types";
+import { NoFoldersNote } from "../components/FolderOffers";
 
 export type Filter = "All" | "Safe" | "Review" | "Risky";
 const FILTERS: Filter[] = ["All", "Safe", "Review", "Risky"];
@@ -73,6 +74,7 @@ export function Suggestions({ model, filter, setFilter }: { model: AppModel; fil
         </div>
       </div>
       <div id="groups" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+        <NoFoldersNote model={model} />
         {errors.length > 0 && (
           <div className="notes">
             {errors.map((e) => (
@@ -106,20 +108,11 @@ export function Suggestions({ model, filter, setFilter }: { model: AppModel; fil
                   ? "The last scan found nothing to reclaim. Scan again later, or choose more folders."
                   : "No suggestions yet. Run a scan to look for space you can reclaim."}
             </p>
-            {model.settings.scanFolders.length === 0 && (
-              <p className="muted" id="no-folders-note">
-                No folders are chosen yet, so projects, worktrees and old installers are not scanned. Choose them in Settings.
-              </p>
-            )}
             <div className="actions">
               <button className="btn primary" data-action="scan-empty" disabled={model.scanning} onClick={() => model.scan("quick")}>
                 Scan now
               </button>
-              {model.settings.scanFolders.length === 0 ? (
-                <button className="btn" data-action="choose-folders" onClick={() => model.show("settings")}>
-                  Choose folders
-                </button>
-              ) : (
+              {model.settings.scanFolders.length > 0 && (
                 <button className="btn" data-action="scan-folders-empty" disabled={model.scanning} onClick={() => model.scan("deep")}>
                   Run deep scan now
                 </button>

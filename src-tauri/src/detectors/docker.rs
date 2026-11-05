@@ -60,7 +60,30 @@ pub struct Snapshot {
     pub images: Vec<Image>,
     pub volumes: Vec<String>,
     pub volume_sizes: HashMap<String, u64>,
+    pub volume_meta: HashMap<String, VolumeMeta>,
     pub build_cache_reclaimable: Option<u64>,
+}
+
+/// What Docker records about a volume besides its name.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct VolumeMeta {
+    /// Created by Docker for a container (label `com.docker.volume.anonymous`).
+    pub anonymous: bool,
+    /// Docker Compose project (label `com.docker.compose.project`).
+    pub project: Option<String>,
+    /// Creation time from `docker volume inspect`.
+    pub created: Option<i64>,
+}
+
+/// `docker volume ls` prints labels as `k=v,k2=v2`.
+fn parse_labels(s: &str) -> HashMap<String, String> {
+    s.split(',')
+        .filter(|kv| !kv.is_empty())
+        .map(|kv| match kv.split_once('=') {
+            Some((k, v)) => (k.trim().to_string(), v.to_string()),
+            None => (kv.trim().to_string(), String::new()),
+        })
+        .collect()
 }
 
 impl Snapshot {
@@ -207,12 +230,35 @@ pub fn load(ctx: &ScanContext, det: &str) -> Result<Snapshot, DetectorError> {
         }
     }
 
-    // Volumes.
-    snap.volumes = json_lines(det, &volumes_out?)?
-        .iter()
-        .map(|v| s(v, "Name"))
-        .filter(|n| !n.is_empty())
-        .collect();
+    // Volumes, with labels (anonymous, Compose project).
+    for v in json_lines(det, &volumes_out?)? {
+        let name = s(&v, "Name");
+        if name.is_empty() {
+            continue;
+        }
+        let labels = parse_labels(&s(&v, "Labels"));
+        let meta = VolumeMeta {
+            anonymous: labels.contains_key("com.docker.volume.anonymous"),
+            project: labels.get("com.docker.compose.project").filter(|p| !p.is_empty()).cloned(),
+            created: None,
+        };
+        snap.volume_meta.insert(name.clone(), meta);
+        snap.volumes.push(name);
+    }
+    // Creation times (read-only `docker volume inspect`); optional: without
+    // them the rows say Docker does not record use.
+    let names: Vec<&str> = snap.volumes.iter().map(|n| n.as_str()).filter(|n| safe_arg(n)).collect();
+    for chunk in names.chunks(200) {
+        let mut args = vec!["volume", "inspect", "--format", "{{json .}}"];
+        args.extend(chunk.iter().copied());
+        if let Ok(out) = read(ctx, det, &args) {
+            for v in json_lines(det, &out).unwrap_or_default() {
+                if let Some(m) = snap.volume_meta.get_mut(&s(&v, "Name")) {
+                    m.created = parse_time(&s(&v, "CreatedAt"));
+                }
+            }
+        }
+    }
 
     // Sizes: build cache and per-volume usage (estimates from `docker system df`).
     if let Ok(out) = df_out {
@@ -422,15 +468,25 @@ pub fn stopped_findings(ctx: &ScanContext, snap: &Snapshot) -> Vec<Finding> {
     vec![Finding { suggestion: s, target: Target::Native { program: "docker".into(), args, resources: ids, cwd: None } }]
 }
 
-pub fn volume_findings(_ctx: &ScanContext, snap: &Snapshot) -> Vec<Finding> {
+pub fn volume_findings(ctx: &ScanContext, snap: &Snapshot) -> Vec<Finding> {
     let mut out = vec![];
-    for v in snap.volumes.iter().filter(|v| !snap.volume_used(v)) {
+    let unused: Vec<&String> = snap.volumes.iter().filter(|v| !snap.volume_used(v)).collect();
+    let meta = |v: &str| snap.volume_meta.get(v).cloned().unwrap_or_default();
+    // Named volumes: one row each, with the Compose project and creation date.
+    for v in unused.iter().filter(|v| !meta(v).anonymous || !safe_arg(v)) {
+        let m = meta(v);
         let mut s = base(VOLUMES, Category::Docker, v);
         s.title = format!("Volume {v}");
-        s.location = "Not attached to a container".into();
-        s.size_bytes = snap.volume_sizes.get(v).copied().unwrap_or(0);
+        s.location = match &m.project {
+            Some(p) => format!("Compose project {p}, not attached to a container"),
+            None => "Not attached to a container".into(),
+        };
+        s.size_bytes = snap.volume_sizes.get(v.as_str()).copied().unwrap_or(0);
         s.size_is_estimate = true;
-        s.last_used_label = "Docker does not record when a volume was last used".into();
+        s.last_used_label = match m.created {
+            Some(t) => format!("Created {}. Docker does not record later use", ago(ctx.now, t)),
+            None => "Docker does not record when a volume was last used".into(),
+        };
         s.risk = Risk::Risky;
         s.action = Action::NativeCommand;
         s.action_label = format!("docker volume rm {v}");
@@ -447,11 +503,45 @@ pub fn volume_findings(_ctx: &ScanContext, snap: &Snapshot) -> Vec<Finding> {
             suggestion: s,
             target: Target::Native {
                 program: "docker".into(),
-                args: vec!["volume".into(), "rm".into(), v.clone()],
-                resources: vec![v.clone()],
+                args: vec!["volume".into(), "rm".into(), v.to_string()],
+                resources: vec![v.to_string()],
                 cwd: None,
             },
         });
+    }
+    // Unnamed volumes: Docker created them for containers that are gone.
+    // Dozens of hash-named rows told the user nothing (2026-11-05), so they
+    // form one group with one acknowledgment. Still Risky, never preselected.
+    let anon: Vec<String> = unused.iter().filter(|v| meta(v).anonymous && safe_arg(v)).map(|v| v.to_string()).collect();
+    if !anon.is_empty() {
+        let n = anon.len();
+        let mut s = base(VOLUMES, Category::Docker, "unnamed-volumes");
+        s.title = if n == 1 { "1 unnamed volume".into() } else { format!("{n} unnamed volumes") };
+        s.location = "Created by Docker for containers that no longer exist".into();
+        s.size_bytes = anon.iter().map(|v| snap.volume_sizes.get(v).copied().unwrap_or(0)).sum();
+        s.size_is_estimate = true;
+        let created: Vec<i64> = anon.iter().filter_map(|v| meta(v).created).collect();
+        s.last_used_label = match (created.iter().min(), created.iter().max()) {
+            (Some(&old), Some(&new)) if days_since(ctx.now, old) != days_since(ctx.now, new) => {
+                format!("Created {} to {} days ago", days_since(ctx.now, new), days_since(ctx.now, old))
+            }
+            (Some(&old), _) => format!("Created {}", ago(ctx.now, old)),
+            _ => "Docker does not record when a volume was last used".into(),
+        };
+        s.risk = Risk::Risky;
+        s.action = Action::NativeCommand;
+        s.action_label = if n == 1 { format!("docker volume rm {}", anon[0]) } else { format!("docker volume rm (the {n} volumes)") };
+        s.reason = "No container uses them. Docker doesn't name or describe them, so it can't tell what is inside; one may still hold the only copy of some data.".into();
+        s.recovery = "Not recoverable.".into();
+        s.recoverable = false;
+        s.needs_confirmation = true;
+        s.ack_name = Some(if n == 1 { "unnamed Docker volume".into() } else { format!("{n} unnamed Docker volumes") });
+        let mut fp: Vec<&str> = vec!["unnamed-volumes"];
+        fp.extend(anon.iter().map(|v| v.as_str()));
+        s.fingerprint = fingerprint_of(&fp);
+        let mut args = vec!["volume".to_string(), "rm".to_string()];
+        args.extend(anon.iter().cloned());
+        out.push(Finding { suggestion: s, target: Target::Native { program: "docker".into(), args, resources: anon, cwd: None } });
     }
     out
 }
@@ -541,14 +631,18 @@ pub fn probe(f: &Finding, ctx: &ScanContext) -> Probe {
             }
         }
         VOLUMES => {
-            let name = &resources[0];
-            if !snap.volumes.contains(name) {
-                Probe::Changed("The volume no longer exists.".into())
-            } else if snap.volume_used(name) {
-                Probe::Changed("A container now uses this volume.".into())
-            } else {
-                Probe::Unchanged
+            // One volume, or the unnamed group: every volume must still exist
+            // and still be unused, or nothing is removed.
+            let group = resources.len() > 1;
+            for name in resources {
+                if !snap.volumes.contains(name) {
+                    return Probe::Changed(if group { "A volume in this group no longer exists." } else { "The volume no longer exists." }.into());
+                }
+                if snap.volume_used(name) {
+                    return Probe::Changed(if group { "A container now uses a volume in this group." } else { "A container now uses this volume." }.into());
+                }
             }
+            Probe::Unchanged
         }
         _ => Probe::Unknown("Unknown Docker detector.".into()),
     }

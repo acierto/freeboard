@@ -101,6 +101,16 @@ pub async fn add_folder(app: tauri::AppHandle, core: Core<'_>, list: FolderList)
 }
 
 #[tauri::command]
+pub async fn folder_suggestions(core: Core<'_>) -> CmdResult<Vec<crate::app_core::FolderSuggestion>> {
+    core.folder_suggestions()
+}
+
+#[tauri::command]
+pub async fn add_suggested_folder(core: Core<'_>, index: u32) -> CmdResult<Settings> {
+    core.add_suggested_folder(index)
+}
+
+#[tauri::command]
 pub async fn remove_folder(core: Core<'_>, list: FolderList, index: u32) -> CmdResult<Settings> {
     core.remove_folder(list, index)
 }

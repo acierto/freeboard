@@ -1,3 +1,5 @@
 {"Driver":"local","Labels":"","Links":"N/A","Mountpoint":"/var/lib/docker/volumes/web_data/_data","Name":"web_data","Scope":"local","Size":"N/A"}
 {"Driver":"local","Labels":"","Links":"N/A","Mountpoint":"/var/lib/docker/volumes/cache_vol/_data","Name":"cache_vol","Scope":"local","Size":"N/A"}
-{"Driver":"local","Labels":"","Links":"N/A","Mountpoint":"/var/lib/docker/volumes/billing_pgdata/_data","Name":"billing_pgdata","Scope":"local","Size":"N/A"}
+{"Driver":"local","Labels":"com.docker.compose.project=billing,com.docker.compose.volume=pgdata","Links":"N/A","Mountpoint":"/var/lib/docker/volumes/billing_pgdata/_data","Name":"billing_pgdata","Scope":"local","Size":"N/A"}
+{"Driver":"local","Labels":"com.docker.volume.anonymous=","Links":"N/A","Mountpoint":"/var/lib/docker/volumes/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/_data","Name":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","Scope":"local","Size":"N/A"}
+{"Driver":"local","Labels":"com.docker.volume.anonymous=","Links":"N/A","Mountpoint":"/var/lib/docker/volumes/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/_data","Name":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","Scope":"local","Size":"N/A"}

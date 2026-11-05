@@ -1,11 +1,15 @@
 import type { AppModel } from "../App";
 import { FolderList } from "./Settings";
+import { offerLabel, useFolderOffers } from "../components/FolderOffers";
+import { api } from "../lib/api";
+import { track } from "../lib/useBusy";
 
 // First run (supplemental design built from the prototype's existing
 // components): explains what Freeboard reads, asks for scan folders, and
 // requests operating system permissions only when a feature needs them.
 export function Onboarding({ model, onDone }: { model: AppModel; onDone(complete: boolean): void }) {
   const hasFolders = model.settings.scanFolders.length > 0;
+  const offers = useFolderOffers(model);
   return (
     <section className="view" id="v-onboarding">
       <div>
@@ -31,7 +35,16 @@ export function Onboarding({ model, onDone }: { model: AppModel; onDone(complete
         </div>
         <div className="set">
           <span style={{ fontWeight: 500 }}>Folders to scan</span>
-          <FolderList model={model} list="scanFolders" empty="No folders chosen yet" />
+          <FolderList
+            model={model}
+            list="scanFolders"
+            empty="No folders chosen yet"
+            before={offers.map((o, i) => (
+              <button key={o.label} className="btn" data-action={"offer-" + i} onClick={() => void track(api.addSuggestedFolder(i)).then(model.setSettings)}>
+                {offerLabel(o)}
+              </button>
+            ))}
+          />
         </div>
       </div>
       <div className="actions">

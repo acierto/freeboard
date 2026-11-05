@@ -3,6 +3,7 @@
 //! Interface contract (used by `core.rs`): `ScanContext`, `Detector`,
 //! `run_scan`, `default_detectors`, `ScanOutcome`.
 
+pub mod folders;
 pub mod size;
 pub mod walk;
 

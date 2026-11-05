@@ -20,8 +20,8 @@
   "locale": "en-US",
   "timezone": "UTC",
   "adapter": "scripts/visual/lib.mjs referenceHtml(): local fonts, data-theme, prototype chrome (.proto, .menubar, #notice) hidden",
-  "acceptedAt": "2026-11-05T07:36:43.740Z",
-  "rationale": "Suggestions: distinguish 'never scanned' from 'scan found nothing' (found on the Linux VM); new supplemental state suggestions-nothing-found (2026-11-05).",
+  "acceptedAt": "2026-11-05T21:50:01.861Z",
+  "rationale": "Plans list and run the biggest items first; only commands use the code font in plan rows; the free-space line gives a lower figure without Docker Desktop data; first run and Suggestions offer home folders that hold Git repositories when no project folder is chosen (new supplemental state suggestions-no-folders). Requested by the user (2026-11-05).",
   "entries": {
     "focus-nav--dark--1120x900": {
       "id": "focus-nav",
@@ -276,7 +276,7 @@
       "fixture": "onboarding=1",
       "supplemental": true,
       "note": "Built from .view, .settings/.set, lists and buttons of the prototype.",
-      "sha256": "858c582acdeebd05723225d23fc36d90405f6101143eb44cd7a2de890d2824d3"
+      "sha256": "655dbe0b76181030225847ba64aed9a1c5cfa0bba3429526a565be08e4b15bd2"
     },
     "onboarding--dark--390x844": {
       "id": "onboarding",
@@ -293,7 +293,7 @@
       "fixture": "onboarding=1",
       "supplemental": true,
       "note": "Built from .view, .settings/.set, lists and buttons of the prototype.",
-      "sha256": "5a35e8969d164efee4e860bdb0bb7a84602fa04ae3fbb24ccc7276a5230bc422"
+      "sha256": "6054d397344e99799ad4d7c6087bc3185930f120a87696f2305634336dbb9278"
     },
     "onboarding--light--1120x900": {
       "id": "onboarding",
@@ -310,7 +310,7 @@
       "fixture": "onboarding=1",
       "supplemental": true,
       "note": "Built from .view, .settings/.set, lists and buttons of the prototype.",
-      "sha256": "7bcc0ea072331dc08ffa597ad4dcedc54aeec3a5598105331f2c4ea4a30ca9eb"
+      "sha256": "2f904720e5396c78587be7ea1159425ff1925a8dffa6418fa7aef50bc04374c4"
     },
     "onboarding--light--390x844": {
       "id": "onboarding",
@@ -327,7 +327,7 @@
       "fixture": "onboarding=1",
       "supplemental": true,
       "note": "Built from .view, .settings/.set, lists and buttons of the prototype.",
-      "sha256": "22b3b8538c6b7ae8cbc0662b6c21a79fa7252ccb55663aef3cee34bf3936494b"
+      "sha256": "fc9cbf122d7a2d56c74b61755bbbdda734f4bf915f283bd2b0204fb6554cbc4c"
     },
     "overview-critical--dark--1120x900": {
       "id": "overview-critical",
@@ -1311,9 +1311,9 @@
       "reducedMotion": true,
       "crop": ".app",
       "fixture": "",
-      "supplemental": false,
-      "note": null,
-      "sha256": "495de50dc820bab24545fa907440108d052166ecfc61b0716d4e379e26c76b41"
+      "supplemental": true,
+      "note": "Items in size order; only commands in the code font; free-space line without Docker Desktop data as the lower figure (user decisions 2026-11-05).",
+      "sha256": "a40537f9e2ae755c0c04d8849f3552b052260d9c3649cdfabd06938a23f65bcf"
     },
     "plan-default--dark--390x844": {
       "id": "plan-default",
@@ -1328,9 +1328,9 @@
       "reducedMotion": true,
       "crop": ".app",
       "fixture": "",
-      "supplemental": false,
-      "note": null,
-      "sha256": "a7208e2788e1afb6fd89977d65f8ad30ee76eaf496fe9344646688aee575d7ad"
+      "supplemental": true,
+      "note": "Items in size order; only commands in the code font; free-space line without Docker Desktop data as the lower figure (user decisions 2026-11-05).",
+      "sha256": "7433bd448e2ed53363c5f0320d8fc67b168cbfdb6a7acf9bff400450bcc5382c"
     },
     "plan-default--light--1120x900": {
       "id": "plan-default",
@@ -1345,9 +1345,9 @@
       "reducedMotion": true,
       "crop": ".app",
       "fixture": "",
-      "supplemental": false,
-      "note": null,
-      "sha256": "421fbca190d86480eb77a91ed37338b11a0c8cf98de710da96763e28184fe943"
+      "supplemental": true,
+      "note": "Items in size order; only commands in the code font; free-space line without Docker Desktop data as the lower figure (user decisions 2026-11-05).",
+      "sha256": "26f97d592fc46b5e1e07d986a1fb53f27941f9967ea1463dabe0cc988cef7f19"
     },
     "plan-default--light--390x844": {
       "id": "plan-default",
@@ -1362,9 +1362,9 @@
       "reducedMotion": true,
       "crop": ".app",
       "fixture": "",
-      "supplemental": false,
-      "note": null,
-      "sha256": "e3a09e900102f936278bba6854df4b738b8530615bcbddcfdc6fd05bbbce40fd"
+      "supplemental": true,
+      "note": "Items in size order; only commands in the code font; free-space line without Docker Desktop data as the lower figure (user decisions 2026-11-05).",
+      "sha256": "3dad149dcc6ec8290615a8bf2a4cadd9be2e0f4c310810b94c70eb8d723d107b"
     },
     "plan-empty--dark--1120x900": {
       "id": "plan-empty",
@@ -1448,8 +1448,8 @@
       "crop": ".app",
       "fixture": "plan=expired",
       "supplemental": true,
-      "note": "Adds the expiry sentence (.blocked) and replaces Confirm with 'Make a new plan'.",
-      "sha256": "a763ff40d577a6a0fa38cb21a019fe6233e7b0eef616906745ca0017d914804d"
+      "note": "Adds the expiry sentence (.blocked) and replaces Confirm with 'Make a new plan'. Items in size order; only commands in the code font; free-space line without Docker Desktop data as the lower figure (user decisions 2026-11-05).",
+      "sha256": "529b779a976ece107146ae7ee3eb2e6cb83079ccd72a236a0217be58d6909a60"
     },
     "plan-expired--dark--390x844": {
       "id": "plan-expired",
@@ -1465,8 +1465,8 @@
       "crop": ".app",
       "fixture": "plan=expired",
       "supplemental": true,
-      "note": "Adds the expiry sentence (.blocked) and replaces Confirm with 'Make a new plan'.",
-      "sha256": "c8d70c4ea876a2322093c9cb421edcf6550203fb0d3634ded2f5cacfe5ba4cf4"
+      "note": "Adds the expiry sentence (.blocked) and replaces Confirm with 'Make a new plan'. Items in size order; only commands in the code font; free-space line without Docker Desktop data as the lower figure (user decisions 2026-11-05).",
+      "sha256": "831137cc102d887803a61b99553f7fe6f665f71ecad65b9c2c3a0621ca36ec62"
     },
     "plan-expired--light--1120x900": {
       "id": "plan-expired",
@@ -1482,8 +1482,8 @@
       "crop": ".app",
       "fixture": "plan=expired",
       "supplemental": true,
-      "note": "Adds the expiry sentence (.blocked) and replaces Confirm with 'Make a new plan'.",
-      "sha256": "d708c1d1e055fbabc7ebdc232f608c8a83b13593a944f1a6ea01c8fc18d939fd"
+      "note": "Adds the expiry sentence (.blocked) and replaces Confirm with 'Make a new plan'. Items in size order; only commands in the code font; free-space line without Docker Desktop data as the lower figure (user decisions 2026-11-05).",
+      "sha256": "c27ab287e029b402600930c59d74f6e04cc9dd83ac0b47e0bc6662678c054371"
     },
     "plan-expired--light--390x844": {
       "id": "plan-expired",
@@ -1499,8 +1499,8 @@
       "crop": ".app",
       "fixture": "plan=expired",
       "supplemental": true,
-      "note": "Adds the expiry sentence (.blocked) and replaces Confirm with 'Make a new plan'.",
-      "sha256": "cc5ddba75b9fdfdd6fbb251914acfd9ee9d8280a9f42d02396801af8c98d575f"
+      "note": "Adds the expiry sentence (.blocked) and replaces Confirm with 'Make a new plan'. Items in size order; only commands in the code font; free-space line without Docker Desktop data as the lower figure (user decisions 2026-11-05).",
+      "sha256": "3f55c919299086705c41934fa32853024e638d3b3abf32ff5b3bbcaffe40cc4a"
     },
     "plan-mixed--dark--1120x900": {
       "id": "plan-mixed",
@@ -1515,9 +1515,9 @@
       "reducedMotion": true,
       "crop": ".app",
       "fixture": "",
-      "supplemental": false,
-      "note": null,
-      "sha256": "bbe2003d2a0a38c64282ad4bb22a3fbf51bfcee040188afe6439dbabc2c00704"
+      "supplemental": true,
+      "note": "Items in size order; only commands in the code font; free-space line without Docker Desktop data as the lower figure (user decisions 2026-11-05).",
+      "sha256": "ba25194055bba30716a302f661648eaf1412d6d1b801a1206e2d75ed04e28100"
     },
     "plan-mixed--dark--390x844": {
       "id": "plan-mixed",
@@ -1532,9 +1532,9 @@
       "reducedMotion": true,
       "crop": ".app",
       "fixture": "",
-      "supplemental": false,
-      "note": null,
-      "sha256": "2c1bc5d0fa11f4a19e659b14061e40dc5bb5a563881b76a6dee512f928fbabea"
+      "supplemental": true,
+      "note": "Items in size order; only commands in the code font; free-space line without Docker Desktop data as the lower figure (user decisions 2026-11-05).",
+      "sha256": "217dce7250bc0e8d6c7ef064ac3ada2daeef651ebad8948b02d0824b3df250b7"
     },
     "plan-mixed--dark--480x900": {
       "id": "plan-mixed",
@@ -1549,9 +1549,9 @@
       "reducedMotion": true,
       "crop": ".app",
       "fixture": "",
-      "supplemental": false,
-      "note": null,
-      "sha256": "1c73463bc56da0d26a7c6fa62761a5487a6affb542d4fe0da8d0cd0c4e399f4a"
+      "supplemental": true,
+      "note": "Items in size order; only commands in the code font; free-space line without Docker Desktop data as the lower figure (user decisions 2026-11-05).",
+      "sha256": "2892520b89bb5c5356ec84d0431b060204661c1870a8db1d04eebd75e34c5dc1"
     },
     "plan-mixed--dark--481x900": {
       "id": "plan-mixed",
@@ -1566,9 +1566,9 @@
       "reducedMotion": true,
       "crop": ".app",
       "fixture": "",
-      "supplemental": false,
-      "note": null,
-      "sha256": "77c2f34d8c4fa850df534b341be4ba0ca40e841393d594ee146f440f6c320bfb"
+      "supplemental": true,
+      "note": "Items in size order; only commands in the code font; free-space line without Docker Desktop data as the lower figure (user decisions 2026-11-05).",
+      "sha256": "70c4856b5389ba9e0dc03db38c2633633e916c7e9413e56637e75dac74b94f48"
     },
     "plan-mixed--dark--760x900": {
       "id": "plan-mixed",
@@ -1583,9 +1583,9 @@
       "reducedMotion": true,
       "crop": ".app",
       "fixture": "",
-      "supplemental": false,
-      "note": null,
-      "sha256": "52f2b6777805f2d25a6a0ea91e558ecfc207b2170d74c6707a0e6860666af315"
+      "supplemental": true,
+      "note": "Items in size order; only commands in the code font; free-space line without Docker Desktop data as the lower figure (user decisions 2026-11-05).",
+      "sha256": "bebd1b114acd52407c9e31561b48ea4938e3568811bb4ad86556586b27679036"
     },
     "plan-mixed--dark--761x900": {
       "id": "plan-mixed",
@@ -1600,9 +1600,9 @@
       "reducedMotion": true,
       "crop": ".app",
       "fixture": "",
-      "supplemental": false,
-      "note": null,
-      "sha256": "77d66be5fe798cd6232def702c6859550c6e52fc74cb60e23a24b12968de26a1"
+      "supplemental": true,
+      "note": "Items in size order; only commands in the code font; free-space line without Docker Desktop data as the lower figure (user decisions 2026-11-05).",
+      "sha256": "d695ee855b5122fd8ceb5058f31812f37ed3459f05b8409aa27a3908960658ce"
     },
     "plan-mixed--light--1120x900": {
       "id": "plan-mixed",
@@ -1617,9 +1617,9 @@
       "reducedMotion": true,
       "crop": ".app",
       "fixture": "",
-      "supplemental": false,
-      "note": null,
-      "sha256": "99ea8b341fd60c36ff725341f8710237b4429ffc8e3ecb009d40721f7f2cfe37"
+      "supplemental": true,
+      "note": "Items in size order; only commands in the code font; free-space line without Docker Desktop data as the lower figure (user decisions 2026-11-05).",
+      "sha256": "16cbd39d0f68756f6f2a7fb805684ccc18c5df2ad64cb0b2b37bbbb8f04cee00"
     },
     "plan-mixed--light--390x844": {
       "id": "plan-mixed",
@@ -1634,9 +1634,9 @@
       "reducedMotion": true,
       "crop": ".app",
       "fixture": "",
-      "supplemental": false,
-      "note": null,
-      "sha256": "b55790d2a5ca3a890eb070363facefdcf4bb501b2c562f32b73815e2a4b4e887"
+      "supplemental": true,
+      "note": "Items in size order; only commands in the code font; free-space line without Docker Desktop data as the lower figure (user decisions 2026-11-05).",
+      "sha256": "10a89cc2b0551f4ceb44072e6f1fd4a0c55bd663b545639419c20df5397a9194"
     },
     "plan-mixed--light--480x900": {
       "id": "plan-mixed",
@@ -1651,9 +1651,9 @@
       "reducedMotion": true,
       "crop": ".app",
       "fixture": "",
-      "supplemental": false,
-      "note": null,
-      "sha256": "bc062b49849fed4aed9da7a6978ee9329c56e5557c782cc5304c4ca5e8a2a882"
+      "supplemental": true,
+      "note": "Items in size order; only commands in the code font; free-space line without Docker Desktop data as the lower figure (user decisions 2026-11-05).",
+      "sha256": "2229167da220df3e1394322a3d894d6b0727d51dc1ea3c466abdebc13117962a"
     },
     "plan-mixed--light--481x900": {
       "id": "plan-mixed",
@@ -1668,9 +1668,9 @@
       "reducedMotion": true,
       "crop": ".app",
       "fixture": "",
-      "supplemental": false,
-      "note": null,
-      "sha256": "192948fd75f5b7405bf924004aaa380b56fc3892b11564280c582a6b8d8d0660"
+      "supplemental": true,
+      "note": "Items in size order; only commands in the code font; free-space line without Docker Desktop data as the lower figure (user decisions 2026-11-05).",
+      "sha256": "5fb7a681e07751d4f5e7ebfd337a49c1269a9bf4519b11025c61966a30cf6640"
     },
     "plan-mixed--light--760x900": {
       "id": "plan-mixed",
@@ -1685,9 +1685,9 @@
       "reducedMotion": true,
       "crop": ".app",
       "fixture": "",
-      "supplemental": false,
-      "note": null,
-      "sha256": "4161c521464e874e570639a999f867720fc685bab98226722c32f24a937cee43"
+      "supplemental": true,
+      "note": "Items in size order; only commands in the code font; free-space line without Docker Desktop data as the lower figure (user decisions 2026-11-05).",
+      "sha256": "9803dec763613a15e12c5dd81d34707a6871addcf9f85d77db002612acf49663"
     },
     "plan-mixed--light--761x900": {
       "id": "plan-mixed",
@@ -1702,9 +1702,9 @@
       "reducedMotion": true,
       "crop": ".app",
       "fixture": "",
-      "supplemental": false,
-      "note": null,
-      "sha256": "6760a53fc173976cd47f526f320123432cb54ac0414fca976b8ef6556a600d3e"
+      "supplemental": true,
+      "note": "Items in size order; only commands in the code font; free-space line without Docker Desktop data as the lower figure (user decisions 2026-11-05).",
+      "sha256": "9f7405a5aa67e2778ff8ef08516de3038f9081babd0b9484447e3f2e67896da2"
     },
     "plan-mixed-acked--dark--1120x900": {
       "id": "plan-mixed-acked",
@@ -1719,9 +1719,9 @@
       "reducedMotion": true,
       "crop": ".app",
       "fixture": "",
-      "supplemental": false,
-      "note": null,
-      "sha256": "2cbc528adfa72e3e309183572325aed288c0912c228c31189f4a728c3613b3f2"
+      "supplemental": true,
+      "note": "Items in size order; only commands in the code font; free-space line without Docker Desktop data as the lower figure (user decisions 2026-11-05).",
+      "sha256": "898907bcd42b9470e1dd03b5a462622a1561d22149693485a61b28d86b4ece9d"
     },
     "plan-mixed-acked--dark--390x844": {
       "id": "plan-mixed-acked",
@@ -1736,9 +1736,9 @@
       "reducedMotion": true,
       "crop": ".app",
       "fixture": "",
-      "supplemental": false,
-      "note": null,
-      "sha256": "b244b9adbf1cd96d30ea74a6eef2b8b38475922799d80563cf47782b6ef01983"
+      "supplemental": true,
+      "note": "Items in size order; only commands in the code font; free-space line without Docker Desktop data as the lower figure (user decisions 2026-11-05).",
+      "sha256": "5dd720fe5527ff1d1949d04cf6e6d9ded394e53680b17edb6942f0017f6d5a2a"
     },
     "plan-mixed-acked--light--1120x900": {
       "id": "plan-mixed-acked",
@@ -1753,9 +1753,9 @@
       "reducedMotion": true,
       "crop": ".app",
       "fixture": "",
-      "supplemental": false,
-      "note": null,
-      "sha256": "f8f695dfd45c2ae4138be068df3c622a80c64b009d6c8372f13051005c7f16af"
+      "supplemental": true,
+      "note": "Items in size order; only commands in the code font; free-space line without Docker Desktop data as the lower figure (user decisions 2026-11-05).",
+      "sha256": "fd25ec18255be8caf13ddee0b4691865906261979e17ca6a0b01f51c805366fe"
     },
     "plan-mixed-acked--light--390x844": {
       "id": "plan-mixed-acked",
@@ -1770,9 +1770,9 @@
       "reducedMotion": true,
       "crop": ".app",
       "fixture": "",
-      "supplemental": false,
-      "note": null,
-      "sha256": "8be7560f908372454c505b051734864e4b333ee2f2e36dbe46555b39fe6cb173"
+      "supplemental": true,
+      "note": "Items in size order; only commands in the code font; free-space line without Docker Desktop data as the lower figure (user decisions 2026-11-05).",
+      "sha256": "28986c773baf5a6dc46d3de0bdcc1177e66685e32ba9eba9d0f6d7b110c1d4fe"
     },
     "run-canceled--dark--1120x900": {
       "id": "run-canceled",
@@ -1788,8 +1788,8 @@
       "crop": ".app",
       "fixture": "cancelAfter=3",
       "supplemental": true,
-      "note": "Prototype finished view retitled 'Cleanup canceled'; unstarted rows read Canceled.",
-      "sha256": "424e80507136d987bce26750b97d8866bcdc47d70d3a3790bb501e29ef3c64ce"
+      "note": "Prototype finished view retitled 'Cleanup canceled'; unstarted rows read Canceled. Items in size order (user decisions 2026-11-05).",
+      "sha256": "54e1f70b28ec83eafe15d3f205a9ef6366786e229d7271ab02f624e60c039cbe"
     },
     "run-canceled--dark--390x844": {
       "id": "run-canceled",
@@ -1805,8 +1805,8 @@
       "crop": ".app",
       "fixture": "cancelAfter=3",
       "supplemental": true,
-      "note": "Prototype finished view retitled 'Cleanup canceled'; unstarted rows read Canceled.",
-      "sha256": "bd495509d59571479fda504e0ad815342e2172b4e648738bc2342daf085ba993"
+      "note": "Prototype finished view retitled 'Cleanup canceled'; unstarted rows read Canceled. Items in size order (user decisions 2026-11-05).",
+      "sha256": "a9cda04f1b61d7af1ddca9d3f57d72e3da7616d670a68b6887929b700164d375"
     },
     "run-canceled--light--1120x900": {
       "id": "run-canceled",
@@ -1822,8 +1822,8 @@
       "crop": ".app",
       "fixture": "cancelAfter=3",
       "supplemental": true,
-      "note": "Prototype finished view retitled 'Cleanup canceled'; unstarted rows read Canceled.",
-      "sha256": "791b63e952d9c82ad27f7bf87f42f26781659413d199c10de7116ebee8fc82ee"
+      "note": "Prototype finished view retitled 'Cleanup canceled'; unstarted rows read Canceled. Items in size order (user decisions 2026-11-05).",
+      "sha256": "e73162bb0086721f3aef8945425fb77d3b21e111e7d13cc6126350d04a115cf4"
     },
     "run-canceled--light--390x844": {
       "id": "run-canceled",
@@ -1839,8 +1839,8 @@
       "crop": ".app",
       "fixture": "cancelAfter=3",
       "supplemental": true,
-      "note": "Prototype finished view retitled 'Cleanup canceled'; unstarted rows read Canceled.",
-      "sha256": "7fcdd860ed36ced8203b8c842667e6c6e7828dd49aca179fba342e720439e6a6"
+      "note": "Prototype finished view retitled 'Cleanup canceled'; unstarted rows read Canceled. Items in size order (user decisions 2026-11-05).",
+      "sha256": "85ce07db74f687ee99ad5f3430edf2a3c629d95721f8ea34732a7ae267d96c77"
     },
     "run-checking--dark--1120x900": {
       "id": "run-checking",
@@ -1856,8 +1856,8 @@
       "crop": ".app",
       "fixture": "run=hold",
       "supplemental": true,
-      "note": "Prototype running view plus the Cancel button (.btn in .actions) required by the product spec.",
-      "sha256": "e33a03815f2a9e253c86c09cf975cd7e44d6b4218fc3f6b731513084f17a46c8"
+      "note": "Prototype running view plus the Cancel button (.btn in .actions) required by the product spec. Items in size order (user decisions 2026-11-05).",
+      "sha256": "49d76ceaa1f44cd034eabbb8fa7ce17e856d5e20df0fd6f82e9ae10c2bdf16ff"
     },
     "run-checking--dark--390x844": {
       "id": "run-checking",
@@ -1873,8 +1873,8 @@
       "crop": ".app",
       "fixture": "run=hold",
       "supplemental": true,
-      "note": "Prototype running view plus the Cancel button (.btn in .actions) required by the product spec.",
-      "sha256": "1f68c57cdf007ef24231384515b1e5e9d41c20d6975acc9a69265e03cf64a66c"
+      "note": "Prototype running view plus the Cancel button (.btn in .actions) required by the product spec. Items in size order (user decisions 2026-11-05).",
+      "sha256": "74e9d427e6bf6d711bcbd44164c52287094569bd344f770244f80a1b748c605d"
     },
     "run-checking--light--1120x900": {
       "id": "run-checking",
@@ -1890,8 +1890,8 @@
       "crop": ".app",
       "fixture": "run=hold",
       "supplemental": true,
-      "note": "Prototype running view plus the Cancel button (.btn in .actions) required by the product spec.",
-      "sha256": "f60a2e006024048415a765d1d3885d446fd84a88915c2f01ef6919146cd40d8a"
+      "note": "Prototype running view plus the Cancel button (.btn in .actions) required by the product spec. Items in size order (user decisions 2026-11-05).",
+      "sha256": "ddfe2d98ba05b83a13c9d6a8fd12cb4fdb76849efb7447cbae7df9fa42552a94"
     },
     "run-checking--light--390x844": {
       "id": "run-checking",
@@ -1907,8 +1907,8 @@
       "crop": ".app",
       "fixture": "run=hold",
       "supplemental": true,
-      "note": "Prototype running view plus the Cancel button (.btn in .actions) required by the product spec.",
-      "sha256": "28351e3391dc7ea1f3f11f29d0b27a2699ce14ecdcaeb22c61017e9a4f8124f8"
+      "note": "Prototype running view plus the Cancel button (.btn in .actions) required by the product spec. Items in size order (user decisions 2026-11-05).",
+      "sha256": "785be86b67f150d45f1a7f6424d489bb0bd3039847d5079fcfbeba7be6efcab8"
     },
     "run-failed--dark--1120x900": {
       "id": "run-failed",
@@ -1924,8 +1924,8 @@
       "crop": ".app",
       "fixture": "fail=b-target",
       "supplemental": true,
-      "note": "Prototype finished view with one row changed to Failed (supplemental .result.fail colour) and totals recomputed.",
-      "sha256": "5c46c06296fa5b1c92db9576784ca699f3045ac6dc97d486cee70a91364b2980"
+      "note": "Prototype finished view with one row changed to Failed (supplemental .result.fail colour) and totals recomputed. Items in size order (user decisions 2026-11-05).",
+      "sha256": "1bb6b3df19571ad473ab59e8a9242154719271997b141eca8af53b4bee2bc46f"
     },
     "run-failed--dark--390x844": {
       "id": "run-failed",
@@ -1941,8 +1941,8 @@
       "crop": ".app",
       "fixture": "fail=b-target",
       "supplemental": true,
-      "note": "Prototype finished view with one row changed to Failed (supplemental .result.fail colour) and totals recomputed.",
-      "sha256": "ee075e6b513ca7b40fb96e25bd82f889e2773b85ea8b0abe12cd0469c6ea8b75"
+      "note": "Prototype finished view with one row changed to Failed (supplemental .result.fail colour) and totals recomputed. Items in size order (user decisions 2026-11-05).",
+      "sha256": "73ddcb6535277eb2719548b4bb377013522a199a4b30557d7f47890073fed508"
     },
     "run-failed--light--1120x900": {
       "id": "run-failed",
@@ -1958,8 +1958,8 @@
       "crop": ".app",
       "fixture": "fail=b-target",
       "supplemental": true,
-      "note": "Prototype finished view with one row changed to Failed (supplemental .result.fail colour) and totals recomputed.",
-      "sha256": "2fb6ebea83482d1c2b073b366c8fc34efcf3c537b9a5b7839a15ba5ce28eaa8f"
+      "note": "Prototype finished view with one row changed to Failed (supplemental .result.fail colour) and totals recomputed. Items in size order (user decisions 2026-11-05).",
+      "sha256": "d94748ff65ba35e583f5ed6607f26d6f00306610f85fe2ad81013bae6e412a48"
     },
     "run-failed--light--390x844": {
       "id": "run-failed",
@@ -1975,8 +1975,8 @@
       "crop": ".app",
       "fixture": "fail=b-target",
       "supplemental": true,
-      "note": "Prototype finished view with one row changed to Failed (supplemental .result.fail colour) and totals recomputed.",
-      "sha256": "88bbacdc65e315085779aa5048313e4801e51dc29769d8117a97795cb5df80c3"
+      "note": "Prototype finished view with one row changed to Failed (supplemental .result.fail colour) and totals recomputed. Items in size order (user decisions 2026-11-05).",
+      "sha256": "9d6e66669bbc3484a4a96f0f6183560b1c30520e2f4d5dc28b2c14bbeae81ac6"
     },
     "run-skipped--dark--1120x900": {
       "id": "run-skipped",
@@ -1991,8 +1991,8 @@
       "reducedMotion": true,
       "crop": ".app",
       "fixture": "",
-      "supplemental": false,
-      "note": null,
+      "supplemental": true,
+      "note": "Items in size order (user decisions 2026-11-05).",
       "sha256": "7d6b4483bbf940030438b3445a2a353665caf0fccbfbbdeacb4f8c6e39aba67d"
     },
     "run-skipped--dark--390x844": {
@@ -2008,8 +2008,8 @@
       "reducedMotion": true,
       "crop": ".app",
       "fixture": "",
-      "supplemental": false,
-      "note": null,
+      "supplemental": true,
+      "note": "Items in size order (user decisions 2026-11-05).",
       "sha256": "c86a78a949981e210f4694a912b80ee44a4cf87ff100003e5d394b057c075b7c"
     },
     "run-skipped--light--1120x900": {
@@ -2025,8 +2025,8 @@
       "reducedMotion": true,
       "crop": ".app",
       "fixture": "",
-      "supplemental": false,
-      "note": null,
+      "supplemental": true,
+      "note": "Items in size order (user decisions 2026-11-05).",
       "sha256": "811c7245c2bcb67048059c08744e1ee59234897d98d5b367c7d206ce2a5a0ec6"
     },
     "run-skipped--light--390x844": {
@@ -2042,8 +2042,8 @@
       "reducedMotion": true,
       "crop": ".app",
       "fixture": "",
-      "supplemental": false,
-      "note": null,
+      "supplemental": true,
+      "note": "Items in size order (user decisions 2026-11-05).",
       "sha256": "f82d16e80df8bdab7d998a3d0a188d5ed73102e36965957c97123aab28f6b3b4"
     },
     "run-success--dark--1120x900": {
@@ -2059,9 +2059,9 @@
       "reducedMotion": true,
       "crop": ".app",
       "fixture": "",
-      "supplemental": false,
-      "note": null,
-      "sha256": "76acf1a6bd961f89805afbe45ead06ec38506c5373a2a67382a1422aef1896f4"
+      "supplemental": true,
+      "note": "Items in size order (user decisions 2026-11-05).",
+      "sha256": "528bcf980174376751cf933b92b96f54f4199cbe7ffadb8a711f8fe6c16cb12e"
     },
     "run-success--dark--390x844": {
       "id": "run-success",
@@ -2076,9 +2076,9 @@
       "reducedMotion": true,
       "crop": ".app",
       "fixture": "",
-      "supplemental": false,
-      "note": null,
-      "sha256": "8bfc9c85bfe9bed6cee4b99e842bacbe7cc6745818660b50668120165a721ab3"
+      "supplemental": true,
+      "note": "Items in size order (user decisions 2026-11-05).",
+      "sha256": "4e8d9649f14eff4967566a7b957a3f6fc9ee964b7453579797fe78fc6779821f"
     },
     "run-success--light--1120x900": {
       "id": "run-success",
@@ -2093,9 +2093,9 @@
       "reducedMotion": true,
       "crop": ".app",
       "fixture": "",
-      "supplemental": false,
-      "note": null,
-      "sha256": "cf762d33d81ab63d07a2160620e76a3cd2d758a744ee50e0ac4565c2c35c4f3b"
+      "supplemental": true,
+      "note": "Items in size order (user decisions 2026-11-05).",
+      "sha256": "f96f0bcead6bf2b98bdc0ababcc1a151167c342c5fe45320168d9f5d665440f1"
     },
     "run-success--light--390x844": {
       "id": "run-success",
@@ -2110,9 +2110,9 @@
       "reducedMotion": true,
       "crop": ".app",
       "fixture": "",
-      "supplemental": false,
-      "note": null,
-      "sha256": "e19d1f95ffd200fc1018fc79f7c6b8cf7e7bb4ddef0f4ee79f202b6d86607e5f"
+      "supplemental": true,
+      "note": "Items in size order (user decisions 2026-11-05).",
+      "sha256": "6dd4ebb704d7a545c86bd2cfb25ca9f58bb2db31b4c5e83a844602e76f14bb24"
     },
     "run-trash-confirm--dark--1120x900": {
       "id": "run-trash-confirm",
@@ -2127,8 +2127,8 @@
       "reducedMotion": true,
       "crop": ".app",
       "fixture": "",
-      "supplemental": false,
-      "note": null,
+      "supplemental": true,
+      "note": "Items in size order (user decisions 2026-11-05).",
       "sha256": "0f77a2e990ab6e8fcab888acba2795496e5208a544539983e7fdfd1db996878c"
     },
     "run-trash-confirm--dark--390x844": {
@@ -2144,8 +2144,8 @@
       "reducedMotion": true,
       "crop": ".app",
       "fixture": "",
-      "supplemental": false,
-      "note": null,
+      "supplemental": true,
+      "note": "Items in size order (user decisions 2026-11-05).",
       "sha256": "742eacc28d6f922476c5e72070ba66a582b71ad05a9199c02ac7f6a4591d8c32"
     },
     "run-trash-confirm--light--1120x900": {
@@ -2161,8 +2161,8 @@
       "reducedMotion": true,
       "crop": ".app",
       "fixture": "",
-      "supplemental": false,
-      "note": null,
+      "supplemental": true,
+      "note": "Items in size order (user decisions 2026-11-05).",
       "sha256": "98034436b8c8e96f615f4099db96c538627d72ef9077ed5b34d41f159370e320"
     },
     "run-trash-confirm--light--390x844": {
@@ -2178,8 +2178,8 @@
       "reducedMotion": true,
       "crop": ".app",
       "fixture": "",
-      "supplemental": false,
-      "note": null,
+      "supplemental": true,
+      "note": "Items in size order (user decisions 2026-11-05).",
       "sha256": "bd350a49e0a472f1e6c6f13153b708cde9145727e3a91b984885e7754ab5e4dc"
     },
     "settings-changed--dark--1120x900": {
@@ -2997,6 +2997,74 @@
       "supplemental": false,
       "note": null,
       "sha256": "3bed2b8e5189506fc74fee36e3a198d9589ece5bd7f76833b1d63712ce0f82e5"
+    },
+    "suggestions-no-folders--dark--1120x900": {
+      "id": "suggestions-no-folders",
+      "surface": "Suggestions",
+      "state": "No project folders chosen (folders offered)",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": ".app",
+      "fixture": "folders=none",
+      "supplemental": true,
+      "note": "Worktree and project groups are absent (they come only from chosen folders); a .notes block with .group-note and .actions/.btn offers folders that hold Git repositories (found by the user, 2026-11-05).",
+      "sha256": "def7dc1365441d87c4d3b5420ee56e374ea7a13c68e9a4b5069897c03a6d9db8"
+    },
+    "suggestions-no-folders--dark--390x844": {
+      "id": "suggestions-no-folders",
+      "surface": "Suggestions",
+      "state": "No project folders chosen (folders offered)",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": ".app",
+      "fixture": "folders=none",
+      "supplemental": true,
+      "note": "Worktree and project groups are absent (they come only from chosen folders); a .notes block with .group-note and .actions/.btn offers folders that hold Git repositories (found by the user, 2026-11-05).",
+      "sha256": "3c344cc6a968d3854ed953fbc6517bc6a17bbe9de9dbe0e574912703387af859"
+    },
+    "suggestions-no-folders--light--1120x900": {
+      "id": "suggestions-no-folders",
+      "surface": "Suggestions",
+      "state": "No project folders chosen (folders offered)",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": ".app",
+      "fixture": "folders=none",
+      "supplemental": true,
+      "note": "Worktree and project groups are absent (they come only from chosen folders); a .notes block with .group-note and .actions/.btn offers folders that hold Git repositories (found by the user, 2026-11-05).",
+      "sha256": "b8a2887d09995380532b88ee874b91faaf75d50a83e250d815910370fbc6f080"
+    },
+    "suggestions-no-folders--light--390x844": {
+      "id": "suggestions-no-folders",
+      "surface": "Suggestions",
+      "state": "No project folders chosen (folders offered)",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": ".app",
+      "fixture": "folders=none",
+      "supplemental": true,
+      "note": "Worktree and project groups are absent (they come only from chosen folders); a .notes block with .group-note and .actions/.btn offers folders that hold Git repositories (found by the user, 2026-11-05).",
+      "sha256": "90b96064ce2692d56c7c0271037e6512d2ed155ec09b312b2d6777df5a548fa8"
     },
     "suggestions-nothing-found--dark--1120x900": {
       "id": "suggestions-nothing-found",

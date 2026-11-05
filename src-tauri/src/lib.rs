@@ -301,6 +301,8 @@ mod shell {
                 crate::commands::update_settings,
                 crate::commands::add_folder,
                 crate::commands::remove_folder,
+                crate::commands::folder_suggestions,
+                crate::commands::add_suggested_folder,
                 crate::commands::set_notifications_paused,
             ])
             .build(context)

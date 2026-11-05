@@ -766,3 +766,39 @@ fn native_trash_round_trip_with_disposable_file() {
         std::fs::remove_file(survivor.path()).unwrap();
     }
 }
+
+#[test]
+fn plan_lists_and_runs_biggest_items_first() {
+    let e = Env::new();
+    e.scan();
+    let all = e.store.findings().unwrap();
+    let mut ids: Vec<(String, u64)> = all
+        .iter()
+        .filter(|f| f.suggestion.blocked_reason.is_none() && !f.suggestion.needs_confirmation && f.suggestion.size_bytes > 0)
+        .map(|f| (f.suggestion.id.clone(), f.suggestion.size_bytes))
+        .collect();
+    ids.sort_by_key(|(_, s)| *s); // smallest first on purpose
+    assert!(ids.len() >= 2, "need two items of different sizes");
+    let plan = e.plan(&ids.iter().map(|(i, _)| i.clone()).collect::<Vec<_>>());
+    let sizes: Vec<u64> = plan.items.iter().map(|s| s.size_bytes).collect();
+    assert!(sizes.windows(2).all(|w| w[0] >= w[1]), "{sizes:?}");
+    assert_eq!(plan.item_ids, plan.items.iter().map(|s| s.id.clone()).collect::<Vec<_>>());
+}
+
+#[test]
+fn unnamed_volume_group_needs_its_acknowledgment_and_removes_exactly_its_volumes() {
+    let e = Env::new();
+    e.scan();
+    let id = e.id("docker.volumes", "unnamed volumes");
+    let p = e.plan(&[id.clone()]);
+    assert!(!p.ready, "needs the acknowledgment first");
+    assert_eq!(p.unrecoverable_ids, vec![id.clone()]);
+    let p = e.engine.acknowledge_item(&p.id, &id, NOW).unwrap();
+    assert!(p.ready);
+    let r = e.run(&p);
+    assert_eq!(r.items[0].state, ItemState::Done, "{:?}", r.items[0]);
+    let a = "a".repeat(64);
+    let b = "b".repeat(64);
+    assert!(e.actions().contains(&format!("volume rm [{a}] [{b}]")), "{}", e.actions());
+    assert!(!e.actions().contains("billing_pgdata"), "named volumes are not part of the group");
+}
