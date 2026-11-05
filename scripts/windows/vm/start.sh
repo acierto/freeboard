@@ -8,9 +8,11 @@ set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 V="$HOME/Downloads/freeboard-winvm"
 KEY="$HOME/.ssh/freeboard_vm"
-FW=/opt/local/share/qemu/edk2-aarch64-code.fd
-QEMU=/opt/local/bin/qemu-system-aarch64
-IMG=/opt/local/bin/qemu-img
+# Homebrew QEMU 9.x: its UEFI firmware boots from NVMe (the 2022 MacPorts
+# QEMU 7.1 firmware cannot, although Windows setup itself sees the disk).
+FW=/opt/homebrew/share/qemu/edk2-aarch64-code.fd
+QEMU=/opt/homebrew/bin/qemu-system-aarch64
+IMG=/opt/homebrew/bin/qemu-img
 [ -f "$KEY" ] || ssh-keygen -q -t ed25519 -N "" -C freeboard-vm -f "$KEY"
 INSTALL=()
 if [ ! -f "$V/disk.qcow2" ]; then
