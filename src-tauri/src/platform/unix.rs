@@ -104,6 +104,22 @@ pub fn processes_in_dir(dir: &Path, runner: &crate::runner::Runner) -> Option<Ve
     }
 }
 
+pub(super) fn process_alive_impl(pid: u32) -> Option<bool> {
+    let Ok(pid) = libc::pid_t::try_from(pid) else { return Some(false) };
+    if pid <= 0 {
+        return None;
+    }
+    // SAFETY: signal 0 only checks that the process exists.
+    if unsafe { libc::kill(pid, 0) } == 0 {
+        return Some(true);
+    }
+    match std::io::Error::last_os_error().raw_os_error() {
+        Some(libc::ESRCH) => Some(false),
+        Some(libc::EPERM) => Some(true),
+        _ => None,
+    }
+}
+
 pub(super) fn on_battery_impl() -> Option<bool> {
     #[cfg(target_os = "linux")]
     {

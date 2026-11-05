@@ -158,6 +158,11 @@ pub fn is_wsl_path(path: &Path) -> bool {
     s.starts_with(r"\\wsl$") || s.starts_with(r"\\wsl.localhost") || s.starts_with("//wsl$")
 }
 
+/// Whether a process with this ID exists; None when it cannot be told.
+pub fn process_alive(pid: u32) -> Option<bool> {
+    process_alive_impl(pid)
+}
+
 /// Battery state: Some(true) when running on battery.
 pub fn on_battery() -> Option<bool> {
     on_battery_impl()

@@ -9,8 +9,12 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Existing tag to (re)build, e.g. v0.1.0"
+        description: "Tag to (re)build, e.g. v0.1.0, or a branch to build test installers from"
         required: true
+      publish:
+        description: "Publish to the GitHub Release (off: installers stay as workflow artifacts)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -35,6 +39,13 @@ jobs:
           - name: linux-arm64
             os: ubuntu-22.04-arm
             args: --bundles deb,appimage
+          - name: windows-x64
+            os: windows-latest
+            args: --bundles nsis,msi
+          # WiX (MSI) cannot build Arm64 packages; the setup .exe covers it.
+          - name: windows-arm64
+            os: windows-11-arm
+            args: --bundles nsis
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -78,6 +89,12 @@ jobs:
               arch="${{ matrix.name }}"; arch="${arch#linux-}"
               cp "$(ls $b/release/bundle/deb/*.deb | head -1)" "out/Freeboard-linux-$arch.deb"
               cp "$(ls $b/release/bundle/appimage/*.AppImage | head -1)" "out/Freeboard-linux-$arch.AppImage" ;;
+            windows-*)
+              arch="${{ matrix.name }}"; arch="${arch#windows-}"
+              cp "$(ls $b/release/bundle/nsis/*.exe | head -1)" "out/Freeboard-windows-$arch-setup.exe"
+              if ls $b/release/bundle/msi/*.msi >/dev/null 2>&1; then
+                cp "$(ls $b/release/bundle/msi/*.msi | head -1)" "out/Freeboard-windows-$arch.msi"
+              fi ;;
           esac
           ls -la out
       - uses: actions/upload-artifact@v4
@@ -88,6 +105,7 @@ jobs:
 
   publish:
     needs: build
+    if: github.event_name == 'push' || inputs.publish
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -103,11 +121,12 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           cat > notes.md <<NOTES
-          Preview release of Freeboard ${TAG#v} for macOS and Linux.
+          Preview release of Freeboard ${TAG#v} for macOS, Windows and Linux.
 
           Download page: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
 
           - **macOS** (11+, Apple silicon and Intel): \`Freeboard-macOS-universal.dmg\`. Not notarized yet: after the first launch is blocked, open System Settings → Privacy & Security → Open Anyway.
+          - **Windows** (10 and 11): \`Freeboard-windows-x64-setup.exe\` (or \`.msi\`), \`Freeboard-windows-arm64-setup.exe\` for Arm PCs. Not code-signed yet: SmartScreen shows "Windows protected your PC"; choose More info → Run anyway.
           - **Linux** (Ubuntu 22.04+ or similar): \`.deb\` or AppImage for x86_64 and arm64.
 
           Verify downloads with \`SHA256SUMS.txt\`.

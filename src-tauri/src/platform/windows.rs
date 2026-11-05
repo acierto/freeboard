@@ -124,6 +124,30 @@ pub fn processes_in_dir(_dir: &Path, _runner: &crate::runner::Runner) -> Option<
     None
 }
 
+pub(super) fn process_alive_impl(pid: u32) -> Option<bool> {
+    use windows_sys::Win32::Foundation::{GetLastError, ERROR_ACCESS_DENIED, ERROR_INVALID_PARAMETER, STILL_ACTIVE};
+    use windows_sys::Win32::System::Threading::{GetExitCodeProcess, OpenProcess, PROCESS_QUERY_LIMITED_INFORMATION};
+    // SAFETY: plain Win32 calls; the handle is closed.
+    unsafe {
+        let h = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, 0, pid);
+        if h.is_null() {
+            return match GetLastError() {
+                ERROR_INVALID_PARAMETER => Some(false),
+                ERROR_ACCESS_DENIED => Some(true),
+                _ => None,
+            };
+        }
+        let mut code: u32 = 0;
+        let ok = GetExitCodeProcess(h, &mut code);
+        CloseHandle(h);
+        if ok == 0 {
+            None
+        } else {
+            Some(code == STILL_ACTIVE as u32)
+        }
+    }
+}
+
 pub(super) fn on_battery_impl() -> Option<bool> {
     use windows_sys::Win32::System::Power::{GetSystemPowerStatus, SYSTEM_POWER_STATUS};
     // SAFETY: valid out pointer.

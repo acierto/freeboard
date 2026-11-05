@@ -403,7 +403,15 @@ mod tests {
         let f = fx();
         assert_eq!(f.guard.check(Path::new("relative/x")).unwrap_err(), GuardError::NotAbsolute);
         let p = f.root.join("home/projects/app/node_modules/../../..");
-        assert_eq!(f.guard.check(&p).unwrap_err(), GuardError::Traversal);
+        // Windows: joining onto a verbatim root (\\?\C:\...) resolves `..`
+        // already; the result is the protected folder itself.
+        assert!(f.guard.check(&p).is_err());
+        // A raw path string keeps `..` with either separator.
+        let sep = std::path::MAIN_SEPARATOR;
+        for tail in ["home/projects/app/node_modules/../../..".to_string(), format!("home{sep}projects{sep}app{sep}..{sep}..")] {
+            let raw = PathBuf::from(format!("{}{sep}{tail}", f.root.display()));
+            assert_eq!(f.guard.check(&raw).unwrap_err(), GuardError::Traversal, "{raw:?}");
+        }
     }
 
     #[test]

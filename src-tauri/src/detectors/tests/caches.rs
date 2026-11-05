@@ -105,10 +105,22 @@ fn gradle_blocked_while_daemon_runs_or_unknown() {
     fx.tool("ps", "exit 1");
     let o = fx.scan(ScanKind::Quick, &[Box::new(Gradle)]);
     assert!(find(&o, GRADLE).suggestion.blocked_reason.as_deref().unwrap().contains("couldn't check"));
+    // Windows: the daemons' logs and their process IDs, no `ps`.
     fx.platform = "windows";
-    fx.tool("ps", "exit 0");
     let o = fx.scan(ScanKind::Quick, &[Box::new(Gradle)]);
-    assert!(find(&o, GRADLE).suggestion.blocked_reason.is_some());
+    assert!(find(&o, GRADLE).suggestion.blocked_reason.is_none(), "no daemon logs: nothing runs");
+    let mut child = std::process::Command::new(if cfg!(windows) { "cmd" } else { "true" })
+        .args(if cfg!(windows) { &["/c", "exit"][..] } else { &[][..] })
+        .spawn()
+        .unwrap();
+    let gone = child.id();
+    child.wait().unwrap();
+    fx.write(&format!(".gradle/daemon/8.10/daemon-{gone}.out.log"), b"stopped");
+    let o = fx.scan(ScanKind::Quick, &[Box::new(Gradle)]);
+    assert!(find(&o, GRADLE).suggestion.blocked_reason.is_none(), "log of a stopped daemon");
+    fx.write(&format!(".gradle/daemon/8.10/daemon-{}.out.log", std::process::id()), b"running");
+    let o = fx.scan(ScanKind::Quick, &[Box::new(Gradle)]);
+    assert!(find(&o, GRADLE).suggestion.blocked_reason.as_deref().unwrap().contains("daemon is running"));
 }
 
 #[test]

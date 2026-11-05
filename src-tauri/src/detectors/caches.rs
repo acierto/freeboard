@@ -370,13 +370,44 @@ pub fn gradle_home(ctx: &ScanContext) -> PathBuf {
 /// Some(true) when a Gradle daemon runs, None when unknown.
 pub fn gradle_daemon_running(ctx: &ScanContext) -> Option<bool> {
     if ctx.platform == "windows" {
-        return None;
+        return gradle_daemon_from_logs(&gradle_home(ctx).join("daemon"));
     }
     let out = ctx.runner.run_read(&Cmd::new("ps", ["-A", "-o", "args="])).ok()?;
     if !out.success() {
         return None;
     }
     Some(out.stdout.lines().any(|l| l.contains("GradleDaemon") || l.contains("org.gradle.launcher.daemon")))
+}
+
+/// Windows has no `ps` and command lines are not readable without WMI, so
+/// the daemons' own logs are used: every Gradle daemon writes
+/// `<gradle home>/daemon/<version>/daemon-<pid>.out.log`. A daemon counts as
+/// running while a process with that ID exists. A reused ID only blocks the
+/// cleanup, never allows it.
+pub fn gradle_daemon_from_logs(daemon_dir: &std::path::Path) -> Option<bool> {
+    let versions = match std::fs::read_dir(daemon_dir) {
+        Ok(v) => v,
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Some(false),
+        Err(_) => return None,
+    };
+    for v in versions {
+        let v = v.ok()?;
+        if !v.file_type().ok()?.is_dir() {
+            continue;
+        }
+        for f in std::fs::read_dir(v.path()).ok()? {
+            let name = f.ok()?.file_name();
+            let name = name.to_string_lossy();
+            let Some(pid) = name.strip_prefix("daemon-").and_then(|r| r.strip_suffix(".out.log")) else { continue };
+            let Ok(pid) = pid.parse::<u32>() else { continue };
+            match crate::platform::process_alive(pid) {
+                Some(false) => {}
+                Some(true) => return Some(true),
+                None => return None,
+            }
+        }
+    }
+    Some(false)
 }
 
 const GRADLE_DAEMON_BLOCK: &str = "A Gradle daemon is running. Stop it with gradle --stop, then scan again.";
