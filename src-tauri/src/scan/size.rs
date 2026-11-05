@@ -206,8 +206,7 @@ mod tests {
     #[test]
     fn sparse_file_uses_allocation() {
         let t = tempfile::tempdir().unwrap();
-        let f = fs::File::create(t.path().join("sparse")).unwrap();
-        f.set_len(256 * 1024 * 1024).unwrap();
+        platform::make_sparse(&t.path().join("sparse"), 256 * 1024 * 1024);
         let m = measure(t.path(), &MeasureOpts::default());
         assert!(m.bytes < 4 * 1024 * 1024, "{m:?}");
     }

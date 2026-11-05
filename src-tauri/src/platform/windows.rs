@@ -13,10 +13,16 @@ use windows_sys::Win32::Storage::FileSystem::{
 use super::FileId;
 
 fn wide(path: &Path) -> Vec<u16> {
-    // Long-path support: prefix absolute paths with \\?\.
+    // Long-path support: prefix absolute paths with \\?\. Windows does not
+    // normalize verbatim paths, so `/` separators become `\\` first (paths
+    // joined from settings or tests may contain them). `..` never gets here:
+    // the guard rejects it.
     let s = path.as_os_str();
     let mut v: Vec<u16> = if path.is_absolute() && !s.to_string_lossy().starts_with(r"\\") {
-        std::ffi::OsStr::new(r"\\?\").encode_wide().chain(s.encode_wide()).collect()
+        std::ffi::OsStr::new(r"\\?\")
+            .encode_wide()
+            .chain(s.encode_wide().map(|c| if c == b'/' as u16 { b'\\' as u16 } else { c }))
+            .collect()
     } else {
         s.encode_wide().collect()
     };

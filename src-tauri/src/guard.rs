@@ -114,6 +114,17 @@ impl Guard {
         if path.components().any(|c| matches!(c, Component::ParentDir)) {
             return Err(GuardError::Traversal);
         }
+        // Windows does not parse verbatim paths (`\\?\C:\...`): `a/../b` stays
+        // one component. Refuse `..` or `.` written with either separator.
+        if path.components().any(|c| match c {
+            Component::Normal(n) => {
+                let n = n.to_string_lossy();
+                n.split(['/', '\\']).any(|part| part == ".." || part == ".")
+            }
+            _ => false,
+        }) {
+            return Err(GuardError::Traversal);
+        }
         let name = path.file_name().ok_or_else(|| GuardError::Protected("filesystem root".into()))?;
         let parent = path.parent().ok_or_else(|| GuardError::Protected("filesystem root".into()))?;
         let cp = fs::canonicalize(parent).map_err(|_| GuardError::Missing)?;

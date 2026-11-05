@@ -47,7 +47,7 @@ impl VolumeSource for SysVolumes {
                 total: d.total_space(),
             })
             .collect();
-        let home = std::fs::canonicalize(home).unwrap_or_else(|_| home.to_path_buf());
+        let home = crate::platform::plain_path(&std::fs::canonicalize(home).unwrap_or_else(|_| home.to_path_buf()));
         let mut out = Vec::new();
         if let Some(h) = containing(&list, &home) {
             let mut h = h.clone();

@@ -107,6 +107,51 @@ pub fn downloads_dir(home: &Path) -> PathBuf {
     home.join("Downloads")
 }
 
+/// Windows: `fs::canonicalize` returns verbatim paths (`\\?\C:\...`) that
+/// do not compare equal to the plain paths volumes and settings use.
+/// Returns the plain form for drive-letter paths; other paths are unchanged.
+pub fn plain_path(p: &Path) -> PathBuf {
+    let s = p.to_string_lossy();
+    if let Some(rest) = s.strip_prefix(r"\\?\") {
+        let b = rest.as_bytes();
+        if b.len() >= 2 && b[0].is_ascii_alphabetic() && b[1] == b':' {
+            return PathBuf::from(rest);
+        }
+    }
+    p.to_path_buf()
+}
+
+/// Test support: open a directory so its times can be set. Windows needs
+/// write access and `FILE_FLAG_BACKUP_SEMANTICS` to open a directory.
+#[cfg(test)]
+pub fn open_dir_for_times(p: &Path) -> std::io::Result<std::fs::File> {
+    #[cfg(windows)]
+    {
+        use std::os::windows::fs::OpenOptionsExt;
+        std::fs::OpenOptions::new().write(true).custom_flags(0x0200_0000).open(p)
+    }
+    #[cfg(not(windows))]
+    {
+        std::fs::File::open(p)
+    }
+}
+
+/// Test support: a file of `len` bytes with nothing written. NTFS allocates
+/// extended files unless they are marked sparse first.
+#[cfg(test)]
+pub fn make_sparse(p: &Path, len: u64) {
+    let f = std::fs::File::create(p).unwrap();
+    #[cfg(windows)]
+    {
+        drop(f);
+        let ok = std::process::Command::new("fsutil").args(["sparse", "setflag"]).arg(p).status().unwrap();
+        assert!(ok.success(), "fsutil sparse setflag failed");
+        std::fs::OpenOptions::new().write(true).open(p).unwrap().set_len(len).unwrap();
+    }
+    #[cfg(not(windows))]
+    f.set_len(len).unwrap();
+}
+
 /// WSL filesystems are excluded from scanning in v1.
 pub fn is_wsl_path(path: &Path) -> bool {
     let s = path.to_string_lossy().to_ascii_lowercase();
@@ -123,6 +168,13 @@ mod tests {
     use super::*;
 
     #[test]
+    fn plain_path_strips_verbatim_drive_prefix() {
+        assert_eq!(plain_path(Path::new(r"\\?\C:\Users\dev")), PathBuf::from(r"C:\Users\dev"));
+        assert_eq!(plain_path(Path::new(r"\\?\UNC\srv\share")), PathBuf::from(r"\\?\UNC\srv\share"));
+        assert_eq!(plain_path(Path::new("/home/dev")), PathBuf::from("/home/dev"));
+    }
+
+    #[test]
     fn wsl_paths_detected() {
         assert!(is_wsl_path(Path::new(r"\\wsl$\Ubuntu\home")));
         assert!(is_wsl_path(Path::new(r"\\wsl.localhost\Ubuntu")));
@@ -133,10 +185,8 @@ mod tests {
     fn allocated_size_counts_blocks_not_length() {
         let dir = tempfile::tempdir().unwrap();
         let p = dir.path().join("sparse");
-        let f = std::fs::File::create(&p).unwrap();
         // 64 MiB apparent length, nothing written.
-        f.set_len(64 * 1024 * 1024).unwrap();
-        drop(f);
+        make_sparse(&p, 64 * 1024 * 1024);
         let alloc = allocated_size(&p, &std::fs::symlink_metadata(&p).unwrap());
         assert!(alloc < 1024 * 1024, "sparse file reported {alloc} allocated bytes");
     }

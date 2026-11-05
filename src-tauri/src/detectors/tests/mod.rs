@@ -213,7 +213,7 @@ pub fn age(p: &Path, days: i64) {
             age(&e.path(), days);
         }
         // Directory times too (after children, which update them).
-        if let Ok(d) = std::fs::File::open(p) {
+        if let Ok(d) = crate::platform::open_dir_for_times(p) {
             let _ = d.set_times(std::fs::FileTimes::new().set_modified(t).set_accessed(t));
         }
     }
