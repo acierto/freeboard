@@ -122,6 +122,7 @@ jobs:
             visual/actual/
             visual/diff/
             visual/baseline/
+            visual/reference-live/
           retention-days: 90
           if-no-files-found: error
 

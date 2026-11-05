@@ -3,6 +3,7 @@
 
 usage: qmp.py shot OUT.png        screenshot
        qmp.py keys KEY [KEY...]   press keys, e.g. ret, spc, ctrl-alt-delete
+       qmp.py type TEXT           type text (letters, digits, common symbols), no Enter
 """
 import json, os, socket, subprocess, sys
 
@@ -31,6 +32,20 @@ if sys.argv[1] == "shot":
     subprocess.run(["sips", "-s", "format", "png", ppm, "--out", out], check=True, capture_output=True)
     os.remove(ppm)
     print(out)
+elif sys.argv[1] == "type":
+    import time
+    sym = {" ": "spc", "\\": "backslash", ":": "shift-semicolon", ".": "dot", "-": "minus", "_": "shift-minus",
+           "/": "slash", ";": "semicolon", "=": "equal", ",": "comma", "'": "apostrophe", '"': "shift-apostrophe",
+           "|": "shift-backslash", "$": "shift-4", "(": "shift-9", ")": "shift-0", "*": "shift-8", "&": "shift-7"}
+    for ch in sys.argv[2]:
+        if ch in sym:
+            k = sym[ch]
+        elif ch.isupper():
+            k = "shift-" + ch.lower()
+        else:
+            k = ch
+        cmd("send-key", keys=[{"type": "qcode", "data": p} for p in k.split("-")])
+        time.sleep(0.03)
 elif sys.argv[1] == "keys":
     for k in sys.argv[2:]:
         keys = [{"type": "qcode", "data": p} for p in k.split("-")]
