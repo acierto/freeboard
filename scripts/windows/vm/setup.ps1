@@ -5,7 +5,8 @@ foreach ($d in Get-PSDrive -PSProvider FileSystem) {
   $inf = Join-Path $d.Root 'NetKVM\w11\ARM64\netkvm.inf'
   if (Test-Path $inf) { pnputil /add-driver $inf /install }
 }
-for ($i = 0; $i -lt 60 -and -not (Test-Connection 8.8.8.8 -Count 1 -Quiet); $i++) { Start-Sleep 5 }
+# QEMU user networking passes no ICMP, so check with HTTPS instead of ping.
+for ($i = 0; $i -lt 60; $i++) { if ((curl.exe -s -o NUL -w '%{http_code}' https://www.microsoft.com) -eq '200') { break }; Start-Sleep 5 }
 Set-NetConnectionProfile -NetworkCategory Private -ErrorAction SilentlyContinue
 # OpenSSH server with key login for the administrator account.
 Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
