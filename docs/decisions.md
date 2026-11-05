@@ -51,7 +51,7 @@ Closing the window hides it; a timer destroys the webview after 60 seconds hidde
 ## 2026-11-04 — Release decisions (task 5.6, decided by the user)
 
 - **License: MIT.** `LICENSE` at the repository root; `license = "MIT"` in `Cargo.toml` and `package.json`; the installers include the license file. Bundled fonts keep their SIL Open Font Licenses (`src/fonts/`).
-- **Release order: all three platforms together.** No platform ships a signed release until signed artifacts and acceptance evidence exist for macOS, Linux and Windows (task 5.7).
+- **Release order: all three platforms together.** No platform ships a signed release until signed artifacts and acceptance evidence exist for macOS, Linux and Windows (task 5.7). *Superseded 2026-11-04 by the user: v1 is scoped to macOS and Linux, released together; Windows is out of scope for now (`docs/release.md`).*
 - **Product name: Freeboard is final.** Domain, package-registry and trademark checks remain the owner's responsibility before public distribution.
 
 ## 2026-11-04 — Memory target measure (task 5.4, decided by the user)

@@ -131,6 +131,7 @@ pub struct AppCore {
     scan_cancel: Arc<AtomicBool>,
     notifications_paused: AtomicBool,
     /// macOS local snapshot count per mount point, with the time it was read.
+    #[cfg_attr(not(target_os = "macos"), allow(dead_code))]
     snapshots: Mutex<std::collections::HashMap<String, (i64, Option<u32>)>>,
     clock: Clock,
     platform: &'static str,
