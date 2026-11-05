@@ -46,6 +46,10 @@ Closing the window hides it; a timer destroys the webview after 60 seconds hidde
 
 Docker 29 leaves untagged images out of a plain `docker image ls`. Freeboard now also runs `docker image ls --filter dangling=true` (read-only, already allowed) and merges the two lists. `--all` is not used because it also lists intermediate build layers, which are not dangling. The test fake behaves like Docker 29 and answers `image inspect` only for the requested IDs, so the test fails without the fix.
 
+## 2026-11-05 — Public preview downloads (requested by the user)
+
+A download page (`site/`, GitHub Pages) and preview installers on GitHub Releases, built by `.github/workflows/release.yml` from a `v*` tag: a universal macOS `.dmg` (ad-hoc signed, not notarized) and Linux `.deb`/AppImage for x86_64 and arm64. Releases are labeled preview and the page explains the macOS "Open Anyway" step. This relaxes the earlier rule that nothing ships before signed artifacts exist; signed, notarized builds remain open (task 5.7). The page uses the prototype-derived fixture screenshots, not captures of a real machine.
+
 ## Source conflicts
 
 **Repository roots vs. linked worktree removal (task 4.1, decided 2026-11-04 by the user).** The source protects repository roots (invariant 5) but also lists `git worktree remove <path>` for linked worktrees, whose directories are themselves repository roots. Decision: linked worktree roots are the single exception. Only clean Review worktrees (merged, or pushed but not merged) can be removed; removal uses plain `git worktree remove` (never `--force`) after the pre-cleanup probe and `Guard::check_linked_worktree`, which accepts only a non-link directory whose `.git` file points into the main repository's `.git/worktrees/`. The main worktree, `.git` and all other repository roots stay protected. Details and tests: `docs/cleanup.md`.

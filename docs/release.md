@@ -33,6 +33,13 @@ Status: **incomplete**. This Mac has only an "Apple Development" certificate, wh
 
 `.deb` and AppImage need no signing. Build on Ubuntu 22.04 (oldest supported glibc) with `scripts/linux/verify.sh`, which runs in Docker and writes installers and logs to `linux-evidence/`. Optionally sign the AppImage with `appimagetool --sign` and publish SHA-256 checksums alongside the files.
 
+## Publishing a preview release
+
+1. Set the version in `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` and `package.json`.
+2. Tag and push: `git tag v0.1.0 && git push origin v0.1.0`.
+3. `.github/workflows/release.yml` builds on GitHub runners (macOS universal, Linux x86_64 and arm64), runs the core tests, and attaches `Freeboard-macOS-universal.dmg`, `Freeboard-linux-<arch>.deb`, `Freeboard-linux-<arch>.AppImage` and `SHA256SUMS.txt` to the release.
+4. The download page (`site/`, deployed by `.github/workflows/pages.yml`) links to `releases/latest/download/<name>`, so it always serves the newest non-prerelease release.
+
 ## Smoke test after installing
 
 1. Launch; the window opens on first-run setup.

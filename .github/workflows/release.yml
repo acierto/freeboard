@@ -1,0 +1,119 @@
+name: release
+
+# Push a tag like v0.1.0 to build installers and publish them as a GitHub
+# Release. Asset names are fixed so the download page can link to
+# releases/latest/download/<name>.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to (re)build, e.g. v0.1.0"
+        required: true
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+  TAG: ${{ github.event.inputs.tag || github.ref_name }}
+
+jobs:
+  build:
+    name: build (${{ matrix.name }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS-universal
+            os: macos-latest
+            args: --target universal-apple-darwin --bundles app,dmg
+          - name: linux-x86_64
+            os: ubuntu-22.04
+            args: --bundles deb,appimage
+          - name: linux-arm64
+            os: ubuntu-22.04-arm
+            args: --bundles deb,appimage
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ runner.os == 'macOS' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+      - name: Linux system dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf libxdo-dev libssl-dev file
+      - run: npm ci
+      - name: Core tests (fixtures and fake tools only)
+        working-directory: src-tauri
+        run: |
+          git config --global user.name "Freeboard CI"
+          git config --global user.email "ci@freeboard.invalid"
+          git config --global init.defaultBranch main
+          cargo test --no-default-features --locked
+      - name: Build installers
+        run: npx tauri build ${{ matrix.args }}
+      - name: Collect with fixed names
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          b=src-tauri/target
+          case "${{ matrix.name }}" in
+            macOS-universal)
+              cp "$(ls $b/universal-apple-darwin/release/bundle/dmg/*.dmg | head -1)" out/Freeboard-macOS-universal.dmg ;;
+            linux-*)
+              arch="${{ matrix.name }}"; arch="${arch#linux-}"
+              cp "$(ls $b/release/bundle/deb/*.deb | head -1)" "out/Freeboard-linux-$arch.deb"
+              cp "$(ls $b/release/bundle/appimage/*.AppImage | head -1)" "out/Freeboard-linux-$arch.AppImage" ;;
+          esac
+          ls -la out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }}
+          path: out/*
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Checksums
+        working-directory: dist
+        run: sha256sum Freeboard-* > SHA256SUMS.txt && cat SHA256SUMS.txt
+      - name: Create or update the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          cat > notes.md <<NOTES
+          Preview release of Freeboard ${TAG#v} for macOS and Linux.
+
+          Download page: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+
+          - **macOS** (11+, Apple silicon and Intel): \`Freeboard-macOS-universal.dmg\`. Not notarized yet: after the first launch is blocked, open System Settings → Privacy & Security → Open Anyway.
+          - **Linux** (Ubuntu 22.04+ or similar): \`.deb\` or AppImage for x86_64 and arm64.
+
+          Verify downloads with \`SHA256SUMS.txt\`.
+          NOTES
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/* --clobber
+          else
+            gh release create "$TAG" dist/* --title "Freeboard ${TAG#v} (preview)" --notes-file notes.md
+          fi
