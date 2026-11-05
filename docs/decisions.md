@@ -58,6 +58,13 @@ Closing the window hides it; a timer destroys the webview after 60 seconds hidde
 
 The 40 MB hidden-in-tray target is measured as the app's own memory as the OS reports it: physical footprint on macOS (`footprint`, Activity Monitor's Memory column), proportional set size (PSS) on Linux, and private working set on Windows. RSS is recorded for reference only, because it counts system-framework pages (WebKit, AppKit) that stay mapped after the webview is destroyed and are shared with other processes. `scripts/perf/measure-process.mjs` reports this measure per platform, and reports "unknown" (never a pass) when it cannot be read.
 
+## 2026-11-05 — Tray mode and single instance (decided by the user for Linux memory)
+
+- **Tray mode (`--tray`).** Freeboard can start with only the tray and monitoring, without creating a window (the configured window is removed before start-up). Login startup uses it on both platforms, so logging in no longer opens a window.
+- **Linux: restart into tray mode.** WebKitGTK and its libraries stay resident in a process that has shown a window (measured 100 MB PSS hidden). 60 s after the window is hidden, Freeboard starts `freeboard --tray --after-pid <pid>` and exits; the new copy waits for the old one to exit before starting. It never restarts while a scan or cleanup runs (retries every 30 s). All state it needs is already in SQLite; in-memory five-minute samples of the last day are not carried over (hourly samples are). macOS keeps destroying the webview instead (31 MB footprint already meets the target).
+- **Single instance** (`tauri-plugin-single-instance`). A second launch hands over to the running copy, which opens its window. Needed once the app can run with no window: launching it from the app menu must not start a second tray icon.
+- **Linux notifications** are shown through the desktop notification service directly (`notify-rust`, already a dependency of the notification plugin) so a click opens Suggestions; the plugin does not report clicks on Linux.
+
 ## Visual baselines
 
 - 2026-11-04: Baselines regenerated from `docs/reference/freeboard-prototype.html` (SHA-256 `62c25122e55f…`, chromium 156.0.8078.4, 191 captures). Rationale: Initial reference-derived baselines captured from the supplied prototype; supplemental states are derived from its own components as documented per entry in the manifest. Rendering uses `--disable-partial-raster` with zero pixel tolerance (experiment in `docs/visual-verification.md`). *(Entry restored from `visual/baseline/manifest.json` after an editing error removed the original line.)*

@@ -335,13 +335,20 @@ impl Runner {
         if let Some(d) = &cmd.cwd {
             c.current_dir(d);
         }
-        let mut child = c.spawn().map_err(|e| {
-            if e.kind() == std::io::ErrorKind::NotFound {
-                RunError::NotFound(cmd.program.clone())
-            } else {
-                RunError::Io(e.to_string())
+        // ETXTBSY (26): on Linux an executable that was just written can be
+        // briefly "busy" while another thread forks; retry a few times.
+        let mut attempt = 0;
+        let mut child = loop {
+            match c.spawn() {
+                Ok(ch) => break ch,
+                Err(e) if e.raw_os_error() == Some(26) && attempt < 5 => {
+                    attempt += 1;
+                    std::thread::sleep(Duration::from_millis(50));
+                }
+                Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Err(RunError::NotFound(cmd.program.clone())),
+                Err(e) => return Err(RunError::Io(e.to_string())),
             }
-        })?;
+        };
         let max = self.max_output;
         let mut so = child.stdout.take().expect("piped");
         let mut se = child.stderr.take().expect("piped");

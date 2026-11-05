@@ -580,6 +580,11 @@ impl AppCore {
         Ok(paused)
     }
 
+    /// True while a scan or a cleanup run is in progress.
+    pub fn is_busy(&self) -> bool {
+        self.scan.lock().unwrap().running.is_some() || self.cleanup.is_running()
+    }
+
     pub fn notifications_paused(&self) -> bool {
         self.notifications_paused.load(Ordering::Relaxed)
     }

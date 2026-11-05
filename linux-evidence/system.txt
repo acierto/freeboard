@@ -1,4 +1,4 @@
-Linux 5d0265412d15 7.0.14-linuxkit #1 SMP PREEMPT Sun Sep 20 16:14:09 UTC 2026 aarch64 aarch64 aarch64 GNU/Linux
+Linux b9d15a41839b 7.0.14-linuxkit #1 SMP PREEMPT Sun Sep 20 16:14:09 UTC 2026 aarch64 aarch64 aarch64 GNU/Linux
 PRETTY_NAME="Ubuntu 22.04.5 LTS"
 NAME="Ubuntu"
 VERSION_ID="22.04"

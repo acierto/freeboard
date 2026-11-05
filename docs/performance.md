@@ -30,6 +30,10 @@ Scope: macOS and Linux (Windows out of scope, decision 2026-11-04).
 | --- | --- | --- | --- |
 | Installer size, `.deb` | ≤ 15 MB | 3.78 MB | met |
 | Installer size, AppImage | ≤ 15 MB | 80.45 MB | **missed**: it bundles WebKitGTK and its libraries |
-| Hidden memory, idle CPU, scans | see above | not measured | needs the desktop VM |
+| Hidden memory (PSS, Freeboard and its child processes) | ≤ 40 MB | 22.8 MB in tray mode (after the automatic restart); 100 MB before the change (81.5 MB main + 18.5 MB WebKitNetworkProcess) | met |
+| Idle CPU over 5 minutes | < 1% | 0.026% (tray mode); 0.07% before | met |
+| Quick and deep scans | see macOS | not measured on Linux (the VM has no developer tools) | not measured |
 
-Measured with `scripts/linux/verify.sh` (headless build and tests in Docker). Desktop measurements need a GNOME session; see `docs/release.md`.
+Installer sizes from `scripts/linux/verify.sh` (headless build and tests in Docker). Memory and CPU measured 2026-11-05 in the GNOME VM (`scripts/linux/vm/`, Ubuntu 24.04.5 ARM64, software rendering): window closed, automatic restart into tray mode logged, then PSS of Freeboard and any child processes sampled every 10 s for 300 s.
+
+macOS tray mode (login startup, no window opened yet): 11 MB footprint.

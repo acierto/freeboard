@@ -16,6 +16,6 @@ Also verified: Quit exits Freeboard and all WebKit helper processes; real freede
 
 Defects found here and fixed: notification click did nothing on Linux (now handled through the desktop notification service's default action); notification click stayed on the welcome screen; "0.0 GB can be freed" notification text; "No suggestions yet. Run a scan" after a scan had run.
 
-Not met: hidden memory. After the webview is destroyed, Freeboard uses 100 MB PSS (81.5 MB main process, 18.5 MB WebKitNetworkProcess) against the 40 MB target. Idle CPU 0.07%.
+Hidden memory: first measured at 100 MB PSS (81.5 MB main process, 18.5 MB WebKitNetworkProcess) after the webview was destroyed. Fixed by restarting into tray mode 60 s after the window is hidden: 22.8 MB PSS, idle CPU 0.026% over 300 s. Verified: the restart (logged, `--tray --after-pid`), Open Freeboard from the tray-mode process, and a second launch handing over to the running copy (one process, window shown).
 
 Not covered: KDE Plasma, dark appearance.

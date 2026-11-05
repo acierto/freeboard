@@ -37,6 +37,31 @@ mod shell {
     /// The webview is destroyed after the window has been hidden this long.
     pub const DESTROY_AFTER: Duration = Duration::from_secs(60);
 
+    /// Start-up flag: run only the tray and monitoring, without a window.
+    /// Used by login startup and by the Linux tray-mode restart.
+    pub const TRAY_FLAG: &str = "--tray";
+
+    /// `--after-pid <pid>`: wait for that process to exit before starting, so
+    /// the single-instance check does not hand over to the exiting process.
+    pub const AFTER_PID_FLAG: &str = "--after-pid";
+
+    fn wait_for_previous_instance() {
+        let args: Vec<String> = std::env::args().collect();
+        let Some(pid) = args.iter().position(|a| a == AFTER_PID_FLAG).and_then(|i| args.get(i + 1)).and_then(|p| p.parse::<i32>().ok())
+        else {
+            return;
+        };
+        let deadline = std::time::Instant::now() + Duration::from_secs(15);
+        while std::time::Instant::now() < deadline {
+            // Signal 0 only checks whether the process still exists.
+            #[cfg(unix)]
+            if unsafe { libc::kill(pid, 0) } != 0 {
+                return;
+            }
+            std::thread::sleep(Duration::from_millis(100));
+        }
+    }
+
     /// Incremented on every show/hide so stale destroy timers do nothing.
     struct HideGeneration(AtomicU64);
 
@@ -98,11 +123,20 @@ mod shell {
             let _ = w.set_focus();
         } else {
             // Recreate the interface; it reloads everything from backend state.
-            let _ = WebviewWindowBuilder::new(app, "main", WebviewUrl::default())
+            let built = WebviewWindowBuilder::new(app, "main", WebviewUrl::default())
                 .title("Freeboard")
                 .inner_size(1120.0, 900.0)
                 .min_inner_size(360.0, 480.0)
+                .visible(true)
                 .build();
+            match built {
+                // GTK may leave a newly built window unmapped; show it explicitly.
+                Ok(w) => {
+                    let _ = w.show();
+                    let _ = w.set_focus();
+                }
+                Err(e) => tracing::error!("could not create the window: {e}"),
+            }
         }
         deliver_pending_view(app);
     }
@@ -127,15 +161,54 @@ mod shell {
         let app = app.clone();
         std::thread::spawn(move || {
             std::thread::sleep(DESTROY_AFTER);
-            if app.state::<HideGeneration>().0.load(Ordering::SeqCst) == gen {
-                if let Some(w) = app.get_webview_window("main") {
-                    if !w.is_visible().unwrap_or(true) {
-                        tracing::info!("destroying hidden webview");
-                        let _ = w.destroy();
+            loop {
+                if app.state::<HideGeneration>().0.load(Ordering::SeqCst) != gen {
+                    return; // reopened since
+                }
+                let hidden = app.get_webview_window("main").map(|w| !w.is_visible().unwrap_or(true)).unwrap_or(true);
+                if !hidden {
+                    return;
+                }
+                if cfg!(target_os = "linux") {
+                    // WebKitGTK and its libraries stay resident in a process
+                    // that has shown a window, so destroying the webview frees
+                    // little. Start a fresh tray-only copy and exit instead,
+                    // but never while a scan or cleanup is running.
+                    let busy = app.try_state::<Arc<AppCore>>().map(|c| c.is_busy()).unwrap_or(true);
+                    if busy {
+                        std::thread::sleep(Duration::from_secs(30));
+                        continue;
+                    }
+                    if restart_in_tray_mode(&app) {
+                        return;
                     }
                 }
+                if let Some(w) = app.get_webview_window("main") {
+                    tracing::info!("destroying hidden webview");
+                    let _ = w.destroy();
+                }
+                return;
             }
         });
+    }
+
+    /// Linux: replace this process with a tray-only one. Every piece of state
+    /// the tray mode needs (settings, last status, pause, findings, plans,
+    /// history, Trash records) is already in SQLite.
+    fn restart_in_tray_mode(app: &AppHandle) -> bool {
+        let Ok(exe) = std::env::current_exe() else { return false };
+        let me = std::process::id().to_string();
+        match std::process::Command::new(exe).args([TRAY_FLAG, AFTER_PID_FLAG, &me]).spawn() {
+            Ok(child) => {
+                tracing::info!("restarting in tray mode as pid {}", child.id());
+                app.exit(0);
+                true
+            }
+            Err(e) => {
+                tracing::warn!("could not restart in tray mode: {e}");
+                false
+            }
+        }
     }
 
     fn init_logging(dir: &std::path::Path) {
@@ -155,10 +228,26 @@ mod shell {
     }
 
     pub fn run() {
+        wait_for_previous_instance();
+        let mut context = tauri::generate_context!();
+        if std::env::args().any(|a| a == TRAY_FLAG) {
+            // Tray mode: create no window at start-up, so WebKit is not loaded
+            // until the person opens Freeboard from the tray.
+            context.config_mut().app.windows.clear();
+        }
         let app = tauri::Builder::default()
+            // Must be registered first. A second launch hands its arguments to
+            // the running copy and exits; the running copy opens its window
+            // (unless the second launch was itself a tray-mode start).
+            .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
+                if !args.iter().any(|a| a == TRAY_FLAG) {
+                    open_window(app);
+                }
+            }))
             .plugin(tauri_plugin_notification::init())
             .plugin(tauri_plugin_dialog::init())
-            .plugin(tauri_plugin_autostart::init(tauri_plugin_autostart::MacosLauncher::LaunchAgent, None))
+            // Login startup goes straight to the tray, without opening a window.
+            .plugin(tauri_plugin_autostart::init(tauri_plugin_autostart::MacosLauncher::LaunchAgent, Some(vec![TRAY_FLAG])))
             .manage(HideGeneration(AtomicU64::new(0)))
             .setup(|app| {
                 let handle = app.handle().clone();
@@ -214,7 +303,7 @@ mod shell {
                 crate::commands::remove_folder,
                 crate::commands::set_notifications_paused,
             ])
-            .build(tauri::generate_context!())
+            .build(context)
             .expect("error while building Freeboard");
 
         app.run(|app, event| match event {
