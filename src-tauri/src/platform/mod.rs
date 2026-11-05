@@ -155,6 +155,8 @@ pub fn make_sparse(p: &Path, len: u64) {
 /// WSL filesystems are excluded from scanning in v1.
 pub fn is_wsl_path(path: &Path) -> bool {
     let s = path.to_string_lossy().to_ascii_lowercase();
+    // Canonical Windows paths are verbatim: \\?\UNC\wsl$\... (found in the Windows VM).
+    let s = s.strip_prefix(r"\\?\unc\").map(|r| format!(r"\\{r}")).unwrap_or(s);
     s.starts_with(r"\\wsl$") || s.starts_with(r"\\wsl.localhost") || s.starts_with("//wsl$")
 }
 
@@ -183,6 +185,9 @@ mod tests {
     fn wsl_paths_detected() {
         assert!(is_wsl_path(Path::new(r"\\wsl$\Ubuntu\home")));
         assert!(is_wsl_path(Path::new(r"\\wsl.localhost\Ubuntu")));
+        assert!(is_wsl_path(Path::new(r"\\?\UNC\wsl$\Ubuntu\home")));
+        assert!(is_wsl_path(Path::new(r"\\?\UNC\wsl.localhost\Ubuntu")));
+        assert!(!is_wsl_path(Path::new(r"\\?\UNC\fileserver\share")));
         assert!(!is_wsl_path(Path::new("/home/user")));
     }
 

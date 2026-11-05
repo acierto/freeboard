@@ -91,17 +91,9 @@ pub async fn update_settings(core: Core<'_>, patch: UiSettingsPatch) -> CmdResul
 /// Opens a native folder picker owned by the backend. The chosen path is
 /// stored by the backend and never passes through the interface.
 #[tauri::command]
-pub async fn add_folder(app: tauri::AppHandle, window: tauri::WebviewWindow, core: Core<'_>, list: FolderList) -> CmdResult<Settings> {
+pub async fn add_folder(app: tauri::AppHandle, core: Core<'_>, list: FolderList) -> CmdResult<Settings> {
     use tauri_plugin_dialog::DialogExt;
-    let dialog = app.dialog().file().set_title("Choose a folder for Freeboard to scan");
-    // Windows: without an owner window the picker can open behind Freeboard
-    // (found in the Windows 11 VM). macOS and Linux keep the verified
-    // free-standing dialog.
-    #[cfg(windows)]
-    let dialog = dialog.set_parent(&window);
-    #[cfg(not(windows))]
-    let _ = &window;
-    let picked = dialog.blocking_pick_folder();
+    let picked = app.dialog().file().set_title("Choose a folder for Freeboard to scan").blocking_pick_folder();
     match picked.and_then(|p| p.into_path().ok()) {
         Some(path) => core.add_folder(list, &path),
         None => core.get_settings(),

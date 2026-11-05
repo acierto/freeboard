@@ -532,6 +532,8 @@ impl AppCore {
     /// `path` comes from the backend's own native folder picker, never from the interface.
     pub fn add_folder(&self, list: FolderList, path: &Path) -> CmdResult<Settings> {
         let canon = std::fs::canonicalize(path).map_err(|_| CommandError::new("invalid_folder", "That folder is not available."))?;
+        // Windows: store C:\... rather than the verbatim \\?\C:\... form.
+        let canon = crate::platform::plain_path(&canon);
         if !canon.is_dir() || crate::platform::is_wsl_path(&canon) {
             return Err(CommandError::new("invalid_folder", "Choose a folder on a local drive."));
         }
@@ -799,6 +801,8 @@ pub(crate) mod tests {
         std::fs::create_dir_all(&f).unwrap();
         let s = core.add_folder(FolderList::ScanFolders, &f).unwrap();
         assert_eq!(s.scan_folders.len(), 1);
+        // Stored and shown in plain form (Windows canonicalizes to \\?\C:\...).
+        assert!(!s.scan_folders[0].starts_with(r"\\?\"), "{}", s.scan_folders[0]);
         assert!(core.remove_folder(FolderList::ScanFolders, 5).is_err());
         let s = core.remove_folder(FolderList::ScanFolders, 0).unwrap();
         assert!(s.scan_folders.is_empty());
