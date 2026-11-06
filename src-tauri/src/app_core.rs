@@ -407,7 +407,21 @@ impl AppCore {
         ScanState { running: r.running.clone(), phase: r.phase.clone(), last_finished_at: last.map(iso), detector_errors: errors }
     }
 
+    /// A scan the person asked for (Scan now, Run deep scan now, Scan this
+    /// folder, the tray's Scan Now). It runs on battery too: the person is
+    /// waiting for it (found 2026-11-06: a requested deep scan sat "paused
+    /// while on battery" for minutes).
     pub fn start_scan(self: &Arc<Self>, kind: ScanKind) -> CmdResult<String> {
+        self.start_scan_with(kind, true)
+    }
+
+    /// A scheduled scan. Deep scans pause on battery when the setting is on
+    /// (spec "Background behavior").
+    pub fn start_scheduled_scan(self: &Arc<Self>, kind: ScanKind) -> CmdResult<String> {
+        self.start_scan_with(kind, false)
+    }
+
+    fn start_scan_with(self: &Arc<Self>, kind: ScanKind, requested: bool) -> CmdResult<String> {
         let id = {
             let mut r = self.scan.lock().unwrap();
             if let Some(id) = &r.running {
@@ -424,18 +438,22 @@ impl AppCore {
         let sid = id.clone();
         std::thread::Builder::new()
             .name(format!("freeboard-{}", kind_str(kind)))
-            .spawn(move || core.run_scan_blocking(&sid, kind))
+            .spawn(move || core.run_scan_inner(&sid, kind, requested))
             .map_err(|e| CommandError::new("internal", e.to_string()))?;
         Ok(id)
     }
 
     /// Runs a scan on the calling thread (tests and the scheduler thread).
     pub fn run_scan_blocking(&self, scan_id: &str, kind: ScanKind) {
+        self.run_scan_inner(scan_id, kind, false)
+    }
+
+    fn run_scan_inner(&self, scan_id: &str, kind: ScanKind, requested: bool) {
         if kind == ScanKind::Deep {
             crate::platform::lower_thread_priority();
         }
         let settings = self.settings();
-        let pause_on_battery = settings.pause_deep_scans_on_battery && kind == ScanKind::Deep;
+        let pause_on_battery = settings.pause_deep_scans_on_battery && kind == ScanKind::Deep && !requested;
         let should_pause = move || pause_on_battery && crate::platform::on_battery() == Some(true);
         let sid = scan_id.to_string();
         let progress = |phase: &str, detector: Option<&str>, count: u64| {
@@ -1109,7 +1127,7 @@ impl AppCore {
                         last_prune = now;
                     }
                     if let Some(kind) = core.due_scan(now) {
-                        if let Ok(id) = core.start_scan(kind) {
+                        if let Ok(id) = core.start_scheduled_scan(kind) {
                             tracing::info!("scheduled {} scan {id}", kind_str(kind));
                         }
                     }

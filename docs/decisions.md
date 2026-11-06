@@ -190,6 +190,10 @@ The 40 MB hidden-in-tray target is measured as the app's own memory as the OS re
 
 **Visual matrix.** 90 new captures: the default, each tile, each blind spot resolved, all resolved, places opened, the report shown; light and dark; 1120, 760 and 390 px. The home entries' coverage-badge edit is removed (the badge is back). The map entries drop Remove now and Remove all here from the reference until cleanup (slice 2) brings the confirmation sheet; when it lands, that edit (`noRemoveNow` in `scripts/visual/matrix.mjs`) must go.
 
+## 2026-11-06 — Requested scans run on battery
+
+"Pause deep scans on battery" (spec default: on) now applies to scheduled deep scans only. A scan the person asks for (Scan now, Run deep scan now, Scan this folder, the tray's Scan Now) runs on battery too: found on the real app, where a requested deep scan sat "Scan paused while on battery" for minutes with no way forward. The spec's "Deep scans run at low priority and pause on battery power by default" is read as the background behavior; requested scans still run at low priority.
+
 ## Visual baselines
 
 - 2026-11-04: Baselines regenerated from `docs/reference/freeboard-prototype.html` (SHA-256 `62c25122e55f…`, chromium 156.0.8078.4, 191 captures). Rationale: Initial reference-derived baselines captured from the supplied prototype; supplemental states are derived from its own components as documented per entry in the manifest. Rendering uses `--disable-partial-raster` with zero pixel tolerance (experiment in `docs/visual-verification.md`). *(Entry restored from `visual/baseline/manifest.json` after an editing error removed the original line.)*
