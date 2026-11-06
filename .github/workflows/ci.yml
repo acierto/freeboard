@@ -120,6 +120,8 @@ jobs:
       - name: Compare implementation screenshots with the prototype (same runner)
         run: npm run verify:visual -- --live
       - name: Visual tool self-test (must detect deliberate mismatches)
+        # Runs even when the comparison fails, so the self-test result is always evidence.
+        if: success() || failure()
         run: npm run verify:visual:selftest -- --live
       - uses: actions/upload-artifact@v4
         if: always()
