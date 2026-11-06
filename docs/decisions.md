@@ -112,6 +112,8 @@ The 40 MB hidden-in-tray target is measured as the app's own memory as the OS re
 
 **The tray window is transparent.** Only the popover card and its shadow show, as in the prototype. On macOS this needs Tauri's `macos-private-api` feature (`app.macOSPrivateApi`); it uses a private AppKit API, which only matters for Mac App Store distribution, a product non-goal. Found on the real menu bar: without it the window showed an opaque square behind the card.
 
+**Linux: WebKitGTK's DMA-BUF renderer is turned off.** On an Ubuntu 24.04 GNOME VM the window stayed blank white: WebKitGTK could not create a GPU buffer screen (`libEGL warning: DRI2: failed to create screen`). Freeboard now sets `WEBKIT_DISABLE_DMABUF_RENDERER=1` at start-up on Linux unless the person set it. The same failure is reported on machines with some NVIDIA drivers. The cost is a slightly slower drawing path, which a mostly static window does not notice.
+
 **Notifications open the home view.** The Suggestions screen no longer exists; a notification click opens the main window on the home view (spec "Disk status").
 
 **Toss and Empty it before cleanup exists.** Until the confirmation sheet (task 5.4) and the Trash confirmation (task 5.5) are built, Toss opens the pile list and Empty it does nothing. The tray view's button opens the main window with the pile shown.

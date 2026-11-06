@@ -9,7 +9,7 @@ The harbor interface (openspec change `rebuild-freeboard`) replaced the hull-gau
 | Platform | Memory hidden in tray (≤ 40 MB) | Idle CPU over 5 minutes (< 1%) | How |
 | --- | --- | --- | --- |
 | macOS 27, Apple silicon | 21 MB average and peak physical footprint over 304 s (RSS 108.1 MB, reference only): **met** | 0.053%: **met** | Release build; tray view opened and closed; main window closed; `destroying hidden webview` logged at 14:12:24Z; then `node scripts/perf/measure-process.mjs --name freeboard --seconds 300 --interval 10` |
-| Linux (Ubuntu 24.04 GNOME VM) | not measured yet | not measured yet | VM being rebuilt |
+| Linux, Ubuntu 24.04 GNOME (X11), ARM64 VM | 22.9 MB average and peak PSS over 305 s (RSS 52 MB, reference only): **met** | 0.328%: **met** | `.deb` from the release workflow (run 42232860033); main window closed with Alt+F4; Freeboard restarted itself as `freeboard --tray --after-pid <pid>` after 60 s; then `node measure-process.mjs --name freeboard --seconds 300 --interval 10` inside the VM |
 | Windows 11 (Arm64 VM) | not measured yet | not measured yet | VM being rebuilt |
 
 ## macOS (Apple silicon, macOS 27, 2026-11-04)
