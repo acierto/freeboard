@@ -18,3 +18,7 @@ Ubuntu 24.04.5 LTS ARM64, GNOME on X11 with the AppIndicator extension, QEMU VM 
 | Hidden mode | Alt+F4 hid the window; 60 s later Freeboard restarted as `freeboard --tray --after-pid 3781`. 22.9 MB PSS, 0.328% CPU over 305 s (`docs/performance.md`). |
 
 Still to capture: Low and Critical rings, a notification and its click, KDE Plasma.
+
+## 2026-11-06 — Slice 1 click-through of the real app (task 3.9)
+
+`Freeboard-linux-arm64.deb` from release run 42273606411 (commit `2415719`), fresh data folder, disposable projects from `scripts/native/fixtures.sh` in `~/fbtest`. `node scripts/native/e2e.mjs` through WebKitWebDriver (`TAURI_WEBVIEW_AUTOMATION=true`): **20 of 20 checks pass**: first run offers `~/fbtest (6 repositories)` and adds it; Start opens the home; the deep scan finds the projects; Where from lists Projects; the 50 GB goal fills the pile with Safe items; Dinghy carries the crates; See what is inside lists them; taking one out lowers the total and switches to manual; choosing a size again leaves manual mode; Where from limits the pile; node_modules is one item split into 4 projects; deselecting a part is saved and lowers the size; Ask me later moves on; Keep and Stop keeping; Settings lists the folders; Esc closes it. Screenshots in `e2e-slice1/`.

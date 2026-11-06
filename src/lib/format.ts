@@ -4,7 +4,9 @@ export const GB = 1e9;
 
 /** Decimal gigabytes with one decimal place, as in the prototype ("12.4 GB"). */
 export const gbNum = (bytes: number) => (bytes / GB).toFixed(1);
-export const gb = (bytes: number) => gbNum(bytes) + " GB";
+/** Sizes too small to show at one decimal read "<0.1 GB", never a misleading
+ * "0.0 GB" (found on the real app, 2026-11-06). */
+export const gb = (bytes: number) => (bytes > 0 && bytes < 0.05 * GB ? "<0.1 GB" : gbNum(bytes) + " GB");
 export const sizeText = (s: Pick<Suggestion, "sizeBytes" | "sizeIsEstimate">) => (s.sizeIsEstimate ? "about " : "") + gb(s.sizeBytes);
 
 /** Groups in display order, with the prototype's labels. */
