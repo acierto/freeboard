@@ -136,6 +136,7 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
       sizeIsEstimate: false,
       skipReason: null,
       decision: null,
+      ackName: extra?.ack ? name.replace(/^Volume /, "") + " volume" : null,
       need: extra?.need,
     };
   });
@@ -273,6 +274,34 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
       }
       return changed();
     },
+    set_item_decision: (a) => {
+      const it = items.find((i) => i.id === a.itemId)!;
+      it.decision = (a.decision as Suggestion["decision"]) ?? null;
+      if (it.decision === "keep") {
+        queued.delete(it.id);
+        manual?.delete(it.id);
+      }
+      changed();
+      return it;
+    },
+    set_item_parts: (a) => {
+      // Prototype `partSum`: the item's size follows its selected parts.
+      const it = items.find((i) => i.id === a.itemId)!;
+      const on = new Set(a.partIds as string[]);
+      it.parts.forEach((p) => (p.selected = on.has(p.id)));
+      it.sizeBytes = it.parts.filter((p) => p.selected).reduce((t, p) => t + p.sizeBytes, 0);
+      changed();
+      return it;
+    },
+    folder_suggestions: () => [],
+    add_folder: () => ({ ...settings }),
+    remove_folder: (a) => {
+      const list = a.list === "exclusions" ? settings.exclusions : settings.scanFolders;
+      list.splice(a.index as number, 1);
+      return { ...settings };
+    },
+    add_suggested_folder: () => ({ ...settings }),
+    start_scan: () => "scan-1",
     list_logbook: () => ({ runs: [], page: 0, hasMore: false }),
     set_notifications_paused: (a) => a.paused,
     close_tray_view: () => undefined,

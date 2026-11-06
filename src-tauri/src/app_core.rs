@@ -17,7 +17,8 @@ use crate::model::*;
 use crate::monitor::{self, Monitor, VolumeSource};
 use crate::runner::Runner;
 use crate::scan::{self, Detector, ScanContext};
-use crate::settings::{QuickScanSchedule, DeepScanSchedule, Settings, SettingsPatch, UiSettingsPatch};
+use crate::selection;
+use crate::settings::{DeepScanSchedule, Goal, QuickScanSchedule, Settings, SettingsPatch, UiSettingsPatch};
 use crate::store::Store;
 
 /// Native surfaces owned by the shell (tray, notifications, autostart).
@@ -426,6 +427,8 @@ impl AppCore {
         let now = self.now();
         if !canceled {
             let _ = self.store.replace_findings(scan_id, &findings);
+            // Ask me later lasts until the next scan.
+            let _ = self.store.clear_later_decisions();
             let _ = self.store.meta_set("detector_errors", &serde_json::to_string(&outcome.errors).unwrap_or_default());
             let _ = self.store.meta_set("last_scan_at", &now.to_string());
         }
@@ -454,17 +457,123 @@ impl AppCore {
             }
         }
         self.emit(EV_SCAN_FINISHED, &ScanFinished { scan_id: scan_id.into(), detector_errors: outcome.errors, totals });
+        if let Ok(p) = self.get_pile() {
+            self.emit(EV_PILE_CHANGED, &p);
+        }
     }
 
     pub fn get_suggestions(&self, filter: Option<SuggestionFilter>) -> CmdResult<Vec<Suggestion>> {
         let risk = filter.and_then(|f| f.risk);
-        Ok(self
-            .store
-            .findings()?
-            .into_iter()
-            .map(|f| f.suggestion)
-            .filter(|s| risk.map(|r| r == s.risk).unwrap_or(true))
-            .collect())
+        Ok(self.decided_suggestions()?.into_iter().filter(|s| risk.map(|r| r == s.risk).unwrap_or(true)).collect())
+    }
+
+    /// The latest scan's suggestions with the user's Keep / Ask me later
+    /// decisions and part choices applied.
+    fn decided_suggestions(&self) -> CmdResult<Vec<Suggestion>> {
+        let mut items: Vec<Suggestion> = self.store.findings()?.into_iter().map(|f| f.suggestion).collect();
+        selection::apply_decisions(&mut items, &self.store.load_decisions()?);
+        Ok(items)
+    }
+
+    // ----- the pile (spec "Building the pile") -------------------------------
+
+    fn pile_store(&self) -> selection::PileStore {
+        self.store.load_pile().unwrap_or_else(|| {
+            let s = self.settings();
+            selection::PileStore::new(s.goal, s.where_from)
+        })
+    }
+
+    /// Save the pile, compute it, and tell the interface and the tray.
+    fn commit_pile(&self, p: &selection::PileStore) -> CmdResult<selection::PileState> {
+        self.store.save_pile(p)?;
+        let state = selection::fill(p, &self.decided_suggestions()?);
+        self.emit(EV_PILE_CHANGED, &state);
+        Ok(state)
+    }
+
+    pub fn get_pile(&self) -> CmdResult<selection::PileState> {
+        Ok(selection::fill(&self.pile_store(), &self.decided_suggestions()?))
+    }
+
+    pub fn set_pile_goal(&self, goal: Goal) -> CmdResult<selection::PileState> {
+        if let Goal::Bytes(b) = goal {
+            if !Goal::SIZES.contains(&b) {
+                return Err(CommandError::new("invalid_goal", "Choose 20, 50 or 100 GB, or All I can."));
+            }
+        }
+        let mut p = self.pile_store();
+        selection::set_goal(&mut p, goal);
+        self.commit_pile(&p)
+    }
+
+    pub fn set_pile_areas(&self, areas: Vec<Group>) -> CmdResult<selection::PileState> {
+        let mut p = self.pile_store();
+        selection::set_areas(&mut p, areas);
+        self.commit_pile(&p)
+    }
+
+    /// IDs must name current suggestions; anything else is rejected.
+    fn known_ids(&self, ids: &[String]) -> CmdResult<()> {
+        let all = self.store.findings()?;
+        for id in ids {
+            validate_id(id)?;
+            if !all.iter().any(|f| &f.suggestion.id == id) {
+                return Err(CommandError::new("unknown_item", "That item is not in the latest scan."));
+            }
+        }
+        Ok(())
+    }
+
+    pub fn add_to_pile(&self, ids: Vec<String>) -> CmdResult<selection::PileState> {
+        self.known_ids(&ids)?;
+        let all = self.store.findings()?;
+        for id in &ids {
+            let s = &all.iter().find(|f| &f.suggestion.id == id).unwrap().suggestion;
+            if s.blocked_reason.is_some() || s.action == Action::None {
+                return Err(CommandError::new("blocked", "This item is protected and can't go in the pile."));
+            }
+        }
+        let mut p = self.pile_store();
+        selection::add(&mut p, &ids);
+        self.commit_pile(&p)
+    }
+
+    pub fn take_out_of_pile(&self, ids: Vec<String>) -> CmdResult<selection::PileState> {
+        self.known_ids(&ids)?;
+        let mut p = self.pile_store();
+        selection::take_out(&mut p, &ids, &self.decided_suggestions()?);
+        self.commit_pile(&p)
+    }
+
+    /// Keep, Ask me later, or clear the decision (Stop keeping).
+    pub fn set_item_decision(&self, id: String, decision: Option<ItemDecision>) -> CmdResult<Suggestion> {
+        self.known_ids(std::slice::from_ref(&id))?;
+        self.store.set_decision(&id, decision)?;
+        if decision == Some(ItemDecision::Keep) {
+            let mut p = self.pile_store();
+            selection::on_keep(&mut p, &id);
+            self.commit_pile(&p)?;
+        } else {
+            self.commit_pile(&self.pile_store())?;
+        }
+        self.decided_suggestions()?.into_iter().find(|s| s.id == id).ok_or_else(|| CommandError::new("unknown_item", "That item is gone."))
+    }
+
+    /// Choose which parts of a split item go (spec "Choose which").
+    pub fn set_item_parts(&self, id: String, part_ids: Vec<String>) -> CmdResult<Suggestion> {
+        self.known_ids(std::slice::from_ref(&id))?;
+        let item = self.store.findings()?.into_iter().find(|f| f.suggestion.id == id).unwrap().suggestion;
+        for p in &part_ids {
+            validate_id(p)?;
+            if !item.parts.iter().any(|x| &x.id == p) {
+                return Err(CommandError::new("unknown_part", "That part is not in this item."));
+            }
+        }
+        let off: std::collections::BTreeSet<String> = item.parts.iter().filter(|x| !part_ids.contains(&x.id)).map(|x| x.id.clone()).collect();
+        self.store.set_deselected_parts(&id, &off)?;
+        self.commit_pile(&self.pile_store())?;
+        self.decided_suggestions()?.into_iter().find(|s| s.id == id).ok_or_else(|| CommandError::new("unknown_item", "That item is gone."))
     }
 
     pub fn create_plan(&self, item_ids: Vec<String>) -> CmdResult<CleanupPlan> {
@@ -521,7 +630,7 @@ impl AppCore {
         Ok(r)
     }
 
-    pub fn list_history(&self, page: u32) -> CmdResult<HistoryPage> {
+    pub fn list_logbook(&self, page: u32) -> CmdResult<HistoryPage> {
         Ok(self.cleanup.list_history(page)?)
     }
 
@@ -645,7 +754,12 @@ impl AppCore {
     /// Decide which scheduled work is due. Pure, so it can be tested with a fake clock.
     pub fn due_scan(&self, now: i64) -> Option<ScanKind> {
         let s = self.settings();
-        if s.scan_folders.is_empty() && !s.onboarding_complete {
+        // No scheduled scan until first-run setup is finished: a scan reads
+        // places such as Downloads, and macOS asks for permission when it
+        // does. First run must not trigger a prompt (spec "Default
+        // settings"). Found 2026-11-06 on a database with folders but
+        // without finished setup.
+        if !s.onboarding_complete {
             return None;
         }
         let r = self.scan.lock().unwrap();
@@ -879,8 +993,14 @@ pub(crate) mod tests {
         let d = tempfile::tempdir().unwrap();
         let (core, ..) = core_with(50, d.path());
         let now = core.now();
-        // Before onboarding (no folders chosen) nothing is scheduled.
+        // Before onboarding nothing is scheduled.
         assert_eq!(core.due_scan(now), None);
+        // Not even when folders are already chosen: a scan before setup is
+        // finished would trigger macOS permission prompts during first run.
+        let dir = d.path().join("projects");
+        std::fs::create_dir_all(&dir).unwrap();
+        core.add_folder(FolderList::ScanFolders, &dir).unwrap();
+        assert_eq!(core.due_scan(now), None, "no scan until first-run setup is finished");
         core.update_settings(UiSettingsPatch { onboarding_complete: Some(true), ..Default::default() }).unwrap();
         assert_eq!(core.due_scan(now), Some(ScanKind::Quick));
         core.run_scan_blocking("s1", ScanKind::Quick);

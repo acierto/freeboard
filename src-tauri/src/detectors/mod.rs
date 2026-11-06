@@ -68,7 +68,7 @@ pub fn probe_with(finding: &Finding, ctx: &ScanContext, guard: &Guard) -> Probe 
         git::probe(finding, ctx)
     } else if det.starts_with("project.") {
         projects::probe(finding, ctx, guard)
-    } else if det.starts_with("cache.") {
+    } else if det.starts_with("cache.") || det == caches::SIMULATORS {
         caches::probe(finding, ctx, guard)
     } else if det.starts_with("files.") {
         files::probe_paths(finding, ctx, guard)

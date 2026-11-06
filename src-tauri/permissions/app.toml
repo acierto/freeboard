@@ -14,7 +14,6 @@ commands.allow = [
   "get_run",
   "get_trash",
   "empty_freeboard_trash",
-  "list_history",
   "get_settings",
   "update_settings",
   "add_folder",

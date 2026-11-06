@@ -150,6 +150,15 @@ pub const MIGRATIONS: &[&str] = &[
     DELETE FROM suggestions;
     UPDATE cleanup_plans SET state = 'invalidated' WHERE state = 'open';
     "#,
+    // 4: builds between migration 3 and the group/parts model (2026-11-06)
+    // kept scanning and storing suggestions in the old category model. Clear
+    // them; the next scan stores the new model.
+    r#"
+    DELETE FROM suggestions;
+    DELETE FROM suggestion_parts;
+    UPDATE cleanup_plans SET state = 'invalidated' WHERE state = 'open';
+    DELETE FROM meta WHERE key = 'last_scan_at';
+    "#,
 ];
 
 #[derive(Debug, thiserror::Error)]
@@ -292,6 +301,13 @@ impl Store {
                 "INSERT INTO suggestions(id, scan_id, ord, json, target) VALUES (?1, ?2, ?3, ?4, ?5)",
                 params![f.suggestion.id, scan_id, i as i64, serde_json::to_string(&f.suggestion)?, serde_json::to_string(&f.target)?],
             )?;
+            // Each part's complete finding (its own target and fingerprint).
+            for (n, p) in f.parts.iter().enumerate() {
+                tx.execute(
+                    "INSERT INTO suggestion_parts(suggestion_id, part_id, ord, json) VALUES (?1, ?2, ?3, ?4)",
+                    params![f.suggestion.id, p.suggestion.id, n as i64, serde_json::to_string(p)?],
+                )?;
+            }
         }
         let gen: i64 = tx
             .query_row("SELECT value FROM meta WHERE key = 'scan_generation'", [], |r| r.get::<_, String>(0))
@@ -316,13 +332,38 @@ impl Store {
             .collect::<Result<Vec<_>, _>>()?;
         drop(st);
         let notes = skip_notes(&c)?;
+        let mut parts: std::collections::HashMap<String, Vec<Finding>> = std::collections::HashMap::new();
+        {
+            let mut ps = c.prepare("SELECT suggestion_id, json FROM suggestion_parts ORDER BY suggestion_id, ord")?;
+            let rows = ps.query_map([], |r| Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?)))?.collect::<Result<Vec<_>, _>>()?;
+            for (sid, j) in rows {
+                match serde_json::from_str(&j) {
+                    Ok(f) => parts.entry(sid).or_default().push(f),
+                    Err(e) => tracing::warn!("skipping an unreadable stored part of {sid}: {e}"),
+                }
+            }
+        }
         let mut out = Vec::with_capacity(rows.len());
         for (j, t) in rows {
-            let mut suggestion: Suggestion = serde_json::from_str(&j)?;
+            // Results stored by an older version may not match today's
+            // model. Skip them (the next scan replaces them) rather than fail
+            // every read: found 2026-11-06, when one old row blanked the app.
+            let mut suggestion: Suggestion = match serde_json::from_str(&j) {
+                Ok(v) => v,
+                Err(e) => {
+                    tracing::warn!("skipping an unreadable stored suggestion: {e}");
+                    continue;
+                }
+            };
             if let Some(r) = notes.get(&suggestion.id) {
                 suggestion.skip_reason = Some(r.clone());
             }
-            out.push(Finding { suggestion, target: serde_json::from_str(&t)? });
+            let p = parts.remove(&suggestion.id).unwrap_or_default();
+            let Ok(target) = serde_json::from_str(&t) else {
+                tracing::warn!("skipping a suggestion with an unreadable target");
+                continue;
+            };
+            out.push(Finding { parts: p, suggestion, target });
         }
         Ok(out)
     }
@@ -341,6 +382,68 @@ impl Store {
 
     pub fn clear_skip_note(&self, item_id: &str) -> Result<(), StoreError> {
         self.conn().execute("DELETE FROM skip_notes WHERE item_id = ?1", [item_id])?;
+        Ok(())
+    }
+
+    // ----- the pile and item decisions ----------------------------------------
+
+    pub fn load_pile(&self) -> Option<crate::selection::PileStore> {
+        self.conn()
+            .query_row("SELECT json FROM pile_state WHERE id = 1", [], |r| r.get::<_, String>(0))
+            .optional()
+            .ok()
+            .flatten()
+            .and_then(|j| serde_json::from_str(&j).ok())
+    }
+
+    pub fn save_pile(&self, p: &crate::selection::PileStore) -> Result<(), StoreError> {
+        self.conn().execute(
+            "INSERT INTO pile_state(id, json, at) VALUES (1, ?1, ?2) ON CONFLICT(id) DO UPDATE SET json = excluded.json, at = excluded.at",
+            params![serde_json::to_string(p)?, now_secs()],
+        )?;
+        Ok(())
+    }
+
+    pub fn load_decisions(&self) -> Result<crate::selection::Decisions, StoreError> {
+        let c = self.conn();
+        let mut st = c.prepare("SELECT resource_id, decision, deselected_parts FROM item_decisions")?;
+        let rows = st
+            .query_map([], |r| Ok((r.get::<_, String>(0)?, r.get::<_, Option<String>>(1)?, r.get::<_, String>(2)?)))?
+            .collect::<Result<Vec<_>, _>>()?;
+        let mut d = crate::selection::Decisions::default();
+        for (id, dec, parts) in rows {
+            if let Some(v) = dec.and_then(|x| serde_json::from_value(serde_json::Value::String(x)).ok()) {
+                d.decision.insert(id.clone(), v);
+            }
+            let off: std::collections::BTreeSet<String> = serde_json::from_str(&parts).unwrap_or_default();
+            if !off.is_empty() {
+                d.deselected.insert(id, off);
+            }
+        }
+        Ok(d)
+    }
+
+    /// Set or clear (None) an item's Keep / Ask me later decision.
+    pub fn set_decision(&self, id: &str, decision: Option<crate::model::ItemDecision>) -> Result<(), StoreError> {
+        let v = decision.map(|d| serde_json::to_value(d).ok().and_then(|v| v.as_str().map(String::from)).unwrap_or_default());
+        self.conn().execute(
+            "INSERT INTO item_decisions(resource_id, decision, at) VALUES (?1, ?2, ?3) ON CONFLICT(resource_id) DO UPDATE SET decision = excluded.decision, at = excluded.at",
+            params![id, v, now_secs()],
+        )?;
+        Ok(())
+    }
+
+    pub fn set_deselected_parts(&self, id: &str, off: &std::collections::BTreeSet<String>) -> Result<(), StoreError> {
+        self.conn().execute(
+            "INSERT INTO item_decisions(resource_id, deselected_parts, at) VALUES (?1, ?2, ?3) ON CONFLICT(resource_id) DO UPDATE SET deselected_parts = excluded.deselected_parts, at = excluded.at",
+            params![id, serde_json::to_string(off)?, now_secs()],
+        )?;
+        Ok(())
+    }
+
+    /// Ask me later lasts until the next scan (spec "Quick questions").
+    pub fn clear_later_decisions(&self) -> Result<(), StoreError> {
+        self.conn().execute("UPDATE item_decisions SET decision = NULL WHERE decision = 'later'", [])?;
         Ok(())
     }
 
@@ -413,13 +516,16 @@ mod tests {
 
     pub fn finding(id: &str) -> Finding {
         Finding {
+            parts: vec![],
             suggestion: Suggestion {
                 id: id.into(),
                 detector: "test".into(),
-                category: Category::Builds,
+                group: Group::Projects,
+                map_area: "projects".into(),
                 title: id.into(),
                 location: "/x".into(),
                 size_bytes: 1,
+                full_size_bytes: 1,
                 last_used_at: None,
                 last_used_label: String::new(),
                 risk: Risk::Safe,
@@ -430,7 +536,9 @@ mod tests {
                 recoverable: true,
                 blocked_reason: None,
                 needs_confirmation: false,
+                parts: vec![],
                 fingerprint: "f".into(),
+                decision: None,
                 size_is_estimate: false,
                 skip_reason: None,
                 ack_name: None,
@@ -554,6 +662,43 @@ mod tests {
         assert!(!s.tidy_rule_enabled("docker_build_cache"));
         let n: i64 = s.conn().query_row("SELECT COUNT(*) FROM tidy_rules WHERE enabled != 0", [], |r| r.get(0)).unwrap();
         assert_eq!(n, 0);
+    }
+
+    #[test]
+    fn rows_in_an_old_format_are_skipped_not_fatal() {
+        let s = Store::open_in_memory().unwrap();
+        s.replace_findings("s1", &[finding("good")]).unwrap();
+        s.conn()
+            .execute("INSERT INTO suggestions(id, scan_id, ord, json, target) VALUES ('old','s1',9,'{\"id\":\"old\",\"category\":\"docker\"}','{}')", [])
+            .unwrap();
+        let ids: Vec<String> = s.findings().unwrap().into_iter().map(|f| f.suggestion.id).collect();
+        assert_eq!(ids, vec!["good"], "the readable row still loads");
+    }
+
+    #[test]
+    fn upgrade_clears_suggestions_stored_in_the_old_model() {
+        let d = tempfile::tempdir().unwrap();
+        let p = d.path().join("v3.db");
+        {
+            let c = Connection::open(&p).unwrap();
+            migrate(&c, 3).unwrap();
+            c.execute("INSERT INTO suggestions(id, scan_id, ord, json, target) VALUES ('old','s',0,'{\"category\":\"docker\"}','{}')", []).unwrap();
+            c.execute("INSERT INTO meta(key, value) VALUES ('last_scan_at', '1')", []).unwrap();
+        }
+        let s = Store::open(&p).unwrap();
+        let n: i64 = s.conn().query_row("SELECT COUNT(*) FROM suggestions", [], |r| r.get(0)).unwrap();
+        assert_eq!(n, 0);
+        assert!(s.meta_get("last_scan_at").is_none(), "a scan is due right away");
+    }
+
+    #[test]
+    fn part_findings_round_trip() {
+        let s = Store::open_in_memory().unwrap();
+        let mut item = finding("item");
+        item.parts = vec![finding("part-a"), finding("part-b")];
+        s.replace_findings("s1", &[item.clone()]).unwrap();
+        let back = s.finding("item").unwrap().unwrap();
+        assert_eq!(back.parts, item.parts, "each part keeps its own finding, in order");
     }
 
     #[test]

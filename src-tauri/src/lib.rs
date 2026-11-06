@@ -13,6 +13,7 @@ pub mod monitor;
 pub mod platform;
 pub mod runner;
 pub mod scan;
+pub mod selection;
 pub mod settings;
 pub mod store;
 
@@ -365,7 +366,14 @@ mod shell {
                 crate::commands::get_run,
                 crate::commands::get_trash,
                 crate::commands::empty_freeboard_trash,
-                crate::commands::list_history,
+                crate::commands::list_logbook,
+                crate::commands::get_pile,
+                crate::commands::set_pile_goal,
+                crate::commands::set_pile_areas,
+                crate::commands::add_to_pile,
+                crate::commands::take_out_of_pile,
+                crate::commands::set_item_decision,
+                crate::commands::set_item_parts,
                 crate::commands::get_settings,
                 crate::commands::update_settings,
                 crate::commands::add_folder,

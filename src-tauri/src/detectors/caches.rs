@@ -22,7 +22,8 @@ pub const HOMEBREW: &str = "cache.homebrew";
 pub const CARGO: &str = "cache.cargo";
 pub const GRADLE: &str = "cache.gradle";
 pub const XCODE: &str = "cache.xcode";
-pub const SIMULATORS: &str = "cache.simulators";
+/// Grouped with phones and emulators (spec detector table: `mobile.simulators`).
+pub const SIMULATORS: &str = "mobile.simulators";
 
 /// Growth allowed between scan and cleanup for unbounded cache commands
 /// before the item is skipped (5% plus 50 MB).
@@ -78,7 +79,7 @@ impl Detector for Pnpm {
         if bytes == 0 {
             return Ok(vec![]);
         }
-        let mut s = base(PNPM, Category::Caches, "pnpm-store");
+        let mut s = base(PNPM, Group::Caches, "pnpm-store");
         s.title = "Unreferenced pnpm packages".into();
         s.location = "pnpm content store".into();
         s.size_bytes = bytes;
@@ -92,6 +93,7 @@ impl Detector for Pnpm {
         s.recoverable = true;
         s.fingerprint = fingerprint_of(&[&store.to_string_lossy()]);
         Ok(vec![Finding {
+            parts: vec![],
             suggestion: s,
             target: Target::Native {
                 program: "pnpm".into(),
@@ -130,7 +132,7 @@ impl Detector for Pip {
             return Ok(vec![]);
         }
         let (at, label) = mtime_label(ctx, m.newest_mtime);
-        let mut s = base(PIP, Category::Caches, "pip-cache");
+        let mut s = base(PIP, Group::Caches, "pip-cache");
         s.title = "pip download cache".into();
         s.location = display_path(ctx, &dir);
         s.size_bytes = m.reclaimable();
@@ -145,6 +147,7 @@ impl Detector for Pip {
         s.recoverable = true;
         s.fingerprint = fingerprint_of(&[&dir.to_string_lossy()]);
         Ok(vec![Finding {
+            parts: vec![],
             suggestion: s,
             target: Target::Native {
                 program: prog.into(),
@@ -215,7 +218,7 @@ fn paths_finding(
     }
     let newest = states.iter().filter_map(|s| s.m.newest_mtime).max();
     let (at, label) = mtime_label(ctx, newest);
-    let mut s = base(det, Category::Caches, &shown.to_string_lossy());
+    let mut s = base(det, Group::Caches, &shown.to_string_lossy());
     s.title = title.into();
     s.location = display_path(ctx, shown);
     s.size_bytes = bytes;
@@ -233,7 +236,7 @@ fn paths_finding(
     s.recovery = recovery.into();
     s.recoverable = true;
     s.fingerprint = fingerprint_paths(&states);
-    Some(Finding { suggestion: s, target: Target::Paths { paths: dirs.iter().map(|d| d.to_string_lossy().to_string()).collect() } })
+    Some(Finding { parts: vec![], suggestion: s, target: Target::Paths { paths: dirs.iter().map(|d| d.to_string_lossy().to_string()).collect() } })
 }
 
 impl Detector for Npm {
@@ -300,7 +303,7 @@ impl Detector for Homebrew {
     fn run(&self, ctx: &ScanContext) -> Result<Vec<Finding>, DetectorError> {
         let (paths, total) = brew_dry_run(ctx)?;
         let Some(bytes) = total.filter(|b| *b > 0) else { return Ok(vec![]) };
-        let mut s = base(HOMEBREW, Category::Caches, "homebrew");
+        let mut s = base(HOMEBREW, Group::Caches, "homebrew");
         s.title = "Old Homebrew downloads".into();
         s.location = "Homebrew cache".into();
         s.size_bytes = bytes;
@@ -315,6 +318,7 @@ impl Detector for Homebrew {
         let list: Vec<&str> = paths.iter().map(|s| s.as_str()).collect();
         s.fingerprint = fingerprint_of(&list);
         Ok(vec![Finding {
+            parts: vec![],
             suggestion: s,
             target: Target::Native { program: "brew".into(), args: vec!["cleanup".into()], resources: paths.into_iter().collect(), cwd: None },
         }])
@@ -550,7 +554,7 @@ impl Detector for Simulators {
             }
         }
         let udids: Vec<String> = sims.iter().map(|s| s.udid.clone()).collect();
-        let mut s = base(SIMULATORS, Category::Caches, "unavailable-simulators");
+        let mut s = base(SIMULATORS, Group::PhonesEmulators, "unavailable-simulators");
         s.title = "Unavailable iOS simulators".into();
         s.location = format!("{} simulator device{}", udids.len(), if udids.len() == 1 { "" } else { "s" });
         s.size_bytes = bytes;
@@ -566,7 +570,7 @@ impl Detector for Simulators {
         // Bounded: delete exactly the devices listed, not "unavailable".
         let mut args = vec!["simctl".to_string(), "delete".to_string()];
         args.extend(udids.iter().cloned());
-        Ok(vec![Finding { suggestion: s, target: Target::Native { program: "xcrun".into(), args, resources: udids, cwd: None } }])
+        Ok(vec![Finding { parts: vec![], suggestion: s, target: Target::Native { program: "xcrun".into(), args, resources: udids, cwd: None } }])
     }
 }
 

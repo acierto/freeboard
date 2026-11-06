@@ -218,6 +218,12 @@ impl CleanupEngine {
             if s.action == Action::None || matches!(f.target, Target::None) {
                 return Err(CleanupError::Blocked("No cleanup action is available.".into()));
             }
+            // Items split into parts are cleaned part by part, each through
+            // its own pre-cleanup checks. Until that lands (task 4.2), refuse
+            // them rather than act on all parts at once.
+            if !f.parts.is_empty() || !s.parts.is_empty() {
+                return Err(CleanupError::Blocked("Items with parts can't be cleaned up yet.".into()));
+            }
             let mut f = f.clone();
             f.suggestion.skip_reason = None;
             if permanent {
@@ -382,7 +388,7 @@ impl CleanupEngine {
             .map(|f| (f.suggestion.clone(), serde_json::to_string(&f.suggestion.action).unwrap_or_default().trim_matches('"').to_string()))
             .collect();
         let expected: u64 = snapshot.findings.iter().filter(|f| f.suggestion.action != Action::Trash).map(|f| f.suggestion.size_bytes).sum();
-        let docker = snapshot.findings.iter().any(|f| f.suggestion.category == Category::Docker);
+        let docker = snapshot.findings.iter().any(|f| f.suggestion.group == Group::Docker);
         let plan_json = serde_json::to_string(&self.view(&row, now)?).unwrap_or_default();
         persist::insert_run(&mut self.store.conn(), &run_id, plan_id, &plan_json, now_secs(), free_before, expected, docker, &items)?;
         let cancel = Arc::new(AtomicBool::new(false));

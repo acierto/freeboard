@@ -42,6 +42,14 @@ const HOME = [".top", ".hero", ".tabs"];
 
 // ---- reference DOM edits for supplemental states ---------------------------
 
+function noCoverageBadge() {
+  // The Disk map tab's coverage badge needs the real disk map, which arrives
+  // with slice 3 (task 5.12). Until then the app shows no badge rather than a
+  // made-up number; the reference drops it too.
+  document.querySelector("#tab-map .dot")?.remove();
+}
+const NO_MAP = "Disk map coverage badge removed until slice 3 (task 5.12) brings the real disk map.";
+
 function trayWindow() {
   // The tray view runs in its own small window (decision 2026-11-06). Move the
   // prototype's popover into a .tray-window box (supplemental.css) and hide the
@@ -57,9 +65,9 @@ function trayWindow() {
 /** @type {Array<{id:string,surface:string,state:string,sizes:number[][],query?:string,ref:any[],impl:any[],supplemental?:boolean,note?:string,motion?:boolean,themes?:string[]}>} */
 export const ENTRIES = [
   // Milestone 2: home at the three disk states, and the tray view (task 2.6).
-  { id: "home-healthy", surface: "Home", state: "Healthy, 40 GB free", sizes: [DESKTOP, MID, PHONE], query: "free=40", ref: [free(40)], impl: [], clip: HOME },
-  { id: "home-low", surface: "Home", state: "Low, 12.4 GB free (the prototype's starting state)", sizes: [DESKTOP, MID, PHONE], query: "", ref: [], impl: [], clip: HOME },
-  { id: "home-critical", surface: "Home", state: "Critical, 4 GB free", sizes: [DESKTOP, MID, PHONE], query: "free=4", ref: [free(4)], impl: [], clip: HOME },
+  { id: "home-healthy", surface: "Home", state: "Healthy, 40 GB free", sizes: [DESKTOP, MID, PHONE], query: "free=40", ref: [free(40), evalRef(noCoverageBadge)], impl: [], clip: HOME, supplemental: true, note: NO_MAP },
+  { id: "home-low", surface: "Home", state: "Low, 12.4 GB free (the prototype's starting state)", sizes: [DESKTOP, MID, PHONE], query: "", ref: [evalRef(noCoverageBadge)], impl: [], clip: HOME, supplemental: true, note: NO_MAP },
+  { id: "home-critical", surface: "Home", state: "Critical, 4 GB free", sizes: [DESKTOP, MID, PHONE], query: "free=4", ref: [free(4), evalRef(noCoverageBadge)], impl: [], clip: HOME, supplemental: true, note: NO_MAP },
   {
     id: "tray-view", surface: "Tray", state: "Tray view, Low", sizes: [[312, 260]], query: "view=tray",
     ref: [{ click: "#tray-btn" }, evalRef(trayWindow)], impl: [], clip: [".tray-window"], supplemental: true,

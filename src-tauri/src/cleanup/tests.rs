@@ -802,3 +802,20 @@ fn unnamed_volume_group_needs_its_acknowledgment_and_removes_exactly_its_volumes
     assert!(e.actions().contains(&format!("volume rm [{a}] [{b}]")), "{}", e.actions());
     assert!(!e.actions().contains("billing_pgdata"), "named volumes are not part of the group");
 }
+
+#[test]
+fn items_split_into_parts_are_refused_until_part_cleanup_exists() {
+    // Until part-by-part cleanup lands (task 4.2), a plan must never act on
+    // every part of a split item at once.
+    let e = Env::new();
+    e.scan();
+    let nm = nm_path(&e);
+    let mut f = template(&e);
+    let sub = f.clone();
+    f.suggestion.id = "split-item".into();
+    f.suggestion.parts = vec![SuggestionPart { id: sub.suggestion.id.clone(), label: "web".into(), location: "~/projects/web".into(), size_bytes: 1, selected: true }];
+    f.parts = vec![sub];
+    let id = inject(&e, f);
+    assert!(matches!(e.engine.create_plan(&[id], NOW), Err(CleanupError::Blocked(_))));
+    assert!(nm.exists(), "nothing was removed");
+}

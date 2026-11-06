@@ -7,6 +7,8 @@ import { Dinghy } from "../../components/Dinghy";
 import { GB, GROUPS, STATUS, gb, groupLabel, trashWord } from "../../lib/format";
 import type { Goal, Group, View } from "../../lib/types";
 import { SettingsSheet } from "../settings/SettingsSheet";
+import { FirstRun } from "../onboarding/FirstRun";
+import { QuickQuestions } from "../questions/Questions";
 import { areaChoices, bubbleText, coveragePercent, forecastText, moodOf, pileItems, pileNote, questionDeck, tossLabel } from "./homeModel";
 import { useHarbor } from "./useHarbor";
 
@@ -29,8 +31,10 @@ export function Home({ navigate }: { navigate: View | null }) {
     if (navigate) window.scrollTo({ top: 0 });
   }, [navigate]);
 
-  if (!h.data) return h.error ? <p className="page muted">Freeboard could not reach its background service. {h.error}</p> : null;
+  if (!h.data) return h.error ? <p className="page muted">{`Freeboard could not reach its background service. ${h.error}`}</p> : null;
   const { status, settings, suggestions, pile, map } = h.data;
+  if (!settings.onboardingComplete) return <FirstRun settings={settings} platform={status.platform} onSettings={h.setSettings} onDone={() => void h.reload()} />;
+  const scanning = !!status.scan.running;
 
   const home = status.volumes[0];
   const freeBytes = home?.freeBytes ?? 0;
@@ -112,6 +116,7 @@ export function Home({ navigate }: { navigate: View | null }) {
             <p className="note" id="cta-note">
               {pileNote(pile, suggestions)}
             </p>
+            {scanning && <p className="note">Scanning your disk…</p>}
             <button className="link" data-act="toggle-pile" id="pile-btn" style={{ alignSelf: "flex-start" }} onClick={() => setShowPile((v) => !v)}>
               {showPile ? "Hide what is inside" : "See what is inside"}
             </button>
@@ -157,12 +162,16 @@ export function Home({ navigate }: { navigate: View | null }) {
           </button>
         </div>
 
-        {/* Section contents arrive with their milestones: Disk map (3.13), Quick questions (4.4, 4.5), Logbook (5.6). */}
-        <section id="v-tidy" className="two" hidden={tab !== "tidy"} />
+        {/* Disk map arrives with slice 3 (task 5.12), the Logbook with slice 2 (task 4.5). */}
+        <section id="v-tidy" className="two" hidden={tab !== "tidy"}>
+          <QuickQuestions items={suggestions} pile={pile} act={{ add: h.add, takeOut: h.takeOut, decide: h.decide, parts: h.parts }} />
+        </section>
         <section id="v-map" className="two" hidden={tab !== "map"} />
         <section id="v-log" className="card" hidden={tab !== "log"} />
       </div>
-      {settingsOpen && <SettingsSheet settings={settings} platform={status.platform} onChange={h.updateSettings} onClose={() => setSettingsOpen(false)} />}
+      {settingsOpen && (
+        <SettingsSheet settings={settings} platform={status.platform} scanning={scanning} onChange={h.updateSettings} onSettings={h.setSettings} onClose={() => setSettingsOpen(false)} />
+      )}
     </>
   );
 }

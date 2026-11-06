@@ -2,7 +2,7 @@
 // The interface sends only IDs, enums and numbers. It never sends a path or a
 // command to execute (invariant 3).
 
-import type { AppStatus, DiskMap, EventMap, Goal, Group, LogbookPage, PileState, ScanKind, Settings, SettingsPatch, Suggestion } from "./types";
+import type { AppStatus, EventMap, FolderList, FolderSuggestion, Goal, Group, ItemDecision, LogbookPage, PileState, ScanKind, Settings, SettingsPatch, Suggestion } from "./types";
 
 export interface Backend {
   invoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T>;
@@ -36,13 +36,21 @@ export const api = {
   getStatus: () => call<AppStatus>("get_status"),
   startScan: (kind: ScanKind) => call<string>("start_scan", { kind }),
   getSuggestions: () => call<Suggestion[]>("get_suggestions", { filters: null }),
-  getDiskMap: () => call<DiskMap>("get_disk_map", { volume: "home" }),
   getPile: () => call<PileState>("get_pile"),
   setPileGoal: (goalBytes: Goal) => call<PileState>("set_pile_goal", { goalBytes }),
   setPileAreas: (areas: Group[]) => call<PileState>("set_pile_areas", { areas }),
   addToPile: (itemIds: string[]) => call<PileState>("add_to_pile", { itemIds }),
   takeOutOfPile: (itemIds: string[]) => call<PileState>("take_out_of_pile", { itemIds }),
+  setItemDecision: (itemId: string, decision: ItemDecision) => call<Suggestion>("set_item_decision", { itemId, decision }),
+  setItemParts: (itemId: string, partIds: string[]) => call<Suggestion>("set_item_parts", { itemId, partIds }),
   listLogbook: (page: number) => call<LogbookPage>("list_logbook", { page }),
+  /** Opens a native folder picker in the backend; the path never passes through the interface. */
+  addFolder: (list: FolderList) => call<Settings>("add_folder", { list }),
+  removeFolder: (list: FolderList, index: number) => call<Settings>("remove_folder", { list, index }),
+  /** Home folders that hold Git repositories (labels only). */
+  folderSuggestions: () => call<FolderSuggestion[]>("folder_suggestions"),
+  /** Adds an offered folder by its index; the path never passes through the interface. */
+  addSuggestedFolder: (index: number) => call<Settings>("add_suggested_folder", { index }),
   getSettings: () => call<Settings>("get_settings"),
   updateSettings: (patch: SettingsPatch) => call<Settings>("update_settings", { patch }),
   setNotificationsPaused: (paused: boolean) => call<boolean>("set_notifications_paused", { paused }),
@@ -50,6 +58,12 @@ export const api = {
   closeTrayView: () => call<void>("close_tray_view"),
   reviewPile: () => call<void>("review_pile"),
 };
+
+/** Readable text for a failed command: the core sends `{ code, message }`. */
+export function errorText(e: unknown): string {
+  if (e && typeof e === "object" && "message" in e && typeof (e as { message: unknown }).message === "string") return (e as { message: string }).message;
+  return String(e);
+}
 
 export async function on<K extends keyof EventMap>(event: K, cb: (payload: EventMap[K]) => void) {
   return (await b()).listen(event, cb);

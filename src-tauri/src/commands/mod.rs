@@ -7,7 +7,7 @@ use tauri::State;
 
 use crate::app_core::{AppCore, CmdResult, CommandError, FolderList, SuggestionFilter};
 use crate::model::*;
-use crate::settings::{Settings, UiSettingsPatch};
+use crate::settings::{Goal, Settings, UiSettingsPatch};
 
 type Core<'a> = State<'a, Arc<AppCore>>;
 
@@ -74,8 +74,43 @@ pub async fn empty_freeboard_trash(core: Core<'_>, token: String) -> CmdResult<E
 }
 
 #[tauri::command]
-pub async fn list_history(core: Core<'_>, page: u32) -> CmdResult<HistoryPage> {
-    core.list_history(page)
+pub async fn list_logbook(core: Core<'_>, page: u32) -> CmdResult<HistoryPage> {
+    core.list_logbook(page)
+}
+
+#[tauri::command]
+pub async fn get_pile(core: Core<'_>) -> CmdResult<crate::selection::PileState> {
+    core.get_pile()
+}
+
+#[tauri::command]
+pub async fn set_pile_goal(core: Core<'_>, goal_bytes: Goal) -> CmdResult<crate::selection::PileState> {
+    core.set_pile_goal(goal_bytes)
+}
+
+#[tauri::command]
+pub async fn set_pile_areas(core: Core<'_>, areas: Vec<Group>) -> CmdResult<crate::selection::PileState> {
+    core.set_pile_areas(areas)
+}
+
+#[tauri::command]
+pub async fn add_to_pile(core: Core<'_>, item_ids: Vec<String>) -> CmdResult<crate::selection::PileState> {
+    core.add_to_pile(item_ids)
+}
+
+#[tauri::command]
+pub async fn take_out_of_pile(core: Core<'_>, item_ids: Vec<String>) -> CmdResult<crate::selection::PileState> {
+    core.take_out_of_pile(item_ids)
+}
+
+#[tauri::command]
+pub async fn set_item_decision(core: Core<'_>, item_id: String, decision: Option<ItemDecision>) -> CmdResult<Suggestion> {
+    core.set_item_decision(item_id, decision)
+}
+
+#[tauri::command]
+pub async fn set_item_parts(core: Core<'_>, item_id: String, part_ids: Vec<String>) -> CmdResult<Suggestion> {
+    core.set_item_parts(item_id, part_ids)
 }
 
 #[tauri::command]

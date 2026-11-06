@@ -141,8 +141,8 @@ fn grouped_by_category_and_sorted_by_size() {
     let o = fx.scan_all(ScanKind::Deep);
     for w in o.findings.windows(2) {
         let (a, b) = (&w[0].suggestion, &w[1].suggestion);
-        assert!(a.category.rank() <= b.category.rank());
-        if a.category == b.category {
+        assert!(a.group.rank() <= b.group.rank());
+        if a.group == b.group {
             assert!(a.size_bytes >= b.size_bytes);
         }
     }

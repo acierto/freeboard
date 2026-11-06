@@ -351,7 +351,7 @@ fn desktop_note(ctx: &ScanContext) -> &'static str {
 
 pub fn build_cache_findings(ctx: &ScanContext, snap: &Snapshot) -> Vec<Finding> {
     let Some(bytes) = snap.build_cache_reclaimable.filter(|b| *b > 0) else { return vec![] };
-    let mut s = base(BUILD_CACHE, Category::Docker, "build-cache");
+    let mut s = base(BUILD_CACHE, Group::Docker, "build-cache");
     s.title = "Docker build cache".into();
     s.location = "Unused build cache".into();
     s.size_bytes = bytes;
@@ -365,6 +365,7 @@ pub fn build_cache_findings(ctx: &ScanContext, snap: &Snapshot) -> Vec<Finding> 
     s.recoverable = true;
     s.fingerprint = fingerprint_of(&["build-cache", &bytes.to_string()]);
     vec![Finding {
+        parts: vec![],
         suggestion: s,
         target: Target::Native {
             program: "docker".into(),
@@ -382,7 +383,7 @@ pub fn dangling_findings(ctx: &ScanContext, snap: &Snapshot) -> Vec<Finding> {
     }
     let ids: Vec<String> = imgs.iter().map(|i| i.id.clone()).collect();
     let oldest = imgs.iter().filter_map(|i| i.created).max();
-    let mut s = base(DANGLING, Category::Docker, "dangling-images");
+    let mut s = base(DANGLING, Group::Docker, "dangling-images");
     s.title = "Untagged Docker images".into();
     s.location = format!("{} dangling image{}", ids.len(), if ids.len() == 1 { "" } else { "s" });
     s.size_bytes = imgs.iter().map(|i| i.size).sum();
@@ -400,7 +401,7 @@ pub fn dangling_findings(ctx: &ScanContext, snap: &Snapshot) -> Vec<Finding> {
     s.fingerprint = fingerprint_of(&fp);
     let mut args = vec!["image".to_string(), "rm".to_string()];
     args.extend(ids.iter().cloned());
-    vec![Finding { suggestion: s, target: Target::Native { program: "docker".into(), args, resources: ids, cwd: None } }]
+    vec![Finding { parts: vec![], suggestion: s, target: Target::Native { program: "docker".into(), args, resources: ids, cwd: None } }]
 }
 
 pub fn unused_findings(ctx: &ScanContext, snap: &Snapshot) -> Vec<Finding> {
@@ -411,7 +412,7 @@ pub fn unused_findings(ctx: &ScanContext, snap: &Snapshot) -> Vec<Finding> {
             continue;
         }
         let name = tags.join(", ");
-        let mut s = base(UNUSED, Category::Docker, &i.id);
+        let mut s = base(UNUSED, Group::Docker, &i.id);
         s.title = format!("{name} image");
         s.location = "Not used by any container".into();
         s.size_bytes = i.size;
@@ -430,6 +431,7 @@ pub fn unused_findings(ctx: &ScanContext, snap: &Snapshot) -> Vec<Finding> {
         let mut args = vec!["image".to_string(), "rm".to_string()];
         args.extend(tags.iter().cloned());
         out.push(Finding {
+            parts: vec![],
             suggestion: s,
             target: Target::Native { program: "docker".into(), args, resources: vec![i.id.clone()], cwd: None },
         });
@@ -448,7 +450,7 @@ pub fn stopped_findings(ctx: &ScanContext, snap: &Snapshot) -> Vec<Finding> {
     }
     let ids: Vec<String> = old.iter().map(|c| c.id.clone()).collect();
     let newest = old.iter().filter_map(|c| c.stopped_since()).max();
-    let mut s = base(STOPPED, Category::Docker, "stopped-containers");
+    let mut s = base(STOPPED, Group::Docker, "stopped-containers");
     s.title = "Stopped containers".into();
     s.location = format!("{} container{}", ids.len(), if ids.len() == 1 { "" } else { "s" });
     s.size_bytes = old.iter().map(|c| c.size_rw).sum();
@@ -465,7 +467,7 @@ pub fn stopped_findings(ctx: &ScanContext, snap: &Snapshot) -> Vec<Finding> {
     s.fingerprint = fingerprint_of(&fp.iter().map(|s| s.as_str()).collect::<Vec<_>>());
     let mut args = vec!["container".to_string(), "rm".to_string()];
     args.extend(ids.iter().cloned());
-    vec![Finding { suggestion: s, target: Target::Native { program: "docker".into(), args, resources: ids, cwd: None } }]
+    vec![Finding { parts: vec![], suggestion: s, target: Target::Native { program: "docker".into(), args, resources: ids, cwd: None } }]
 }
 
 pub fn volume_findings(ctx: &ScanContext, snap: &Snapshot) -> Vec<Finding> {
@@ -475,7 +477,7 @@ pub fn volume_findings(ctx: &ScanContext, snap: &Snapshot) -> Vec<Finding> {
     // Named volumes: one row each, with the Compose project and creation date.
     for v in unused.iter().filter(|v| !meta(v).anonymous || !safe_arg(v)) {
         let m = meta(v);
-        let mut s = base(VOLUMES, Category::Docker, v);
+        let mut s = base(VOLUMES, Group::Docker, v);
         s.title = format!("Volume {v}");
         s.location = match &m.project {
             Some(p) => format!("Compose project {p}, not attached to a container"),
@@ -500,6 +502,7 @@ pub fn volume_findings(ctx: &ScanContext, snap: &Snapshot) -> Vec<Finding> {
         }
         s.fingerprint = fingerprint_of(&["volume", v]);
         out.push(Finding {
+            parts: vec![],
             suggestion: s,
             target: Target::Native {
                 program: "docker".into(),
@@ -515,7 +518,7 @@ pub fn volume_findings(ctx: &ScanContext, snap: &Snapshot) -> Vec<Finding> {
     let anon: Vec<String> = unused.iter().filter(|v| meta(v).anonymous && safe_arg(v)).map(|v| v.to_string()).collect();
     if !anon.is_empty() {
         let n = anon.len();
-        let mut s = base(VOLUMES, Category::Docker, "unnamed-volumes");
+        let mut s = base(VOLUMES, Group::Docker, "unnamed-volumes");
         s.title = if n == 1 { "1 unnamed volume".into() } else { format!("{n} unnamed volumes") };
         s.location = "Created by Docker for containers that no longer exist".into();
         s.size_bytes = anon.iter().map(|v| snap.volume_sizes.get(v).copied().unwrap_or(0)).sum();
@@ -541,7 +544,7 @@ pub fn volume_findings(ctx: &ScanContext, snap: &Snapshot) -> Vec<Finding> {
         s.fingerprint = fingerprint_of(&fp);
         let mut args = vec!["volume".to_string(), "rm".to_string()];
         args.extend(anon.iter().cloned());
-        out.push(Finding { suggestion: s, target: Target::Native { program: "docker".into(), args, resources: anon, cwd: None } });
+        out.push(Finding { parts: vec![], suggestion: s, target: Target::Native { program: "docker".into(), args, resources: anon, cwd: None } });
     }
     out
 }

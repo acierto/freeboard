@@ -41,6 +41,7 @@ test("mood follows status: happy, worried, panicked", () => {
 });
 
 test("up to nine crates, each labeled with its rounded GB", () => {
-  assert.deepEqual(crateLabels([18.7, 14.8, 11.3, 9.2]), [19, 15, 11, 9]);
+  assert.deepEqual(crateLabels([18.7, 14.8, 11.3, 9.2]), ["19", "15", "11", "9"]);
+  assert.deepEqual(crateLabels([0.3, 0.5]), ["<1", "1"], "small crates never read 0");
   assert.equal(crateLabels(Array.from({ length: 12 }, () => 1)).length, MAX_CRATES);
 });

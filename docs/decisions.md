@@ -128,6 +128,15 @@ The 40 MB hidden-in-tray target is measured as the app's own memory as the OS re
 
 **Decision.** The remaining work is re-planned as vertical slices (`openspec/changes/rebuild-freeboard/tasks.md`, groups 3–5): find and choose; clean up and Logbook; disk map and the new detectors. Each slice ships its Rust commands and its interface together and ends with a scripted click-through of the real installed app. A contract test makes it impossible for the interface to call a command the Rust core does not have. This departs from the spec's milestone order (read-only product first), but each slice still keeps scans read-only and cleanup behind confirmed plans, so the safety invariants are unchanged. Windows checks wait until after slice 1.
 
+## 2026-11-06 — Slice 1 findings from the real app
+
+- **Old-format results blanked the app.** Builds between migration 3 and the group/parts model kept storing suggestions in the old category model; reading one failed every read, and the window showed only an error. Migration 4 clears them, and unreadable stored rows are now skipped and logged instead of failing the read. Errors show the core's message instead of "[object Object]".
+- **No scheduled scan before first-run setup is finished.** A scan reads Downloads, and macOS asked for permission during first run, which the spec forbids. Scheduled scans now wait for setup, even when folders were chosen earlier.
+- **Projects are one item split by project.** `node_modules` (and `.venv`, `target`, ...) in several projects become one item with a part per project; each part keeps its own finding, stored in `suggestion_parts`, so slice 2 can clean part by part through the existing checks. Until then the cleanup engine refuses items with parts.
+- **Small crates read "<1"**, not "0".
+- **Open: deep scans are slow on a real disk.** `~/soft` and `~/proj` (74 repositories) took about 11 minutes, against the spec's 60-second target for a million files. To be profiled in task 5.13.
+- **Open: one question per unused Docker image.** A real Docker host gives 246 Quick questions. The spec defines `docker.unused_images` per image; grouping them with parts would follow the spec's "Choose which" pattern. To be decided with the user.
+
 ## Visual baselines
 
 - 2026-11-04: Baselines regenerated from `docs/reference/freeboard-prototype.html` (SHA-256 `62c25122e55f…`, chromium 156.0.8078.4, 191 captures). Rationale: Initial reference-derived baselines captured from the supplied prototype; supplemental states are derived from its own components as documented per entry in the manifest. Rendering uses `--disable-partial-raster` with zero pixel tolerance (experiment in `docs/visual-verification.md`). *(Entry restored from `visual/baseline/manifest.json` after an editing error removed the original line.)*

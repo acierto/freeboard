@@ -43,7 +43,9 @@ export const CRATE_SLOTS: ReadonlyArray<readonly [number, number]> = [
   [74, -88],
 ];
 
-/** Crate labels: up to nine, each the rounded size in GB. */
-export function crateLabels(sizesGb: number[]): number[] {
-  return sizesGb.slice(0, MAX_CRATES).map((s) => Math.round(s));
+/** Crate labels: up to nine, each the rounded size in GB. Real items can be
+ * smaller than half a gigabyte; those read "<1" rather than a misleading "0"
+ * (found on a real disk, 2026-11-06; the prototype's data has none). */
+export function crateLabels(sizesGb: number[]): string[] {
+  return sizesGb.slice(0, MAX_CRATES).map((s) => (s > 0 && Math.round(s) === 0 ? "<1" : String(Math.round(s))));
 }

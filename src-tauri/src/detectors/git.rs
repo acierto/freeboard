@@ -243,7 +243,7 @@ pub fn classify(ctx: &ScanContext, main: &Path, wt: &WtEntry, default: Option<&s
 
 fn finding(ctx: &ScanContext, main: &Path, wt: &WtEntry, c: Classified) -> Finding {
     let canon = std::fs::canonicalize(&wt.path).unwrap_or_else(|_| wt.path.clone());
-    let mut s = base(ID, Category::Worktrees, &canon.to_string_lossy());
+    let mut s = base(ID, Group::Projects, &canon.to_string_lossy());
     let repo = main.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
     let label = wt.branch.clone().unwrap_or_else(|| wt.path.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default());
     s.title = format!("{repo}: {label}");
@@ -272,6 +272,7 @@ fn finding(ctx: &ScanContext, main: &Path, wt: &WtEntry, c: Classified) -> Findi
         s.blocked_reason = None;
     }
     Finding {
+        parts: vec![],
         suggestion: s,
         target: Target::Native {
             program: "git".into(),

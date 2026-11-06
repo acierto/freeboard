@@ -49,7 +49,9 @@ fn grouped(ctx: &ScanContext, det: &str, dir: &Path, paths: Vec<(PathBuf, i64)>)
     let newest = paths.iter().map(|(_, t)| *t).max()?;
     let n = paths.len();
     let tw = trash_word(ctx);
-    let mut s = base(det, Category::Files, &dir.to_string_lossy());
+    // Old %TEMP% entries are system leftovers; installers are the person's files.
+    let group = if det == WINDOWS_TEMP { Group::System } else { Group::YourFiles };
+    let mut s = base(det, group, &dir.to_string_lossy());
     if det == INSTALLERS {
         s.title = "Installers in Downloads".into();
         s.last_used_label = format!("Not opened in {}+ days", days_since(ctx.now, newest));
@@ -74,6 +76,7 @@ fn grouped(ctx: &ScanContext, det: &str, dir: &Path, paths: Vec<(PathBuf, i64)>)
     s.recoverable = true;
     s.fingerprint = fingerprint_paths(&states);
     Some(Finding {
+        parts: vec![],
         suggestion: s,
         target: Target::Paths { paths: paths.iter().map(|(p, _)| p.to_string_lossy().to_string()).collect() },
     })

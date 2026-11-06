@@ -52,6 +52,8 @@ export interface Suggestion {
   /** Why the item was skipped in a cleanup (it changed since the scan). */
   skipReason: string | null;
   decision: ItemDecision;
+  /** Name shown in the per-item acknowledgment ("billing_pgdata volume"). */
+  ackName: string | null;
 }
 
 export type Goal = number | "all";
@@ -233,6 +235,12 @@ export type SettingsPatch = Partial<
 >;
 
 export type FolderList = "scanFolders" | "exclusions";
+
+/** A home folder that holds Git repositories, offered by index (never by path). */
+export interface FolderSuggestion {
+  label: string;
+  repos: number;
+}
 
 // ----- events (spec "Events" table) plus `navigate` -----------------------------
 

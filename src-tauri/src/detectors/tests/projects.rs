@@ -60,7 +60,7 @@ fn ownership_evidence_table() {
     assert_eq!(nm.suggestion.action, Action::Delete);
     assert_eq!(nm.suggestion.recovery, "Run npm install in the project.");
     assert!(nm.suggestion.preselected());
-    assert_eq!(nm.suggestion.category, Category::Builds);
+    assert_eq!(nm.suggestion.group, Group::Projects);
 }
 
 #[test]
@@ -171,4 +171,54 @@ fn probe_checks_manifest_files_and_links() {
     let f = o.findings[0].clone();
     std::fs::remove_file(p.join("package-lock.json")).unwrap();
     fx.with_ctx(ScanKind::Deep, |ctx| assert!(matches!(probe(&f, ctx), Probe::Changed(r) if r.contains("manifest"))));
+}
+
+#[test]
+fn dependencies_are_one_item_split_by_project() {
+    // Spec `project.dependencies`: "split by project". Three inactive
+    // projects become one node_modules item with one part per project,
+    // largest first, each part keeping its own complete finding.
+    let fx = Fx::new();
+    node_project(&fx, "projects/web-app", 60);
+    node_project(&fx, "projects/docs-site", 60);
+    node_project(&fx, "projects/admin", 60);
+    fx.write("projects/web-app/node_modules/big.bin", &vec![1u8; 300_000]);
+    fx.write("projects/admin/node_modules/mid.bin", &vec![1u8; 100_000]);
+    age(&fx.home.join("projects"), 60);
+    let o = fx.scan(ScanKind::Deep, &dets());
+    assert!(o.errors.is_empty(), "{:?}", o.errors);
+    assert_eq!(titles(&o), vec!["node_modules in 3 inactive projects"]);
+    let f = &o.findings[0];
+    let s = &f.suggestion;
+    assert_eq!(s.group, Group::Projects);
+    assert_eq!(s.map_area, "projects");
+    assert_eq!(s.location, "~/projects");
+    assert_eq!(s.action_label, "Delete the 3 folders");
+    let labels: Vec<_> = s.parts.iter().map(|p| p.label.as_str()).collect();
+    assert_eq!(labels, vec!["web-app", "admin", "docs-site"], "parts are largest first");
+    assert!(s.parts.iter().all(|p| p.selected), "every part starts selected");
+    let sum: u64 = s.parts.iter().map(|p| p.size_bytes).sum();
+    assert_eq!(s.size_bytes, sum, "the item's size is the sum of its selected parts");
+    assert_eq!(s.full_size_bytes, sum);
+    assert_eq!(f.parts.len(), 3, "each part keeps its own finding");
+    for (part, sub) in s.parts.iter().zip(&f.parts) {
+        assert_eq!(part.id, sub.suggestion.id);
+        assert_eq!(sub.paths().len(), 1);
+        assert!(sub.paths()[0].ends_with(&format!("{}/node_modules", part.label)));
+        assert!(!sub.suggestion.fingerprint.is_empty());
+    }
+    // Stable identity: the same projects give the same item and part IDs.
+    let again = fx.scan(ScanKind::Deep, &dets());
+    assert_eq!(again.findings[0].suggestion.id, s.id);
+    assert_eq!(again.findings[0].suggestion.parts, s.parts);
+}
+
+#[test]
+fn a_single_project_stays_a_plain_item() {
+    let fx = Fx::new();
+    node_project(&fx, "projects/only", 60);
+    let o = fx.scan(ScanKind::Deep, &dets());
+    assert_eq!(titles(&o), vec!["node_modules in only"]);
+    assert!(o.findings[0].suggestion.parts.is_empty());
+    assert_eq!(o.findings[0].suggestion.full_size_bytes, o.findings[0].suggestion.size_bytes);
 }

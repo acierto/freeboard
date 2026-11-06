@@ -1,22 +1,33 @@
-// Settings behind the gear button (prototype `settingsSheet()`). Warning levels
-// save as they change. The full Settings sheet (folders, schedules, startup,
-// notifications) is task 6.4.
+// Settings behind the gear button (prototype `settingsSheet()`), plus the
+// folder controls the prototype only describes: scan and excluded folders,
+// and scanning on request. Warning levels save as they change. Schedules,
+// startup and notifications are task 6.4.
 import { useState } from "react";
 import { Sheet } from "../../components/Sheet";
+import { api } from "../../lib/api";
 import { GB } from "../../lib/format";
+import { track } from "../../lib/useBusy";
 import type { Platform, Settings, SettingsPatch } from "../../lib/types";
+import { FolderList, useFolderOffers } from "./Folders";
 
-/** Show home-relative paths as ~/..., like the prototype. */
-function displayPath(p: string, platform: Platform): string {
-  if (platform === "windows") return p;
-  const m = /^(\/Users\/[^/]+|\/home\/[^/]+)(\/.*)?$/.exec(p);
-  return m ? "~" + (m[2] ?? "") : p;
-}
-
-export function SettingsSheet({ settings, platform, onChange, onClose }: { settings: Settings; platform: Platform; onChange: (p: SettingsPatch) => void; onClose: () => void }) {
+export function SettingsSheet({
+  settings,
+  platform,
+  scanning,
+  onChange,
+  onSettings,
+  onClose,
+}: {
+  settings: Settings;
+  platform: Platform;
+  scanning: boolean;
+  onChange: (p: SettingsPatch) => void;
+  onSettings: (s: Settings) => void;
+  onClose: () => void;
+}) {
   const [low, setLow] = useState(Math.round(settings.lowThresholdBytes / GB));
   const [crit, setCrit] = useState(Math.round(settings.criticalThresholdBytes / GB));
-  const folders = settings.scanFolders.map((f) => displayPath(f, platform)).join(", ");
+  const offers = useFolderOffers(settings);
   return (
     <Sheet title="Settings" onClose={onClose}>
       <div className="set stack">
@@ -56,13 +67,20 @@ export function SettingsSheet({ settings, platform, onChange, onClose }: { setti
             }}
           />
         </div>
-        <div>
-          <b>Folders I scan</b>
-          <p className="mono">{folders || "No folders chosen yet"}</p>
-        </div>
+        <FolderList list="scanFolders" title="Folders I scan" empty="No folders chosen yet. I only look for projects and worktrees inside the folders you choose." settings={settings} platform={platform} onSettings={onSettings} offers={offers} />
+        <FolderList list="exclusions" title="Folders I never look in" empty="Nothing excluded." settings={settings} platform={platform} onSettings={onSettings} />
         <div>
           <b>Never touched</b>
           <p className="muted">System folders, repository roots, .git and paths you exclude.</p>
+        </div>
+        <div className="row">
+          <button className="btn" data-act="scan-quick" disabled={scanning} onClick={() => void track(api.startScan("quick")).catch(() => undefined)}>
+            Scan now
+          </button>
+          <button className="btn" data-act="scan-deep" disabled={scanning} onClick={() => void track(api.startScan("deep")).catch(() => undefined)}>
+            Run deep scan now
+          </button>
+          {scanning && <span className="note">Scanning…</span>}
         </div>
       </div>
       <div className="row">

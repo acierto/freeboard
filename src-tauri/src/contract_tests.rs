@@ -44,7 +44,7 @@ fn inv03_app_commands_take_ids_not_paths() {
     let toml = std::fs::read_to_string(root().join("permissions/app.toml")).unwrap();
     let expected = [
         "get_status", "start_scan", "get_suggestions", "create_plan", "create_permanent_plan", "get_plan", "acknowledge_item", "run_plan",
-        "cancel_run", "get_run", "get_trash", "empty_freeboard_trash", "list_history", "get_settings",
+        "cancel_run", "get_run", "get_trash", "empty_freeboard_trash", "get_settings",
         "update_settings", "add_folder", "remove_folder", "set_notifications_paused",
         // Rebuild command table (spec "Tauri commands").
         "get_disk_map", "get_blind_spots", "resolve_blind_spot", "get_places_checked", "get_growth", "get_pile",
@@ -155,7 +155,7 @@ fn inv03_command_arguments_are_ids_enums_numbers_or_bools() {
     let src = std::fs::read_to_string(root().join("src/commands/mod.rs")).unwrap();
     // Typed, non-string inputs defined in Rust.
     const TYPED: &[&str] = &[
-        "ScanKind", "Option<SuggestionFilter>", "FolderList", "UiSettingsPatch", "Goal", "Vec<Group>", "ItemDecision",
+        "ScanKind", "Option<SuggestionFilter>", "FolderList", "UiSettingsPatch", "Goal", "Vec<Group>", "ItemDecision", "Option<ItemDecision>",
         "BlindSpotAction", "PlanSource", "TidyRuleId", "VolumeId",
     ];
     const FRAMEWORK: &[&str] = &["Core<'_>", "tauri::AppHandle", "AppHandle"];
@@ -221,4 +221,71 @@ fn inv03_argument_rule_rejects_a_path_argument() {
         let id_like = (ty == "String" && (name == "id" || name.ends_with("_id") || name == "token")) || (ty == "Vec<String>" && name.ends_with("_ids"));
         assert!(!id_like, "{arg} would have been accepted");
     }
+}
+
+/// Every command the interface calls exists in the Rust shell and on the
+/// permission allowlist, and every command the shell registers is either
+/// called by the interface or listed here as backend-only. Found 2026-11-06:
+/// the home view called pile, disk map and Logbook commands that did not
+/// exist, so the installed app was an empty shell while browser checks passed.
+#[test]
+fn interface_calls_only_commands_the_core_has() {
+    // Registered but not called by the interface yet, each with the task
+    // that wires it up. This list may only shrink.
+    const BACKEND_ONLY: &[&str] = &[
+        // Slice 2, group 4: the confirmation, progress and result sheets and Empty it.
+        "create_plan", "create_permanent_plan", "get_plan", "acknowledge_item", "run_plan", "cancel_run", "get_run", "get_trash",
+        "empty_freeboard_trash",
+    ];
+    let api = std::fs::read_to_string(root().join("../src/lib/api.ts")).unwrap();
+    let called: std::collections::BTreeSet<String> = api
+        .split("call<")
+        .skip(1)
+        .filter_map(|chunk| chunk.split('"').nth(1).map(String::from))
+        .collect();
+    assert!(called.len() > 5, "parsed too few commands from api.ts: {called:?}");
+    let lib = std::fs::read_to_string(root().join("src/lib.rs")).unwrap();
+    let handler = lib.split("generate_handler![").nth(1).and_then(|r| r.split("])").next()).expect("generate_handler! list");
+    let registered: std::collections::BTreeSet<String> = handler
+        .split(',')
+        .filter_map(|l| l.trim().strip_prefix("crate::commands::").map(|n| n.trim().to_string()))
+        .collect();
+    let toml = std::fs::read_to_string(root().join("permissions/app.toml")).unwrap();
+    let missing: Vec<_> = called.iter().filter(|c| !registered.contains(*c)).collect();
+    assert!(missing.is_empty(), "the interface calls commands the Rust shell does not register: {missing:?}");
+    let not_allowed: Vec<_> = called.iter().filter(|c| !toml.contains(&format!("\"{c}\""))).collect();
+    assert!(not_allowed.is_empty(), "the interface calls commands missing from permissions/app.toml: {not_allowed:?}");
+    let unused: Vec<_> = registered.iter().filter(|r| !called.contains(*r) && !BACKEND_ONLY.contains(&r.as_str())).collect();
+    assert!(unused.is_empty(), "registered commands nothing calls (remove them or list them as backend-only): {unused:?}");
+}
+
+/// The JSON the core sends for a suggestion has exactly the fields the
+/// interface's `Suggestion` type declares (src/lib/types.ts). Found
+/// 2026-11-06: the interface read `group` and `decision`, which the old core
+/// did not send, so Where from was empty and every item looked undecided.
+#[test]
+fn suggestion_json_matches_the_interface_type() {
+    use crate::model::*;
+    let ts = std::fs::read_to_string(root().join("../src/lib/types.ts")).unwrap();
+    let fields = |iface: &str| -> std::collections::BTreeSet<String> {
+        let body = ts.split(&format!("export interface {iface} {{")).nth(1).and_then(|r| r.split("\n}").next()).unwrap_or_else(|| panic!("{iface} not found in types.ts"));
+        body.lines()
+            .map(str::trim)
+            .filter(|l| !l.starts_with("//") && !l.starts_with("/**") && !l.starts_with('*') && l.contains(':'))
+            .map(|l| l.split(':').next().unwrap().trim_end_matches('?').to_string())
+            .collect()
+    };
+    let s = crate::detectors::common::base("test.detector", Group::Caches, "x");
+    let json = serde_json::to_value(&s).unwrap();
+    let rust: std::collections::BTreeSet<String> = json.as_object().unwrap().keys().cloned().collect();
+    assert_eq!(rust, fields("Suggestion"), "Rust Suggestion JSON vs src/lib/types.ts Suggestion");
+    let part = SuggestionPart { id: "p".into(), label: "l".into(), location: "x".into(), size_bytes: 1, selected: true };
+    let rust: std::collections::BTreeSet<String> = serde_json::to_value(&part).unwrap().as_object().unwrap().keys().cloned().collect();
+    assert_eq!(rust, fields("SuggestionPart"));
+    // Enum spellings the interface relies on.
+    assert_eq!(serde_json::to_value(Group::AiModels).unwrap(), "ai_models");
+    assert_eq!(serde_json::to_value(Group::PhonesEmulators).unwrap(), "phones_emulators");
+    assert_eq!(serde_json::to_value(Group::OldToolsApps).unwrap(), "old_tools_apps");
+    assert_eq!(serde_json::to_value(Group::YourFiles).unwrap(), "your_files");
+    assert_eq!(serde_json::to_value(ItemDecision::Later).unwrap(), "later");
 }

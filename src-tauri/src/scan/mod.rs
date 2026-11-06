@@ -48,7 +48,7 @@ pub trait Detector: Send + Sync {
 
 #[derive(Debug, Clone, Default)]
 pub struct ScanOutcome {
-    /// Grouped by category (source order) and sorted by size, largest first.
+    /// Grouped (spec group order) and sorted by size, largest first.
     pub findings: Vec<Finding>,
     pub errors: Vec<DetectorError>,
 }
@@ -105,6 +105,12 @@ pub fn run_scan(ctx: &ScanContext, detectors: &[Box<dyn Detector>]) -> ScanOutco
             }
         }
     }
+    for f in &mut out.findings {
+        // Items without parts: the full size is the size.
+        if f.suggestion.full_size_bytes == 0 {
+            f.suggestion.full_size_bytes = f.suggestion.size_bytes;
+        }
+    }
     sort_findings(&mut out.findings);
     out
 }
@@ -120,13 +126,13 @@ fn run_one(d: &dyn Detector, ctx: &ScanContext) -> Result<Vec<Finding>, Detector
     }
 }
 
-/// Group by category (source order), largest first within each group.
+/// Group order (spec groups), largest first within each group.
 pub fn sort_findings(f: &mut [Finding]) {
     f.sort_by(|a, b| {
         a.suggestion
-            .category
+            .group
             .rank()
-            .cmp(&b.suggestion.category.rank())
+            .cmp(&b.suggestion.group.rank())
             .then(b.suggestion.size_bytes.cmp(&a.suggestion.size_bytes))
             .then(a.suggestion.id.cmp(&b.suggestion.id))
     });

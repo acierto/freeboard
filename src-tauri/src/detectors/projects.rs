@@ -163,7 +163,7 @@ pub fn inspect(ctx: &ScanContext, folder: &Path, detector: &str) -> Option<Findi
         return None;
     }
     let pname = project.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
-    let mut s = base(detector, Category::Builds, &st.canonical.to_string_lossy());
+    let mut s = base(detector, Group::Projects, &st.canonical.to_string_lossy());
     s.title = title(&name, &pname);
     s.location = display_path(ctx, folder);
     s.size_bytes = st.m.reclaimable();
@@ -182,7 +182,98 @@ pub fn inspect(ctx: &ScanContext, folder: &Path, detector: &str) -> Option<Findi
     s.reason = reason;
     s.recoverable = true;
     s.fingerprint = format!("{};m:{}", fingerprint_paths(&[st]), ev.manifest);
-    Some(Finding { suggestion: s, target: Target::Paths { paths: vec![folder.to_string_lossy().to_string()] } })
+    Some(Finding { parts: vec![], suggestion: s, target: Target::Paths { paths: vec![folder.to_string_lossy().to_string()] } })
+}
+
+/// One item per folder kind, split into one part per project (spec
+/// `project.dependencies`: "split by project"). Each part keeps its complete
+/// per-folder finding, so a cleanup checks and removes each project's folder
+/// on its own. Folders whose risk or action differ from the rest (a Safe
+/// folder raised to Review because its processes could not be checked) stay
+/// separate items, so a part never silently changes risk.
+pub fn merge_by_kind(ctx: &ScanContext, detector: &str, found: Vec<Finding>) -> Vec<Finding> {
+    use std::collections::BTreeMap;
+    let mut kinds: BTreeMap<(String, String, String), Vec<Finding>> = BTreeMap::new();
+    for f in found {
+        let s = &f.suggestion;
+        let name = Path::new(&f.paths()[0]).file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
+        kinds.entry((name, format!("{:?}", s.risk), format!("{:?}", s.action))).or_default().push(f);
+    }
+    let mut out = vec![];
+    for ((name, _, _), mut items) in kinds {
+        if items.len() == 1 {
+            out.push(items.pop().unwrap());
+            continue;
+        }
+        items.sort_by(|a, b| b.suggestion.size_bytes.cmp(&a.suggestion.size_bytes));
+        let first = items[0].suggestion.clone();
+        let identity = format!("{name}:{:?}:{:?}", first.risk, first.action);
+        let mut s = base(detector, Group::Projects, &identity);
+        let n = items.len();
+        let total: u64 = items.iter().map(|f| f.suggestion.size_bytes).sum();
+        let newest = items.iter().filter_map(|f| f.suggestion.last_used_at.clone()).max();
+        let idle_days = items.iter().filter_map(|f| f.suggestion.last_used_label.split_whitespace().nth(3).and_then(|d| d.parse::<i64>().ok())).min();
+        s.title = match name.as_str() {
+            "node_modules" => format!("node_modules in {n} inactive projects"),
+            "target" => format!("Rust build output in {n} projects"),
+            ".venv" => format!(".venv in {n} projects"),
+            other => format!("{other} folders in {n} projects"),
+        };
+        s.location = common_location(ctx, &items);
+        s.size_bytes = total;
+        s.full_size_bytes = total;
+        s.size_is_estimate = items.iter().any(|f| f.suggestion.size_is_estimate);
+        s.last_used_at = newest;
+        s.last_used_label = match idle_days {
+            Some(d) => format!("Projects idle for {d}+ days"),
+            None => first.last_used_label.clone(),
+        };
+        s.risk = first.risk;
+        s.action = first.action;
+        s.action_label = match first.action {
+            Action::Trash => first.action_label.clone(),
+            _ => format!("Delete the {n} folders"),
+        };
+        s.reason = if name == "node_modules" { "Every project has a lockfile.".into() } else { first.reason.clone() };
+        s.recovery = first.recovery.clone();
+        s.recoverable = items.iter().all(|f| f.suggestion.recoverable);
+        s.parts = items
+            .iter()
+            .map(|f| SuggestionPart {
+                id: f.suggestion.id.clone(),
+                label: project_name(&f.paths()[0]),
+                location: f.suggestion.location.clone(),
+                size_bytes: f.suggestion.size_bytes,
+                selected: true,
+            })
+            .collect();
+        s.fingerprint = items.iter().map(|f| f.suggestion.fingerprint.as_str()).collect::<Vec<_>>().join("|");
+        let paths = items.iter().flat_map(|f| f.paths().to_vec()).collect();
+        out.push(Finding { suggestion: s, target: Target::Paths { paths }, parts: items });
+    }
+    out
+}
+
+fn project_name(folder: &str) -> String {
+    Path::new(folder).parent().and_then(|p| p.file_name()).map(|n| n.to_string_lossy().to_string()).unwrap_or_default()
+}
+
+/// The folder all parts share, shown as the item's location ("~/projects").
+fn common_location(ctx: &ScanContext, items: &[Finding]) -> String {
+    let dirs: Vec<PathBuf> = items.iter().filter_map(|f| Path::new(&f.paths()[0]).parent().and_then(|p| p.parent()).map(PathBuf::from)).collect();
+    let mut common = dirs.first().cloned().unwrap_or_default();
+    for d in &dirs[1..] {
+        while !d.starts_with(&common) {
+            if !common.pop() {
+                break;
+            }
+        }
+    }
+    if common.as_os_str().is_empty() {
+        format!("{} projects", items.len())
+    } else {
+        display_path(ctx, &common)
+    }
 }
 
 fn run_for(ctx: &ScanContext, detector: &str, names: &[&str]) -> Result<Vec<Finding>, DetectorError> {
@@ -200,7 +291,7 @@ fn run_for(ctx: &ScanContext, detector: &str, names: &[&str]) -> Result<Vec<Find
             out.push(f);
         }
     }
-    Ok(out)
+    Ok(merge_by_kind(ctx, detector, out))
 }
 
 impl Detector for Dependencies {

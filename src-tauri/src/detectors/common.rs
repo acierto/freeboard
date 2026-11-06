@@ -148,14 +148,16 @@ pub fn run_err(detector: &str, e: &RunError) -> DetectorError {
 }
 
 /// A suggestion with conservative defaults; detectors fill in the rest.
-pub fn base(detector: &str, category: Category, identity: &str) -> Suggestion {
+pub fn base(detector: &str, group: Group, identity: &str) -> Suggestion {
     Suggestion {
         id: stable_id(detector, identity),
         detector: detector.into(),
-        category,
+        group,
+        map_area: group.default_area().into(),
         title: String::new(),
         location: String::new(),
         size_bytes: 0,
+        full_size_bytes: 0,
         last_used_at: None,
         last_used_label: String::new(),
         risk: Risk::Risky,
@@ -166,7 +168,9 @@ pub fn base(detector: &str, category: Category, identity: &str) -> Suggestion {
         recoverable: false,
         blocked_reason: None,
         needs_confirmation: false,
+        parts: Vec::new(),
         fingerprint: String::new(),
+        decision: None,
         size_is_estimate: false,
         skip_reason: None,
         ack_name: None,

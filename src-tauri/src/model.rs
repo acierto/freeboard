@@ -58,6 +58,22 @@ pub enum Group {
 }
 
 impl Group {
+    /// The disk-map area a group's items fall in, by default (prototype TILES ids).
+    pub fn default_area(self) -> &'static str {
+        match self {
+            Group::Docker => "docker",
+            Group::Projects => "projects",
+            Group::Caches => "caches",
+            Group::AiModels => "ai",
+            Group::PhonesEmulators => "mobile",
+            Group::OldToolsApps => "apps",
+            Group::YourFiles => "files",
+            Group::System => "system",
+        }
+    }
+    pub fn rank(self) -> usize {
+        Self::ALL.iter().position(|g| *g == self).unwrap_or(usize::MAX)
+    }
     pub const ALL: [Group; 8] = [
         Group::Docker,
         Group::Projects,
@@ -70,27 +86,26 @@ impl Group {
     ];
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, PartialOrd, Ord)]
-#[serde(rename_all = "lowercase")]
-pub enum Category {
-    Docker,
-    Worktrees,
-    Builds,
-    Caches,
-    Files,
+/// A user's standing decision about an item (spec `item_decisions`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ItemDecision {
+    /// Keep, don't ask again: out of the pile and all automatic choices.
+    Keep,
+    /// Ask me later: skipped until the finished state or the next scan.
+    Later,
 }
 
-impl Category {
-    pub const ORDER: [Category; 5] = [
-        Category::Docker,
-        Category::Worktrees,
-        Category::Builds,
-        Category::Caches,
-        Category::Files,
-    ];
-    pub fn rank(self) -> usize {
-        Self::ORDER.iter().position(|c| *c == self).unwrap_or(usize::MAX)
-    }
+/// One splittable unit of a suggestion: a project, model, emulator, backup,
+/// app or version (spec `SuggestionPart`).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SuggestionPart {
+    pub id: String,
+    pub label: String,
+    pub location: String,
+    pub size_bytes: u64,
+    pub selected: bool,
 }
 
 /// The common shape returned by every detector (source contract, no fields dropped).
@@ -99,10 +114,16 @@ impl Category {
 pub struct Suggestion {
     pub id: String,
     pub detector: String,
-    pub category: Category,
+    pub group: Group,
+    /// The disk-map area this item's bytes belong to.
+    pub map_area: String,
     pub title: String,
     pub location: String,
+    /// On-disk size of the selected parts (all of it when there are no parts).
     pub size_bytes: u64,
+    /// Size of every part, selected or not.
+    #[serde(default)]
+    pub full_size_bytes: u64,
     pub last_used_at: Option<String>,
     pub last_used_label: String,
     pub risk: Risk,
@@ -113,7 +134,13 @@ pub struct Suggestion {
     pub recoverable: bool,
     pub blocked_reason: Option<String>,
     pub needs_confirmation: bool,
+    /// Empty when the item can't be split.
+    #[serde(default)]
+    pub parts: Vec<SuggestionPart>,
     pub fingerprint: String,
+    /// The user's Keep or Ask me later decision, if any.
+    #[serde(default)]
+    pub decision: Option<ItemDecision>,
     // Additions beyond the source contract (never replacing a source field).
     /// True when the size is an estimate; the UI prefixes it with "about".
     #[serde(default)]
@@ -162,6 +189,24 @@ pub enum Target {
 pub struct Finding {
     pub suggestion: Suggestion,
     pub target: Target,
+    /// For an item split into parts: one complete finding per part, in the
+    /// order of `suggestion.parts`, each with its own target and fingerprint,
+    /// so every part goes through the normal pre-cleanup checks on its own.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub parts: Vec<Finding>,
+}
+
+impl Finding {
+    pub fn new(suggestion: Suggestion, target: Target) -> Finding {
+        Finding { suggestion, target, parts: Vec::new() }
+    }
+    /// The filesystem paths this finding acts on (empty for tool commands).
+    pub fn paths(&self) -> &[String] {
+        match &self.target {
+            Target::Paths { paths } => paths,
+            _ => &[],
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -417,6 +462,7 @@ pub const EV_SCAN_PROGRESS: &str = "scan_progress";
 pub const EV_SCAN_FINISHED: &str = "scan_finished";
 pub const EV_CLEANUP_ITEM_UPDATED: &str = "cleanup_item_updated";
 pub const EV_CLEANUP_FINISHED: &str = "cleanup_finished";
+pub const EV_PILE_CHANGED: &str = "pile_changed";
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
