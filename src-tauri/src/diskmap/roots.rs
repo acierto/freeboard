@@ -232,14 +232,21 @@ fn private_locations(platform: &str) -> Vec<(&'static str, &'static str)> {
         ("Library/Mobile Documents", "files"),
         ("Library/CloudStorage", "files"),
         ("Pictures/Photos Library.photoslibrary", "files"),
+        // Also prompt (found on a real Mac, 2026-11-06, where measuring the
+        // home folder asked for the Apple Music library): Contacts and
+        // Calendars data.
+        ("Library/Application Support/AddressBook", "files"),
+        ("Library/Calendars", "files"),
     ]
 }
 
 /// macOS folders that ask for permission when read; read only when they are
-/// scan folders or Freeboard has Full Disk Access.
+/// scan folders or Freeboard has Full Disk Access. Music, Movies and Pictures
+/// hold the Apple Music, TV and Photos libraries, which prompt for media
+/// library access (found on a real Mac, 2026-11-06).
 fn prompting_folders(platform: &str) -> &'static [&'static str] {
     if platform == "macos" {
-        &["Desktop", "Documents", "Downloads"]
+        &["Desktop", "Documents", "Downloads", "Music", "Movies", "Pictures"]
     } else {
         &[]
     }

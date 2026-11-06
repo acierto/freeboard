@@ -194,6 +194,10 @@ The 40 MB hidden-in-tray target is measured as the app's own memory as the OS re
 
 "Pause deep scans on battery" (spec default: on) now applies to scheduled deep scans only. A scan the person asks for (Scan now, Run deep scan now, Scan this folder, the tray's Scan Now) runs on battery too: found on the real app, where a requested deep scan sat "Scan paused while on battery" for minutes with no way forward. The spec's "Deep scans run at low priority and pause on battery power by default" is read as the background behavior; requested scans still run at low priority.
 
+## 2026-11-06 — The disk map never reads media libraries, Contacts or Calendars
+
+Found on a real Mac: measuring the home folder for the disk map read `~/Music`, and macOS asked to let Freeboard access the Apple Music library. Music, Movies and Pictures (Apple Music, TV and Photos libraries) are now treated like Desktop, Documents and Downloads: not read unless they are scan folders or Freeboard has Full Disk Access, and shown as blind spots of unknown size. Contacts (`Library/Application Support/AddressBook`) and Calendars (`Library/Calendars`) join the privacy-protected places that are never read without Full Disk Access. The prompt was answered "Don't Allow". Test: `macos_private_places_are_never_read_without_full_disk_access`.
+
 ## Visual baselines
 
 - 2026-11-04: Baselines regenerated from `docs/reference/freeboard-prototype.html` (SHA-256 `62c25122e55f…`, chromium 156.0.8078.4, 191 captures). Rationale: Initial reference-derived baselines captured from the supplied prototype; supplemental states are derived from its own components as documented per entry in the manifest. Rendering uses `--disable-partial-raster` with zero pixel tolerance (experiment in `docs/visual-verification.md`). *(Entry restored from `visual/baseline/manifest.json` after an editing error removed the original line.)*

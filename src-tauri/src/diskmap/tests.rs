@@ -287,6 +287,19 @@ fn macos_private_places_are_never_read_without_full_disk_access() {
     assert!(m.denied.iter().any(|d| d.path.ends_with("Library/Containers") && d.kind == size::Denied::Privacy), "{:?}", m.denied);
     assert!(!m.roots.iter().any(|r| r.path.contains("Containers")), "Containers were not read");
     // Documents would make macOS ask: not read, size unknown.
+    // Music, Movies and Pictures hold the Apple Music, TV and Photos libraries:
+    // reading them asks for media library access (found on a real Mac).
+    for f in ["Music/Music/Media.localized", "Movies/TV", "Pictures/Shots", "Library/Calendars", "Library/Application Support/AddressBook"] {
+        write(&fx.home.join(f).join("data.bin"), 100 * KB, b"m");
+    }
+    let m = measure(&env(&fx.home, "macos", &cancel, &repos), &[]);
+    for f in ["Music", "Movies", "Pictures"] {
+        assert!(!m.roots.iter().any(|r| r.path.ends_with(f)), "{f} must not be read on macOS");
+        assert!(m.unscanned.iter().any(|c| c.path.ends_with(f) && c.bytes.is_none()), "{f} is a blind spot of unknown size");
+    }
+    for f in ["Library/Calendars", "Library/Application Support/AddressBook"] {
+        assert!(!m.roots.iter().any(|r| r.path.ends_with(f)), "{f} must not be read without Full Disk Access");
+    }
     let docs = m.unscanned.iter().find(|c| c.path.ends_with("Documents")).expect("Documents is a blind spot");
     assert_eq!(docs.bytes, None);
     assert!(!m.roots.iter().any(|r| r.path.ends_with("Documents")));
