@@ -26,7 +26,7 @@ desktop = ["dep:tauri", "dep:tauri-build", "dep:tauri-plugin-notification", "dep
 tauri-build = { version = "2", features = [], optional = true }
 
 [dependencies]
-tauri = { version = "2", features = ["tray-icon", "image-png"], optional = true }
+tauri = { version = "2", features = ["tray-icon", "image-png", "macos-private-api"], optional = true }
 tauri-plugin-notification = { version = "2", optional = true }
 tauri-plugin-autostart = { version = "2", optional = true }
 tauri-plugin-dialog = { version = "2", optional = true }

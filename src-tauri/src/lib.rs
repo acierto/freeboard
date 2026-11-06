@@ -136,6 +136,10 @@ mod shell {
             .decorations(false)
             .always_on_top(true)
             .skip_taskbar(true)
+            // Only the rounded card and its shadow show, as in the prototype
+            // (macOS needs the macos-private-api feature for this).
+            .transparent(true)
+            .shadow(false)
             .visible(false)
             .build();
         let win = match built {

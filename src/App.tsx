@@ -14,6 +14,8 @@ function isTrayWindow(): boolean {
 /** The main window shows the home view; the tray window shows the tray view. */
 export function App() {
   const tray = isTrayWindow();
+  // The native tray window is transparent around the card (supplemental.css).
+  if (tray && "__TAURI_INTERNALS__" in window) document.documentElement.classList.add("tray-native");
   const [navigate, setNavigate] = useState<View | null>(null);
   useEffect(() => {
     if (tray) return;

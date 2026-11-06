@@ -7,3 +7,5 @@
    page flow instead of hanging under the prototype's in-page tray button. */
 .tray-window { padding: 12px 16px 24px; }
 .tray-window .popover { position: static; width: 100%; }
+/* In the app's transparent tray window, only the card and its shadow show. */
+html.tray-native, html.tray-native body { background: transparent; }

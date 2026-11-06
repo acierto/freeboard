@@ -1,14 +1,21 @@
-# macOS native evidence (Tauri WKWebView)
+# macOS native evidence (rebuild)
 
-Captured 2026-11-05 on macOS 27.0.1 (arm64), release build signed ad hoc, real backend and real disk data (not fixtures), light appearance. Window 1120×900 pt; images downscaled to 1120 px wide.
+Earlier evidence for the hull-gauge interface was removed on 2026-11-06 (it is in git history).
 
-| Capture | Review |
+## 2026-11-06 — tray view and hidden mode (milestone 2, tasks 2.5 and 2.7)
+
+macOS 27, Apple silicon, release build (`npx tauri build --bundles app`), commit after `cadcd9c`.
+
+| Check | Result |
 | --- | --- |
-| onboarding-light.png | Matches the supplemental onboarding design; bundled Barlow Condensed / IBM Plex fonts load offline in WKWebView. |
-| overview-light.png | Hull gauge, pill with status text, big free figure, CTA with real Safe total, trend and category bars match the prototype styling. 192.5 GB free is above the 120 GB scale, so the waterline sits below the hull (the "over 120" gauge state). |
-| suggestions-light.png | Grouping, sizes, "about" estimates, risk pills with shapes, blocked reason (running Gradle daemon), single Docker-unavailable note. |
-| settings-light.png | Layout matches. Range sliders and selects use native macOS WebKit control styling, which differs from Chromium; accepted as a per-engine difference. |
+| Left click on the menu-bar item opens the tray view under it | Pass: `tray-view-healthy.png`. 312 × 236 window at the icon, transparent around the card (only the card and its shadow show). Status "Healthy", "89.2 GB free", Toss disabled with "Toss 0.0 GB" (the Rust pile arrives in milestone 4). |
+| Closes with a click outside | Pass (window count 2 → 1 after a click on the main window) |
+| Closes with Esc | Pass |
+| Closes with its × button | Pass |
+| Clicking the icon again closes it | Pass |
+| Menu-bar title shows free space | Pass ("89.2 GB" beside the ring) |
+| Hidden memory and idle CPU | 21 MB footprint, 0.053% CPU over 304 s after the webview was destroyed (see `docs/performance.md`) |
 
-Defects found on real data and fixed before these captures: repeated Docker-unavailable notes (one per Docker detector), a "0.0 GB of purgeable space" note, "Review 0.0 GB of Safe items" before the first scan, and "Last scan never".
+Clicks were real mouse events (CGEvent), because an accessibility "press" on a status item does not reach the tray's click handler.
 
-Not yet captured: dark appearance, tray menu and notification (manual checks with the user).
+Still to capture: Low and Critical rings, the right-click menu, and a notification and its click (they need a disk below 20 GB or changed thresholds).

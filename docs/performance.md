@@ -2,6 +2,16 @@
 
 Actual measurements against the source targets. Targets are not results; every row says where and how it was measured. Platforms without a measurement are listed as **not measured**.
 
+## Rebuild, milestone 2 (2026-11-06)
+
+The harbor interface (openspec change `rebuild-freeboard`) replaced the hull-gauge one. Hidden memory and idle CPU were measured again on each platform (task 2.7). Scan times are measured again in milestone 3.
+
+| Platform | Memory hidden in tray (≤ 40 MB) | Idle CPU over 5 minutes (< 1%) | How |
+| --- | --- | --- | --- |
+| macOS 27, Apple silicon | 21 MB average and peak physical footprint over 304 s (RSS 108.1 MB, reference only): **met** | 0.053%: **met** | Release build; tray view opened and closed; main window closed; `destroying hidden webview` logged at 14:12:24Z; then `node scripts/perf/measure-process.mjs --name freeboard --seconds 300 --interval 10` |
+| Linux (Ubuntu 24.04 GNOME VM) | not measured yet | not measured yet | VM being rebuilt |
+| Windows 11 (Arm64 VM) | not measured yet | not measured yet | VM being rebuilt |
+
 ## macOS (Apple silicon, macOS 27, 2026-11-04)
 
 | Metric | Target | Measured | Status | How |
