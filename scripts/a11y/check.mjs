@@ -15,6 +15,11 @@ const STATES = [
   { id: "home-critical", query: "free=4" },
   { id: "home-pile-open", query: "", click: ["#pile-btn"] },
   { id: "settings-sheet", query: "", click: ['[data-act="settings"]'] },
+  { id: "map-default", query: "", click: ["#tab-map"] },
+  { id: "map-not-explained", query: "", click: ["#tab-map", '[data-tile="unknown"]'] },
+  { id: "map-spots-resolved", query: "", click: ["#tab-map", '[data-spot="archive"]', '[data-spot="mystery"]'] },
+  { id: "map-places-open", query: "", click: ["#tab-map", "#v-map .card > details > summary"] },
+  { id: "map-report", query: "", click: ["#tab-map", '[data-act="report"]'] },
   { id: "tray-view", query: "view=tray", root: ".tray-window" },
   // Slice 2: cleanup sheets and the Logbook.
   { id: "cleanup-confirm", query: "", click: ["#cta"], wait: "#go" },

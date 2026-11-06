@@ -23,7 +23,7 @@
 // cleaned in part keeps its other parts listed.
 
 import type { Backend } from "./api";
-import type { AppStatus, CleanupPlan, DiskMap, EventMap, Goal, Group, PileState, Platform, RunDetail, RunItem, RunSummary, Settings, Suggestion } from "./types";
+import type { AppStatus, BlindSpot, CleanupPlan, DiskMap, EventMap, Goal, Group, PileState, PlaceChecked, Platform, RunDetail, RunItem, RunSummary, Settings, Suggestion } from "./types";
 
 export const FIXTURE_MARKER = "FREEBOARD_FIXTURE_BACKEND";
 const G = 1e9;
@@ -97,17 +97,34 @@ const GROUP_ID: Record<string, Group> = {
 const ACTION = { native: "native_command", delete: "delete", trash: "trash", none: "none" } as const;
 
 // Prototype TILES. Your files absorbs changes in free space (prototype `tileSize`).
-const TILES: [id: string, label: string, gb: number][] = [
-  ["projects", "Projects", 96],
-  ["docker", "Docker", 72],
-  ["ai", "AI models", 61.6],
-  ["caches", "Caches", 58],
-  ["files", "Your files", 58],
-  ["mobile", "Phones and emulators", 45],
-  ["apps", "Apps and tools", 44],
-  ["system", "macOS", 44.2],
+const TILES: [id: string, label: string, gb: number, rest: string][] = [
+  ["projects", "Projects", 96, "Active projects and code"],
+  ["docker", "Docker", 72, "Images and data you are using"],
+  ["ai", "AI models", 61.6, "Models you used recently"],
+  ["caches", "Caches", 58, "Caches in active use"],
+  ["files", "Your files", 58, "Documents, photos and videos"],
+  ["mobile", "Phones and emulators", 45, "Current simulators"],
+  ["apps", "Apps and tools", 44, "Apps and tools you use"],
+  ["system", "macOS", 44.2, "macOS itself"],
 ];
 const NOT_EXPLAINED_GB = 20.8;
+
+// Prototype SPOTS, GROWING and EXTRA_PLACES.
+const SPOTS = [
+  { id: "archive", size: 11.2, to: "files", kind: "unscanned_folder", action: "scan_folder", title: "A folder I was not asked to scan", text: "~/archive holds 11.2 GB that no detector looked at.", label: "Scan this folder", done: "Scanned. I found an old laptop backup.", where: "~/archive" },
+  // The prototype grants access at once. The real app only opens System
+  // Settings and waits for a scan that can read the place (design D5); this
+  // test-only fixture shows the state after that scan.
+  { id: "access", size: 5.4, to: "system", kind: "needs_permission", action: "open_settings", title: "A place I am not allowed to read", text: "5.4 GB in /private/var/folders needs Full Disk Access.", label: "Allow access", done: "Now readable. I found leftover temp files.", where: "/private/var/folders" },
+  { id: "mystery", size: 4.2, to: "files", kind: "unknown_files", action: "mark_mine", title: "Files I do not recognize", text: "~/tools/sim-data has 4.2 GB of .dat files from an unknown tool.", label: "They are mine, keep them", done: "Marked as yours. I will not ask again.", where: "~/tools/sim-data" },
+] as const;
+const GROWING: [string, string, number][] = [
+  ["docker", "Docker", 9.3],
+  ["ai", "AI models", 7.0],
+  ["web-app", "~/projects/web-app", 4.1],
+  ["slack", "Slack cache", 1.2],
+];
+const EXTRA_PLACES = ["npm cache", "Yarn cache", "Bun cache", "Maven repository", "Gradle caches", "Go module cache", "CocoaPods", "Conda environments", "pyenv versions", "Cargo registry", "Turbo and Nx caches", "VS Code old extensions", "Browser caches", "LM Studio models", "Trash", "Log files", "iOS device support", "Mail attachments"];
 
 const bytes = (gb: number) => Math.round(gb * G);
 const round1 = (n: number) => Math.round(n * 10) / 10;
@@ -234,15 +251,56 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
   };
 
   const diskMap = (): DiskMap => {
-    // Prototype tileSize(): Your files grows or shrinks with free space.
-    const sizes = TILES.map(([id, label, gb]) => ({ id, label, gb: id === "files" ? gb + (BASE_FREE - freeGb) : gb }));
-    const un = NOT_EXPLAINED_GB;
-    const used = round1(sizes.reduce((t, a) => t + Math.max(0, round1(a.gb)), 0) + un);
+    // Prototype tileSize(): Your files grows or shrinks with free space, and
+    // a resolved blind spot moves its size out of Not explained.
+    const moved = (id: string) => SPOTS.filter((s) => resolvedSpots.has(s.id) && s.to === id).reduce((t, s) => t + s.size, 0);
+    const sizes = TILES.map(([id, label, gb, rest]) => ({ id, label, rest, gb: Math.max(0, round1(gb + moved(id) + (id === "files" ? BASE_FREE - freeGb : 0))) }));
+    const un = Math.max(0, round1(NOT_EXPLAINED_GB - SPOTS.filter((s) => resolvedSpots.has(s.id)).reduce((t, s) => t + s.size, 0)));
+    const used = round1(sizes.reduce((t, a) => t + a.gb, 0) + un);
+    const inArea = (id: string) => active().filter((i) => i.mapArea === id).reduce((t, i) => t + i.fullSizeBytes, 0);
     return {
       usedBytes: bytes(used),
       explainedBytes: bytes(used - un),
       notExplainedBytes: bytes(un),
-      areas: sizes.map((a) => ({ id: a.id, label: a.label, bytes: bytes(Math.max(0, round1(a.gb))), leaveAloneBytes: 0 })),
+      areas: sizes.map((a) => ({ id: a.id, label: a.label, bytes: bytes(a.gb), leaveAloneBytes: Math.max(0, bytes(a.gb) - inArea(a.id)), leaveAloneLabel: a.rest })),
+      incomplete: false,
+      overBytes: 0,
+      measuredAt: "2026-11-04T11:42:00Z",
+      purgeableBytes: null,
+      snapshotCount: null,
+    };
+  };
+  const blindSpots = (): BlindSpot[] =>
+    SPOTS.map((s) => ({
+      id: s.id,
+      kind: s.kind,
+      title: s.title,
+      text: s.text,
+      location: s.where,
+      sizeBytes: bytes(s.size),
+      actionLabel: s.label,
+      action: s.action,
+      state: resolvedSpots.has(s.id) ? "done" : "open",
+      doneText: resolvedSpots.has(s.id) ? s.done : null,
+    }));
+  // Prototype placesList(): every item's name (found), then the extra places (clean).
+  const places = (): PlaceChecked[] => [
+    ...active().map((i) => ({ detector: i.id, label: i.title, state: "found" as const, bytes: i.sizeBytes })),
+    ...EXTRA_PLACES.map((n) => ({ detector: "extra." + n, label: n, state: "clean" as const, bytes: 0 })),
+  ];
+  // Prototype reportText().
+  const report = () => {
+    const m = diskMap();
+    const used = m.usedBytes / G;
+    const un = m.notExplainedBytes / G;
+    const risk = { safe: "Safe", review: "Review", risky: "Risky" } as const;
+    return {
+      disk_gb: TOTAL_GB,
+      free_gb: +freeGb.toFixed(1),
+      explained_pct: +(((used - un) / used) * 100).toFixed(1),
+      areas: [...m.areas.map((a) => ({ name: a.label, gb: a.bytes / G })), { name: "Not explained", gb: un }],
+      suggestions: active().map((i) => ({ name: i.title, gb: i.sizeBytes / G, risk: risk[i.risk], where: i.location })),
+      not_explained: SPOTS.filter((s) => !resolvedSpots.has(s.id)).map((s) => ({ what: s.text, gb: s.size })),
     };
   };
 
@@ -540,6 +598,20 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
     update_settings: (a) => Object.assign(settings, a.patch as Partial<Settings>) && { ...settings },
     get_suggestions: () => active().map(({ need: _need, ...s }) => ({ ...s, parts: s.parts.map((p) => ({ ...p })) })),
     get_disk_map: () => diskMap(),
+    get_blind_spots: () => blindSpots(),
+    resolve_blind_spot: (a) => {
+      resolvedSpots.add(a.id as string);
+      // New items appear (prototype `need`), so the suggestions reload too.
+      changed();
+      setTimeout(() => {
+        emit("disk_map_changed", diskMap());
+        emit("blind_spots_changed", blindSpots());
+      }, 0);
+      return { map: diskMap(), blindSpots: blindSpots() };
+    },
+    get_places_checked: () => places(),
+    get_growth: () => GROWING.map(([id, label, gb]) => ({ id, label, bytes: bytes(gb) })),
+    create_disk_report: () => report(),
     get_pile: () => pile(),
     set_pile_goal: (a) => {
       goal = a.goalBytes as Goal;

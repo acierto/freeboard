@@ -6,6 +6,11 @@ import type {
   AppStatus,
   CleanupPlan,
   EmptyTrashResult,
+  AreaGrowth,
+  BlindSpot,
+  BlindSpotAction,
+  BlindSpotResult,
+  DiskMap,
   EventMap,
   FolderList,
   FolderSuggestion,
@@ -16,6 +21,7 @@ import type {
   PileState,
   PlanSource,
   RunDetail,
+  PlaceChecked,
   ScanKind,
   Settings,
   SettingsPatch,
@@ -74,6 +80,15 @@ export const api = {
   getRun: (runId: string) => call<RunDetail>("get_run", { runId }),
   getTrash: () => call<TrashSummary>("get_trash"),
   emptyFreeboardTrash: (token: string) => call<EmptyTrashResult>("empty_freeboard_trash", { token }),
+  // Disk map (spec "Disk accounting", "Blind spots", "Places checked and growth").
+  getDiskMap: () => call<DiskMap>("get_disk_map", { volume: "home" }),
+  getBlindSpots: () => call<BlindSpot[]>("get_blind_spots", { volume: "home" }),
+  /** By ID and the offered action only; any folder path stays in the backend. */
+  resolveBlindSpot: (id: string, action: BlindSpotAction) => call<BlindSpotResult>("resolve_blind_spot", { id, action }),
+  getPlacesChecked: () => call<PlaceChecked[]>("get_places_checked"),
+  getGrowth: (days: number) => call<AreaGrowth[]>("get_growth", { days }),
+  /** Sizes, folder names and risk levels; never file contents. */
+  createDiskReport: () => call<unknown>("create_disk_report"),
   listLogbook: (page: number) => call<LogbookPage>("list_logbook", { page }),
   /** Opens a native folder picker in the backend; the path never passes through the interface. */
   addFolder: (list: FolderList) => call<Settings>("add_folder", { list }),

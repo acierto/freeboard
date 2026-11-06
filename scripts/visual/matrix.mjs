@@ -42,13 +42,29 @@ const HOME = [".top", ".hero", ".tabs"];
 
 // ---- reference DOM edits for supplemental states ---------------------------
 
-function noCoverageBadge() {
-  // The Disk map tab's coverage badge needs the real disk map, which arrives
-  // with slice 3 (task 5.12). Until then the app shows no badge rather than a
-  // made-up number; the reference drops it too.
-  document.querySelector("#tab-map .dot")?.remove();
+function hideClippedLabels() {
+  // Spec "Disk map rules": labels wrap or hide cleanly and never clip. On some
+  // short tiles the prototype cuts the size label off at the tile's edge
+  // (Not explained at 390 px after Allow access). The app hides a label that
+  // does not fit, as on the prototype's small tiles (supplemental.css
+  // `.tile.tiny-fit`); the reference applies the same rule.
+  document.querySelectorAll("#v-map .tile:not(.tiny)").forEach((t) => {
+    const box = t.firstElementChild.getBoundingClientRect();
+    const clipped = [...t.firstElementChild.children].some((c) => {
+      const r = c.getBoundingClientRect();
+      return r.bottom > box.bottom - 2 + r.height / 4 || r.right > box.right - 2 + 1;
+    });
+    if (clipped) t.classList.add("tiny-fit");
+  });
 }
-const NO_MAP = "Disk map coverage badge removed until slice 3 (task 5.12) brings the real disk map.";
+const NO_REMOVE =
+  "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).";
+
+/** Disk map entries compare the tab bar (with its coverage badge) and the map. */
+const MAP = [".tabs", "#v-map"];
+const mapEntry = (id, state, steps) => ({ id, surface: "Disk map", state, sizes: [DESKTOP, MID, PHONE], query: "", ref: [tab("map"), ...steps, evalRef(hideClippedLabels)], impl: [tab("map"), ...steps], clip: MAP, supplemental: true, note: NO_REMOVE });
+const TILES = ["projects", "docker", "caches", "files", "mobile", "apps", "system", "unknown"];
+const PLACES = { click: "#v-map .card > details > summary" };
 
 function trayWindow() {
   // The tray view runs in its own small window (decision 2026-11-06). Move the
@@ -141,9 +157,18 @@ const OPEN_SHEET = openSheet.toString();
 /** @type {Array<{id:string,surface:string,state:string,sizes:number[][],query?:string,ref:any[],impl:any[],supplemental?:boolean,note?:string,motion?:boolean,themes?:string[]}>} */
 export const ENTRIES = [
   // Milestone 2: home at the three disk states, and the tray view (task 2.6).
-  { id: "home-healthy", surface: "Home", state: "Healthy, 40 GB free", sizes: [DESKTOP, MID, PHONE], query: "free=40", ref: [free(40), evalRef(noCoverageBadge)], impl: [], clip: HOME, supplemental: true, note: NO_MAP },
-  { id: "home-low", surface: "Home", state: "Low, 12.4 GB free (the prototype's starting state)", sizes: [DESKTOP, MID, PHONE], query: "", ref: [evalRef(noCoverageBadge)], impl: [], clip: HOME, supplemental: true, note: NO_MAP },
-  { id: "home-critical", surface: "Home", state: "Critical, 4 GB free", sizes: [DESKTOP, MID, PHONE], query: "free=4", ref: [free(4), evalRef(noCoverageBadge)], impl: [], clip: HOME, supplemental: true, note: NO_MAP },
+  { id: "home-healthy", surface: "Home", state: "Healthy, 40 GB free", sizes: [DESKTOP, MID, PHONE], query: "free=40", ref: [free(40)], impl: [], clip: HOME },
+  { id: "home-low", surface: "Home", state: "Low, 12.4 GB free (the prototype's starting state)", sizes: [DESKTOP, MID, PHONE], query: "", ref: [], impl: [], clip: HOME },
+  { id: "home-critical", surface: "Home", state: "Critical, 4 GB free", sizes: [DESKTOP, MID, PHONE], query: "free=4", ref: [free(4)], impl: [], clip: HOME },
+  // Slice 3: the Disk map tab (task 5.12).
+  mapEntry("map-default", "Disk map, AI models selected (the prototype's default)", []),
+  ...TILES.map((t) => mapEntry(`map-tile-${t}`, `Disk map, ${t === "unknown" ? "Not explained" : t} selected`, [tile(t)])),
+  mapEntry("map-spot-archive", "Blind spot resolved: folder scanned", [spot("archive")]),
+  mapEntry("map-spot-access", "Blind spot resolved: access granted, then scanned (the app waits for a scan that can read it)", [spot("access")]),
+  mapEntry("map-spot-mystery", "Blind spot resolved: files marked as mine", [spot("mystery")]),
+  mapEntry("map-spots-all", "Every blind spot resolved: Not explained is gone, Your files selected", [spot("archive"), spot("access"), spot("mystery"), tile("files")]),
+  mapEntry("map-places", "Places I checked opened", [PLACES]),
+  mapEntry("map-report", "Disk report shown in the copy-by-hand box", [act("report")]),
   {
     id: "tray-view", surface: "Tray", state: "Tray view, Low", sizes: [[312, 260]], query: "view=tray",
     ref: [{ click: "#tray-btn" }, evalRef(trayWindow)], impl: [], clip: [".tray-window"], supplemental: true,

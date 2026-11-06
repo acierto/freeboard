@@ -36,8 +36,39 @@ fn main() {
             s.onboarding_complete = true;
             bench(ScanKind::Deep, s)
         }
-        _ => eprintln!("usage: scan_bench quick | deep <dir> | make-fixture <dir> <files>"),
+        Some("account") => account(&args[1]),
+        _ => eprintln!("usage: scan_bench quick | deep <dir> | account <home> | make-fixture <dir> <files>"),
     }
+}
+
+/// Disk-map accounting walk (deep scans only) over a fixture folder used as
+/// the home folder, with its `projects` folder as the scan folder. Reads
+/// directory entries and metadata only.
+fn account(dir: &str) {
+    use freeboard_lib::diskmap::roots::{measure, MeasureEnv, BLIND_SPOT_MIN};
+    let home = std::fs::canonicalize(dir).unwrap();
+    let cancel = AtomicBool::new(false);
+    let entries = std::sync::atomic::AtomicU64::new(0);
+    let progress = |n: u64| entries.store(n, std::sync::atomic::Ordering::Relaxed);
+    let env = MeasureEnv {
+        home: home.clone(),
+        platform: freeboard_lib::platform::platform_name(),
+        scan_roots: vec![home.clone()],
+        exclusions: vec![],
+        repos: &[],
+        full_disk_access: None,
+        outside_home: false,
+        cancel: &cancel,
+        progress: &progress,
+        now: chrono::Utc::now().timestamp(),
+        min_blind_spot: BLIND_SPOT_MIN,
+    };
+    let t = Instant::now();
+    let m = measure(&env, &[]);
+    let secs = t.elapsed().as_secs_f64();
+    let bytes: u64 = m.roots.iter().map(|r| r.bytes).sum();
+    let n = entries.load(std::sync::atomic::Ordering::Relaxed);
+    println!("{{\"kind\":\"account\",\"seconds\":{secs:.2},\"entries\":{n},\"entriesPerSecond\":{:.0},\"bytes\":{bytes},\"roots\":{}}}", n as f64 / secs, m.roots.len());
 }
 
 fn run_one(ds: Vec<Box<dyn freeboard_lib::scan::Detector>>) {

@@ -26,6 +26,16 @@ pub struct VolumeReading {
 pub trait VolumeSource: Send + Sync {
     /// Home volume first, then the requested extra fixed volumes that exist.
     fn read(&self, home: &Path, extra: &[String]) -> Vec<VolumeReading>;
+    /// Disk map: bytes the platform uses on the home volume's container
+    /// outside what Freeboard measures by walking (macOS APFS system
+    /// volumes). Fakes report none.
+    fn platform_volume_bytes(&self, _platform: &str) -> u64 {
+        0
+    }
+    /// Disk map: macOS Full Disk Access (None when unknown or not macOS).
+    fn full_disk_access(&self, _platform: &str) -> Option<bool> {
+        None
+    }
 }
 
 /// Real volumes through `sysinfo`. Removable volumes are excluded unless the
@@ -62,6 +72,12 @@ impl VolumeSource for SysVolumes {
             }
         }
         out
+    }
+    fn platform_volume_bytes(&self, platform: &str) -> u64 {
+        crate::diskmap::platform_volume_bytes(platform)
+    }
+    fn full_disk_access(&self, platform: &str) -> Option<bool> {
+        crate::diskmap::full_disk_access(platform)
     }
 }
 
