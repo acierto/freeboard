@@ -122,6 +122,18 @@ pub async fn set_notifications_paused(app: tauri::AppHandle, core: Core<'_>, pau
     Ok(r)
 }
 
+/// Close the tray view (its close button and Esc).
+#[tauri::command]
+pub fn close_tray_view(app: tauri::AppHandle) {
+    crate::close_tray_view(&app);
+}
+
+/// The tray view's button: open the main window on the pile.
+#[tauri::command]
+pub fn review_pile(app: tauri::AppHandle) {
+    crate::review_pile(&app);
+}
+
 pub fn not_available(msg: &str) -> CommandError {
     CommandError::new("unavailable", msg)
 }

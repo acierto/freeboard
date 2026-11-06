@@ -113,6 +113,10 @@ jobs:
       - run: npx playwright install chromium
       - name: App stylesheet is the prototype's, byte for byte
         run: npm run verify:styles
+      - name: Interface unit tests (Dinghy geometry and mood)
+        run: npm run test:ui
+      - name: Interface behaviour (keyboard, sheets, tray view, pile)
+        run: npm run verify:ui
       # Pixel baselines are specific to the machine that rendered them (text
       # rasterization differs between OS versions), so CI compares the app
       # with the prototype rendered on the same runner (decision 2026-11-05).

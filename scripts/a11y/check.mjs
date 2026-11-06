@@ -8,18 +8,14 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { ROOT, launch, startServer } from "../visual/lib.mjs";
 
+// Views and states that exist so far; each milestone adds its own (task 6.6 runs all).
 const STATES = [
-  { id: "overview-low", query: "free=12.4" },
-  { id: "overview-critical", query: "free=4" },
-  { id: "overview-healthy", query: "free=40" },
-  { id: "onboarding", query: "onboarding=1" },
-  { id: "suggestions", query: "", click: ['[data-view="suggestions"]'] },
-  { id: "suggestions-expanded", query: "", click: ['[data-view="suggestions"]', "details summary"] },
-  { id: "suggestions-risky", query: "", click: ['[data-view="suggestions"]', '[data-filter="Risky"]', "details summary"] },
-  { id: "suggestions-empty", query: "suggestions=empty", click: ['[data-view="suggestions"]'] },
-  { id: "plan", query: "", click: ['[data-view="plan"]'] },
-  { id: "history", query: "", click: ['[data-view="history"]'] },
-  { id: "settings", query: "", click: ['[data-view="settings"]'] },
+  { id: "home-low", query: "" },
+  { id: "home-healthy", query: "free=40" },
+  { id: "home-critical", query: "free=4" },
+  { id: "home-pile-open", query: "", click: ["#pile-btn"] },
+  { id: "settings-sheet", query: "", click: ['[data-act="settings"]'] },
+  { id: "tray-view", query: "view=tray", root: ".tray-window" },
 ];
 const THEMES = ["light", "dark"];
 const SIZES = [
@@ -37,17 +33,18 @@ for (const st of STATES)
       const ctx = await browser.newContext({ viewport: { width: w, height: h }, colorScheme: theme, reducedMotion: "reduce" });
       const page = await ctx.newPage();
       await page.goto(`${base}/?theme=${theme}&${st.query}`);
-      await page.waitForSelector(".app");
+      const root = st.root ?? "body";
+      await page.waitForSelector(".page .hero, .tray-window");
       for (const sel of st.click ?? []) await page.click(sel);
       await page.waitForTimeout(50);
-      const r = await new AxeBuilder({ page }).include(".app").withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze();
+      const r = await new AxeBuilder({ page }).include(root).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze();
       // Keyboard: every enabled control must be reachable with Tab.
-      const unreachable = await page.evaluate(async () => {
-        const ctrls = [...document.querySelectorAll(".app button:not([disabled]), .app input:not([disabled]), .app select, .app summary, .app a[href]")].filter(
+      const unreachable = await page.evaluate(async (root) => {
+        const ctrls = [...document.querySelector(root).querySelectorAll("button:not([disabled]), input:not([disabled]), select, summary, a[href]")].filter(
           (e) => e.offsetParent !== null,
         );
         return ctrls.filter((e) => e.tabIndex < 0).map((e) => e.outerHTML.slice(0, 80));
-      });
+      }, root);
       const key = `${st.id}--${theme}--${w}x${h}`;
       violations += r.violations.length + unreachable.length;
       results.push({

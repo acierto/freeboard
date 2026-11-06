@@ -13,7 +13,9 @@
     "verify:visual:baseline": "vite build --mode visual && node scripts/visual/baseline.mjs",
     "verify:visual:selftest": "npm run build:visual && node scripts/visual/selftest.mjs",
     "verify:a11y": "vite build --mode visual && node scripts/a11y/check.mjs",
-    "verify:styles": "node scripts/visual/sync-styles.mjs --check"
+    "verify:styles": "node scripts/visual/sync-styles.mjs --check",
+    "test:ui": "node --test 'tests/ui/*.test.ts'",
+    "verify:ui": "vite build --mode visual && node scripts/ui/check.mjs"
   },
   "dependencies": {
     "@tauri-apps/api": "2.12.4",

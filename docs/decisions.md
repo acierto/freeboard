@@ -106,6 +106,18 @@ The 40 MB hidden-in-tray target is measured as the app's own memory as the OS re
 
 **License.** The spec's open question on licensing was already answered: MIT (2026-11-04).
 
+## 2026-11-06 — Home view and tray view (milestone 2)
+
+**The tray view is its own small window.** The prototype simulates the tray with an in-page "Menu bar: 12.4 GB" button and a popover. The app does not show that button: a left click on the native tray icon opens a 312 × 236 window with the popover's content, placed under the icon (or above it when the tray is at the bottom of the screen, as on Windows). It closes with its close button, Esc, or when it loses focus (a click anywhere outside). The menu (Open Freeboard, Scan Now, Pause Notifications, Quit) moves to the right click. Linux desktops do not report tray clicks, so on Linux the menu also has **Show Summary**. The visual verifier hides the in-page button in the reference and compares the tray view on its own. Reason: spec "Background behavior" and "Screen structure" describe a tray view with status, free space, the pile total and a review button.
+
+**Notifications open the home view.** The Suggestions screen no longer exists; a notification click opens the main window on the home view (spec "Disk status").
+
+**Toss and Empty it before cleanup exists.** Until the confirmation sheet (task 5.4) and the Trash confirmation (task 5.5) are built, Toss opens the pile list and Empty it does nothing. The tray view's button opens the main window with the pile shown.
+
+**Commands the Rust core gains later.** The interface already calls `get_pile`, `set_pile_goal`, `set_pile_areas`, `take_out_of_pile` (milestone 4) and `get_disk_map` (milestone 3). Until they exist, the home view shows an empty pile and no coverage badge instead of failing.
+
+**Single text strings.** Labels such as "12.4 GB free" are rendered as one string, as the prototype does. Splitting them into separate React text nodes changes Chromium's text shaping by a few pixels (found by the verifier on the tray view).
+
 ## Visual baselines
 
 - 2026-11-04: Baselines regenerated from `docs/reference/freeboard-prototype.html` (SHA-256 `62c25122e55f…`, chromium 156.0.8078.4, 191 captures). Rationale: Initial reference-derived baselines captured from the supplied prototype; supplemental states are derived from its own components as documented per entry in the manifest. Rendering uses `--disable-partial-raster` with zero pixel tolerance (experiment in `docs/visual-verification.md`). *(Entry restored from `visual/baseline/manifest.json` after an editing error removed the original line.)*
@@ -114,3 +126,4 @@ The 40 MB hidden-in-tray target is measured as the app's own memory as the OS re
 - 2026-11-05: Baselines regenerated from `docs/reference/freeboard-prototype.html` (SHA-256 `62c25122e55f…`, chromium 156.0.8078.4, 195 captures). Rationale: Correct the docker-unavailable supplemental reference: the Docker group is absent when Docker is unavailable, matching the backend (2026-11-05).
 - 2026-11-05: Baselines regenerated from `docs/reference/freeboard-prototype.html` (SHA-256 `62c25122e55f…`, chromium 156.0.8078.4, 199 captures). Rationale: Suggestions: distinguish 'never scanned' from 'scan found nothing' (found on the Linux VM); new supplemental state suggestions-nothing-found (2026-11-05).
 - 2026-11-05: Baselines regenerated from `docs/reference/freeboard-prototype.html` (SHA-256 `62c25122e55f…`, chromium 156.0.8078.4, 203 captures). Rationale: Plans list and run the biggest items first; only commands use the code font in plan rows; the free-space line gives a lower figure without Docker Desktop data; first run and Suggestions offer home folders that hold Git repositories when no project folder is chosen (new supplemental state suggestions-no-folders). Requested by the user (2026-11-05).
+- 2026-11-06: Baselines regenerated from `docs/reference/freeboard-prototype.html` (SHA-256 `1e0a2102e326…`, chromium 156.0.8078.4, 20 captures). Rationale: Rebuild milestone 2: home at Healthy, Low and Critical and the tray view, from the new harbor prototype (2026-11-06)

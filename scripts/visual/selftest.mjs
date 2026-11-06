@@ -5,16 +5,16 @@
 // unmutated render must PASS, and a missing font must be reported INCOMPLETE
 // (never a silent pass).
 //
-// Until the rebuilt home view exists (task 2.6 switches this to the app), the
-// mutations are applied to the reference render itself: a fresh capture of the
-// prototype is the expected image, and mutated captures of the same state must
-// differ from it. This exercises the same capture, adapter, font check and
-// comparison code the verifier uses for every matrix entry.
+// The expected image is a fresh render of the prototype in the home-low state;
+// mutations are injected into the app's render of the same state.
 import { capture, launch, startServer } from "./lib.mjs";
 import { comparePng } from "./compare.mjs";
+import { captures } from "./matrix.mjs";
 
-const cap = { id: "selftest-home", theme: "light", width: 1120, height: 900, query: "", ref: [], impl: [], supplemental: false };
-const SIDE = "ref";
+const KEY = "home-low--light--1120x900";
+const cap = captures().find((c) => c.key === KEY);
+if (!cap) throw new Error("selftest needs matrix entry " + KEY);
+const SIDE = "impl";
 
 const MUTATIONS = {
   none: null,
@@ -40,7 +40,7 @@ const MUTATIONS = {
 const { server, base } = await startServer();
 const browser = await launch();
 const results = [];
-const expected = await capture(browser, base, cap, SIDE);
+const expected = await capture(browser, base, cap, "ref");
 if (!expected.png) {
   console.error("Reference render failed: " + expected.error);
   process.exit(1);

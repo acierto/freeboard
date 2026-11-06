@@ -1,0 +1,367 @@
+{
+  "version": 1,
+  "source": "docs/reference/freeboard-prototype.html",
+  "sourceSha256": "1e0a2102e32695d6f56ec943b46724c7b255deebe87bab81fb72a9b325c26ae9",
+  "engine": {
+    "engine": "chromium",
+    "version": "156.0.8078.4",
+    "playwright": "1.64.1",
+    "os": "darwin-arm64"
+  },
+  "fonts": [
+    "Fredoka 600 (src/fonts, SIL OFL 1.1)",
+    "Fredoka 700 (src/fonts, SIL OFL 1.1)",
+    "Nunito 600 (src/fonts, SIL OFL 1.1)",
+    "Nunito 700 (src/fonts, SIL OFL 1.1)",
+    "Nunito 800 (src/fonts, SIL OFL 1.1)",
+    "DM Mono 400 (src/fonts, SIL OFL 1.1)"
+  ],
+  "clock": "2026-11-04T12:00:00Z (frozen)",
+  "locale": "en-US",
+  "timezone": "UTC",
+  "adapter": "scripts/visual/lib.mjs referenceHtml(): local fonts, data-theme, host reset (src/styles/reset.css), prototype-only controls hidden (.top-right .sim, .top-right [data-act=\"reset\"], .top > div > .note, .top-right .tray)",
+  "acceptedAt": "2026-11-06T13:42:21.660Z",
+  "rationale": "Rebuild milestone 2: home at Healthy, Low and Critical and the tray view, from the new harbor prototype (2026-11-06)",
+  "entries": {
+    "home-critical--dark--1120x900": {
+      "id": "home-critical",
+      "surface": "Home",
+      "state": "Critical, 4 GB free",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "free=4",
+      "supplemental": false,
+      "note": null,
+      "sha256": "b5ee3a223fdc0739667ccb669ddf2a4a30812738b0d5c115269bcf30ad6bd03d"
+    },
+    "home-critical--dark--390x844": {
+      "id": "home-critical",
+      "surface": "Home",
+      "state": "Critical, 4 GB free",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "free=4",
+      "supplemental": false,
+      "note": null,
+      "sha256": "a2a2f17630cbf98a04bda86ef8f54dd58c448ee22053d07c5cc9f54f68fcb5ae"
+    },
+    "home-critical--dark--760x900": {
+      "id": "home-critical",
+      "surface": "Home",
+      "state": "Critical, 4 GB free",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "free=4",
+      "supplemental": false,
+      "note": null,
+      "sha256": "8dac235aee55d7be758be1586e3aa99b169d68c650f7dd16c213c2c04f311ee3"
+    },
+    "home-critical--light--1120x900": {
+      "id": "home-critical",
+      "surface": "Home",
+      "state": "Critical, 4 GB free",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "free=4",
+      "supplemental": false,
+      "note": null,
+      "sha256": "e0aeef2060007eb91228336b33085f71faca322d5dc8b9c15e38f06d6fd0ce7a"
+    },
+    "home-critical--light--390x844": {
+      "id": "home-critical",
+      "surface": "Home",
+      "state": "Critical, 4 GB free",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "free=4",
+      "supplemental": false,
+      "note": null,
+      "sha256": "d69cea31c2c9fbec9f0f920b3145aff2285a97aaf4bcde4f3229e2f023b63b1c"
+    },
+    "home-critical--light--760x900": {
+      "id": "home-critical",
+      "surface": "Home",
+      "state": "Critical, 4 GB free",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "free=4",
+      "supplemental": false,
+      "note": null,
+      "sha256": "cda69c2d3efa4b87d48f57f1897da3edbe0330d9ab7dcfbdca206134db1a6753"
+    },
+    "home-healthy--dark--1120x900": {
+      "id": "home-healthy",
+      "surface": "Home",
+      "state": "Healthy, 40 GB free",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "free=40",
+      "supplemental": false,
+      "note": null,
+      "sha256": "b8d6617af8f284627a2642864ea01118b04666266dafb36c05421b477600780c"
+    },
+    "home-healthy--dark--390x844": {
+      "id": "home-healthy",
+      "surface": "Home",
+      "state": "Healthy, 40 GB free",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "free=40",
+      "supplemental": false,
+      "note": null,
+      "sha256": "1f3340554df33a235db72393ccabe46e754665fa4e7cc4cf8a0a3a7850d2dd21"
+    },
+    "home-healthy--dark--760x900": {
+      "id": "home-healthy",
+      "surface": "Home",
+      "state": "Healthy, 40 GB free",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "free=40",
+      "supplemental": false,
+      "note": null,
+      "sha256": "424f3a1d8e9e1190f9eee34c2eec932b14c6d1cbeb13634aec613bf695f333f9"
+    },
+    "home-healthy--light--1120x900": {
+      "id": "home-healthy",
+      "surface": "Home",
+      "state": "Healthy, 40 GB free",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "free=40",
+      "supplemental": false,
+      "note": null,
+      "sha256": "a39c9ef9abb822e5c317e5c856808673da414e37848607e3688095848df6f05d"
+    },
+    "home-healthy--light--390x844": {
+      "id": "home-healthy",
+      "surface": "Home",
+      "state": "Healthy, 40 GB free",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "free=40",
+      "supplemental": false,
+      "note": null,
+      "sha256": "563e5cc60ec5628df1666820552fd412841bc02aedd28c147d43a17a5c5a7b4b"
+    },
+    "home-healthy--light--760x900": {
+      "id": "home-healthy",
+      "surface": "Home",
+      "state": "Healthy, 40 GB free",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "free=40",
+      "supplemental": false,
+      "note": null,
+      "sha256": "30c1c4980e2224351d30256dfb07ec237a456d8a2b597bc5fb0b4015e159205e"
+    },
+    "home-low--dark--1120x900": {
+      "id": "home-low",
+      "surface": "Home",
+      "state": "Low, 12.4 GB free (the prototype's starting state)",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": false,
+      "note": null,
+      "sha256": "6e2141db243a1472a36b8ccb01ffadb2e329a75dc2a9998b4eedf689f1ec2434"
+    },
+    "home-low--dark--390x844": {
+      "id": "home-low",
+      "surface": "Home",
+      "state": "Low, 12.4 GB free (the prototype's starting state)",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": false,
+      "note": null,
+      "sha256": "691c9744e15683bd7c80579299d8141a6650d2596984782b90e5cb0156ba5b2e"
+    },
+    "home-low--dark--760x900": {
+      "id": "home-low",
+      "surface": "Home",
+      "state": "Low, 12.4 GB free (the prototype's starting state)",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": false,
+      "note": null,
+      "sha256": "f8a93759ebc891a3b91ed5ef6c63944a0ca91e88b564e24940876c4352159ca5"
+    },
+    "home-low--light--1120x900": {
+      "id": "home-low",
+      "surface": "Home",
+      "state": "Low, 12.4 GB free (the prototype's starting state)",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": false,
+      "note": null,
+      "sha256": "849e56bf2249ab2ac7043a1b82d6a228fa8532a8e620cd7542d24ef0bd33dc6c"
+    },
+    "home-low--light--390x844": {
+      "id": "home-low",
+      "surface": "Home",
+      "state": "Low, 12.4 GB free (the prototype's starting state)",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": false,
+      "note": null,
+      "sha256": "4b10bf62003f1f5db7bd097405b58cf15b2a80913b55c035979e2d1bd292f1f0"
+    },
+    "home-low--light--760x900": {
+      "id": "home-low",
+      "surface": "Home",
+      "state": "Low, 12.4 GB free (the prototype's starting state)",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": false,
+      "note": null,
+      "sha256": "f54854938f6806788a8adabeb95ed331178d1a0eb9f513abeed063f305252aad"
+    },
+    "tray-view--dark--312x260": {
+      "id": "tray-view",
+      "surface": "Tray",
+      "state": "Tray view, Low",
+      "theme": "dark",
+      "viewport": {
+        "width": 312,
+        "height": 260
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "view=tray",
+      "supplemental": true,
+      "note": "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
+      "sha256": "c30954c69d6436f20295b71829ad91605aa6678736315e5437bf9d1479ce32b6"
+    },
+    "tray-view--light--312x260": {
+      "id": "tray-view",
+      "surface": "Tray",
+      "state": "Tray view, Low",
+      "theme": "light",
+      "viewport": {
+        "width": 312,
+        "height": 260
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "view=tray",
+      "supplemental": true,
+      "note": "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
+      "sha256": "540b87465936b16473a38291b6108719d3df266afa1d925e2aa282e8df64fb83"
+    }
+  }
+}

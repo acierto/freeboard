@@ -33,9 +33,39 @@ export const openGroup = (key) => ({ click: `details[data-open="${key}"] > summa
 export const ack = (id) => ({ check: [`#ack-${id}`, true] });
 export const finish = { clockRun: 30000 }; // reference only; the app waits for its backend
 export const both = (steps) => ({ ref: steps, impl: steps });
+export const free = (gbFree) => ({ range: ["#sim-free", String(gbFree)] }); // reference only: Pretend free space
+export const evalRef = (fn, arg) => ({ eval: fn.toString(), arg });
+
+/** Until the section contents land (milestones 3–5), home entries compare the
+ * top bar, the harbor and the helm, and the tab bar. */
+const HOME = [".top", ".hero", ".tabs"];
+
+// ---- reference DOM edits for supplemental states ---------------------------
+
+function trayWindow() {
+  // The tray view runs in its own small window (decision 2026-11-06). Move the
+  // prototype's popover into a .tray-window box (supplemental.css) and hide the
+  // page, so the reference shows the popover as the app's tray window does.
+  const pop = document.getElementById("popover");
+  const w = document.createElement("div");
+  w.className = "tray-window";
+  document.querySelector(".page").style.display = "none";
+  w.appendChild(pop);
+  document.body.prepend(w);
+}
 
 /** @type {Array<{id:string,surface:string,state:string,sizes:number[][],query?:string,ref:any[],impl:any[],supplemental?:boolean,note?:string,motion?:boolean,themes?:string[]}>} */
-export const ENTRIES = [];
+export const ENTRIES = [
+  // Milestone 2: home at the three disk states, and the tray view (task 2.6).
+  { id: "home-healthy", surface: "Home", state: "Healthy, 40 GB free", sizes: [DESKTOP, MID, PHONE], query: "free=40", ref: [free(40)], impl: [], clip: HOME },
+  { id: "home-low", surface: "Home", state: "Low, 12.4 GB free (the prototype's starting state)", sizes: [DESKTOP, MID, PHONE], query: "", ref: [], impl: [], clip: HOME },
+  { id: "home-critical", surface: "Home", state: "Critical, 4 GB free", sizes: [DESKTOP, MID, PHONE], query: "free=4", ref: [free(4)], impl: [], clip: HOME },
+  {
+    id: "tray-view", surface: "Tray", state: "Tray view, Low", sizes: [[312, 260]], query: "view=tray",
+    ref: [{ click: "#tray-btn" }, evalRef(trayWindow)], impl: [], clip: [".tray-window"], supplemental: true,
+    note: "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
+  },
+];
 
 /** Native surfaces that browser comparison cannot establish. */
 export const NATIVE = [

@@ -1,23 +1,8 @@
-// Typed wrappers around the Tauri commands (source "Tauri commands" table).
+// Typed wrappers around the Tauri commands (spec "Tauri commands" table).
 // The interface sends only IDs, enums and numbers. It never sends a path or a
 // command to execute (invariant 3).
 
-import type {
-  AppStatus,
-  CleanupPlan,
-  EmptyTrashResult,
-  EventMap,
-  FolderList,
-  FolderSuggestion,
-  HistoryPage,
-  Risk,
-  RunDetail,
-  ScanKind,
-  Settings,
-  SettingsPatch,
-  Suggestion,
-  TrashSummary,
-} from "./types";
+import type { AppStatus, DiskMap, EventMap, Goal, Group, LogbookPage, PileState, ScanKind, Settings, SettingsPatch, Suggestion } from "./types";
 
 export interface Backend {
   invoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T>;
@@ -50,27 +35,20 @@ const call = async <T>(cmd: string, args?: Record<string, unknown>) => (await b(
 export const api = {
   getStatus: () => call<AppStatus>("get_status"),
   startScan: (kind: ScanKind) => call<string>("start_scan", { kind }),
-  getSuggestions: (filters?: { risk?: Risk }) => call<Suggestion[]>("get_suggestions", { filters: filters ?? null }),
-  createPlan: (itemIds: string[]) => call<CleanupPlan>("create_plan", { itemIds }),
-  createPermanentPlan: (itemIds: string[]) => call<CleanupPlan>("create_permanent_plan", { itemIds }),
-  getPlan: (planId: string) => call<CleanupPlan>("get_plan", { planId }),
-  acknowledgeItem: (planId: string, itemId: string) => call<CleanupPlan>("acknowledge_item", { planId, itemId }),
-  runPlan: (planId: string) => call<string>("run_plan", { planId }),
-  cancelRun: (runId: string) => call<boolean>("cancel_run", { runId }),
-  getRun: (runId: string) => call<RunDetail>("get_run", { runId }),
-  getTrash: () => call<TrashSummary>("get_trash"),
-  emptyFreeboardTrash: (token: string) => call<EmptyTrashResult>("empty_freeboard_trash", { token }),
-  listHistory: (page: number) => call<HistoryPage>("list_history", { page }),
+  getSuggestions: () => call<Suggestion[]>("get_suggestions", { filters: null }),
+  getDiskMap: () => call<DiskMap>("get_disk_map", { volume: "home" }),
+  getPile: () => call<PileState>("get_pile"),
+  setPileGoal: (goalBytes: Goal) => call<PileState>("set_pile_goal", { goalBytes }),
+  setPileAreas: (areas: Group[]) => call<PileState>("set_pile_areas", { areas }),
+  addToPile: (itemIds: string[]) => call<PileState>("add_to_pile", { itemIds }),
+  takeOutOfPile: (itemIds: string[]) => call<PileState>("take_out_of_pile", { itemIds }),
+  listLogbook: (page: number) => call<LogbookPage>("list_logbook", { page }),
   getSettings: () => call<Settings>("get_settings"),
   updateSettings: (patch: SettingsPatch) => call<Settings>("update_settings", { patch }),
-  /** Opens a native folder picker in the backend; the path never passes through the interface. */
-  addFolder: (list: FolderList) => call<Settings>("add_folder", { list }),
-  removeFolder: (list: FolderList, index: number) => call<Settings>("remove_folder", { list, index }),
-  /** Folders in the home folder that hold Git repositories (labels only). */
-  folderSuggestions: () => call<FolderSuggestion[]>("folder_suggestions"),
-  /** Adds an offered folder by its index; the path never passes through the interface. */
-  addSuggestedFolder: (index: number) => call<Settings>("add_suggested_folder", { index }),
   setNotificationsPaused: (paused: boolean) => call<boolean>("set_notifications_paused", { paused }),
+  /** Tray view: close it, or open the main window on the pile. */
+  closeTrayView: () => call<void>("close_tray_view"),
+  reviewPile: () => call<void>("review_pile"),
 };
 
 export async function on<K extends keyof EventMap>(event: K, cb: (payload: EventMap[K]) => void) {

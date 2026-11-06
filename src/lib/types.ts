@@ -1,17 +1,40 @@
-// Mirrors src-tauri/src/model.rs and settings.rs (serde camelCase).
-// Source contract: docs/reference/FREEBOARD_SPEC.md, "Data model and risk rules".
+// The typed contract between the interface and the Rust core (serde camelCase).
+// Source: docs/reference/FREEBOARD_SPEC.md, "Data model and risk rules" and
+// "Tauri commands". The interface sends only IDs, enums and numbers.
 
 export type Risk = "safe" | "review" | "risky";
 export type Action = "native_command" | "delete" | "trash" | "none";
-export type Category = "docker" | "worktrees" | "builds" | "caches" | "files";
+export type Group =
+  | "docker"
+  | "projects"
+  | "caches"
+  | "ai_models"
+  | "phones_emulators"
+  | "old_tools_apps"
+  | "your_files"
+  | "system";
+
+export interface SuggestionPart {
+  id: string;
+  label: string;
+  location: string;
+  sizeBytes: number;
+  selected: boolean;
+}
+
+/** Keep, Ask me later, or no decision (spec `item_decisions`). */
+export type ItemDecision = "keep" | "later" | null;
 
 export interface Suggestion {
   id: string;
   detector: string;
-  category: Category;
+  group: Group;
+  mapArea: string;
   title: string;
   location: string;
+  /** On-disk size of the selected parts. */
   sizeBytes: number;
+  fullSizeBytes: number;
   lastUsedAt: string | null;
   lastUsedLabel: string;
   risk: Risk;
@@ -22,31 +45,41 @@ export interface Suggestion {
   recoverable: boolean;
   blockedReason: string | null;
   needsConfirmation: boolean;
+  parts: SuggestionPart[];
   fingerprint: string;
-  // Additions (never replace source fields)
+  // Additions (never replace spec fields)
   sizeIsEstimate: boolean;
+  /** Why the item was skipped in a cleanup (it changed since the scan). */
   skipReason: string | null;
-  ackName: string | null;
+  decision: ItemDecision;
 }
 
-export type PlanState = "open" | "running" | "finished" | "expired" | "invalidated";
+export type Goal = number | "all";
 
-export interface CleanupPlan {
-  id: string;
-  createdAt: string;
-  expiresAt: string;
+export interface PileState {
+  goalBytes: Goal;
+  /** Empty means everywhere. */
+  areas: Group[];
+  mode: "auto" | "manual";
+  addedIds: string[];
+  takenOutIds: string[];
+  /** The current result, largest first. */
   itemIds: string[];
-  bytesFreedNow: number;
-  bytesHeldInTrash: number;
-  unrecoverableIds: string[];
-  // Additions
-  items: Suggestion[];
-  needsAckIds: string[];
-  acknowledgedIds: string[];
-  unrecoverableBytes: number;
-  freeBytesNow: number;
-  ready: boolean;
-  state: PlanState;
+  totalBytes: number;
+}
+
+export interface DiskMapArea {
+  id: string;
+  label: string;
+  bytes: number;
+  leaveAloneBytes: number;
+}
+
+export interface DiskMap {
+  usedBytes: number;
+  explainedBytes: number;
+  notExplainedBytes: number;
+  areas: DiskMapArea[];
 }
 
 export type DiskStatus = "healthy" | "low" | "critical";
@@ -101,6 +134,8 @@ export interface AppStatus {
 
 export type ScanKind = "quick" | "deep";
 
+// ----- cleanup and Logbook (adapted in milestone 5) -------------------------
+
 export type ItemState =
   | "waiting"
   | "checking"
@@ -148,24 +183,13 @@ export interface RunSummary {
   state: string;
 }
 
-export interface HistoryPage {
+export interface LogbookPage {
   runs: RunSummary[];
   page: number;
   hasMore: boolean;
 }
 
-export interface TrashSummary {
-  bytes: number;
-  items: number;
-  confirmationToken: string | null;
-}
-
-export interface EmptyTrashResult {
-  emptied: number;
-  failed: number;
-  bytes: number;
-  freeBytesAfter: number;
-}
+// ----- settings ---------------------------------------------------------------
 
 export type QuickScanSchedule = "hourly" | "every6_hours" | "daily" | "on_request";
 export type DeepScanSchedule = "on_request" | "daily";
@@ -173,6 +197,8 @@ export type DeepScanSchedule = "on_request" | "daily";
 export interface Settings {
   lowThresholdBytes: number;
   criticalThresholdBytes: number;
+  goal: Goal;
+  whereFrom: Group[];
   quickScan: QuickScanSchedule;
   deepScan: DeepScanSchedule;
   inactiveProjectDays: number;
@@ -186,13 +212,15 @@ export interface Settings {
   onboardingComplete: boolean;
 }
 
-/** Settings the interface may change directly. Folder lists are changed only
+/** Settings the interface may change directly. Folder lists change only
  * through backend-owned pickers (the interface never sends paths). */
 export type SettingsPatch = Partial<
   Pick<
     Settings,
     | "lowThresholdBytes"
     | "criticalThresholdBytes"
+    | "goal"
+    | "whereFrom"
     | "quickScan"
     | "deepScan"
     | "inactiveProjectDays"
@@ -206,7 +234,8 @@ export type SettingsPatch = Partial<
 
 export type FolderList = "scanFolders" | "exclusions";
 
-// Events (source "Events" table) plus `navigate`.
+// ----- events (spec "Events" table) plus `navigate` -----------------------------
+
 export interface StatusChanged {
   volume: string;
   status: DiskStatus;
@@ -234,12 +263,8 @@ export interface CleanupFinished {
   measuredBytesFreed: number;
   skippedCount: number;
 }
-/** A folder Freeboard offers to scan; added by index, never by path. */
-export interface FolderSuggestion {
-  label: string;
-  repos: number;
-}
-export type View = "overview" | "suggestions" | "plan" | "history" | "settings";
+/** Where a notification click or the tray view sends the window. */
+export type View = "home" | "pile";
 export interface Navigate {
   view: View;
 }
@@ -248,6 +273,8 @@ export interface EventMap {
   status_changed: StatusChanged;
   scan_progress: ScanProgress;
   scan_finished: ScanFinished;
+  pile_changed: PileState;
+  disk_map_changed: DiskMap;
   cleanup_item_updated: CleanupItemUpdated;
   cleanup_finished: CleanupFinished;
   navigate: Navigate;

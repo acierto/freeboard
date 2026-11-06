@@ -246,7 +246,7 @@ impl AppCore {
         for (_vol, kind, free) in &tick.notices {
             let n = monitor::notify::notice_text(*kind, *free as f64 / GB as f64, safe_gb);
             self.shell().notify(&n.title, &n.body);
-            let _ = self.store.meta_set("notification_pending_view", "suggestions");
+            let _ = self.store.meta_set("notification_pending_view", "home");
         }
         if let Some(home) = tick.volumes.first() {
             self.shell().update_tray(home.status, home.free_bytes);
@@ -262,6 +262,12 @@ impl AppCore {
     }
 
     /// Navigation requested by a notification click, consumed once.
+    /// Ask the main window to show a view the next time it is focused
+    /// ("home" after a notification, "pile" from the tray view).
+    pub fn set_pending_view(&self, view: &str) {
+        let _ = self.store.meta_set("notification_pending_view", view);
+    }
+
     pub fn take_pending_view(&self) -> Option<String> {
         let v = self.store.meta_get("notification_pending_view").filter(|v| !v.is_empty());
         if v.is_some() {
@@ -803,7 +809,7 @@ pub(crate) mod tests {
         assert_eq!(core.get_status().unwrap().status, DiskStatus::Low);
         assert_eq!(shell.0.lock().unwrap().as_slice(), ["Disk space is low"]);
         assert_eq!(sink.events(EV_STATUS_CHANGED).len(), 2);
-        assert_eq!(core.take_pending_view().as_deref(), Some("suggestions"));
+        assert_eq!(core.take_pending_view().as_deref(), Some("home"), "a notification click opens the home view (spec Disk status)");
         assert_eq!(core.take_pending_view(), None);
     }
 

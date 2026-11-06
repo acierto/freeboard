@@ -1,160 +1,193 @@
 // TEST-ONLY fixture backend used by the visual verifier (`vite build --mode visual`).
-// It is never part of the production bundle (see scripts/visual/verify.mjs check).
-// Data is the prototype's sample data (docs/reference/freeboard-prototype.html)
-// mapped onto the backend contract. Marker: FREEBOARD_FIXTURE_BACKEND
+// It is never part of the production bundle (scripts/visual/verify.mjs checks).
+// Marker: FREEBOARD_FIXTURE_BACKEND
+//
+// The data is the prototype's example data (docs/reference/freeboard-prototype.html:
+// ITEMS, TILES, SPOTS), served through the same commands the Rust core offers,
+// and the pile follows the prototype's rules (picks, freezePile, addToPile,
+// takeOut). Numbers are the prototype's, so captures can match it pixel for pixel.
 //
 // Query parameters:
-//   free=<GB>            current free space (default 12.4)
+//   free=<GB>          current free space (default 12.4, the prototype's BASE_FREE)
 //   platform=macos|linux|windows
-//   forecast=none        no forecast
-//   trash=<GB>           held in Freeboard Trash
-//   removed=a,b          suggestion ids already cleaned up
-//   skipped=a,b          suggestion ids skipped in the last cleanup
-//   history=empty        no cleanup history
-//   suggestions=empty    no suggestions
-//   scan=never           no scan has finished yet
-//   low=<GB>&critical=<GB> thresholds
-//   run=hold             runs stay at "first item checking"
-//   fail=<id>            that item fails during a run
-//   cancelAfter=<n>      cancel after n items
-//   plan=expired         plans are created expired
-//   onboarding=1         first run
-//   unavailable=docker   Docker detectors unavailable
+//   forecast=none      no forecast
+//   trash=<GB>         held in Freeboard's Trash
 
 import type { Backend } from "./api";
-import type {
-  AppStatus,
-  CleanupPlan,
-  DiskStatus,
-  EventMap,
-  HistoryPage,
-  ItemState,
-  Platform,
-  RunDetail,
-  RunSummary,
-  Settings,
-  Suggestion,
-} from "./types";
+import type { AppStatus, DiskMap, EventMap, Goal, Group, PileState, Platform, Settings, Suggestion } from "./types";
 
 export const FIXTURE_MARKER = "FREEBOARD_FIXTURE_BACKEND";
 const G = 1e9;
-const b = (gb: number) => Math.round(gb * G);
+const TOTAL_GB = 512;
+const BASE_FREE = 12.4;
+const RATE_GB = 2.2;
 
-type Item = {
-  id: string;
-  cat: Suggestion["category"];
-  name: string;
-  path: string;
-  size: number;
-  last: string;
-  risk: "Safe" | "Review" | "Risky";
-  action: "native" | "delete" | "trash";
-  cmd: string;
-  why: string;
-  recover: string;
-  ack?: boolean;
-  ackName?: string;
-  unrecoverable?: boolean;
-  blocked?: string;
-  os?: string[];
+type Row = [
+  id: string,
+  group: string,
+  map: string,
+  name: string,
+  where: string,
+  size: number,
+  last: string,
+  risk: "Safe" | "Review" | "Risky",
+  action: "native" | "delete" | "trash" | "none",
+  cmd: string,
+  why: string,
+  back: string,
+  extra?: { ack?: boolean; lost?: boolean; blocked?: string; parts?: [string, number][]; need?: string },
+];
+
+// Copied from the prototype's ITEMS, in the same order.
+const ROWS: Row[] = [
+  ["d-cache", "Docker", "docker", "Docker build cache", "142 layers", 14.8, "Last used 23 days ago", "Safe", "native", "docker builder prune", "No recent build reused these layers.", "Docker rebuilds them on the next build."],
+  ["d-dangling", "Docker", "docker", "Untagged Docker images", "31 images", 6.2, "Over 30 days old", "Safe", "native", "docker image prune", "Old layers with no tag and no container.", "Rebuild from the Dockerfile."],
+  ["d-slack", "Docker", "docker", "Empty space in Docker\u2019s disk", "Docker.raw", 19.0, "Stays empty after pruning", "Review", "native", "Compact the Docker disk image", "Docker Desktop keeps this space reserved even when nothing uses it. Docker must stop for a moment.", "Nothing is lost. Docker grows the disk again when needed."],
+  ["d-vol", "Docker", "docker", "Volume billing_pgdata", "Not attached to a container", 7.6, "Last attached 40 days ago", "Risky", "native", "docker volume rm billing_pgdata", "Nothing uses it now, but it may hold the only copy of this data.", "It cannot be recovered.", { ack: true, lost: true }],
+  ["d-pg", "Docker", "docker", "postgres:14 image", "No container uses it", 3.4, "Last used 71 days ago", "Review", "native", "docker image rm postgres:14", "A tagged image no container uses.", "Run docker pull postgres:14."],
+  ["d-stop", "Docker", "docker", "Stopped containers", "6 containers", 1.1, "Stopped over 14 days ago", "Review", "native", "docker container rm", "Their writable layers still take up space.", "Create them again. Files written inside them are lost."],
+  ["b-node", "Projects", "projects", "node_modules in quiet projects", "~/projects", 18.7, "Idle for 60+ days", "Safe", "delete", "Delete the folders", "Every project has a lockfile.", "Run pnpm install.", { parts: [["web-app", 4.2], ["admin-portal", 3.1], ["mobile-app", 2.6], ["docs-site", 1.7], ["storybook", 1.4], ["landing", 1.1], ["api-client", 0.9], ["scripts", 0.8], ["cli-tools", 0.7], ["demo", 0.6], ["tests-e2e", 0.5], ["poc-graphql", 0.5], ["design-tokens", 0.3], ["sandbox", 0.3]] }],
+  ["b-target", "Projects", "projects", "Rust build output", "~/projects/rust-cli/target", 9.2, "Last built 45 days ago", "Safe", "delete", "Delete the folder", "Cargo can regenerate this.", "Run cargo build."],
+  ["wt-pay", "Projects", "projects", "Worktree payments-v2", "~/work/web-app/.worktrees/payments-v2", 6.9, "Edited 9 days ago", "Risky", "none", "None", "3 uncommitted files and 2 unpushed commits.", "Your work exists only here.", { blocked: "Commit and push it, and I can clean this next time." }],
+  ["wt-exp", "Projects", "projects", "Worktree old-experiment", "~/work/web-app/.worktrees/old-experiment", 5.1, "Last commit 52 days ago", "Review", "native", "git worktree remove", "No local changes. The branch is pushed but not merged.", "Run git worktree add with the pushed branch."],
+  ["wt-auth", "Projects", "projects", "Worktree fix-auth", "~/work/api-server/.worktrees/fix-auth", 4.3, "Merged 34 days ago", "Review", "native", "git worktree remove", "The branch is merged and has no local changes.", "Run git worktree add with the same branch."],
+  ["b-venv", "Projects", "projects", ".venv in data-tools", "~/projects/data-tools/.venv", 2.4, "Last used 88 days ago", "Review", "trash", "Move to Trash", "It may hold packages you installed by hand.", "Restore it from the Trash."],
+  ["c-derived", "Caches", "caches", "Xcode DerivedData", "~/Library/Developer/Xcode", 11.3, "Mostly 30+ days old", "Safe", "delete", "Delete the folder", "Xcode regenerates this.", "Build the project again."],
+  ["c-pnpm", "Caches", "caches", "Unused pnpm packages", "pnpm store", 5.6, "No project links to them", "Safe", "native", "pnpm store prune", "No project uses these packages.", "pnpm downloads them when needed."],
+  ["c-jb", "Caches", "caches", "Old JetBrains caches", "~/Library/Caches/JetBrains", 5.1, "From 2 removed versions", "Safe", "delete", "Delete the folders", "They belong to IDE versions you removed.", "Nothing to restore."],
+  ["c-apps", "Caches", "caches", "Slack, Discord and Teams caches", "App caches", 3.9, "Rebuilt as you use them", "Safe", "delete", "Delete the caches while the apps are closed", "Messages stay on the server.", "The apps rebuild them."],
+  ["c-pw", "Caches", "caches", "Old Playwright browsers", "~/Library/Caches/ms-playwright", 3.6, "Older than your installed version", "Safe", "delete", "Delete old versions", "No project needs these versions.", "Run playwright install."],
+  ["c-pip", "Caches", "caches", "pip download cache", "pip cache", 2.6, "Mostly 30+ days old", "Safe", "native", "pip cache purge", "Downloaded wheels pip can fetch again.", "pip downloads them when needed."],
+  ["c-brew", "Caches", "caches", "Old Homebrew downloads", "Homebrew cache", 2.1, "Over 30 days old", "Safe", "native", "brew cleanup", "Old versions of installed packages.", "Homebrew downloads them when needed."],
+  ["ai-ollama", "AI models", "ai", "Unused Ollama models", "~/.ollama/models", 41.2, "Not run for 60+ days", "Review", "native", "ollama rm", "You have not run these models recently.", "Run ollama pull. It downloads again.", { parts: [["mixtral", 26.0], ["codellama", 8.2], ["phi3", 7.0]] }],
+  ["ai-hf", "AI models", "ai", "Hugging Face cache", "~/.cache/huggingface", 12.4, "Last used 47 days ago", "Review", "trash", "Move to Trash", "Downloaded models and datasets.", "Restore from the Trash, or download again."],
+  ["m-ios", "Phones and emulators", "mobile", "Old iPhone backups", "~/Library/Application Support/MobileSync", 22.5, "From March 2024", "Review", "trash", "Move to Trash", "Two backups of a phone that has not synced since 2024.", "Restore from the Trash until you empty it.", { parts: [["Backup from March 2024", 13.1], ["Backup from January 2024", 9.4]] }],
+  ["m-android", "Phones and emulators", "mobile", "Android emulators", "~/.android/avd", 14.0, "Not started for 90+ days", "Review", "trash", "Move to Trash", "Three emulator images you have not started.", "Restore from the Trash, or create them again.", { parts: [["Pixel_6_API_33", 6.0], ["Pixel_4_API_30", 4.5], ["Tablet_API_31", 3.5]] }],
+  ["m-sim", "Phones and emulators", "mobile", "Unavailable iOS simulators", "9 devices", 8.4, "Runtime no longer installed", "Review", "native", "xcrun simctl delete unavailable", "They depend on runtimes that are gone.", "Create them again in Xcode."],
+  ["o-apps", "Old tools and apps", "apps", "Apps you never open", "/Applications", 16.3, "Not opened for a year", "Review", "trash", "Move to Trash", "You have not opened these apps for 12+ months.", "Restore from the Trash, or reinstall.", { parts: [["GarageBand", 6.1], ["iMovie", 4.2], ["Unity Hub", 3.0], ["Blender", 3.0]] }],
+  ["o-node", "Old tools and apps", "apps", "Old Node versions", "~/.nvm/versions", 4.8, "No project asks for them", "Review", "native", "nvm uninstall", "No project pins these 3 versions.", "Run nvm install.", { parts: [["Node 14", 1.4], ["Node 16", 1.6], ["Node 18", 1.8]] }],
+  ["o-rust", "Old tools and apps", "apps", "Old Rust toolchains", "~/.rustup/toolchains", 3.7, "Last used 5 months ago", "Review", "native", "rustup toolchain uninstall", "Two nightly toolchains no project uses.", "Run rustup toolchain install."],
+  ["f-dups", "Your files", "files", "Duplicate files", "214 copies", 9.4, "Exact byte-for-byte copies", "Review", "trash", "Move extra copies to Trash", "One copy of each file stays where it is.", "Restore from the Trash."],
+  ["f-rec", "Your files", "files", "Old screen recordings", "~/Desktop", 8.8, "Not opened for 6+ months", "Review", "trash", "Move to Trash", "11 large video files on your Desktop.", "Restore from the Trash."],
+  ["f-dl", "Your files", "files", "Installers in Downloads", "~/Downloads", 4.6, "Not opened for 90+ days", "Review", "trash", "Move to Trash", "12 installers and disk images.", "Restore from the Trash."],
+  ["s-snap", "System", "system", "Time Machine snapshots", "Local snapshots", 15.2, "Your latest backup is safe", "Review", "native", "tmutil deletelocalsnapshots", "macOS keeps these on disk until it needs the room.", "Time Machine makes new ones."],
+  ["f-laptop", "Your files", "files", "old-laptop backup", "~/archive/old-laptop", 11.2, "Not opened since 2023", "Review", "trash", "Move to Trash", "A full copy of a previous computer.", "Restore from the Trash.", { need: "archive" }],
+  ["s-temp", "System", "system", "Leftover app temp files", "/private/var/folders", 5.4, "Over 30 days old", "Review", "trash", "Move to Trash", "Files left behind by apps that are no longer running.", "Restore from the Trash.", { need: "access" }],
+];
+
+const GROUP_ID: Record<string, Group> = {
+  Docker: "docker",
+  Projects: "projects",
+  Caches: "caches",
+  "AI models": "ai_models",
+  "Phones and emulators": "phones_emulators",
+  "Old tools and apps": "old_tools_apps",
+  "Your files": "your_files",
+  System: "system",
 };
+const ACTION = { native: "native_command", delete: "delete", trash: "trash", none: "none" } as const;
 
-// Copied from the prototype's ITEMS.
-const ITEMS: Item[] = [
-  { id: 'd-cache', cat: 'docker', name: 'Docker build cache', path: '142 cache layers', size: 14.8, last: 'Last used 23 days ago', risk: 'Safe', action: 'native', cmd: 'docker builder prune', why: 'Build layers that no recent build has reused.', recover: 'Docker rebuilds the layers on the next build.' },
-  { id: 'd-dangling', cat: 'docker', name: 'Untagged Docker images', path: '31 dangling images', size: 6.2, last: 'Created over 30 days ago', risk: 'Safe', action: 'native', cmd: 'docker image prune', why: 'Old image layers with no tag and no container using them.', recover: 'Rebuild the image from its Dockerfile.' },
-  { id: 'd-pg', cat: 'docker', name: 'postgres:14 image', path: 'Not used by any container', size: 3.4, last: 'Last used 71 days ago', risk: 'Review', action: 'native', cmd: 'docker image rm postgres:14', why: 'A tagged image that no container uses.', recover: 'Run docker pull postgres:14.' },
-  { id: 'd-stopped', cat: 'docker', name: 'Stopped containers', path: '6 containers', size: 1.1, last: 'Stopped over 14 days ago', risk: 'Review', action: 'native', cmd: 'docker container rm <ids>', why: 'Their writable layers still take up space.', recover: 'Create them again. Files written inside them are lost.' },
-  { id: 'd-vol', cat: 'docker', name: 'Volume billing_pgdata', path: 'Not attached to a container', size: 7.6, last: 'Last attached 40 days ago', risk: 'Risky', action: 'native', cmd: 'docker volume rm billing_pgdata', why: 'Not attached to a container, but it may hold the only copy of this data.', recover: 'Not recoverable.', ack: true, ackName: 'billing_pgdata volume', unrecoverable: true },
-  { id: 'wt-auth', cat: 'worktrees', name: 'api-server: fix-auth', path: '/Users/you/work/api-server/.worktrees/fix-auth', size: 4.3, last: 'Merged 34 days ago', risk: 'Review', action: 'native', cmd: 'git worktree remove .worktrees/fix-auth', why: 'The branch is merged and the worktree has no local changes.', recover: 'Run git worktree add with the same branch.' },
-  { id: 'wt-exp', cat: 'worktrees', name: 'web-app: old-experiment', path: '/Users/you/work/web-app/.worktrees/old-experiment', size: 5.1, last: 'Last commit 52 days ago', risk: 'Review', action: 'native', cmd: 'git worktree remove .worktrees/old-experiment', why: 'No local changes, and the branch is pushed but not merged.', recover: 'Run git worktree add with the pushed branch.' },
-  { id: 'wt-pay', cat: 'worktrees', name: 'web-app: payments-v2', path: '/Users/you/work/web-app/.worktrees/payments-v2', size: 6.9, last: 'Edited 9 days ago', risk: 'Risky', action: 'native', cmd: 'None', why: '3 uncommitted files and 2 unpushed commits.', recover: 'Your work exists only here.', blocked: 'Blocked in v1. Commit and push this work first.' },
-  { id: 'b-node', cat: 'builds', name: 'node_modules in 14 inactive projects', path: '/Users/you/projects/*/node_modules', size: 18.7, last: 'Projects idle for 60+ days', risk: 'Safe', action: 'delete', cmd: 'Delete the 14 folders', why: 'Each project has a lockfile, so these can be installed again.', recover: 'Run pnpm install in the project.' },
-  { id: 'b-target', cat: 'builds', name: 'Rust target folder: rust-cli', path: '/Users/you/projects/rust-cli/target', size: 9.2, last: 'Last built 45 days ago', risk: 'Safe', action: 'delete', cmd: 'Delete the folder', why: 'Build output that Cargo can regenerate.', recover: 'Run cargo build.' },
-  { id: 'b-venv', cat: 'builds', name: '.venv in data-tools', path: '/Users/you/projects/data-tools/.venv', size: 2.4, last: 'Last used 88 days ago', risk: 'Review', action: 'trash', cmd: 'Move to Trash', why: 'Usually regenerable, but it may hold packages you installed by hand.', recover: 'Restore it from the Trash, or recreate it from requirements.txt.' },
-  { id: 'c-derived', cat: 'caches', name: 'Xcode DerivedData', path: '/Users/you/Library/Developer/Xcode/DerivedData', size: 11.3, last: 'Mostly older than 30 days', risk: 'Safe', action: 'delete', cmd: 'Delete the folder', why: 'Xcode regenerates this on the next build.', recover: 'Build the project again.', os: ['macos'] },
-  { id: 'c-sim', cat: 'caches', name: 'Unavailable iOS simulators', path: '9 simulator devices', size: 8.4, last: 'Runtime no longer installed', risk: 'Review', action: 'native', cmd: 'xcrun simctl delete unavailable', why: 'These simulators depend on runtimes that are gone.', recover: 'Create the simulator again in Xcode.', os: ['macos'] },
-  { id: 'c-pnpm', cat: 'caches', name: 'Unreferenced pnpm packages', path: 'pnpm content store', size: 5.6, last: 'Not linked to any project', risk: 'Safe', action: 'native', cmd: 'pnpm store prune', why: 'Packages in the store that no project links to.', recover: 'pnpm downloads them when needed.' },
-  { id: 'c-pip', cat: 'caches', name: 'pip download cache', path: 'pip cache', size: 2.6, last: 'Mostly older than 30 days', risk: 'Safe', action: 'native', cmd: 'pip cache purge', why: 'Downloaded wheels that pip can fetch again.', recover: 'pip downloads them when needed.' },
-  { id: 'c-brew', cat: 'caches', name: 'Old Homebrew downloads', path: 'Homebrew cache', size: 2.1, last: 'Older than 30 days', risk: 'Safe', action: 'native', cmd: 'brew cleanup', why: 'Old versions and downloads of installed packages.', recover: 'Homebrew downloads them when needed.', os: ['macos', 'linux'] },
-  { id: 'f-temp', cat: 'files', name: 'Old temporary files', path: '%TEMP%', size: 3.2, last: 'Older than 14 days', risk: 'Review', action: 'trash', cmd: 'Move to Recycle Bin', why: 'Temporary files that no running app has open.', recover: 'Restore them from the Recycle Bin.', os: ['windows'] },
-  { id: 'f-dl', cat: 'files', name: 'Installers in Downloads', path: '/Users/you/Downloads', size: 4.6, last: 'Not opened in 90+ days', risk: 'Review', action: 'trash', cmd: 'Move to Trash', why: '12 installers and disk images that you have not opened recently.', recover: 'Restore them from the Trash.' },
+// Prototype TILES. Your files absorbs changes in free space (prototype `tileSize`).
+const TILES: [id: string, label: string, gb: number][] = [
+  ["projects", "Projects", 96],
+  ["docker", "Docker", 72],
+  ["ai", "AI models", 61.6],
+  ["caches", "Caches", 58],
+  ["files", "Your files", 58],
+  ["mobile", "Phones and emulators", 45],
+  ["apps", "Apps and tools", 44],
+  ["system", "macOS", 44.2],
 ];
+const NOT_EXPLAINED_GB = 20.8;
 
-const TREND = [41, 38.5, 37, 33, 31.2, 30, 26.4, 24, 23.1, 20.5, 18, 16.6, 14.1];
-const RATE = 2.2;
-const TOTAL = 512;
-const SKIP_NOTE = "Changed during the last cleanup. Scan again before removing it.";
-
-export const HISTORY_RUNS: RunDetail[] = [
-  {
-    id: "run-2", planId: "plan-2", startedAt: "2026-10-28T09:12:00Z", finishedAt: "2026-10-28T09:13:10Z", state: "finished",
-    freeBefore: b(10.2), freeAfter: b(31.6), expectedBytes: b(21.4), measuredBytesFreed: b(21.4), trashBytes: b(1.2), skipped: 0, failed: 0, involvesDocker: true,
-    items: [
-      { itemId: "h-cache", title: "Docker build cache", actionLabel: "docker builder prune", expectedBytes: b(12.1), state: "done", reason: null },
-      { itemId: "h-node", title: "node_modules in 9 inactive projects", actionLabel: "Delete the 9 folders", expectedBytes: b(8.1), state: "done", reason: null },
-      { itemId: "h-venv", title: ".venv in scratch", actionLabel: "Move to Trash", expectedBytes: b(1.2), state: "moved_to_trash", reason: null },
-    ],
-  },
-  {
-    id: "run-1", planId: "plan-1", startedAt: "2026-10-12T16:40:00Z", finishedAt: "2026-10-12T16:42:00Z", state: "finished",
-    freeBefore: b(8.0), freeAfter: b(42.9), expectedBytes: b(36.1), measuredBytesFreed: b(34.9), trashBytes: b(3.0), skipped: 1, failed: 0, involvesDocker: false,
-    items: [],
-  },
-];
-const HISTORY_ITEMS: Record<string, number> = { "run-2": 7, "run-1": 11 };
-
-function vis(it: Item, p: Platform) {
-  return !it.os || it.os.includes(p);
-}
-
-function textFor(s: string, p: Platform) {
-  return p === "windows" ? s.replace("Move to Trash", "Move to Recycle Bin").replace(/the Trash/g, "the Recycle Bin") : s;
-}
-
-function pathFor(path: string, p: Platform) {
-  if (p === "windows" && path.startsWith("/Users/you/")) return "C:\\Users\\you\\" + path.slice(11).replace(/\//g, "\\");
-  return path;
-}
-
-function toSuggestion(it: Item, p: Platform, skipped: Set<string>): Suggestion {
-  return {
-    id: it.id,
-    detector: it.cat + "." + it.id,
-    category: it.cat,
-    title: it.name,
-    location: pathFor(it.path, p),
-    sizeBytes: b(it.size),
-    lastUsedAt: null,
-    lastUsedLabel: it.last,
-    risk: it.risk.toLowerCase() as Suggestion["risk"],
-    action: it.blocked ? "none" : it.action === "native" ? "native_command" : it.action,
-    actionLabel: textFor(it.cmd, p),
-    reason: it.why,
-    recovery: textFor(it.recover, p),
-    recoverable: !it.unrecoverable,
-    blockedReason: it.blocked ?? null,
-    needsConfirmation: !!it.ack,
-    fingerprint: "fx-" + it.id,
-    sizeIsEstimate: false,
-    skipReason: skipped.has(it.id) ? SKIP_NOTE : null,
-    ackName: it.ackName ?? null,
-  };
-}
+const bytes = (gb: number) => Math.round(gb * G);
+const round1 = (n: number) => Math.round(n * 10) / 10;
 
 export function createFixtureBackend(params: URLSearchParams): Backend {
-  const p = (params.get("platform") ?? "macos") as Platform;
-  const num = (k: string, d: number) => (params.has(k) ? parseFloat(params.get(k)!) : d);
-  const list = (k: string) => new Set((params.get(k) ?? "").split(",").filter(Boolean));
-  let free = b(num("free", 12.4));
-  let trash = b(num("trash", 0));
-  const removed = list("removed");
-  const skipped = list("skipped");
-  const listeners = new Map<string, Set<(x: unknown) => void>>();
-  const emit = (ev: string, payload: unknown) => listeners.get(ev)?.forEach((cb) => cb(payload));
-  let settings: Settings = {
-    lowThresholdBytes: b(num("low", 20)),
-    criticalThresholdBytes: b(num("critical", 8)),
+  const platform = (params.get("platform") ?? "macos") as Platform;
+  const freeGb = params.has("free") ? parseFloat(params.get("free")!) : BASE_FREE;
+  const trashGb = params.has("trash") ? parseFloat(params.get("trash")!) : 0;
+  const resolvedSpots = new Set<string>();
+
+  type Item = Suggestion & { need?: string };
+  const items: Item[] = ROWS.map(([id, group, map, name, where, size, last, risk, action, cmd, why, back, extra]) => {
+    const parts = (extra?.parts ?? []).map(([label, gb], n) => ({ id: `${id}-p${n}`, label, location: where, sizeBytes: bytes(gb), selected: true }));
+    return {
+      id,
+      detector: "fixture." + map,
+      group: GROUP_ID[group],
+      mapArea: map,
+      title: name,
+      location: where,
+      sizeBytes: bytes(size),
+      fullSizeBytes: bytes(size),
+      lastUsedAt: null,
+      lastUsedLabel: last,
+      risk: risk.toLowerCase() as Suggestion["risk"],
+      action: ACTION[action],
+      actionLabel: cmd,
+      reason: why,
+      recovery: back,
+      recoverable: !extra?.lost,
+      blockedReason: extra?.blocked ?? null,
+      needsConfirmation: !!extra?.ack,
+      parts,
+      fingerprint: "fixture",
+      sizeIsEstimate: false,
+      skipReason: null,
+      decision: null,
+      need: extra?.need,
+    };
+  });
+  const active = () => items.filter((i) => !i.need || resolvedSpots.has(i.need));
+
+  // ----- the pile (prototype picks / freezePile / addToPile / takeOut) -----
+  let goal: Goal = 50 * G;
+  let areas: Group[] = [];
+  let manual: Set<string> | null = null;
+  const queued = new Set<string>();
+  const excl = new Set<string>();
+  const kept = (i: Item) => i.decision === "keep";
+  const bySize = (a: Item, b: Item) => b.sizeBytes - a.sizeBytes;
+  const safeItems = () =>
+    active()
+      .filter((i) => i.risk === "safe" && !excl.has(i.id) && !kept(i) && i.sizeBytes > 0 && (!areas.length || areas.includes(i.group)))
+      .sort(bySize);
+  function picks(): Item[] {
+    if (manual) return active().filter((i) => manual!.has(i.id) && !kept(i) && i.sizeBytes > 0).sort(bySize);
+    const out = active().filter((i) => queued.has(i.id) && i.sizeBytes > 0);
+    const inPile = new Set(out.map((i) => i.id));
+    let have = out.reduce((t, i) => t + i.sizeBytes, 0);
+    for (const i of safeItems()) {
+      if (inPile.has(i.id)) continue; // the prototype could list an added Safe item twice
+      if (goal === "all" || have < goal) {
+        out.push(i);
+        have += i.sizeBytes;
+      }
+    }
+    return out;
+  }
+  function pile(): PileState {
+    const p = picks();
+    return {
+      goalBytes: goal,
+      areas: [...areas],
+      mode: manual ? "manual" : "auto",
+      addedIds: [...queued],
+      takenOutIds: [...excl],
+      itemIds: p.map((i) => i.id),
+      totalBytes: p.reduce((t, i) => t + i.sizeBytes, 0),
+    };
+  }
+  const freeze = () => {
+    if (!manual) manual = new Set(picks().map((i) => i.id));
+  };
+
+  const settings: Settings = {
+    lowThresholdBytes: 20 * G,
+    criticalThresholdBytes: 8 * G,
+    goal: 50 * G,
+    whereFrom: [],
     quickScan: "hourly",
     deepScan: "on_request",
     inactiveProjectDays: 30,
@@ -162,234 +195,103 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
     pauseDeepScansOnBattery: true,
     startAtLogin: true,
     notifications: true,
-    scanFolders:
-      p === "windows"
-        ? ["C:\\Users\\you\\projects", "C:\\Users\\you\\work", "C:\\Users\\you\\Downloads"]
-        : ["/Users/you/projects", "/Users/you/work", "/Users/you/Downloads"],
+    scanFolders: platform === "windows" ? ["C:\\Users\\you\\projects", "C:\\Users\\you\\work", "C:\\Users\\you\\Downloads", "C:\\Users\\you\\Desktop"] : ["/Users/you/projects", "/Users/you/work", "/Users/you/Downloads", "/Users/you/Desktop"],
     exclusions: [],
     extraVolumes: [],
-    onboardingComplete: params.get("onboarding") !== "1",
+    onboardingComplete: true,
   };
-  if (params.get("onboarding") === "1" || params.get("folders") === "none") settings.scanFolders = [];
-  // Folders the backend would offer (Git repositories found in the home folder).
-  const offers = [
-    { label: p === "windows" ? "C:\\Users\\you\\projects" : "~/projects", repos: 12, path: p === "windows" ? "C:\\Users\\you\\projects" : "/Users/you/projects" },
-    { label: p === "windows" ? "C:\\Users\\you\\work" : "~/work", repos: 3, path: p === "windows" ? "C:\\Users\\you\\work" : "/Users/you/work" },
-  ];
-  const history: RunDetail[] = params.get("history") === "empty" ? [] : HISTORY_RUNS.map((r) => ({ ...r }));
-  const plans = new Map<string, CleanupPlan>();
-  const runs = new Map<string, RunDetail>();
-  let planSeq = 0;
-  const now = () => new Date(Date.now()).toISOString();
 
-  const suggestions = () =>
-    params.get("suggestions") === "empty"
-      ? []
-      : ITEMS.filter((i) => vis(i, p) && !removed.has(i.id) && !(params.get("unavailable") === "docker" && i.cat === "docker") && !(settings.scanFolders.length === 0 && (i.cat === "worktrees" || i.cat === "builds"))).map((i) =>
-          toSuggestion(i, p, skipped),
-        );
-
-  const statusOf = (): DiskStatus =>
-    free < settings.criticalThresholdBytes ? "critical" : free < settings.lowThresholdBytes ? "low" : "healthy";
-
-  const status = (): AppStatus => ({
-    volumes: [{ id: "home", name: "Macintosh HD", mountPoint: "/", freeBytes: free, totalBytes: b(TOTAL), status: statusOf(), purgeableBytes: null, snapshotCount: null }],
-    status: statusOf(),
-    forecast: params.get("forecast") === "none" ? null : { bytesPerDay: b(RATE), daysLeft: free / G / RATE },
-    trashBytes: trash,
-    trend: TREND.concat([free / G]).map((v, i) => ({ at: new Date(Date.UTC(2026, 9, 22 + i)).toISOString(), freeBytes: b(v) })),
-    scan: {
-      running: null,
-      phase: null,
-      lastFinishedAt: params.get("scan") === "never" ? null : new Date(Date.now() - 18 * 60000).toISOString(),
-      detectorErrors:
-        params.get("unavailable") === "docker"
-          ? // Same shape as the real backend: one error per Docker detector.
-            ["build_cache", "dangling_images", "unused_images", "stopped_containers", "volumes"].map((d) => ({
-              detector: "docker." + d,
-              kind: "unavailable",
-              message: "Docker is installed but not running.",
-            }))
-          : [],
-    },
-    notificationsPaused: false,
-    platform: p,
-    firstRun: params.get("onboarding") === "1",
-  });
-
-  const buildPlan = (ids: string[], acks: string[] = []): CleanupPlan => {
-    const all = suggestions();
-    // Biggest first, like the backend (user decision 2026-11-05); stable sort.
-    const items = ids
-      .map((id) => all.find((s) => s.id === id))
-      .filter((s): s is Suggestion => !!s && !s.blockedReason)
-      .sort((a, b) => b.sizeBytes - a.sizeBytes);
-    const sum = (l: Suggestion[]) => l.reduce((t, s) => t + s.sizeBytes, 0);
-    const lost = items.filter((s) => !s.recoverable);
-    const needAck = items.filter((s) => s.needsConfirmation).map((s) => s.id);
-    const expired = params.get("plan") === "expired";
-    const created = Date.now() - (expired ? 31 * 60000 : 0);
+  const status = (): AppStatus => {
+    const free = bytes(freeGb);
+    const s = free < settings.criticalThresholdBytes ? "critical" : free < settings.lowThresholdBytes ? "low" : "healthy";
     return {
-      id: "plan-" + ++planSeq,
-      createdAt: new Date(created).toISOString(),
-      expiresAt: new Date(created + 30 * 60000).toISOString(),
-      itemIds: items.map((s) => s.id),
-      bytesFreedNow: sum(items.filter((s) => s.action !== "trash")),
-      bytesHeldInTrash: sum(items.filter((s) => s.action === "trash")),
-      unrecoverableIds: lost.map((s) => s.id),
-      items,
-      needsAckIds: needAck,
-      acknowledgedIds: acks,
-      unrecoverableBytes: sum(lost),
-      freeBytesNow: free,
-      ready: !expired && needAck.every((id) => acks.includes(id)),
-      state: expired ? "expired" : "open",
+      volumes: [{ id: "home", name: "Macintosh HD", mountPoint: "/", freeBytes: free, totalBytes: TOTAL_GB * G, status: s, purgeableBytes: null, snapshotCount: null }],
+      status: s,
+      forecast: params.get("forecast") === "none" ? null : { bytesPerDay: RATE_GB * G, daysLeft: freeGb / RATE_GB },
+      trashBytes: bytes(trashGb),
+      trend: [],
+      scan: { running: null, phase: null, lastFinishedAt: "2026-11-04T11:42:00Z", detectorErrors: [] },
+      notificationsPaused: false,
+      platform,
+      firstRun: false,
     };
   };
 
-  async function runAll(run: RunDetail, plan: CleanupPlan) {
-    const fail = params.get("fail");
-    const cancelAfter = params.has("cancelAfter") ? parseInt(params.get("cancelAfter")!, 10) : -1;
-    const set = (i: number, state: ItemState, reason: string | null) => {
-      run.items[i] = { ...run.items[i], state, reason };
-      emit("cleanup_item_updated", { runId: run.id, itemId: run.items[i].itemId, state, reason });
+  const diskMap = (): DiskMap => {
+    // Prototype tileSize(): Your files grows or shrinks with free space.
+    const sizes = TILES.map(([id, label, gb]) => ({ id, label, gb: id === "files" ? gb + (BASE_FREE - freeGb) : gb }));
+    const un = NOT_EXPLAINED_GB;
+    const used = round1(sizes.reduce((t, a) => t + Math.max(0, round1(a.gb)), 0) + un);
+    return {
+      usedBytes: bytes(used),
+      explainedBytes: bytes(used - un),
+      notExplainedBytes: bytes(un),
+      areas: sizes.map((a) => ({ id: a.id, label: a.label, bytes: bytes(Math.max(0, round1(a.gb))), leaveAloneBytes: 0 })),
     };
-    if (params.get("run") === "hold") {
-      set(0, "checking", null);
-      return;
-    }
-    let freed = 0;
-    for (let i = 0; i < run.items.length; i++) {
-      await Promise.resolve();
-      if (cancelAfter >= 0 && i >= cancelAfter) {
-        for (let j = i; j < run.items.length; j++) set(j, "canceled", null);
-        run.state = "canceled";
-        break;
-      }
-      const s = plan.items[i];
-      if (s.id === "wt-exp") {
-        set(i, "skipped", "A new commit appeared after the scan.");
-        run.skipped++;
-        skipped.add(s.id);
-      } else if (s.id === fail) {
-        set(i, "failed", "The command exited with an error. Nothing was removed.");
-        run.failed++;
-      } else if (s.action === "trash") {
-        set(i, "moved_to_trash", null);
-        run.trashBytes += s.sizeBytes;
-        trash += s.sizeBytes;
-        removed.add(s.id);
-      } else {
-        set(i, "done", null);
-        freed += s.sizeBytes;
-        removed.add(s.id);
-      }
-    }
-    free += freed;
-    if (run.state === "running") run.state = "finished";
-    run.finishedAt = now();
-    run.freeAfter = free;
-    run.measuredBytesFreed = freed;
-    history.unshift(run);
-    emit("cleanup_finished", { runId: run.id, measuredBytesFreed: freed, skippedCount: run.skipped });
-  }
+  };
+
+  const listeners: { [K in keyof EventMap]?: ((p: EventMap[K]) => void)[] } = {};
+  const emit = <K extends keyof EventMap>(event: K, payload: EventMap[K]) => listeners[event]?.forEach((cb) => cb(payload));
+  const changed = () => {
+    const p = pile();
+    setTimeout(() => emit("pile_changed", p), 0);
+    return p;
+  };
 
   const handlers: Record<string, (a: Record<string, unknown>) => unknown> = {
     get_status: () => status(),
-    start_scan: () => "scan-1",
-    get_suggestions: () => suggestions(),
-    create_plan: (a) => {
-      const plan = buildPlan(a.itemIds as string[]);
-      plans.set(plan.id, plan);
-      return plan;
+    get_settings: () => ({ ...settings }),
+    update_settings: (a) => Object.assign(settings, a.patch as Partial<Settings>) && { ...settings },
+    get_suggestions: () => active().map(({ need: _need, ...s }) => ({ ...s, parts: s.parts.map((p) => ({ ...p })) })),
+    get_disk_map: () => diskMap(),
+    get_pile: () => pile(),
+    set_pile_goal: (a) => {
+      goal = a.goalBytes as Goal;
+      manual = null;
+      excl.clear();
+      return changed();
     },
-    get_plan: (a) => plans.get(a.planId as string),
-    acknowledge_item: (a) => {
-      const old = plans.get(a.planId as string)!;
-      const acks = Array.from(new Set([...old.acknowledgedIds, a.itemId as string]));
-      const plan = { ...buildPlan(old.itemIds, acks), id: old.id };
-      plans.set(plan.id, plan);
-      return plan;
+    set_pile_areas: (a) => {
+      areas = [...(a.areas as Group[])];
+      manual = null;
+      return changed();
     },
-    run_plan: (a) => {
-      const plan = plans.get(a.planId as string)!;
-      const run: RunDetail = {
-        id: "run-" + (history.length + 10),
-        planId: plan.id,
-        startedAt: now(),
-        finishedAt: null,
-        state: "running",
-        freeBefore: free,
-        freeAfter: null,
-        expectedBytes: plan.bytesFreedNow,
-        measuredBytesFreed: null,
-        trashBytes: 0,
-        skipped: 0,
-        failed: 0,
-        involvesDocker: plan.items.some((s) => s.category === "docker"),
-        items: plan.items.map((s) => ({ itemId: s.id, title: s.title, actionLabel: s.actionLabel, expectedBytes: s.sizeBytes, state: "waiting" as ItemState, reason: null })),
-      };
-      runs.set(run.id, run);
-      void runAll(run, plan);
-      return run.id;
+    add_to_pile: (a) => {
+      for (const id of a.itemIds as string[]) {
+        queued.add(id);
+        excl.delete(id);
+        manual?.add(id);
+      }
+      return changed();
     },
-    cancel_run: () => true,
-    get_run: (a) => runs.get(a.runId as string) ?? history.find((r) => r.id === a.runId),
-    get_trash: () => ({ bytes: trash, items: trash ? 1 : 0, confirmationToken: trash ? "fixture-token" : null }),
-    empty_freeboard_trash: () => {
-      const bytes = trash;
-      free += trash;
-      trash = 0;
-      return { emptied: 1, failed: 0, bytes, freeBytesAfter: free };
+    take_out_of_pile: (a) => {
+      freeze();
+      for (const id of a.itemIds as string[]) {
+        manual!.delete(id);
+        queued.delete(id);
+        excl.add(id);
+      }
+      return changed();
     },
-    list_history: (a): HistoryPage => {
-      const runsOut: RunSummary[] = history.map((r) => ({
-        id: r.id,
-        startedAt: r.startedAt,
-        items: HISTORY_ITEMS[r.id] ?? r.items.length,
-        measuredBytesFreed: r.measuredBytesFreed,
-        trashBytes: r.trashBytes,
-        skipped: r.skipped,
-        state: r.state,
-      }));
-      return { runs: runsOut, page: (a.page as number) ?? 0, hasMore: false };
-    },
-    get_settings: () => settings,
-    update_settings: (a) => {
-      settings = { ...settings, ...(a.patch as Partial<Settings>) };
-      return settings;
-    },
-    add_folder: (a) => {
-      const k = a.list as "scanFolders" | "exclusions";
-      settings = { ...settings, [k]: [...settings[k], p === "windows" ? "C:\\Users\\you\\code" : "/Users/you/code"] };
-      return settings;
-    },
-    folder_suggestions: () => offers.filter((o) => !settings.scanFolders.includes(o.path)).map(({ label, repos }) => ({ label, repos })),
-    add_suggested_folder: (a) => {
-      const o = offers.filter((x) => !settings.scanFolders.includes(x.path))[a.index as number];
-      if (!o) throw { code: "unknown_id", message: "That folder suggestion is no longer available." };
-      settings = { ...settings, scanFolders: [...settings.scanFolders, o.path] };
-      return settings;
-    },
-    remove_folder: (a) => {
-      const k = a.list as "scanFolders" | "exclusions";
-      settings = { ...settings, [k]: settings[k].filter((_, i) => i !== a.index) };
-      return settings;
-    },
+    list_logbook: () => ({ runs: [], page: 0, hasMore: false }),
     set_notifications_paused: (a) => a.paused,
+    close_tray_view: () => undefined,
+    review_pile: () => undefined,
   };
 
   return {
-    async invoke<T>(cmd: string, args?: Record<string, unknown>) {
+    async invoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T> {
+      // Behaviour checks (scripts/ui/check.mjs) read the commands the interface sent.
+      ((window as unknown as { __FIXTURE_CALLS__?: unknown[] }).__FIXTURE_CALLS__ ??= []).push({ cmd, args: args ?? {} });
       const h = handlers[cmd];
-      if (!h) throw new Error("unknown command " + cmd);
+      if (!h) throw new Error("fixture backend: no command " + cmd);
       return structuredClone(h(args ?? {})) as T;
     },
-    async listen<K extends keyof EventMap>(event: K, cb: (payload: EventMap[K]) => void) {
-      const set = listeners.get(event) ?? new Set();
-      set.add(cb as (x: unknown) => void);
-      listeners.set(event, set);
-      return () => set.delete(cb as (x: unknown) => void);
+    async listen(event, cb) {
+      (listeners[event] ??= [] as never[]).push(cb as never);
+      return () => {
+        listeners[event] = (listeners[event] as unknown[] | undefined)?.filter((x) => x !== cb) as never;
+      };
     },
   };
 }

@@ -49,7 +49,7 @@ fn inv03_app_commands_take_ids_not_paths() {
         // Rebuild command table (spec "Tauri commands").
         "get_disk_map", "get_blind_spots", "resolve_blind_spot", "get_places_checked", "get_growth", "get_pile",
         "set_pile_goal", "set_pile_areas", "add_to_pile", "take_out_of_pile", "set_item_decision", "set_item_parts",
-        "set_tidy_rule", "create_disk_report", "list_logbook",
+        "set_tidy_rule", "create_disk_report", "list_logbook", "close_tray_view", "review_pile",
     ];
     for c in expected {
         assert!(toml.contains(&format!("\"{c}\"")), "{c} missing from allowlist");

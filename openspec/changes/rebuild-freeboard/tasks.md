@@ -17,12 +17,12 @@ Implement one milestone at a time. Each exit gate must pass on macOS, Linux and 
 
 ## 2. Monitoring and home view
 
-- [ ] 2.1 Re-verify existing sampling, hysteresis, notification and forecast code against the disk-monitoring spec, and fix any gaps. Verify the boundary, oscillation, 6-hour reminder, paused, sparse-history and cleanup-jump tests pass.
-- [ ] 2.2 Rewrite `src/lib/fixtureBackend.ts` to serve the prototype's example data (items, parts, tiles, blind spots, growth, places, Logbook) through the real command contract. Verify the frontend type check passes with no fixture code in `dist/`.
-- [ ] 2.3 Build the Dinghy component from the prototype SVG (sky, sun or moon, stars, clouds, waves, hull, cabin, face states, up to 9 crates), with deck height linear from 0–60 GB and reduced-motion handling. Verify unit tests for height and mood at 0, 4, 12.4, 40, 60 and 120 GB.
-- [ ] 2.4 Build the home layout (top bar with brand, tray button and gear; stage with bubble; helm with free space, status pill, forecast, goal and Where from chips, Toss button, note, See what is inside, Trash note) and the tabs shell. Verify keyboard focus order and visible focus.
+- [x] 2.1 Re-verify existing sampling, hysteresis, notification and forecast code against the disk-monitoring spec, and fix any gaps. Verify the boundary, oscillation, 6-hour reminder, paused, sparse-history and cleanup-jump tests pass.
+- [x] 2.2 Rewrite `src/lib/fixtureBackend.ts` to serve the prototype's example data (items, parts, tiles, blind spots, growth, places, Logbook) through the real command contract. Verify the frontend type check passes with no fixture code in `dist/`.
+- [x] 2.3 Build the Dinghy component from the prototype SVG (sky, sun or moon, stars, clouds, waves, hull, cabin, face states, up to 9 crates), with deck height linear from 0–60 GB and reduced-motion handling. Verify unit tests for height and mood at 0, 4, 12.4, 40, 60 and 120 GB.
+- [x] 2.4 Build the home layout (top bar with brand, tray button and gear; stage with bubble; helm with free space, status pill, forecast, goal and Where from chips, Toss button, note, See what is inside, Trash note) and the tabs shell. Verify keyboard focus order and visible focus.
 - [ ] 2.5 Build the tray view (status, free space, pile total, Review the pile) and wire native tray rings, the menu, hide-to-tray and webview destruction after 60 seconds. Verify the tray view closes by button, Esc and outside click, and that state matches after reopening.
-- [ ] 2.6 Add home visual matrix entries (Healthy, Low, Critical; light and dark; 1040, 760 and 390 widths; tray view open). Verify the verifier reports PASS for each, with reference, actual and diff images.
+- [x] 2.6 Add home visual matrix entries (Healthy, Low, Critical; light and dark; 1040, 760 and 390 widths; tray view open). Verify the verifier reports PASS for each, with reference, actual and diff images.
 - [ ] 2.7 Measure hidden-mode memory and 5-minute idle CPU on each platform and record them in `docs/performance.md`, separating measured values from targets.
 - [ ] 2.8 Monitoring exit gate: attach threshold, notification and forecast test results, native tray and notification evidence, memory measurements and passing home visuals for all platforms. Stop before milestone 3.
 

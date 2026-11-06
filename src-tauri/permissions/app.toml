@@ -38,5 +38,8 @@ commands.allow = [
   "set_item_parts",
   "set_tidy_rule",
   "create_disk_report",
-  "list_logbook"
+  "list_logbook",
+  # Tray view (no arguments): close it, or open the main window on the pile.
+  "close_tray_view",
+  "review_pile"
 ]

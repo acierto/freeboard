@@ -79,20 +79,28 @@ pub fn status_text(status: DiskStatus, free_bytes: u64) -> String {
 pub fn build(app: &AppHandle, paused: bool) -> tauri::Result<()> {
     let status = MenuItem::with_id(app, "status", "Checking free space…", false, None::<&str>)?;
     let open = MenuItem::with_id(app, "open", "Open Freeboard", true, None::<&str>)?;
+    // Linux desktops do not report tray clicks, so the menu opens the tray view.
+    let summary = MenuItem::with_id(app, "summary", "Show Summary", true, None::<&str>)?;
     let scan = MenuItem::with_id(app, "scan", "Scan Now", true, None::<&str>)?;
     let pause = CheckMenuItem::with_id(app, "pause", "Pause Notifications", true, paused, None::<&str>)?;
     let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
     let sep1 = PredefinedMenuItem::separator(app)?;
     let sep2 = PredefinedMenuItem::separator(app)?;
-    let menu = Menu::with_items(app, &[&status, &sep1, &open, &scan, &pause, &sep2, &quit])?;
+    let menu = if cfg!(target_os = "linux") {
+        Menu::with_items(app, &[&status, &sep1, &summary, &open, &scan, &pause, &sep2, &quit])?
+    } else {
+        Menu::with_items(app, &[&status, &sep1, &open, &scan, &pause, &sep2, &quit])?
+    };
     let icon = Image::new_owned(ring_rgba(DiskStatus::Healthy, 120 * GB, 44), 44, 44);
     TrayIconBuilder::with_id(TRAY_ID)
         .icon(icon)
         .tooltip("Freeboard")
         .menu(&menu)
-        .show_menu_on_left_click(cfg!(target_os = "macos"))
+        // A left click opens the tray view; the menu is on the right click.
+        .show_menu_on_left_click(false)
         .on_menu_event(|app, ev| match ev.id().as_ref() {
             "open" => crate::open_window(app),
+            "summary" => crate::toggle_tray_view(app, None),
             "scan" => {
                 if let Some(core) = app.try_state::<std::sync::Arc<crate::app_core::AppCore>>() {
                     let _ = core.start_scan(crate::model::ScanKind::Quick);
@@ -109,10 +117,8 @@ pub fn build(app: &AppHandle, paused: bool) -> tauri::Result<()> {
             _ => {}
         })
         .on_tray_icon_event(|tray, ev| {
-            if let TrayIconEvent::Click { button: MouseButton::Left, button_state: MouseButtonState::Up, .. } = ev {
-                if !cfg!(target_os = "macos") {
-                    crate::open_window(tray.app_handle());
-                }
+            if let TrayIconEvent::Click { button: MouseButton::Left, button_state: MouseButtonState::Up, position, .. } = ev {
+                crate::toggle_tray_view(tray.app_handle(), Some(position));
             }
         })
         .build(app)?;

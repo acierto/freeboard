@@ -115,6 +115,69 @@ mod shell {
         }
     }
 
+    /// The tray view's window label and logical size (prototype `#popover`
+    /// plus room for its shadow).
+    pub const TRAY_VIEW: &str = "tray";
+    const TRAY_VIEW_SIZE: (f64, f64) = (312.0, 236.0);
+
+    /// Open the tray view next to the tray icon, or close it if it is open.
+    /// `anchor` is the click position in physical pixels (None on Linux, where
+    /// tray clicks are not reported and the menu opens it instead).
+    pub fn toggle_tray_view(app: &AppHandle, anchor: Option<tauri::PhysicalPosition<f64>>) {
+        if let Some(w) = app.get_webview_window(TRAY_VIEW) {
+            let _ = w.destroy();
+            return;
+        }
+        let (w, h) = TRAY_VIEW_SIZE;
+        let built = WebviewWindowBuilder::new(app, TRAY_VIEW, WebviewUrl::default())
+            .title("Freeboard")
+            .inner_size(w, h)
+            .resizable(false)
+            .decorations(false)
+            .always_on_top(true)
+            .skip_taskbar(true)
+            .visible(false)
+            .build();
+        let win = match built {
+            Ok(win) => win,
+            Err(e) => {
+                tracing::error!("could not open the tray view: {e}");
+                return;
+            }
+        };
+        let monitor = anchor.and_then(|p| app.monitor_from_point(p.x, p.y).ok().flatten()).or_else(|| app.primary_monitor().ok().flatten());
+        if let Some(m) = monitor {
+            let scale = m.scale_factor();
+            let (pw, ph) = (w * scale, h * scale);
+            let (mx, my) = (m.position().x as f64, m.position().y as f64);
+            let (mw, mh) = (m.size().width as f64, m.size().height as f64);
+            let p = anchor.unwrap_or(tauri::PhysicalPosition::new(mx + mw - pw / 2.0 - 16.0 * scale, my));
+            // Under the icon when the tray is at the top of the screen (macOS,
+            // most Linux desktops), above it when at the bottom (Windows).
+            let y = if p.y - my < mh / 2.0 { p.y + 12.0 * scale } else { p.y - ph - 12.0 * scale };
+            let x = (p.x - pw / 2.0).clamp(mx + 8.0 * scale, mx + mw - pw - 8.0 * scale);
+            let _ = win.set_position(tauri::PhysicalPosition::new(x, y.max(my)));
+        }
+        let _ = win.show();
+        let _ = win.set_focus();
+    }
+
+    pub fn close_tray_view(app: &AppHandle) {
+        if let Some(w) = app.get_webview_window(TRAY_VIEW) {
+            let _ = w.destroy();
+        }
+    }
+
+    /// The tray view's button: close it and open the main window on the pile.
+    pub fn review_pile(app: &AppHandle) {
+        close_tray_view(app);
+        if let Some(core) = app.try_state::<Arc<AppCore>>() {
+            core.set_pending_view("pile");
+        }
+        open_window(app);
+        deliver_pending_view(app);
+    }
+
     pub fn open_window(app: &AppHandle) {
         app.state::<HideGeneration>().0.fetch_add(1, Ordering::SeqCst);
         if let Some(w) = app.get_webview_window("main") {
@@ -280,7 +343,9 @@ mod shell {
                     api.prevent_close();
                     hide_window(window.app_handle());
                 }
-                WindowEvent::Focused(true) => deliver_pending_view(window.app_handle()),
+                // A click anywhere outside the tray view closes it.
+                WindowEvent::Focused(false) if window.label() == TRAY_VIEW => close_tray_view(window.app_handle()),
+                WindowEvent::Focused(true) if window.label() == "main" => deliver_pending_view(window.app_handle()),
                 _ => {}
             })
             .invoke_handler(tauri::generate_handler![
@@ -304,6 +369,8 @@ mod shell {
                 crate::commands::folder_suggestions,
                 crate::commands::add_suggested_folder,
                 crate::commands::set_notifications_paused,
+                crate::commands::close_tray_view,
+                crate::commands::review_pile,
             ])
             .build(context)
             .expect("error while building Freeboard");
@@ -320,7 +387,7 @@ mod shell {
 }
 
 #[cfg(feature = "desktop")]
-pub use shell::{open_window, run};
+pub use shell::{close_tray_view, open_window, review_pile, run, toggle_tray_view};
 
 #[cfg(not(feature = "desktop"))]
 pub fn run() {

@@ -27,9 +27,11 @@ export const REQUIRED_FONTS = [
 /** What every capture crops to: the whole page (the prototype has no app frame). */
 export const CROP = "page";
 
-/** Prototype-only controls hidden in the reference (spec "Build reference"):
- * Pretend free space, Start over, and the "example data" note under the brand. */
-export const PROTOTYPE_ONLY = ".top-right .sim, .top-right [data-act=\"reset\"], .top > div > .note";
+/** Hidden in the reference. Prototype-only controls (spec "Build reference"):
+ * Pretend free space, Start over, and the "example data" note under the brand.
+ * Also the in-page "Menu bar" button, which stands in for the native tray icon
+ * (decision 2026-11-06); the tray view itself is compared on its own. */
+export const PROTOTYPE_ONLY = ".top-right .sim, .top-right [data-act=\"reset\"], .top > div > .note, .top-right .tray";
 
 export const sha256 = (buf) => createHash("sha256").update(buf).digest("hex");
 
@@ -198,7 +200,7 @@ export async function capture(browser, base, cap, side, opts = {}) {
       const q = new URLSearchParams(cap.query ?? "");
       q.set("theme", cap.theme);
       await page.goto(`${base}/?${q}`);
-      await page.waitForSelector(".page .hero", { timeout: 10000 });
+      await page.waitForSelector(".page .hero, .tray-window", { timeout: 10000 });
     }
     await settle(page, side);
     for (const step of side === "ref" ? cap.ref : cap.impl) await runStep(page, side, step);
@@ -219,7 +221,17 @@ export async function capture(browser, base, cap, side, opts = {}) {
     await page.setViewportSize({ width: cap.width, height: cap.height + 1 });
     await page.setViewportSize({ width: cap.width, height: cap.height });
     await settle(page, side);
-    const png = await page.screenshot({ fullPage: true, animations: "disabled", caret: "hide" });
+    // `clip`: compare only the union of these elements (parts of the page whose
+    // neighbours arrive in later milestones); otherwise the whole page.
+    const clip = cap.clip ? await page.evaluate((sels) => {
+      const rects = sels.flatMap((s) => [...document.querySelectorAll(s)]).map((e) => e.getBoundingClientRect()).filter((r) => r.width && r.height);
+      if (!rects.length) return null;
+      const x = Math.min(...rects.map((r) => r.left)), y = Math.min(...rects.map((r) => r.top));
+      const r = Math.max(...rects.map((r) => r.right)), b = Math.max(...rects.map((r) => r.bottom));
+      return { x: Math.floor(x + scrollX), y: Math.floor(y + scrollY), width: Math.ceil(r - x), height: Math.ceil(b - y) };
+    }, cap.clip) : undefined;
+    if (cap.clip && !clip) throw new Error("nothing to capture for " + cap.clip.join(", "));
+    const png = await page.screenshot({ fullPage: true, clip, animations: "disabled", caret: "hide" });
     return { png, missingFonts: missing };
   } catch (e) {
     return { png: null, missingFonts: [], error: String(e.message ?? e) };
