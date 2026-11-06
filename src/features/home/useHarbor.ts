@@ -6,12 +6,16 @@ import { api, errorText, on } from "../../lib/api";
 import { track } from "../../lib/useBusy";
 import type { AppStatus, DiskMap, Goal, Group, ItemDecision, PileState, Settings, SettingsPatch, Suggestion } from "../../lib/types";
 
+export type Progress = { phase: string; detector: string | null; currentCount: number } | null;
+
 export interface Harbor {
   status: AppStatus;
   settings: Settings;
   suggestions: Suggestion[];
   pile: PileState;
   map: DiskMap | null;
+  /** The running scan's latest progress, or null. */
+  progress: Progress;
 }
 
 export function useHarbor() {
@@ -21,7 +25,7 @@ export function useHarbor() {
   const load = useCallback(async () => {
     try {
       const [status, settings, suggestions, pile] = await track(Promise.all([api.getStatus(), api.getSettings(), api.getSuggestions(), api.getPile()]));
-      setData({ status, settings, suggestions, pile, map: null });
+      setData({ status, settings, suggestions, pile, map: null, progress: status.scan.running ? { phase: status.scan.phase ?? "", detector: null, currentCount: 0 } : null });
       setError(null);
     } catch (e) {
       setError(errorText(e));
@@ -40,7 +44,7 @@ export function useHarbor() {
       on("disk_map_changed", (map) => setData((d) => d && { ...d, map })),
       // Show "Scanning…" as soon as a scan starts.
       on("scan_progress", (p) =>
-        setData((d) => (d && !d.status.scan.running ? { ...d, status: { ...d.status, scan: { ...d.status.scan, running: p.scanId, phase: p.phase } } } : d)),
+        setData((d) => d && { ...d, progress: p, status: { ...d.status, scan: { ...d.status.scan, running: p.scanId, phase: p.phase } } }),
       ),
       on("scan_finished", () => void load()),
       on("cleanup_finished", () => void load()),

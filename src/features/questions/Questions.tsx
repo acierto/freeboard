@@ -139,20 +139,55 @@ export function GroupActions({ items, slug, act }: { items: Suggestion[]; slug: 
   );
 }
 
+/** Items Freeboard will not touch. The prototype shows one card per item;
+ * a real disk can have dozens, so with more than one they share a single
+ * card and the list is folded (found by the user, 2026-11-06). */
+function Protected({ items }: { items: Suggestion[] }) {
+  if (!items.length) return null;
+  if (items.length === 1) {
+    const s = items[0];
+    return (
+      <div className="protect">
+        <b>
+          {s.title} <span className="num">{gb(s.sizeBytes)}</span>
+        </b>
+        <span>{`${s.reason} I will not touch it.`}</span>
+        <span className="muted">{s.blockedReason}</span>
+      </div>
+    );
+  }
+  const total = items.reduce((t, s) => t + s.sizeBytes, 0);
+  const sorted = [...items].sort((a, b) => b.sizeBytes - a.sizeBytes);
+  return (
+    <div className="protect" id="protected">
+      <b>
+        {`${items.length} things I will not touch`} <span className="num">{gb(total)}</span>
+      </b>
+      <span className="muted">They may hold work that exists only here, such as uncommitted or unpushed changes. Commit and push them, and I can clean them next time.</span>
+      <details className="parts" data-open="protected">
+        <summary>Show them</summary>
+        {sorted.map((s) => (
+          <div className="detail-row" key={s.id}>
+            <span>
+              {s.title}
+              <span className="sub muted" style={{ display: "block", fontSize: 12.5 }}>
+                {s.reason}
+              </span>
+            </span>
+            <span className="num">{gb(s.sizeBytes)}</span>
+          </div>
+        ))}
+      </details>
+    </div>
+  );
+}
+
 function Everything({ items, chosen, act }: { items: Suggestion[]; chosen: Set<string>; act: Choices }) {
   const total = items.reduce((t, s) => t + s.sizeBytes, 0);
   const blocked = items.filter((s) => s.blockedReason);
   return (
     <div className="stack">
-      {blocked.map((s) => (
-        <div className="protect" key={s.id}>
-          <b>
-            {s.title} <span className="num">{gb(s.sizeBytes)}</span>
-          </b>
-          <span>{`${s.reason} I will not touch it.`}</span>
-          <span className="muted">{s.blockedReason}</span>
-        </div>
-      ))}
+      <Protected items={blocked} />
       <div className="card">
         <h3>Everything I found</h3>
         <p className="note" style={{ marginBottom: 6 }}>

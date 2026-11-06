@@ -13,6 +13,17 @@ use std::path::{Path, PathBuf};
 const SKIP: [&str; 12] =
     ["Library", "Applications", "Pictures", "Music", "Movies", "Videos", "Public", "AppData", "snap", "OneDrive", "Dropbox", "iCloud Drive"];
 
+/// macOS asks the person for permission the first time an app reads these
+/// folders. Looking for repositories inside them just to offer them would
+/// trigger those prompts without the person asking (found 2026-11-06), so
+/// they are not looked into; the person can still add them with Add folder,
+/// which grants access through the folder picker.
+const MACOS_PROTECTED: [&str; 3] = ["Desktop", "Documents", "Downloads"];
+
+fn skipped(name: &str) -> bool {
+    SKIP.iter().any(|s| s.eq_ignore_ascii_case(name)) || (cfg!(target_os = "macos") && MACOS_PROTECTED.iter().any(|s| s.eq_ignore_ascii_case(name)))
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Candidate {
     pub path: PathBuf,
@@ -70,7 +81,7 @@ pub fn suggest(home: &Path, chosen: &[String], limit: usize) -> Vec<Candidate> {
         .filter_map(|e| {
             let name = e.file_name().to_string_lossy().into_owned();
             let p = e.path();
-            if hidden(&name) || SKIP.iter().any(|s| s.eq_ignore_ascii_case(&name)) || !is_dir_no_link(&p) || covered(&p) {
+            if hidden(&name) || skipped(&name) || !is_dir_no_link(&p) || covered(&p) {
                 return None;
             }
             let repos = count_repos(&p);

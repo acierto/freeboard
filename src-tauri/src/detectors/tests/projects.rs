@@ -101,7 +101,7 @@ fn running_process_skips_project() {
     let p = node_project(&fx, "projects/busy", 60);
     node_project(&fx, "projects/idle", 60);
     let canon = std::fs::canonicalize(&p).unwrap();
-    fx.tool("lsof", &format!("case \"$*\" in *'{}'*) echo p4242;; esac; exit 0", canon.display()));
+    fx.tool("lsof", &format!("printf 'p1\\nfcwd\\nn/\\np4242\\nfcwd\\nn{}\\n'; exit 0", canon.display()));
     let mut child = std::process::Command::new("sleep").arg("30").current_dir(&p).spawn().unwrap();
     let o = fx.scan(ScanKind::Deep, &dets());
     let _ = child.kill();

@@ -91,9 +91,15 @@ fn repo(fx: &Fx) -> PathBuf {
     app
 }
 
+/// Every worktree finding, including those inside the merged
+/// "Git worktrees with no local changes" item.
+fn leaves(o: &ScanOutcome) -> Vec<&Finding> {
+    o.findings.iter().flat_map(|f| if f.parts.is_empty() { vec![f] } else { f.parts.iter().collect() }).collect()
+}
+
 fn by_branch<'a>(o: &'a ScanOutcome, b: &str) -> &'a Suggestion {
-    o.findings
-        .iter()
+    leaves(o)
+        .into_iter()
         .map(|f| &f.suggestion)
         .find(|s| s.detector == ID && s.title.ends_with(&format!(": {b}")))
         .unwrap_or_else(|| panic!("no worktree {b}: {:#?}", o.findings.iter().map(|f| &f.suggestion.title).collect::<Vec<_>>()))
@@ -107,7 +113,14 @@ fn worktree_state_matrix() {
     assert!(o.errors.is_empty(), "{:?}", o.errors);
     // The main worktree is never suggested.
     assert!(o.findings.iter().all(|f| !f.suggestion.title.ends_with(": main")));
-    assert_eq!(o.findings.len(), 10);
+    assert_eq!(leaves(&o).len(), 10);
+    // Removable worktrees are one item with a part per worktree.
+    let merged: Vec<_> = o.findings.iter().filter(|f| !f.parts.is_empty()).collect();
+    assert_eq!(merged.len(), 1);
+    assert_eq!(merged[0].suggestion.title, "Git worktrees with no local changes");
+    assert_eq!(merged[0].suggestion.parts.len(), merged[0].parts.len());
+    assert!(merged[0].parts.iter().all(|f| f.suggestion.risk == Risk::Review));
+    assert!(o.findings.iter().filter(|f| f.parts.is_empty()).all(|f| f.suggestion.blocked_reason.is_some()), "only blocked worktrees stay separate");
 
     let m = by_branch(&o, "merged");
     assert_eq!(m.risk, Risk::Review);
@@ -141,7 +154,7 @@ fn inv09_git_work_never_preselected_only_clean_review_selectable() {
     let fx = Fx::new();
     repo(&fx);
     let o = fx.scan(ScanKind::Deep, &[Box::new(Worktrees)]);
-    for f in &o.findings {
+    for f in o.findings.iter().chain(leaves(&o)) {
         assert!(!f.suggestion.preselected(), "{}", f.suggestion.title);
         let clean = f.suggestion.risk == Risk::Review;
         assert_eq!(f.suggestion.selectable(), clean, "{}", f.suggestion.title);
@@ -161,7 +174,7 @@ fn process_open_worktree_is_blocked() {
     let target = app.join(".worktrees/pushed");
     // Fake lsof reports a process for this worktree (macOS path); on Linux a
     // real process with its working directory there is used.
-    fx.tool("lsof", &format!("case \"$*\" in *'{}'*) echo p4242;; esac; exit 0", std::fs::canonicalize(&target).unwrap().display()));
+    fx.tool("lsof", &format!("printf 'p1\\nfcwd\\nn/\\np4242\\nfcwd\\nn{}\\n'; exit 0", std::fs::canonicalize(&target).unwrap().display()));
     let mut child = std::process::Command::new("sleep").arg("30").current_dir(&target).spawn().unwrap();
     let o = fx.scan(ScanKind::Deep, &[Box::new(Worktrees)]);
     let _ = child.kill();
@@ -188,7 +201,7 @@ fn probe_detects_new_commit() {
     let fx = Fx::new();
     let app = repo(&fx);
     let o = fx.scan(ScanKind::Deep, &[Box::new(Worktrees)]);
-    let f = o.findings.iter().find(|f| f.suggestion.title.ends_with(": pushed")).unwrap().clone();
+    let f = leaves(&o).into_iter().find(|f| f.suggestion.title.ends_with(": pushed")).unwrap().clone();
     fx.with_ctx(ScanKind::Deep, |ctx| assert_eq!(probe(&f, ctx), Probe::Unchanged));
     let p = app.join(".worktrees/pushed");
     std::fs::write(p.join("late.txt"), "x").unwrap();

@@ -65,7 +65,8 @@ impl Fx {
         dirs.push(gitbin);
         let path = std::env::join_paths(dirs).unwrap();
         // Default fakes: no processes in any folder; no Gradle daemon.
-        fake::tool(&bin, "lsof", "exit 1");
+        // `lsof -d cwd -Fpn`: one process, working in /, so nothing is in use.
+        fake::tool(&bin, "lsof", "printf 'p1\\nfcwd\\nn/\\n'; exit 0");
         fake::tool(&bin, "ps", "exit 0");
         let mut settings = Settings::default();
         settings.scan_folders = vec![home.join("projects").to_string_lossy().to_string()];

@@ -53,8 +53,52 @@ pub struct ScanOutcome {
     pub errors: Vec<DetectorError>,
 }
 
+type CwdList = std::sync::Arc<Vec<(u32, std::path::PathBuf)>>;
+type CwdCache = std::sync::Mutex<std::collections::HashMap<usize, Option<CwdList>>>;
+fn cwd_cache() -> &'static CwdCache {
+    static C: std::sync::OnceLock<CwdCache> = std::sync::OnceLock::new();
+    C.get_or_init(Default::default)
+}
+fn scan_key(ctx: &ScanContext) -> usize {
+    ctx.cancel as *const _ as usize
+}
+
+/// Processes running inside `dir`. During a scan, every process's working
+/// folder is read once and reused for the rest of that scan, so hundreds of
+/// worktrees and projects cost one check. Outside a scan (pre-cleanup checks,
+/// which must see the state right before acting: invariant 4) it always
+/// reads fresh. None means unknown, and callers raise risk (invariant 11).
+pub fn processes_in(ctx: &ScanContext, dir: &std::path::Path) -> Option<Vec<u32>> {
+    let key = scan_key(ctx);
+    let in_scan = cwd_cache().lock().unwrap_or_else(|e| e.into_inner()).contains_key(&key);
+    if !in_scan {
+        return crate::platform::processes_in_dir(dir, ctx.runner);
+    }
+    let canon = std::fs::canonicalize(dir).ok()?;
+    let cached = cwd_cache().lock().unwrap_or_else(|e| e.into_inner()).get(&key).cloned().flatten();
+    let list = match cached {
+        Some(l) => l,
+        None => {
+            let l: CwdList = std::sync::Arc::new(crate::platform::process_cwds(ctx.runner)?);
+            cwd_cache().lock().unwrap_or_else(|e| e.into_inner()).insert(key, Some(l.clone()));
+            l
+        }
+    };
+    Some(list.iter().filter(|(_, c)| c.starts_with(&canon)).map(|(p, _)| *p).collect())
+}
+
+/// Ends the per-scan process cache when the scan returns, however it returns.
+struct ScanCacheGuard(usize);
+impl Drop for ScanCacheGuard {
+    fn drop(&mut self) {
+        cwd_cache().lock().unwrap_or_else(|e| e.into_inner()).remove(&self.0);
+    }
+}
+
 /// Run all applicable detectors. One failing detector never stops the others.
 pub fn run_scan(ctx: &ScanContext, detectors: &[Box<dyn Detector>]) -> ScanOutcome {
+    cwd_cache().lock().unwrap_or_else(|e| e.into_inner()).insert(scan_key(ctx), None);
+    let _guard = ScanCacheGuard(scan_key(ctx));
     let mut out = ScanOutcome::default();
     let applicable: Vec<&dyn Detector> = detectors
         .iter()

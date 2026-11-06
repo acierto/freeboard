@@ -175,7 +175,7 @@ pub fn classify(ctx: &ScanContext, main: &Path, wt: &WtEntry, default: Option<&s
         },
         _ => Some(false),
     };
-    let procs = platform::processes_in_dir(p, ctx.runner);
+    let procs = crate::scan::processes_in(ctx, p);
     let fp = fingerprint_of(&[
         wt.head.as_deref().unwrap_or(""),
         &status,
@@ -309,13 +309,15 @@ impl Detector for Worktrees {
             return Err(err(ID, "unavailable", "Git is not installed."));
         }
         let ex = walk::exclusions(ctx);
-        let mut out = vec![];
         let mut failures = 0;
-        for main in main_roots(ctx, &d.repos) {
+        // List every repository's linked worktrees first (one quick git call each).
+        let mut jobs: Vec<(PathBuf, WtEntry, Option<String>)> = vec![];
+        for (checked, main) in main_roots(ctx, &d.repos).into_iter().enumerate() {
             if !walk::wait_if_paused(ctx) {
                 break;
             }
-            (ctx.progress)("worktrees", Some(ID), out.len() as u64);
+            // Progress: repositories checked so far.
+            (ctx.progress)("worktrees", Some(ID), checked as u64);
             let wts = match linked(ctx, &main) {
                 Ok(w) => w,
                 Err(_) => {
@@ -328,15 +330,80 @@ impl Detector for Worktrees {
                 if ex.iter().any(|x| wt.path.starts_with(x)) || platform::is_wsl_path(&wt.path) {
                     continue;
                 }
-                let c = classify(ctx, &main, &wt, default.as_deref());
-                out.push(finding(ctx, &main, &wt, c));
+                jobs.push((main.clone(), wt, default.clone()));
             }
         }
+        // Then classify and measure the worktrees in parallel: each one waits
+        // on git and the disk, so a small pool cuts a scan of hundreds of
+        // worktrees from minutes to seconds. Results keep the listing order.
+        let workers = std::thread::available_parallelism().map(|n| n.get()).unwrap_or(4).clamp(2, 8);
+        let next = std::sync::atomic::AtomicUsize::new(0);
+        let results: Vec<std::sync::Mutex<Option<Finding>>> = jobs.iter().map(|_| std::sync::Mutex::new(None)).collect();
+        std::thread::scope(|sc| {
+            for _ in 0..workers {
+                sc.spawn(|| loop {
+                    let i = next.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+                    let Some((main, wt, default)) = jobs.get(i) else { break };
+                    if !walk::wait_if_paused(ctx) {
+                        break;
+                    }
+                    let c = classify(ctx, main, wt, default.as_deref());
+                    *results[i].lock().unwrap_or_else(|e| e.into_inner()) = Some(finding(ctx, main, wt, c));
+                });
+            }
+        });
+        let out: Vec<Finding> = results.into_iter().filter_map(|m| m.into_inner().unwrap_or_else(|e| e.into_inner())).collect();
         if out.is_empty() && failures > 0 {
             return Err(err(ID, "error", format!("Git could not list worktrees in {failures} repositories.")));
         }
-        Ok(out)
+        Ok(merge_removable(ctx, out))
     }
+}
+
+/// Removable worktrees (clean, merged or pushed) are one item with a part per
+/// worktree, like unused Docker images (decided by the user 2026-11-06: a real
+/// machine had 146 separate questions). Each part keeps its own finding, so the
+/// "still clean, still pushed, no new commits" check runs per worktree.
+/// Blocked (Risky) worktrees stay separate items: the interface folds them
+/// into one protected card.
+pub fn merge_removable(_ctx: &ScanContext, found: Vec<Finding>) -> Vec<Finding> {
+    let (mut ok, mut rest): (Vec<Finding>, Vec<Finding>) = found.into_iter().partition(|f| f.suggestion.risk == Risk::Review && f.suggestion.blocked_reason.is_none());
+    if ok.len() < 2 {
+        rest.extend(ok);
+        return rest;
+    }
+    ok.sort_by(|a, b| b.suggestion.size_bytes.cmp(&a.suggestion.size_bytes).then(a.suggestion.id.cmp(&b.suggestion.id)));
+    let n = ok.len();
+    let total: u64 = ok.iter().map(|f| f.suggestion.size_bytes).sum();
+    let repos: std::collections::BTreeSet<&str> = ok.iter().filter_map(|f| f.suggestion.title.split(": ").next()).collect();
+    let mut s = base(ID, Group::Projects, "removable-worktrees");
+    s.title = "Git worktrees with no local changes".into();
+    s.location = format!("{n} worktrees in {} {}", repos.len(), if repos.len() == 1 { "repository" } else { "repositories" });
+    s.size_bytes = total;
+    s.full_size_bytes = total;
+    let newest = ok.iter().filter(|f| f.suggestion.last_used_at.is_some()).max_by(|a, b| a.suggestion.last_used_at.cmp(&b.suggestion.last_used_at));
+    s.last_used_at = newest.and_then(|f| f.suggestion.last_used_at.clone());
+    s.last_used_label = newest.map(|f| format!("Newest: {}", f.suggestion.last_used_label.to_lowercase())).unwrap_or_else(|| "Last commits unknown".into());
+    s.risk = Risk::Review;
+    s.action = Action::NativeCommand;
+    s.action_label = "git worktree remove".into();
+    s.reason = "No uncommitted or untracked files, and each branch is merged or pushed.".into();
+    s.recovery = "Run git worktree add with the same branch.".into();
+    s.recoverable = true;
+    s.parts = ok
+        .iter()
+        .map(|f| SuggestionPart { id: f.suggestion.id.clone(), label: f.suggestion.title.clone(), location: f.suggestion.location.clone(), size_bytes: f.suggestion.size_bytes, selected: true })
+        .collect();
+    s.fingerprint = fingerprint_of(&ok.iter().map(|f| f.suggestion.fingerprint.as_str()).collect::<Vec<_>>());
+    let resources: Vec<String> = ok
+        .iter()
+        .flat_map(|f| match &f.target {
+            Target::Native { resources, .. } => resources.clone(),
+            _ => vec![],
+        })
+        .collect();
+    rest.push(Finding { suggestion: s, target: Target::Native { program: "git".into(), args: vec![], resources, cwd: None }, parts: ok });
+    rest
 }
 
 /// Pre-cleanup check: still clean, still pushed or merged, not locked, no new

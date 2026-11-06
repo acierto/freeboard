@@ -148,7 +148,7 @@ pub fn inspect(ctx: &ScanContext, folder: &Path, detector: &str) -> Option<Findi
     }
     let mut risk = ev.risk;
     let mut reason = ev.reason.clone();
-    match platform::processes_in_dir(project, ctx.runner) {
+    match crate::scan::processes_in(ctx, project) {
         Some(p) if !p.is_empty() => return None,
         Some(_) => {}
         None => {
@@ -279,14 +279,15 @@ fn common_location(ctx: &ScanContext, items: &[Finding]) -> String {
 fn run_for(ctx: &ScanContext, detector: &str, names: &[&str]) -> Result<Vec<Finding>, DetectorError> {
     let d = walk::discover(ctx);
     let mut out = vec![];
-    for g in &d.generated {
+    for (checked, g) in d.generated.iter().enumerate() {
         if !g.file_name().and_then(|n| n.to_str()).is_some_and(|n| names.contains(&n)) {
             continue;
         }
         if !walk::wait_if_paused(ctx) {
             break;
         }
-        (ctx.progress)("projects", Some(detector), out.len() as u64);
+        // Progress: generated folders checked so far.
+        (ctx.progress)("projects", Some(detector), checked as u64);
         if let Some(f) = inspect(ctx, g, detector) {
             out.push(f);
         }
@@ -336,7 +337,7 @@ pub fn probe(f: &Finding, ctx: &ScanContext, guard: &Guard) -> Probe {
     if !still {
         return Probe::Changed("The project's manifest or lockfile changed after the scan.".into());
     }
-    match platform::processes_in_dir(project, ctx.runner) {
+    match crate::scan::processes_in(ctx, project) {
         Some(p) if !p.is_empty() => Probe::Changed("A program is now running in this project.".into()),
         Some(_) => Probe::Unchanged,
         None if f.suggestion.risk != Risk::Safe => Probe::Unchanged, // already accounted for as unknown

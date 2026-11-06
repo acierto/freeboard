@@ -436,7 +436,56 @@ pub fn unused_findings(ctx: &ScanContext, snap: &Snapshot) -> Vec<Finding> {
             target: Target::Native { program: "docker".into(), args, resources: vec![i.id.clone()], cwd: None },
         });
     }
-    out
+    merge_unused(ctx, out)
+}
+
+/// All unused tagged images are one item, "Unused Docker images", with one
+/// part per image under Choose which (decided by the user 2026-11-06: a real
+/// Docker host gave 246 separate questions nobody would read). Each part keeps
+/// its own complete finding, so the "still unused by every container" check
+/// runs per image at cleanup time.
+pub fn merge_unused(ctx: &ScanContext, mut images: Vec<Finding>) -> Vec<Finding> {
+    if images.len() < 2 {
+        return images;
+    }
+    images.sort_by(|a, b| b.suggestion.size_bytes.cmp(&a.suggestion.size_bytes).then(a.suggestion.id.cmp(&b.suggestion.id)));
+    let n = images.len();
+    let total: u64 = images.iter().map(|f| f.suggestion.size_bytes).sum();
+    let mut s = base(UNUSED, Group::Docker, "unused-images");
+    s.title = "Unused Docker images".into();
+    s.location = format!("{n} images no container uses");
+    s.size_bytes = total;
+    s.full_size_bytes = total;
+    s.size_is_estimate = true;
+    // RFC 3339 times in UTC sort as strings.
+    let newest = images.iter().filter(|f| f.suggestion.last_used_at.is_some()).max_by(|a, b| a.suggestion.last_used_at.cmp(&b.suggestion.last_used_at));
+    s.last_used_at = newest.and_then(|f| f.suggestion.last_used_at.clone());
+    s.last_used_label = match newest {
+        Some(f) => format!("Newest {}", f.suggestion.last_used_label.to_lowercase()),
+        None => "Creation times unknown".into(),
+    };
+    s.risk = Risk::Review;
+    s.action = Action::NativeCommand;
+    s.action_label = "docker image rm".into();
+    s.reason = format!("Tagged images that no container uses, including stopped ones.{}", desktop_note(ctx));
+    s.recovery = "Run docker pull for the ones you need, or build them again.".into();
+    s.recoverable = true;
+    s.parts = images
+        .iter()
+        .map(|f| SuggestionPart {
+            id: f.suggestion.id.clone(),
+            label: f.suggestion.title.trim_end_matches(" image").to_string(),
+            location: f.suggestion.location.clone(),
+            size_bytes: f.suggestion.size_bytes,
+            selected: true,
+        })
+        .collect();
+    s.fingerprint = fingerprint_of(&images.iter().map(|f| f.suggestion.fingerprint.as_str()).collect::<Vec<_>>());
+    let resources: Vec<String> = images.iter().flat_map(|f| match &f.target {
+        Target::Native { resources, .. } => resources.clone(),
+        _ => vec![],
+    }).collect();
+    vec![Finding { suggestion: s, target: Target::Native { program: "docker".into(), args: vec![], resources, cwd: None }, parts: images }]
 }
 
 pub fn stopped_findings(ctx: &ScanContext, snap: &Snapshot) -> Vec<Finding> {

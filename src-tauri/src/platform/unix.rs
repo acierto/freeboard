@@ -59,48 +59,74 @@ pub fn system_protected() -> (Vec<PathBuf>, Vec<PathBuf>) {
     (exact, subtree)
 }
 
-/// Processes whose current working directory is inside `dir` (best effort).
-/// Returns None when the check cannot be performed; callers must treat that
-/// as "unknown" and raise risk (invariant 11).
+/// Processes whose current working directory is inside `dir` (best effort),
+/// read fresh. Returns None when the check cannot be performed; callers must
+/// treat that as "unknown" and raise risk (invariant 11).
 pub fn processes_in_dir(dir: &Path, runner: &crate::runner::Runner) -> Option<Vec<u32>> {
+    let canon = std::fs::canonicalize(dir).ok()?;
+    Some(process_cwds(runner)?.iter().filter(|(_, cwd)| cwd.starts_with(&canon)).map(|(p, _)| *p).collect())
+}
+
+/// Every process's working folder, read fresh: /proc on Linux, one
+/// `lsof -d cwd -Fpn` call elsewhere. (An earlier `lsof +D <dir>` per folder
+/// walked each folder's whole tree, took 20+ s on large worktrees, timed out
+/// and blocked them as "status unknown"; found on a real Mac, 2026-11-06.)
+pub fn process_cwds(runner: &crate::runner::Runner) -> Option<Vec<(u32, PathBuf)>> {
     #[cfg(target_os = "linux")]
     {
         let _ = runner;
-        let canon = std::fs::canonicalize(dir).ok()?;
-        let mut pids = Vec::new();
-        let entries = std::fs::read_dir("/proc").ok()?;
-        for e in entries.flatten() {
-            let name = e.file_name();
-            let Some(pid) = name.to_str().and_then(|s| s.parse::<u32>().ok()) else { continue };
+        let mut v = Vec::new();
+        for e in std::fs::read_dir("/proc").ok()?.flatten() {
+            let Some(pid) = e.file_name().to_str().and_then(|s| s.parse::<u32>().ok()) else { continue };
             if let Ok(cwd) = std::fs::read_link(e.path().join("cwd")) {
-                if cwd.starts_with(&canon) {
-                    pids.push(pid);
-                }
+                v.push((pid, cwd));
             }
         }
-        Some(pids)
+        Some(v)
     }
     #[cfg(not(target_os = "linux"))]
     {
-        // `lsof -a -d cwd -Fp +D <dir>` lists processes whose cwd is under dir.
-        let canon = std::fs::canonicalize(dir).ok()?;
-        let out = runner
-            .run_read(&crate::runner::Cmd::new(
-                "lsof",
-                ["-a", "-d", "cwd", "-Fp", "+D", &canon.to_string_lossy()],
-            ))
-            .ok()?;
-        // lsof exits 1 when nothing matches.
+        let out = runner.run_read(&crate::runner::Cmd::new("lsof", ["-d", "cwd", "-Fpn"])).ok()?;
+        // lsof exits 1 when some processes could not be read; the rest is valid.
         if out.code != Some(0) && out.code != Some(1) {
             return None;
         }
-        Some(
-            out.stdout
-                .lines()
-                .filter_map(|l| l.strip_prefix('p'))
-                .filter_map(|p| p.parse().ok())
-                .collect(),
-        )
+        let list = parse_lsof_cwds(&out.stdout);
+        // lsof always sees at least itself and this process; empty means it failed.
+        if list.is_empty() {
+            return None;
+        }
+        Some(list)
+    }
+}
+
+/// Parse `lsof -Fpn` output: `p<pid>` starts a process, `n<path>` is its cwd.
+pub fn parse_lsof_cwds(out: &str) -> Vec<(u32, PathBuf)> {
+    let mut v = Vec::new();
+    let mut pid: Option<u32> = None;
+    for l in out.lines() {
+        if let Some(p) = l.strip_prefix('p') {
+            pid = p.parse().ok();
+        } else if let (Some(n), Some(p)) = (l.strip_prefix('n'), pid) {
+            v.push((p, PathBuf::from(n)));
+        }
+    }
+    v
+}
+
+#[cfg(test)]
+mod cwd_tests {
+    use super::*;
+
+    #[test]
+    fn parses_lsof_cwd_output() {
+        let out = "p423\nfcwd\nn/\np446\nfcwd\nn/Users/me/work/web-app/.worktrees/pay\np9\nfcwd\nn/Users/me/work/web-app-old\n";
+        let v = parse_lsof_cwds(out);
+        assert_eq!(v.len(), 3);
+        assert_eq!(v[1], (446, PathBuf::from("/Users/me/work/web-app/.worktrees/pay")));
+        // Path prefixes match by component: web-app-old is not inside web-app.
+        let inside: Vec<u32> = v.iter().filter(|(_, c)| c.starts_with("/Users/me/work/web-app")).map(|(p, _)| *p).collect();
+        assert_eq!(inside, vec![446]);
     }
 }
 

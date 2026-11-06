@@ -87,6 +87,31 @@ export function questionDeck(pile: PileState, all: Suggestion[]): Suggestion[] {
     .sort((a, b) => b.sizeBytes - a.sizeBytes);
 }
 
+/** What a running scan is doing, from its latest `scan_progress` event. */
+export function scanLabel(p: { phase: string; detector: string | null; currentCount: number } | null): string {
+  if (!p) return "Scanning your disk…";
+  const n = p.currentCount.toLocaleString("en-US");
+  if (p.phase === "paused") return "Scan paused while on battery.";
+  if (p.phase === "discovering") return `Looking through your folders · ${n} files and folders`;
+  if (p.phase === "worktrees") return `Checking Git worktrees · ${n} ${p.currentCount === 1 ? "repository" : "repositories"}`;
+  if (p.phase === "projects") return `Measuring project folders · ${n} checked`;
+  const d = p.detector ?? "";
+  const family = d.split(".")[0];
+  const names: Record<string, string> = {
+    docker: "Checking Docker",
+    git: "Checking Git worktrees",
+    project: "Checking project folders",
+    cache: "Checking caches",
+    files: "Checking files",
+    mobile: "Checking phones and emulators",
+    ai: "Checking AI models",
+    tools: "Checking tools",
+    apps: "Checking apps",
+    system: "Checking the system",
+  };
+  return `${names[family] ?? "Scanning your disk"}…`;
+}
+
 /** Percentage of used space the disk map explains, for the tab badge. */
 export function coveragePercent(usedBytes: number, notExplainedBytes: number): number {
   return usedBytes ? ((usedBytes - notExplainedBytes) / usedBytes) * 100 : 100;

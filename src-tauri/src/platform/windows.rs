@@ -124,6 +124,10 @@ pub fn processes_in_dir(_dir: &Path, _runner: &crate::runner::Runner) -> Option<
     None
 }
 
+pub fn process_cwds(_runner: &crate::runner::Runner) -> Option<Vec<(u32, PathBuf)>> {
+    None
+}
+
 pub(super) fn process_alive_impl(pid: u32) -> Option<bool> {
     use windows_sys::Win32::Foundation::{GetLastError, ERROR_ACCESS_DENIED, ERROR_INVALID_PARAMETER, STILL_ACTIVE};
     use windows_sys::Win32::System::Threading::{GetExitCodeProcess, OpenProcess, PROCESS_QUERY_LIMITED_INFORMATION};

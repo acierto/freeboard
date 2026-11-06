@@ -137,6 +137,15 @@ The 40 MB hidden-in-tray target is measured as the app's own memory as the OS re
 - **Open: deep scans are slow on a real disk.** `~/soft` and `~/proj` (74 repositories) took about 11 minutes, against the spec's 60-second target for a million files. To be profiled in task 5.13.
 - **Open: one question per unused Docker image.** A real Docker host gives 246 Quick questions. The spec defines `docker.unused_images` per image; grouping them with parts would follow the spec's "Choose which" pattern. To be decided with the user.
 
+## 2026-11-06 — Fewer, bigger items, and a faster deep scan (decided with the user)
+
+- **One entry per kind, Choose which for the rest.** On a real machine Quick questions listed 397 items. Unused Docker images (244 on that machine) and removable Git worktrees (147) are now one item each, with a part per image or worktree; each part keeps its own finding, so pre-cleanup checks still run per image or worktree. Projects already worked this way. Quick questions went from 397 to 10.
+- **Protected items share one card.** The prototype shows one dashed card per blocked item; with 138 blocked worktrees that was a wall. More than one blocked item now shows as "N things I will not touch", with the list folded.
+- **Deep scan: one process check instead of one per folder.** Each worktree and project ran `lsof +D <dir>`, which walks the folder's whole tree (20+ s on large worktrees, often timing out and wrongly blocking them as "status unknown"). A scan now reads every process's working folder once (`lsof -d cwd` on macOS, `/proc` on Linux) and matches folders against it; pre-cleanup checks still read fresh. Worktrees are classified and measured in parallel. A deep scan of `~/soft` and `~/proj` (74 repositories, 2.1 M entries) went from about 11 minutes to about 2½. Still above the spec's 60-second target; task 5.13.
+- **Scan progress is shown** under the Toss button: files and folders looked through, repositories checked, project folders measured.
+- **Folder offers do not look inside Desktop, Documents or Downloads on macOS**, because reading them triggers a permission prompt the person did not ask for. They can still be added with Add folder.
+- **Logbook** lists cleanups (the Rust command already existed). The **Disk map** tab says plainly that it is not built yet (slice 3) instead of staying blank.
+
 ## Visual baselines
 
 - 2026-11-04: Baselines regenerated from `docs/reference/freeboard-prototype.html` (SHA-256 `62c25122e55f…`, chromium 156.0.8078.4, 191 captures). Rationale: Initial reference-derived baselines captured from the supplied prototype; supplemental states are derived from its own components as documented per entry in the manifest. Rendering uses `--disable-partial-raster` with zero pixel tolerance (experiment in `docs/visual-verification.md`). *(Entry restored from `visual/baseline/manifest.json` after an editing error removed the original line.)*

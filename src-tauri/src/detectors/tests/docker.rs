@@ -206,3 +206,32 @@ fn unnamed_group_is_skipped_when_any_volume_changes() {
     std::fs::write(&vols, kept).unwrap();
     fx.with_ctx(ScanKind::Quick, |ctx| assert_eq!(probe(&g, ctx), Probe::Changed("A volume in this group no longer exists.".into())));
 }
+
+#[test]
+fn unused_images_are_one_item_with_a_part_per_image() {
+    // Decided by the user 2026-11-06: one entry, Choose which for the images.
+    let fx = Fx::new();
+    fx.docker(true);
+    let o = fx.scan(ScanKind::Quick, &docker_dets());
+    let one = find(&o, UNUSED).clone();
+    let mut other = one.clone();
+    other.suggestion.id = "other-image".into();
+    other.suggestion.title = "redis:7 image".into();
+    other.suggestion.size_bytes = one.suggestion.size_bytes * 3;
+    fx.with_ctx(ScanKind::Quick, |ctx| {
+        let merged = merge_unused(ctx, vec![one.clone(), other.clone()]);
+        assert_eq!(merged.len(), 1);
+        let s = &merged[0].suggestion;
+        assert_eq!(s.title, "Unused Docker images");
+        assert_eq!(s.location, "2 images no container uses");
+        assert_eq!(s.risk, Risk::Review);
+        assert!(!s.preselected(), "never added automatically");
+        let labels: Vec<_> = s.parts.iter().map(|p| p.label.as_str()).collect();
+        assert_eq!(labels, vec!["redis:7", "postgres:14"], "largest first");
+        assert_eq!(s.size_bytes, one.suggestion.size_bytes * 4);
+        assert_eq!(merged[0].parts.len(), 2, "each image keeps its own finding for its pre-cleanup check");
+        assert_eq!(probe(&merged[0].parts[1], ctx), Probe::Unchanged);
+        // A single unused image stays a plain item.
+        assert!(merge_unused(ctx, vec![one.clone()])[0].suggestion.parts.is_empty());
+    });
+}

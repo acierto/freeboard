@@ -302,7 +302,16 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
     },
     add_suggested_folder: () => ({ ...settings }),
     start_scan: () => "scan-1",
-    list_logbook: () => ({ runs: [], page: 0, hasMore: false }),
+    // Prototype SAMPLE_LOG: Oct 28 (7 crates, 21.4 GB, 1.2 GB in the Trash) and
+    // Oct 12 (11 crates, 34.9 GB, 1 skipped).
+    list_logbook: () => ({
+      runs: [
+        { id: "run-2", startedAt: "2026-10-28T10:00:00Z", items: 7, measuredBytesFreed: 21.4 * G, trashBytes: 1.2 * G, skipped: 0, state: "finished" },
+        { id: "run-1", startedAt: "2026-10-12T10:00:00Z", items: 12, measuredBytesFreed: 34.9 * G, trashBytes: 0, skipped: 1, state: "finished" },
+      ],
+      page: 0,
+      hasMore: false,
+    }),
     set_notifications_paused: (a) => a.paused,
     close_tray_view: () => undefined,
     review_pile: () => undefined,
