@@ -14,6 +14,8 @@ use crate::settings::Settings;
 
 pub const SAMPLE_RETENTION_SECS: i64 = 30 * 24 * 3600;
 pub const HISTORY_RETENTION_SECS: i64 = 365 * 24 * 3600;
+/// Daily disk-map snapshots used for growth: 30 days.
+pub const MAP_SNAPSHOT_RETENTION_SECS: i64 = 30 * 24 * 3600;
 
 /// Ordered migrations. Never edit a shipped migration; append a new one.
 pub const MIGRATIONS: &[&str] = &[
@@ -96,6 +98,57 @@ pub const MIGRATIONS: &[&str] = &[
         reason TEXT NOT NULL,
         at INTEGER NOT NULL
     );
+    "#,
+    // 3: rebuild (2026-11-06). Parts, decisions, the pile, the disk map,
+    // blind spots and Keep me tidy rules. Stored suggestions use the old
+    // category model, so they are cleared (they are replaced on every scan
+    // anyway) and plans built from them are invalidated.
+    r#"
+    CREATE TABLE suggestion_parts (
+        suggestion_id TEXT NOT NULL,
+        part_id TEXT NOT NULL,
+        ord INTEGER NOT NULL,
+        json TEXT NOT NULL,
+        PRIMARY KEY (suggestion_id, part_id)
+    );
+    CREATE TABLE item_decisions (
+        resource_id TEXT PRIMARY KEY,
+        decision TEXT,
+        deselected_parts TEXT NOT NULL DEFAULT '[]',
+        at INTEGER NOT NULL
+    );
+    CREATE TABLE pile_state (
+        id INTEGER PRIMARY KEY CHECK (id = 1),
+        json TEXT NOT NULL,
+        at INTEGER NOT NULL
+    );
+    CREATE TABLE map_snapshots (
+        volume TEXT NOT NULL,
+        day INTEGER NOT NULL,
+        json TEXT NOT NULL,
+        PRIMARY KEY (volume, day)
+    );
+    CREATE TABLE blind_spot_decisions (
+        spot_id TEXT PRIMARY KEY,
+        decision TEXT NOT NULL,
+        at INTEGER NOT NULL
+    );
+    CREATE TABLE tidy_rules (
+        rule_id TEXT PRIMARY KEY,
+        enabled INTEGER NOT NULL DEFAULT 0,
+        at INTEGER NOT NULL
+    );
+    CREATE TABLE tidy_runs (
+        id TEXT PRIMARY KEY,
+        rule_id TEXT NOT NULL,
+        run_id TEXT,
+        at INTEGER NOT NULL,
+        result TEXT NOT NULL,
+        bytes_freed INTEGER NOT NULL DEFAULT 0
+    );
+    CREATE INDEX tidy_runs_at ON tidy_runs(at);
+    DELETE FROM suggestions;
+    UPDATE cleanup_plans SET state = 'invalidated' WHERE state = 'open';
     "#,
 ];
 
@@ -233,6 +286,7 @@ impl Store {
         let mut c = self.conn();
         let tx = c.transaction()?;
         tx.execute("DELETE FROM suggestions", [])?;
+        tx.execute("DELETE FROM suggestion_parts", [])?;
         for (i, f) in findings.iter().enumerate() {
             tx.execute(
                 "INSERT INTO suggestions(id, scan_id, ord, json, target) VALUES (?1, ?2, ?3, ?4, ?5)",
@@ -290,6 +344,20 @@ impl Store {
         Ok(())
     }
 
+    // ----- Keep me tidy rules ---------------------------------------------
+
+    /// Whether a Keep me tidy rule is on. Rules are off unless the user
+    /// turned them on (spec "Default settings": Keep me tidy rules Off).
+    pub fn tidy_rule_enabled(&self, rule_id: &str) -> bool {
+        self.conn()
+            .query_row("SELECT enabled FROM tidy_rules WHERE rule_id = ?1", [rule_id], |r| r.get::<_, i64>(0))
+            .optional()
+            .ok()
+            .flatten()
+            .unwrap_or(0)
+            != 0
+    }
+
     // ----- retention ------------------------------------------------------
 
     /// Apply source retention rules relative to `now`.
@@ -311,6 +379,8 @@ impl Store {
         tx.execute("DELETE FROM plan_acks WHERE plan_id IN (SELECT id FROM cleanup_plans WHERE created_at < ?1)", [cutoff])?;
         tx.execute("DELETE FROM cleanup_plans WHERE created_at < ?1", [cutoff])?;
         tx.execute("DELETE FROM skip_notes WHERE at < ?1", [cutoff])?;
+        tx.execute("DELETE FROM tidy_runs WHERE at < ?1", [cutoff])?;
+        tx.execute("DELETE FROM map_snapshots WHERE day < ?1", [(now - MAP_SNAPSHOT_RETENTION_SECS).div_euclid(86400)])?;
         tx.commit()?;
         Ok(())
     }
@@ -397,11 +467,102 @@ mod tests {
             assert_eq!(v, 1);
         }
         let s = Store::open(&p).unwrap();
-        assert_eq!(s.schema_version(), 2);
+        assert_eq!(s.schema_version(), MIGRATIONS.len() as i64);
         assert!(!s.load_settings().unwrap().notifications);
         let n: i64 = s.conn().query_row("SELECT COUNT(*) FROM cleanup_runs", [], |r| r.get(0)).unwrap();
         assert_eq!(n, 1);
         s.set_skip_note("x", "changed").unwrap();
+    }
+
+    #[test]
+    fn upgrade_from_v2_to_rebuild_keeps_settings_samples_and_history() {
+        let d = tempfile::tempdir().unwrap();
+        let p = d.path().join("v2.db");
+        let at = now_secs();
+        {
+            let c = Connection::open(&p).unwrap();
+            migrate(&c, 2).unwrap();
+            c.execute("INSERT INTO settings(key, value) VALUES ('notifications', 'false')", []).unwrap();
+            c.execute("INSERT INTO free_space_samples(volume, at, free_bytes, total_bytes) VALUES ('home', ?1, 5, 10)", [at]).unwrap();
+            c.execute(
+                "INSERT INTO cleanup_runs(id, plan_id, plan_json, started_at, state, volume, free_before, expected_bytes) VALUES ('r1','p1','{}',?1,'finished','home',1,1)",
+                [at],
+            )
+            .unwrap();
+            c.execute(
+                "INSERT INTO cleanup_items(run_id, item_id, ord, snapshot, action, state, expected_bytes, updated_at) VALUES ('r1','i',0,'{}','delete','done',1,?1)",
+                [at],
+            )
+            .unwrap();
+            c.execute("INSERT INTO suggestions(id, scan_id, ord, json, target) VALUES ('old','s',0,'{\"category\":\"builds\"}','{}')", []).unwrap();
+            c.execute(
+                "INSERT INTO cleanup_plans(id, created_at, expires_at, scan_generation, snapshot, digest, state) VALUES ('p',?1,?1,1,'[]','d','open')",
+                [at],
+            )
+            .unwrap();
+        }
+        let s = Store::open(&p).unwrap();
+        assert_eq!(s.schema_version(), MIGRATIONS.len() as i64);
+        assert!(!s.load_settings().unwrap().notifications, "settings kept");
+        assert_eq!(s.samples("home", 0).unwrap(), vec![(at, 5, 10)], "samples kept");
+        let c = s.conn();
+        let count = |t: &str| c.query_row(&format!("SELECT COUNT(*) FROM {t}"), [], |r| r.get::<_, i64>(0)).unwrap();
+        assert_eq!(count("cleanup_runs"), 1, "history kept");
+        assert_eq!(count("cleanup_items"), 1, "history items kept");
+        assert_eq!(count("suggestions"), 0, "old-model suggestions are cleared for the next scan");
+        let st: String = c.query_row("SELECT state FROM cleanup_plans WHERE id='p'", [], |r| r.get(0)).unwrap();
+        assert_eq!(st, "invalidated", "plans from old suggestions cannot run");
+        for t in ["suggestion_parts", "item_decisions", "pile_state", "map_snapshots", "blind_spot_decisions", "tidy_rules", "tidy_runs"] {
+            assert_eq!(count(t), 0, "{t} exists and starts empty");
+        }
+    }
+
+    #[test]
+    fn rebuild_tables_follow_their_retention_rules() {
+        let s = Store::open_in_memory().unwrap();
+        let now = 1_800_000_000;
+        let day = |secs_ago: i64| (now - secs_ago).div_euclid(86400);
+        {
+            let c = s.conn();
+            // map_snapshots: daily for 30 days.
+            c.execute("INSERT INTO map_snapshots(volume, day, json) VALUES ('home', ?1, '{}')", [day(31 * 86400)]).unwrap();
+            c.execute("INSERT INTO map_snapshots(volume, day, json) VALUES ('home', ?1, '{}')", [day(29 * 86400)]).unwrap();
+            // tidy_runs: 1 year. tidy_rules: permanent.
+            c.execute("INSERT INTO tidy_runs(id, rule_id, at, result) VALUES ('old','docker',?1,'done')", [now - 366 * 86400]).unwrap();
+            c.execute("INSERT INTO tidy_runs(id, rule_id, at, result) VALUES ('new','docker',?1,'done')", [now - 364 * 86400]).unwrap();
+            c.execute("INSERT INTO tidy_rules(rule_id, enabled, at) VALUES ('docker', 1, ?1)", [now - 900 * 86400]).unwrap();
+            // Decisions last until changed, however old.
+            c.execute("INSERT INTO item_decisions(resource_id, decision, at) VALUES ('x','keep',?1)", [now - 900 * 86400]).unwrap();
+            c.execute("INSERT INTO blind_spot_decisions(spot_id, decision, at) VALUES ('s','mine',?1)", [now - 900 * 86400]).unwrap();
+            c.execute("INSERT INTO pile_state(id, json, at) VALUES (1, '{}', ?1)", [now - 900 * 86400]).unwrap();
+        }
+        s.prune(now).unwrap();
+        let c = s.conn();
+        let ids = |q: &str| -> Vec<String> { c.prepare(q).unwrap().query_map([], |r| r.get(0)).unwrap().collect::<Result<_, _>>().unwrap() };
+        assert_eq!(ids("SELECT CAST(day AS TEXT) FROM map_snapshots"), vec![day(29 * 86400).to_string()]);
+        assert_eq!(ids("SELECT id FROM tidy_runs"), vec!["new".to_string()]);
+        for t in ["tidy_rules", "item_decisions", "blind_spot_decisions", "pile_state"] {
+            let n: i64 = c.query_row(&format!("SELECT COUNT(*) FROM {t}"), [], |r| r.get(0)).unwrap();
+            assert_eq!(n, 1, "{t} is not pruned by age");
+        }
+    }
+
+    #[test]
+    fn tidy_rules_are_off_on_a_fresh_install() {
+        let s = Store::open_in_memory().unwrap();
+        assert!(!s.tidy_rule_enabled("package_caches"));
+        assert!(!s.tidy_rule_enabled("docker_build_cache"));
+        let n: i64 = s.conn().query_row("SELECT COUNT(*) FROM tidy_rules WHERE enabled != 0", [], |r| r.get(0)).unwrap();
+        assert_eq!(n, 0);
+    }
+
+    #[test]
+    fn each_scan_replaces_suggestion_parts() {
+        let s = Store::open_in_memory().unwrap();
+        s.conn().execute("INSERT INTO suggestion_parts(suggestion_id, part_id, ord, json) VALUES ('a','p',0,'{}')", []).unwrap();
+        s.replace_findings("s1", &[finding("a")]).unwrap();
+        let n: i64 = s.conn().query_row("SELECT COUNT(*) FROM suggestion_parts", [], |r| r.get(0)).unwrap();
+        assert_eq!(n, 0);
     }
 
     #[test]

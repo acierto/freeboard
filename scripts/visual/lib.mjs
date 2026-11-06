@@ -9,30 +9,41 @@ import { chromium } from "@playwright/test";
 export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 export const PROTOTYPE = join(ROOT, "docs/reference/freeboard-prototype.html");
 /** SHA-256 recorded in docs/reference/README.md. */
-export const PROTOTYPE_SHA256 = "62c25122e55f6cbfd9b0c092d6e54bdba0faee6d9960da8996ee90aaa6c1780b";
+export const PROTOTYPE_SHA256 = "1e0a2102e32695d6f56ec943b46724c7b255deebe87bab81fb72a9b325c26ae9";
 export const FIXED_TIME = Date.parse("2026-11-04T12:00:00Z");
 export const BASELINE_DIR = join(ROOT, "visual/baseline");
 export const TOLERANCE_FILE = join(ROOT, "visual/tolerances.json");
 
 /** Fonts every capture must actually load (no silent fallback). */
 export const REQUIRED_FONTS = [
-  ["Barlow Condensed", "600"],
-  ["Barlow Condensed", "700"],
-  ["IBM Plex Sans", "400"],
-  ["IBM Plex Sans", "500"],
-  ["IBM Plex Sans", "600"],
-  ["IBM Plex Mono", "400"],
+  ["Fredoka", "600"],
+  ["Fredoka", "700"],
+  ["Nunito", "600"],
+  ["Nunito", "700"],
+  ["Nunito", "800"],
+  ["DM Mono", "400"],
 ];
+
+/** What every capture crops to: the whole page (the prototype has no app frame). */
+export const CROP = "page";
+
+/** Prototype-only controls hidden in the reference (spec "Build reference"):
+ * Pretend free space, Start over, and the "example data" note under the brand. */
+export const PROTOTYPE_ONLY = ".top-right .sim, .top-right [data-act=\"reset\"], .top > div > .note";
 
 export const sha256 = (buf) => createHash("sha256").update(buf).digest("hex");
 
 const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".woff2": "font/woff2", ".png": "image/png", ".svg": "image/svg+xml" };
 
 /** The reference adapter: the original prototype with local fonts, a theme
- * attribute and the prototype-only chrome hidden. The file itself is never modified. */
+ * attribute, the artifact host's base reset (src/styles/reset.css — the
+ * prototype is written for a host page that supplies it, and without it its
+ * `hidden` sections stay visible) and the prototype-only controls hidden.
+ * The file itself is never modified. */
 export function referenceHtml({ theme, supplemental }) {
   const src = readFileSync(PROTOTYPE, "utf8");
   const fontsCss = readFileSync(join(ROOT, "src/styles/fonts.css"), "utf8").replaceAll("../fonts/", "/__fonts/");
+  const resetCss = readFileSync(join(ROOT, "src/styles/reset.css"), "utf8");
   const supCss = supplemental ? readFileSync(join(ROOT, "src/styles/supplemental.css"), "utf8") : "";
   let html = src
     .replace(/<link rel="preconnect"[^>]*>\n?/g, "")
@@ -40,10 +51,12 @@ export function referenceHtml({ theme, supplemental }) {
   if (html.includes("fonts.googleapis.com")) throw new Error("reference adapter failed to replace the remote font link");
   const adapter =
     `<script>document.documentElement.dataset.theme=${JSON.stringify(theme)};</script>` +
-    `<style data-adapter="chrome">.proto,.menubar,#notice{display:none!important}</style>` +
+    `<style data-adapter="host-reset">${resetCss}</style>` +
+    `<style data-adapter="prototype-only">${PROTOTYPE_ONLY}{display:none!important}</style>` +
     (supCss ? `<style data-adapter="supplemental">${supCss}</style>` : "");
-  html = html.replace("<head>", "<head>" + adapter);
-  return html;
+  // The prototype has no <head>; put the adapter before its <title>.
+  if (!html.startsWith("<title>")) throw new Error("reference adapter: unexpected prototype start");
+  return adapter + html;
 }
 
 export function startServer() {
@@ -178,14 +191,14 @@ export async function capture(browser, base, cap, side, opts = {}) {
       // Freeze the prototype's simulated timers; `clockRun` steps advance them.
       await page.clock.pauseAt(FIXED_TIME + 60000);
       if (opts.checkReferenceIntact !== false) {
-        const ok = await page.evaluate(() => !!document.querySelector(".app nav#nav") && !!document.getElementById("gauge"));
+        const ok = await page.evaluate(() => !!document.querySelector(".page .hero") && !!document.getElementById("boat"));
         if (!ok) throw new Error("reference prototype did not render");
       }
     } else {
       const q = new URLSearchParams(cap.query ?? "");
       q.set("theme", cap.theme);
       await page.goto(`${base}/?${q}`);
-      await page.waitForSelector(".app", { timeout: 10000 });
+      await page.waitForSelector(".page .hero", { timeout: 10000 });
     }
     await settle(page, side);
     for (const step of side === "ref" ? cap.ref : cap.impl) await runStep(page, side, step);
@@ -198,15 +211,15 @@ export async function capture(browser, base, cap, side, opts = {}) {
     // paint history of the steps (partial repaints rasterize rounded corners
     // slightly differently in Chromium).
     await page.evaluate(() => {
-      const app = document.querySelector(".app");
-      app.style.display = "none";
-      void app.offsetHeight;
-      app.style.display = "";
+      const root = document.body;
+      root.style.display = "none";
+      void root.offsetHeight;
+      root.style.display = "";
     });
     await page.setViewportSize({ width: cap.width, height: cap.height + 1 });
     await page.setViewportSize({ width: cap.width, height: cap.height });
     await settle(page, side);
-    const png = await page.locator(".app").screenshot({ animations: "disabled", caret: "hide" });
+    const png = await page.screenshot({ fullPage: true, animations: "disabled", caret: "hide" });
     return { png, missingFonts: missing };
   } catch (e) {
     return { png: null, missingFonts: [], error: String(e.message ?? e) };
@@ -220,8 +233,8 @@ export function loadJson(file, dflt) {
 }
 
 /**
- * Behavioural motion check on both sides: with reduced motion the gauge waves
- * and waterline transition must not animate; with motion allowed they must.
+ * Behavioural motion check on both sides: with reduced motion Dinghy's bob,
+ * the waves and the boat's rise must not animate; with motion allowed they must.
  */
 export async function motionChecks(browser, base) {
   const out = [];
@@ -231,12 +244,17 @@ export async function motionChecks(browser, base) {
       const { ctx, page } = await newPage(browser, cap, side);
       try {
         await page.goto(side === "ref" ? `${base}/__ref/?theme=light` : `${base}/?theme=light`);
-        await page.waitForSelector(".wave");
+        const found = await page.waitForSelector("#boat", { state: "attached", timeout: 10000 }).then(() => true, () => false);
+        if (!found) {
+          out.push({ side, motion: motion ? "no-preference" : "reduce", ok: false, error: "Dinghy (#boat) is not on the page" });
+          continue;
+        }
         const s = await page.evaluate(() => ({
+          bob: getComputedStyle(document.querySelector(".bob")).animationName,
           wave: getComputedStyle(document.querySelector(".wave")).animationName,
-          sea: getComputedStyle(document.querySelector(".sea")).transitionDuration,
+          boat: getComputedStyle(document.getElementById("boat")).transitionDuration,
         }));
-        const ok = motion ? s.wave === "swell" && s.sea !== "0s" : s.wave === "none" && s.sea === "0s";
+        const ok = motion ? s.bob === "bob" && s.wave === "drift" && s.boat !== "0s" : s.bob === "none" && s.wave === "none" && s.boat === "0s";
         out.push({ side, motion: motion ? "no-preference" : "reduce", ...s, ok });
       } finally {
         await ctx.close();

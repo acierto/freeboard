@@ -5,7 +5,7 @@
 // recorded design-acceptance rationale, appended to docs/decisions.md.
 import { appendFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { BASELINE_DIR, PROTOTYPE, PROTOTYPE_SHA256, REQUIRED_FONTS, ROOT, capture, engineInfo, launch, sha256, startServer } from "./lib.mjs";
+import { BASELINE_DIR, CROP, PROTOTYPE, PROTOTYPE_ONLY, PROTOTYPE_SHA256, REQUIRED_FONTS, ROOT, capture, engineInfo, launch, sha256, startServer } from "./lib.mjs";
 import { captures } from "./matrix.mjs";
 
 const args = process.argv.slice(2);
@@ -51,7 +51,7 @@ await Promise.all(
         viewport: { width: cap.width, height: cap.height },
         deviceScaleFactor: 1,
         reducedMotion: !cap.motion,
-        crop: ".app",
+        crop: CROP,
         fixture: cap.query ?? "",
         supplemental: !!cap.supplemental,
         note: cap.note ?? null,
@@ -77,7 +77,7 @@ const manifest = {
   clock: "2026-11-04T12:00:00Z (frozen)",
   locale: "en-US",
   timezone: "UTC",
-  adapter: "scripts/visual/lib.mjs referenceHtml(): local fonts, data-theme, prototype chrome (.proto, .menubar, #notice) hidden",
+  adapter: `scripts/visual/lib.mjs referenceHtml(): local fonts, data-theme, host reset (src/styles/reset.css), prototype-only controls hidden (${PROTOTYPE_ONLY})`,
   acceptedAt: new Date().toISOString(),
   rationale,
   entries: sorted,

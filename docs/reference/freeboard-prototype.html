@@ -1,664 +1,701 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Freeboard Prototype</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&display=swap">
 <style>
-/* Layout concept: a working app window under a mock menu bar, led by a ship's hull gauge where the waterline rises as the disk fills. */
+/* Layout concept: a toy harbor. Dinghy, a small boat, sits lower as the disk fills, and crates on deck are the space you can throw overboard. */
 :root {
-  --bg: #E9EEF0; --panel: #F7FAFA; --panel-2: #DDE5E8; --ink: #13262F; --muted: #4F626A; --line: #C4D0D4;
-  --accent: #0B6573; --accent-ink: #FFFFFF;
-  --hull: #22343D; --hull-ink: #EAF1F2; --oxide: #8E3A2B; --water: #2F8FA3;
-  --good: #1F7A50; --warn: #8A5700; --crit: #B02A22; --bar-warn: #E3AE55; --bar-crit: #F08378;
-  --display: "Barlow Condensed", "Arial Narrow", "Helvetica Neue", sans-serif;
-  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
-  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --bg: #F1FAFB; --card: #FFFFFF; --soft: #E3F4F6; --ink: #1E3A52; --muted: #526B84; --line: #CDE3E8;
+  --accent: #0C7786; --accent-ink: #FFFFFF;
+  --sky-a: #BCE9F7; --sky-b: #E9FAF6; --sun: #FFD76B; --star: 0; --cloud: #FFFFFF;
+  --sea-a: #5CCBDD; --sea-b: #2FA9C5; --hull: #FF8B7B; --hull-dark: #E96A5C; --cabin: #FFFFFF; --crate: #FFC867; --crate-edge: #DE9A2C; --boat-ink: #23405A;
+  --safe: #17805A; --review: #9A5F07; --risky: #C2334A; --bubble: #FFFFFF;
+  --t-a: #A8E3D0; --t-b: #A9D8F5; --t-c: #FFD79A; --t-d: #F7B9C8; --t-e: #CFC3F5; --t-f: #C9EBA8; --t-g: #BFE7EC; --t-h: #D5DCEB; --t-ink: #1E3A52;
+  --display: "Fredoka", "Baloo 2", "Trebuchet MS", system-ui, sans-serif;
+  --body: "Nunito", "Segoe UI", system-ui, sans-serif;
+  --mono: "DM Mono", ui-monospace, Menlo, Consolas, monospace;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #0F1B21; --panel: #16252C; --panel-2: #203239; --ink: #E4ECEE; --muted: #9DB0B6; --line: #2D4149;
-  --accent: #56BCCB; --accent-ink: #08252B;
-  --hull: #31464F; --hull-ink: #EAF1F2; --oxide: #A44A38; --water: #3AA0B5;
-  --good: #5CCB96; --warn: #E3AE55; --crit: #F08378; color-scheme: dark;
+  --bg: #0F1C31; --card: #172A47; --soft: #1F3558; --ink: #EAF2FF; --muted: #AFC0DA; --line: #2D4468;
+  --accent: #72DCE9; --accent-ink: #082631;
+  --sky-a: #0E1A38; --sky-b: #233B6B; --sun: #F5EBC4; --star: 1; --cloud: #33497A;
+  --sea-a: #2B8BAA; --sea-b: #17607F; --bubble: #243C63;
+  --safe: #70DDAA; --review: #F3C266; --risky: #FF97A5; color-scheme: dark;
 } }
 :root[data-theme="dark"] {
-  --bg: #0F1B21; --panel: #16252C; --panel-2: #203239; --ink: #E4ECEE; --muted: #9DB0B6; --line: #2D4149;
-  --accent: #56BCCB; --accent-ink: #08252B;
-  --hull: #31464F; --hull-ink: #EAF1F2; --oxide: #A44A38; --water: #3AA0B5;
-  --good: #5CCB96; --warn: #E3AE55; --crit: #F08378; color-scheme: dark;
+  --bg: #0F1C31; --card: #172A47; --soft: #1F3558; --ink: #EAF2FF; --muted: #AFC0DA; --line: #2D4468;
+  --accent: #72DCE9; --accent-ink: #082631;
+  --sky-a: #0E1A38; --sky-b: #233B6B; --sun: #F5EBC4; --star: 1; --cloud: #33497A;
+  --sea-a: #2B8BAA; --sea-b: #17607F; --bubble: #243C63;
+  --safe: #70DDAA; --review: #F3C266; --risky: #FF97A5; color-scheme: dark;
 }
 * { box-sizing: border-box; }
-body { background: var(--bg); color: var(--ink); font: 400 15px/1.5 var(--body); }
-.page { max-width: 1120px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px;
-  padding-block: 16px 32px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
-h1, h2, h3 { font-family: var(--display); font-weight: 600; line-height: 1.1; margin: 0; text-wrap: balance; }
-h2 { font-size: 30px; } h3 { font-size: 21px; }
+body { background: var(--bg); color: var(--ink); font: 600 15px/1.5 var(--body); }
+.page { max-width: 1040px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px;
+  padding-block: 12px 36px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--display); font-weight: 600; line-height: 1.15; margin: 0; text-wrap: balance; }
+h2 { font-size: 25px; } h3 { font-size: 18px; }
 p { margin: 0; }
 button, select, input { font: inherit; color: inherit; }
 button { cursor: pointer; }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.mono { font-family: var(--mono); font-size: 12.5px; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.mono { font-family: var(--mono); font-size: 12.5px; overflow-wrap: anywhere; }
 .muted { color: var(--muted); }
 .num { font-variant-numeric: tabular-nums; }
-.btn { border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 8px 14px; font-weight: 500; }
+.btn { border: 2px solid var(--line); background: var(--card); border-radius: 14px; padding: 8px 14px; font-weight: 800; }
 .btn:hover:not(:disabled) { border-color: var(--accent); }
-.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
 .btn:disabled { opacity: .5; cursor: not-allowed; }
-.btn.danger { border-color: var(--crit); color: var(--crit); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.big { padding: 12px 18px; font-size: 17px; width: 100%; font-family: var(--display); font-weight: 600; }
+.btn.bad { border-color: var(--risky); color: var(--risky); }
+.link { border: 0; background: none; padding: 2px 0; color: var(--accent); font-weight: 800; text-decoration: underline; text-underline-offset: 3px; }
+.card { background: var(--card); border: 2px solid var(--line); border-radius: 22px; padding: 18px; min-width: 0; }
+.row { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; }
+.between { justify-content: space-between; }
+.stack { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 
-/* Prototype controls */
-.proto { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; justify-content: space-between; }
-.proto-title { min-width: 0; flex: 1 1 300px; }
-.proto-title h1 { font-size: 26px; }
-.proto-tools { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; }
-.field { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
-.field output { color: var(--ink); min-width: 62px; }
-.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
-.seg button { border: 0; background: transparent; padding: 5px 10px; font-size: 13px; }
-.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
-input[type="range"] { accent-color: var(--accent); max-width: 150px; }
+/* Top bar */
+.top { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; }
+.brand { font-family: var(--display); font-size: 25px; font-weight: 700; }
+.top-right { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; font-size: 13px; color: var(--muted); }
+.sim { display: flex; align-items: center; gap: 6px; }
+input[type="range"] { accent-color: var(--accent); max-width: 120px; }
+.tray { position: relative; }
+.tray-btn { border: 2px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 3px 12px; font-weight: 800; }
+.icon-btn { border: 2px solid var(--line); background: var(--card); border-radius: 50%; width: 36px; height: 36px; font-size: 17px; line-height: 1; padding: 0; color: var(--ink); }
+.popover { position: absolute; right: 0; top: calc(100% + 8px); z-index: 6; width: min(280px, calc(100vw - 32px)); background: var(--card); color: var(--ink); border: 2px solid var(--line); border-radius: 18px; padding: 14px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 10px 28px rgba(20, 60, 90, .22); }
+.note { font-size: 13px; color: var(--muted); }
 
-/* Mock menu bar */
-.menubar { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  background: var(--hull); color: var(--hull-ink); border-radius: 8px; padding: 5px 12px; font-size: 13px; }
-.tray-btn { display: inline-flex; align-items: center; gap: 8px; background: transparent; color: inherit; border: 0; padding: 3px 6px; border-radius: 4px; }
-.tray-btn:hover { background: rgba(255,255,255,.12); }
-.ring { width: 18px; height: 18px; flex: none; }
-.popover { position: absolute; right: 8px; top: calc(100% + 6px); z-index: 5; width: min(300px, calc(100% - 16px)); color: var(--ink);
-  background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 8px 24px rgba(10,30,38,.22); }
-.notice { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--st); border-radius: 6px; padding: 10px 14px; }
-.notice > div:first-child { min-width: 0; flex: 1 1 280px; }
-.notice-actions { display: flex; gap: 8px; }
-
-/* App window */
-.app { display: grid; grid-template-columns: 172px minmax(0, 1fr); background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
-.nav { background: var(--panel-2); padding: 12px 8px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.nav button { text-align: left; border: 0; background: transparent; padding: 8px 12px; border-radius: 6px; display: flex; justify-content: space-between; gap: 8px; white-space: nowrap; }
-.nav button:hover { background: var(--panel); }
-.nav button[aria-current="page"] { background: var(--panel); font-weight: 600; color: var(--accent); }
-.view { padding: 22px; min-width: 0; display: flex; flex-direction: column; gap: 18px; }
-.view-head { display: flex; flex-wrap: wrap; gap: 10px 16px; justify-content: space-between; align-items: center; }
-.view-head > div { min-width: 0; }
-
-/* Overview */
-.hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 24px; align-items: center; }
-.gauge { width: 100%; height: auto; display: block; --wy: 62px; }
-.gauge text { font-family: var(--mono); font-size: 11px; }
-#sub, .sea { transform: translateY(var(--wy)); transition: transform .9s cubic-bezier(.3,.7,.3,1); }
-.wave { animation: swell 5s linear infinite; }
-@keyframes swell { to { transform: translateX(-40px); } }
-.readout { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
-.bigfree { font-family: var(--display); font-weight: 700; font-size: 68px; line-height: 1; font-variant-numeric: tabular-nums; }
-.bigfree small { font-size: 26px; font-weight: 600; color: var(--muted); }
-.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; letter-spacing: .03em; padding: 2px 9px; border-radius: 999px; color: var(--st); border: 1px solid var(--st); white-space: nowrap; }
-.pill::before { content: ""; width: 7px; height: 7px; background: var(--st); }
-.st-good, .r-safe { --st: var(--good); }
-.st-warn, .r-review { --st: var(--warn); }
-.st-crit, .r-risky { --st: var(--crit); }
-.r-review.pill::before { transform: rotate(45deg); }
-.r-risky.pill::before { clip-path: polygon(50% 0, 100% 100%, 0 100%); }
-.r-safe.pill::before { border-radius: 50%; }
-.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; }
-.two > section { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
-.bars { display: flex; flex-direction: column; gap: 10px; }
-.bar-row { display: flex; flex-direction: column; gap: 3px; }
-.bar-top { display: flex; justify-content: space-between; gap: 12px; font-size: 13.5px; }
-.bar { display: flex; height: 10px; background: var(--panel-2); border-radius: 2px; overflow: hidden; }
-.bar i { display: block; height: 100%; }
-.legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12.5px; color: var(--muted); }
-.legend span { display: inline-flex; align-items: center; gap: 5px; }
-.legend i { width: 10px; height: 10px; display: block; }
-.trend { width: 100%; height: auto; display: block; }
-.trend text { font-family: var(--mono); font-size: 10.5px; fill: var(--muted); }
-.trash { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid var(--line); border-radius: 6px; padding: 10px 14px; }
-.trash > p { min-width: 0; flex: 1 1 240px; }
-.trash-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-
-/* Suggestions */
+/* Hero */
+.hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 14px; }
+.stage { position: relative; min-height: 330px; border-radius: 26px; overflow: hidden; background: linear-gradient(var(--sky-a), var(--sky-b)); }
+.stage svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; overflow: visible; }
+.bubble { position: absolute; left: 16px; right: 16px; top: 14px; max-width: 330px; z-index: 2; background: var(--bubble); border-radius: 18px; padding: 10px 14px; box-shadow: 0 4px 0 rgba(20, 60, 90, .1); font-weight: 700; }
+.bubble::after { content: ""; position: absolute; left: 96px; bottom: -9px; width: 18px; height: 18px; background: var(--bubble); transform: rotate(45deg); border-radius: 3px; }
+#boat { transition: transform 1s cubic-bezier(.3, 1.4, .5, 1); }
+.bob { animation: bob 3.6s ease-in-out infinite; transform-origin: 0 0; }
+@keyframes bob { 0%, 100% { transform: translateY(0) rotate(-1.2deg); } 50% { transform: translateY(5px) rotate(1.2deg); } }
+.wave { animation: drift 7s linear infinite; }
+.wave.slow { animation-duration: 11s; animation-direction: reverse; }
+@keyframes drift { to { transform: translateX(-60px); } }
+.crate-fly { animation: fly .75s ease-in forwards; }
+@keyframes fly { 45% { transform: translate(60px, -60px) rotate(20deg); } 100% { transform: translate(170px, 120px) rotate(70deg); opacity: 0; } }
+.helm { display: flex; flex-direction: column; gap: 12px; }
+.big-free { font-family: var(--display); font-weight: 700; font-size: 58px; line-height: 1; }
+.big-free small { font-size: 21px; font-weight: 600; color: var(--muted); }
+.pill { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-weight: 800; padding: 1px 10px; border-radius: 999px; color: var(--st); border: 2px solid var(--st); white-space: nowrap; }
+.safe, .good { --st: var(--safe); } .review, .warn { --st: var(--review); } .risky, .crit { --st: var(--risky); }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.chip { border: 1px solid var(--line); background: transparent; border-radius: 999px; padding: 4px 12px; font-size: 13px; }
-.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
-.group { display: flex; flex-direction: column; }
-.group-head { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; padding-block: 4px 6px; border-bottom: 2px solid var(--ink); }
-.group-note { font-size: 13px; color: var(--muted); padding-top: 8px; }
-.item { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); align-items: start; }
-.item input[type="checkbox"] { width: 17px; height: 17px; margin: 3px 0 0; accent-color: var(--accent); }
-.item summary { cursor: pointer; list-style-position: outside; margin-left: 14px; }
-.item .name { font-weight: 600; }
-.item .sub { display: block; color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
-.item dl { margin: 8px 0 4px 14px; display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 3px 12px; font-size: 13.5px; }
-.item dt { color: var(--muted); } .item dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
-.item-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-.size { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.blocked { color: var(--crit); font-size: 13px; display: block; }
-.selbar { position: sticky; bottom: 0; background: var(--panel); border-top: 1px solid var(--line); padding-block: 12px 2px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: center; }
+.chip { border: 2px solid var(--line); background: var(--card); border-radius: 999px; padding: 4px 13px; font-weight: 800; font-size: 14px; }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.peek { font-size: 14px; }
+.pile-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 2px 10px; align-items: center; padding: 6px 0; border-top: 2px dotted var(--line); font-size: 14px; }
+.pile-row .sub { display: block; font-size: 12.5px; color: var(--muted); font-weight: 600; }
+.x { border: 0; background: var(--soft); border-radius: 50%; width: 26px; height: 26px; font-weight: 800; line-height: 1; padding: 0; }
 
-/* Plan */
-.totals { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-.total { border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; }
-.total b { display: block; font-family: var(--display); font-size: 34px; line-height: 1.1; font-variant-numeric: tabular-nums; }
-.total.bad b { color: var(--crit); }
-.plan-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 16px; padding: 10px 0; border-bottom: 1px solid var(--line); }
-.plan-row .sub { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
-.ack { grid-column: 1 / -1; display: flex; gap: 8px; align-items: flex-start; color: var(--crit); font-size: 13.5px; font-weight: 500; }
-.ack input { margin-top: 3px; accent-color: var(--crit); }
-.result { font-size: 13px; font-weight: 600; white-space: nowrap; color: var(--muted); }
-.result.ok { color: var(--good); } .result.skip { color: var(--warn); }
-.actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+/* Tabs */
+.tabs { display: flex; gap: 6px; overflow-x: auto; padding: 2px; }
+.tab { flex: none; border: 2px solid transparent; background: transparent; border-radius: 14px; padding: 7px 15px; font-family: var(--display); font-weight: 600; font-size: 17px; color: var(--muted); }
+.tab[aria-selected="true"] { background: var(--card); border-color: var(--line); color: var(--ink); }
+.tab .dot { display: inline-block; min-width: 22px; padding: 0 6px; margin-left: 4px; border-radius: 999px; background: var(--hull); color: #3A1410; font: 800 12.5px/20px var(--body); text-align: center; }
+.two { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 14px; align-items: start; }
 
-/* History and settings */
-.table-wrap { overflow-x: auto; }
-table { border-collapse: collapse; width: 100%; min-width: 520px; font-size: 14px; }
-th { text-align: left; font-size: 12.5px; color: var(--muted); font-weight: 500; }
-th, td { padding: 8px 12px 8px 0; border-bottom: 1px solid var(--line); }
-td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
-.settings { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px 28px; }
-.set { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.set label { font-weight: 500; }
+/* Question deck */
+.q { display: flex; flex-direction: column; gap: 10px; }
+.q-size { font-family: var(--display); font-weight: 700; font-size: 34px; line-height: 1; }
+.facts { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 3px 10px; font-size: 14px; }
+.facts dt { color: var(--muted); } .facts dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.facts { margin: 0; }
+.q-actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.ack { display: flex; gap: 8px; align-items: flex-start; color: var(--risky); font-weight: 800; font-size: 14px; }
+.ack input, .toggle input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--accent); flex: none; }
+details > summary { cursor: pointer; font-weight: 800; }
+.grp { border-top: 2px dotted var(--line); padding-block: 8px; }
+.grp:first-of-type { border-top: 0; }
+.grp > summary { display: flex; justify-content: space-between; gap: 10px; list-style: none; }
+.grp > summary::-webkit-details-marker { display: none; }
+.grp > summary::before { content: "+"; font-family: var(--mono); color: var(--accent); margin-right: 2px; }
+.grp[open] > summary::before { content: "-"; }
+.grp > summary span:first-of-type { flex: 1; min-width: 0; }
+.item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1px 10px; padding: 7px 0 7px 16px; font-size: 14px; }
+.item .sub { color: var(--muted); font-size: 12.5px; font-weight: 600; grid-column: 1 / -1; overflow-wrap: anywhere; }
+.grp-actions { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 0 4px 16px; }
+.row-item { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 2px 8px; padding: 8px 0; border-top: 2px dotted var(--line); font-size: 14px; }
+.row-item > input { width: 18px; height: 18px; margin: 2px 0 0; accent-color: var(--accent); }
+.row-item .main { min-width: 0; }
+.row-item .sub { display: block; color: var(--muted); font-size: 12.5px; overflow-wrap: anywhere; }
+.row-item .ctl { grid-column: 2 / -1; display: flex; flex-wrap: wrap; gap: 6px; }
+.row-item .parts { grid-column: 2 / -1; }
+.parts summary { color: var(--accent); font-size: 13.5px; }
+.part { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; gap: 6px; padding: 3px 0; font-size: 13.5px; align-items: center; }
+.part input { width: 16px; height: 16px; margin: 0; accent-color: var(--accent); }
+.mini { border: 2px solid var(--line); background: var(--card); border-radius: 10px; padding: 2px 10px; font-weight: 800; font-size: 13px; }
+.mini:hover:not(:disabled) { border-color: var(--accent); }
+.mini:disabled { opacity: .5; cursor: not-allowed; }
+.mini.go { border-color: var(--accent); color: var(--accent); }
+.protect { display: flex; flex-direction: column; gap: 4px; border: 2px dashed var(--risky); border-radius: 16px; padding: 12px; }
+
+/* Disk map */
+.cover { display: flex; gap: 14px; align-items: center; }
+.cover svg { width: 88px; height: 88px; flex: none; }
+.cover > div { min-width: 0; }
+.cover b { font-family: var(--display); font-size: 27px; font-weight: 700; line-height: 1.1; display: block; }
+.map { position: relative; width: 100%; aspect-ratio: 100 / 64; }
+.tile { position: absolute; padding: 2px; border: 0; background: none; text-align: left; color: var(--t-ink); }
+.tile span { display: block; width: 100%; height: 100%; overflow: hidden; border-radius: 12px; background: var(--c); padding: 6px 8px; font-size: 13px; line-height: 1.2; border: 2px solid transparent; }
+.tile b { display: block; font-family: var(--display); font-weight: 600; overflow-wrap: anywhere; }
+.tile[aria-pressed="true"] span { border-color: var(--t-ink); }
+.tile.unknown span { background: repeating-linear-gradient(135deg, #FFE3A8 0 8px, #FFF3D6 8px 16px); border: 2px dashed #A9690A; }
+.tile.tiny i, .tile.tiny b { display: none; } .tile i { font-style: normal; }
+.tile.flat span { display: flex; flex-wrap: wrap; align-items: center; gap: 0 8px; padding-block: 0; }
+.detail-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding: 6px 0; border-top: 2px dotted var(--line); font-size: 14px; }
+.spot { border: 2px dashed var(--review); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+.spot.done { border-style: solid; border-color: var(--line); }
+.grow { display: grid; grid-template-columns: minmax(0, 1fr) 72px; gap: 2px 10px; align-items: center; font-size: 14px; }
+.grow i { grid-column: 1 / -1; display: block; height: 8px; border-radius: 99px; background: var(--hull); }
+.places { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.place { font-size: 12.5px; padding: 1px 9px; border-radius: 999px; background: var(--soft); }
+.place.hit { background: var(--t-a); color: var(--t-ink); font-weight: 800; }
+textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); background: var(--soft); color: var(--ink); border: 2px solid var(--line); border-radius: 12px; padding: 8px; }
+
+/* Log and sheets */
+.log { display: grid; grid-template-columns: 96px minmax(0, 1fr) auto; gap: 8px 12px; padding: 8px 0; border-top: 2px dotted var(--line); }
+.log:first-child { border-top: 0; }
+.scrim { position: fixed; inset: 0; z-index: 20; background: rgba(15, 35, 55, .45); display: flex; align-items: center; justify-content: center;
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.sheet { background: var(--card); border-radius: 26px; padding: 22px; width: min(520px, 100%); max-height: 100%; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+.sum3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.sum3 div { background: var(--soft); border-radius: 14px; padding: 8px 10px; font-size: 13px; }
+.sum3 b { display: block; font-family: var(--display); font-size: 21px; font-weight: 600; }
+.sum3 .bad b { color: var(--risky); }
+.plan-list { max-height: 38vh; overflow-y: auto; min-height: 0; }
+.progress { height: 12px; border-radius: 99px; background: var(--soft); overflow: hidden; }
+.progress i { display: block; height: 100%; background: var(--accent); transition: width .2s; }
+.toggle { display: flex; gap: 8px; align-items: flex-start; }
+.set label { display: block; }
 .set input[type="range"] { max-width: 100%; width: 100%; }
-.set select { padding: 6px; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; }
-.set ul { margin: 0; padding: 0; list-style: none; }
-.toggle { display: flex; gap: 8px; align-items: center; }
-.toggle input { accent-color: var(--accent); }
 
-@media (max-width: 760px) {
-  .app { grid-template-columns: minmax(0, 1fr); }
-  .nav { flex-direction: row; overflow-x: auto; padding: 8px; }
-  .nav button { flex: none; }
-  .view { padding: 16px; }
-  .hero, .two, .settings { grid-template-columns: minmax(0, 1fr); }
-  .bigfree { font-size: 56px; }
+@media (max-width: 800px) {
+  .hero, .two { grid-template-columns: minmax(0, 1fr); }
+  .stage { min-height: 340px; }
 }
-@media (max-width: 480px) {
-  .totals { grid-template-columns: minmax(0, 1fr); }
-  .item dl { grid-template-columns: minmax(0, 1fr); margin-left: 0; }
-  .field { flex-wrap: wrap; }
+@media (max-width: 460px) {
+  .q-actions, .sum3 { grid-template-columns: minmax(0, 1fr); }
+  .facts { grid-template-columns: minmax(0, 1fr); }
+  .log { grid-template-columns: minmax(0, 1fr) auto; } .log .when { grid-column: 1 / -1; }
+  .map { aspect-ratio: 100 / 110; }
+  .tile span { font-size: 12px; padding: 4px 5px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .wave { animation: none; }
-  #sub, .sea { transition: none; }
+  .bob, .wave, .crate-fly { animation: none; } #boat { transition: none; }
 }
 </style>
 
 <div class="page">
-  <header class="proto">
-    <div class="proto-title">
-      <h1>Freeboard prototype</h1>
-      <p class="muted">Sample data only. Nothing on your computer is scanned or changed.</p>
+  <header class="top">
+    <div>
+      <div class="brand">Freeboard</div>
+      <p class="note">Prototype with example data from a 512 GB Mac. Nothing on your computer is scanned or changed.</p>
     </div>
-    <div class="proto-tools">
-      <div class="field"><span>System</span>
-        <div class="seg" id="os-seg" role="group" aria-label="Simulated operating system">
-          <button data-os="mac" aria-pressed="true">macOS</button>
-          <button data-os="linux" aria-pressed="false">Linux</button>
-          <button data-os="win" aria-pressed="false">Windows</button>
-        </div>
+    <div class="top-right">
+      <label class="sim" for="sim-free">Pretend free space <input id="sim-free" type="range" min="1" max="60" step="0.1" value="12.4"></label>
+      <div class="tray">
+        <button class="tray-btn num" id="tray-btn" aria-expanded="false" aria-controls="popover"></button>
+        <div class="popover" id="popover" hidden></div>
       </div>
-      <div class="field">
-        <label for="sim-free">Simulate free space</label>
-        <input id="sim-free" type="range" min="1" max="120" step="0.1" value="12.4">
-        <output id="sim-out" class="num" for="sim-free">12.4 GB</output>
-      </div>
-      <button class="btn" data-action="reset">Reset</button>
+      <button class="icon-btn" data-act="settings" aria-label="Settings">&#9881;</button>
+      <button class="btn" data-act="reset">Start over</button>
     </div>
   </header>
 
-  <div class="menubar">
-    <span id="menu-label">Menu bar</span>
-    <button class="tray-btn" id="tray-btn" aria-expanded="false" aria-controls="popover"></button>
-    <div class="popover" id="popover" hidden></div>
+  <section class="hero">
+    <div class="stage" id="stage">
+      <p class="bubble" id="bubble" aria-live="polite"></p>
+      <svg viewBox="110 40 400 290" preserveAspectRatio="xMidYMax meet" role="img" aria-label="Dinghy the boat. It sits lower in the water as the disk fills.">
+        <g style="opacity:var(--star)" fill="#FFF3C4"><circle cx="60" cy="130" r="2"/><circle cx="210" cy="104" r="1.6"/><circle cx="330" cy="150" r="2"/><circle cx="460" cy="96" r="1.6"/><circle cx="600" cy="150" r="2"/><circle cx="520" cy="190" r="1.5"/><circle cx="120" cy="190" r="1.5"/></g>
+        <circle cx="456" cy="104" r="26" fill="var(--sun)"/>
+        <g fill="var(--cloud)"><ellipse cx="476" cy="160" rx="32" ry="10"/><ellipse cx="490" cy="152" rx="18" ry="10"/><ellipse cx="136" cy="150" rx="26" ry="9"/><ellipse cx="148" cy="143" rx="15" ry="9"/></g>
+        <path class="wave slow" id="wave-back" fill="var(--sea-a)"/>
+        <g id="boat" style="transform:translate(292px,212px)">
+          <g class="bob">
+            <path d="M-118 -6H134Q128 58 72 66H-78Q-112 58 -118 -6Z" fill="var(--hull)"/>
+            <path d="M-118 -6H134L131 8H-116Z" fill="var(--hull-dark)"/>
+            <rect x="-104" y="-82" width="94" height="78" rx="20" fill="var(--cabin)" stroke="var(--boat-ink)" stroke-width="3"/>
+            <path d="M-114 -74Q-58 -104 0 -74Z" fill="var(--hull)" stroke="var(--boat-ink)" stroke-width="3" stroke-linejoin="round"/>
+            <rect x="-34" y="-112" width="20" height="30" rx="5" fill="var(--hull-dark)" stroke="var(--boat-ink)" stroke-width="3"/>
+            <g id="face"></g>
+            <g id="crates"></g>
+          </g>
+        </g>
+        <path class="wave" id="wave-front" fill="var(--sea-b)" fill-opacity=".92"/>
+      </svg>
+    </div>
+
+    <div class="card helm">
+      <div class="row between">
+        <div class="big-free"><span id="free" class="num"></span> <small>GB free</small></div>
+        <span class="pill" id="status"></span>
+      </div>
+      <p class="muted" id="forecast"></p>
+      <div class="stack" style="gap:6px">
+        <span style="font-weight:800">How much room do you need?</span>
+        <div class="chips" id="goals"></div>
+      </div>
+      <div class="stack" style="gap:6px">
+        <span style="font-weight:800">Where from?</span>
+        <div class="chips" id="areas"></div>
+      </div>
+      <button class="btn primary big" id="cta" data-act="confirm"></button>
+      <p class="note" id="cta-note"></p>
+      <button class="link" data-act="toggle-pile" id="pile-btn" style="align-self:flex-start"></button>
+      <div id="pile" hidden></div>
+      <div id="trash"></div>
+    </div>
+  </section>
+
+  <div class="tabs" role="tablist" aria-label="Freeboard sections">
+    <button class="tab" role="tab" data-tab="tidy" id="tab-tidy"></button>
+    <button class="tab" role="tab" data-tab="map" id="tab-map"></button>
+    <button class="tab" role="tab" data-tab="log" id="tab-log">Logbook</button>
   </div>
 
-  <div id="notice" aria-live="polite"></div>
-
-  <div class="app">
-    <nav class="nav" aria-label="Freeboard" id="nav">
-      <button data-view="overview" aria-current="page">Overview</button>
-      <button data-view="suggestions">Suggestions</button>
-      <button data-view="plan">Cleanup plan <span id="nav-count" class="num"></span></button>
-      <button data-view="history">History</button>
-      <button data-view="settings">Settings</button>
-    </nav>
-
-    <main>
-      <section class="view" id="v-overview">
-        <div class="hero">
-          <svg class="gauge" id="gauge" viewBox="0 0 420 300" role="img" aria-label="Hull gauge. The waterline rises toward the deck as free space runs out.">
-            <defs>
-              <clipPath id="hull-clip"><path d="M56 40H402L372 276Q362 288 342 288H56Z"/></clipPath>
-              <clipPath id="sea-clip"><rect x="52" y="0" width="368" height="300"/></clipPath>
-            </defs>
-            <text x="0" y="14" fill="var(--muted)">GB free, top 120 GB of disk</text>
-            <g clip-path="url(#sea-clip)"><g class="sea"><path class="wave" fill="var(--water)"/></g></g>
-            <path d="M56 40H402L372 276Q362 288 342 288H56Z" fill="var(--hull)"/>
-            <g clip-path="url(#hull-clip)"><rect id="sub" x="56" y="0" width="350" height="300" fill="var(--oxide)"/></g>
-            <g id="ticks"></g>
-            <g clip-path="url(#sea-clip)"><g class="sea"><path class="wave" fill="var(--water)" fill-opacity=".16" stroke="var(--water)" stroke-width="2"/></g></g>
-            <line x1="52" x2="406" y1="40" y2="40" stroke="var(--ink)" stroke-width="3"/>
-            <text x="404" y="31" text-anchor="end" fill="var(--muted)">Deck line: disk full</text>
-            <g id="loads"></g>
-          </svg>
-          <div class="readout">
-            <div><span class="pill" id="st-pill"></span></div>
-            <div class="bigfree"><span id="big-free"></span> <small>GB free</small></div>
-            <p class="muted" id="free-of"></p>
-            <p id="forecast"></p>
-            <div class="actions">
-              <button class="btn primary" data-action="go-suggestions" id="cta"></button>
-              <button class="btn" data-action="scan" id="scan-btn">Scan now</button>
-            </div>
-            <p class="muted" style="font-size:13px" id="scan-note">Last scan 18 minutes ago</p>
-          </div>
-        </div>
-        <div id="ov-trash"></div>
-        <div class="two">
-          <section>
-            <h3>Where the reclaimable space is</h3>
-            <div class="bars" id="bars"></div>
-            <div class="legend">
-              <span><i style="background:var(--good)"></i>Safe</span>
-              <span><i style="background:var(--warn)"></i>Review</span>
-              <span><i style="background:var(--crit)"></i>Risky</span>
-            </div>
-          </section>
-          <section>
-            <h3>Free space, last 14 days</h3>
-            <div id="trend"></div>
-          </section>
-        </div>
-      </section>
-
-      <section class="view" id="v-suggestions" hidden>
-        <div class="view-head">
-          <div><h2>Suggestions</h2><p class="muted">Open a row to see why it is listed, what will run and how to get it back.</p></div>
-          <div class="chips" id="chips"></div>
-        </div>
-        <div id="groups" style="display:flex;flex-direction:column;gap:20px"></div>
-        <div class="selbar">
-          <span id="sel-total" class="num"></span>
-          <button class="btn primary" data-action="go-plan" id="sel-go">Review cleanup plan</button>
-        </div>
-      </section>
-
-      <section class="view" id="v-plan" hidden></section>
-
-      <section class="view" id="v-history" hidden>
-        <h2>History</h2>
-        <p class="muted">Every cleanup keeps a local record of what ran and what changed.</p>
-        <div class="table-wrap" id="history"></div>
-      </section>
-
-      <section class="view" id="v-settings" hidden>
-        <h2>Settings</h2>
-        <div class="settings">
-          <div class="set">
-            <label for="warn-gb">Low space warning</label>
-            <input id="warn-gb" type="range" min="15" max="60" step="5" value="20">
-            <span class="muted num" id="warn-out"></span>
-          </div>
-          <div class="set">
-            <label for="crit-gb">Critical warning</label>
-            <input id="crit-gb" type="range" min="3" max="10" step="1" value="8">
-            <span class="muted num" id="crit-out"></span>
-          </div>
-          <div class="set">
-            <label for="scan-freq">Quick scan</label>
-            <select id="scan-freq"><option>Every hour</option><option>Every 6 hours</option><option>Every day</option><option>Only when I ask</option></select>
-          </div>
-          <div class="set">
-            <span style="font-weight:500">Background behavior</span>
-            <label class="toggle" style="font-weight:400"><input type="checkbox" id="set-notify" checked>Send notifications</label>
-            <label class="toggle" style="font-weight:400"><input type="checkbox" id="set-battery" checked>Pause deep scans on battery</label>
-            <label class="toggle" style="font-weight:400"><input type="checkbox" id="set-login" checked>Start at login</label>
-          </div>
-          <div class="set">
-            <span style="font-weight:500">Folders to scan</span>
-            <ul class="mono"><li>~/projects</li><li>~/work</li><li>~/Downloads</li></ul>
-          </div>
-          <div class="set">
-            <span style="font-weight:500">Never touched</span>
-            <ul class="mono muted"><li>System and application folders</li><li>Repository roots and .git</li><li>Paths you exclude</li></ul>
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
+  <section id="v-tidy" class="two"></section>
+  <section id="v-map" class="two" hidden></section>
+  <section id="v-log" class="card" hidden></section>
 </div>
+<div id="sheet-root"></div>
 
 <script>
 (function () {
-  var CATS = [
-    { id: 'docker', name: 'Docker' },
-    { id: 'worktrees', name: 'Git worktrees' },
-    { id: 'builds', name: 'Dependencies and build output' },
-    { id: 'caches', name: 'Package and tool caches' },
-    { id: 'files', name: 'Old files' }
-  ];
+  var TOTAL = 512, BASE_FREE = 12.4;
+  var GROUPS = ['Docker', 'Projects', 'Caches', 'AI models', 'Phones and emulators', 'Old tools and apps', 'Your files', 'System'];
+  var I = function (id, group, map, name, where, size, last, risk, action, cmd, why, back, extra) {
+    var o = { id: id, group: group, map: map, name: name, where: where, size: size, last: last, risk: risk, action: action, cmd: cmd, why: why, back: back };
+    if (extra) Object.keys(extra).forEach(function (k) { o[k] = extra[k]; });
+    return o;
+  };
   var ITEMS = [
-    { id: 'd-cache', cat: 'docker', name: 'Docker build cache', path: '142 cache layers', size: 14.8, last: 'Last used 23 days ago', risk: 'Safe', action: 'native', cmd: 'docker builder prune', why: 'Build layers that no recent build has reused.', recover: 'Docker rebuilds the layers on the next build.' },
-    { id: 'd-dangling', cat: 'docker', name: 'Untagged Docker images', path: '31 dangling images', size: 6.2, last: 'Created over 30 days ago', risk: 'Safe', action: 'native', cmd: 'docker image prune', why: 'Old image layers with no tag and no container using them.', recover: 'Rebuild the image from its Dockerfile.' },
-    { id: 'd-pg', cat: 'docker', name: 'postgres:14 image', path: 'Not used by any container', size: 3.4, last: 'Last used 71 days ago', risk: 'Review', action: 'native', cmd: 'docker image rm postgres:14', why: 'A tagged image that no container uses.', recover: 'Run docker pull postgres:14.' },
-    { id: 'd-stopped', cat: 'docker', name: 'Stopped containers', path: '6 containers', size: 1.1, last: 'Stopped over 14 days ago', risk: 'Review', action: 'native', cmd: 'docker container rm <ids>', why: 'Their writable layers still take up space.', recover: 'Create them again. Files written inside them are lost.' },
-    { id: 'd-vol', cat: 'docker', name: 'Volume billing_pgdata', path: 'Not attached to a container', size: 7.6, last: 'Last attached 40 days ago', risk: 'Risky', action: 'native', cmd: 'docker volume rm billing_pgdata', why: 'Not attached to a container, but it may hold the only copy of this data.', recover: 'Not recoverable.', ack: true, ackName: 'billing_pgdata volume', unrecoverable: true },
-    { id: 'wt-auth', cat: 'worktrees', name: 'api-server: fix-auth', path: '~/work/api-server/.worktrees/fix-auth', size: 4.3, last: 'Merged 34 days ago', risk: 'Review', action: 'native', cmd: 'git worktree remove .worktrees/fix-auth', why: 'The branch is merged and the worktree has no local changes.', recover: 'Run git worktree add with the same branch.' },
-    { id: 'wt-exp', cat: 'worktrees', name: 'web-app: old-experiment', path: '~/work/web-app/.worktrees/old-experiment', size: 5.1, last: 'Last commit 52 days ago', risk: 'Review', action: 'native', cmd: 'git worktree remove .worktrees/old-experiment', why: 'No local changes, and the branch is pushed but not merged.', recover: 'Run git worktree add with the pushed branch.' },
-    { id: 'wt-pay', cat: 'worktrees', name: 'web-app: payments-v2', path: '~/work/web-app/.worktrees/payments-v2', size: 6.9, last: 'Edited 9 days ago', risk: 'Risky', action: 'native', cmd: 'None', why: '3 uncommitted files and 2 unpushed commits.', recover: 'Your work exists only here.', blocked: 'Blocked in v1. Commit and push this work first.' },
-    { id: 'b-node', cat: 'builds', name: 'node_modules in 14 inactive projects', path: '~/projects/*/node_modules', size: 18.7, last: 'Projects idle for 60+ days', risk: 'Safe', action: 'delete', cmd: 'Delete the 14 folders', why: 'Each project has a lockfile, so these can be installed again.', recover: 'Run pnpm install in the project.' },
-    { id: 'b-target', cat: 'builds', name: 'Rust target folder: rust-cli', path: '~/projects/rust-cli/target', size: 9.2, last: 'Last built 45 days ago', risk: 'Safe', action: 'delete', cmd: 'Delete the folder', why: 'Build output that Cargo can regenerate.', recover: 'Run cargo build.' },
-    { id: 'b-venv', cat: 'builds', name: '.venv in data-tools', path: '~/projects/data-tools/.venv', size: 2.4, last: 'Last used 88 days ago', risk: 'Review', action: 'trash', cmd: 'Move to Trash', why: 'Usually regenerable, but it may hold packages you installed by hand.', recover: 'Restore it from the Trash, or recreate it from requirements.txt.' },
-    { id: 'c-derived', cat: 'caches', name: 'Xcode DerivedData', path: '~/Library/Developer/Xcode/DerivedData', size: 11.3, last: 'Mostly older than 30 days', risk: 'Safe', action: 'delete', cmd: 'Delete the folder', why: 'Xcode regenerates this on the next build.', recover: 'Build the project again.', os: ['mac'] },
-    { id: 'c-sim', cat: 'caches', name: 'Unavailable iOS simulators', path: '9 simulator devices', size: 8.4, last: 'Runtime no longer installed', risk: 'Review', action: 'native', cmd: 'xcrun simctl delete unavailable', why: 'These simulators depend on runtimes that are gone.', recover: 'Create the simulator again in Xcode.', os: ['mac'] },
-    { id: 'c-pnpm', cat: 'caches', name: 'Unreferenced pnpm packages', path: 'pnpm content store', size: 5.6, last: 'Not linked to any project', risk: 'Safe', action: 'native', cmd: 'pnpm store prune', why: 'Packages in the store that no project links to.', recover: 'pnpm downloads them when needed.' },
-    { id: 'c-pip', cat: 'caches', name: 'pip download cache', path: 'pip cache', size: 2.6, last: 'Mostly older than 30 days', risk: 'Safe', action: 'native', cmd: 'pip cache purge', why: 'Downloaded wheels that pip can fetch again.', recover: 'pip downloads them when needed.' },
-    { id: 'c-brew', cat: 'caches', name: 'Old Homebrew downloads', path: 'Homebrew cache', size: 2.1, last: 'Older than 30 days', risk: 'Safe', action: 'native', cmd: 'brew cleanup', why: 'Old versions and downloads of installed packages.', recover: 'Homebrew downloads them when needed.', os: ['mac', 'linux'] },
-    { id: 'f-temp', cat: 'files', name: 'Old temporary files', path: '%TEMP%', size: 3.2, last: 'Older than 14 days', risk: 'Review', action: 'trash', cmd: 'Move to Recycle Bin', why: 'Temporary files that no running app has open.', recover: 'Restore them from the Recycle Bin.', os: ['win'] },
-    { id: 'f-dl', cat: 'files', name: 'Installers in Downloads', path: '~/Downloads', size: 4.6, last: 'Not opened in 90+ days', risk: 'Review', action: 'trash', cmd: 'Move to Trash', why: '12 installers and disk images that you have not opened recently.', recover: 'Restore them from the Trash.' }
+    I('d-cache', 'Docker', 'docker', 'Docker build cache', '142 layers', 14.8, 'Last used 23 days ago', 'Safe', 'native', 'docker builder prune', 'No recent build reused these layers.', 'Docker rebuilds them on the next build.'),
+    I('d-dangling', 'Docker', 'docker', 'Untagged Docker images', '31 images', 6.2, 'Over 30 days old', 'Safe', 'native', 'docker image prune', 'Old layers with no tag and no container.', 'Rebuild from the Dockerfile.'),
+    I('d-slack', 'Docker', 'docker', 'Empty space in Docker’s disk', 'Docker.raw', 19.0, 'Stays empty after pruning', 'Review', 'native', 'Compact the Docker disk image', 'Docker Desktop keeps this space reserved even when nothing uses it. Docker must stop for a moment.', 'Nothing is lost. Docker grows the disk again when needed.'),
+    I('d-vol', 'Docker', 'docker', 'Volume billing_pgdata', 'Not attached to a container', 7.6, 'Last attached 40 days ago', 'Risky', 'native', 'docker volume rm billing_pgdata', 'Nothing uses it now, but it may hold the only copy of this data.', 'It cannot be recovered.', { ack: true, lost: true }),
+    I('d-pg', 'Docker', 'docker', 'postgres:14 image', 'No container uses it', 3.4, 'Last used 71 days ago', 'Review', 'native', 'docker image rm postgres:14', 'A tagged image no container uses.', 'Run docker pull postgres:14.'),
+    I('d-stop', 'Docker', 'docker', 'Stopped containers', '6 containers', 1.1, 'Stopped over 14 days ago', 'Review', 'native', 'docker container rm', 'Their writable layers still take up space.', 'Create them again. Files written inside them are lost.'),
+    I('b-node', 'Projects', 'projects', 'node_modules in quiet projects', '~/projects', 18.7, 'Idle for 60+ days', 'Safe', 'delete', 'Delete the folders', 'Every project has a lockfile.', 'Run pnpm install.', { parts: [['web-app', 4.2], ['admin-portal', 3.1], ['mobile-app', 2.6], ['docs-site', 1.7], ['storybook', 1.4], ['landing', 1.1], ['api-client', 0.9], ['scripts', 0.8], ['cli-tools', 0.7], ['demo', 0.6], ['tests-e2e', 0.5], ['poc-graphql', 0.5], ['design-tokens', 0.3], ['sandbox', 0.3]] }),
+    I('b-target', 'Projects', 'projects', 'Rust build output', '~/projects/rust-cli/target', 9.2, 'Last built 45 days ago', 'Safe', 'delete', 'Delete the folder', 'Cargo can regenerate this.', 'Run cargo build.'),
+    I('wt-pay', 'Projects', 'projects', 'Worktree payments-v2', '~/work/web-app/.worktrees/payments-v2', 6.9, 'Edited 9 days ago', 'Risky', 'none', 'None', '3 uncommitted files and 2 unpushed commits.', 'Your work exists only here.', { blocked: 'Commit and push it, and I can clean this next time.' }),
+    I('wt-exp', 'Projects', 'projects', 'Worktree old-experiment', '~/work/web-app/.worktrees/old-experiment', 5.1, 'Last commit 52 days ago', 'Review', 'native', 'git worktree remove', 'No local changes. The branch is pushed but not merged.', 'Run git worktree add with the pushed branch.'),
+    I('wt-auth', 'Projects', 'projects', 'Worktree fix-auth', '~/work/api-server/.worktrees/fix-auth', 4.3, 'Merged 34 days ago', 'Review', 'native', 'git worktree remove', 'The branch is merged and has no local changes.', 'Run git worktree add with the same branch.'),
+    I('b-venv', 'Projects', 'projects', '.venv in data-tools', '~/projects/data-tools/.venv', 2.4, 'Last used 88 days ago', 'Review', 'trash', 'Move to Trash', 'It may hold packages you installed by hand.', 'Restore it from the Trash.'),
+    I('c-derived', 'Caches', 'caches', 'Xcode DerivedData', '~/Library/Developer/Xcode', 11.3, 'Mostly 30+ days old', 'Safe', 'delete', 'Delete the folder', 'Xcode regenerates this.', 'Build the project again.'),
+    I('c-pnpm', 'Caches', 'caches', 'Unused pnpm packages', 'pnpm store', 5.6, 'No project links to them', 'Safe', 'native', 'pnpm store prune', 'No project uses these packages.', 'pnpm downloads them when needed.'),
+    I('c-jb', 'Caches', 'caches', 'Old JetBrains caches', '~/Library/Caches/JetBrains', 5.1, 'From 2 removed versions', 'Safe', 'delete', 'Delete the folders', 'They belong to IDE versions you removed.', 'Nothing to restore.'),
+    I('c-apps', 'Caches', 'caches', 'Slack, Discord and Teams caches', 'App caches', 3.9, 'Rebuilt as you use them', 'Safe', 'delete', 'Delete the caches while the apps are closed', 'Messages stay on the server.', 'The apps rebuild them.'),
+    I('c-pw', 'Caches', 'caches', 'Old Playwright browsers', '~/Library/Caches/ms-playwright', 3.6, 'Older than your installed version', 'Safe', 'delete', 'Delete old versions', 'No project needs these versions.', 'Run playwright install.'),
+    I('c-pip', 'Caches', 'caches', 'pip download cache', 'pip cache', 2.6, 'Mostly 30+ days old', 'Safe', 'native', 'pip cache purge', 'Downloaded wheels pip can fetch again.', 'pip downloads them when needed.'),
+    I('c-brew', 'Caches', 'caches', 'Old Homebrew downloads', 'Homebrew cache', 2.1, 'Over 30 days old', 'Safe', 'native', 'brew cleanup', 'Old versions of installed packages.', 'Homebrew downloads them when needed.'),
+    I('ai-ollama', 'AI models', 'ai', 'Unused Ollama models', '~/.ollama/models', 41.2, 'Not run for 60+ days', 'Review', 'native', 'ollama rm', 'You have not run these models recently.', 'Run ollama pull. It downloads again.', { parts: [['mixtral', 26.0], ['codellama', 8.2], ['phi3', 7.0]] }),
+    I('ai-hf', 'AI models', 'ai', 'Hugging Face cache', '~/.cache/huggingface', 12.4, 'Last used 47 days ago', 'Review', 'trash', 'Move to Trash', 'Downloaded models and datasets.', 'Restore from the Trash, or download again.'),
+    I('m-ios', 'Phones and emulators', 'mobile', 'Old iPhone backups', '~/Library/Application Support/MobileSync', 22.5, 'From March 2024', 'Review', 'trash', 'Move to Trash', 'Two backups of a phone that has not synced since 2024.', 'Restore from the Trash until you empty it.', { parts: [['Backup from March 2024', 13.1], ['Backup from January 2024', 9.4]] }),
+    I('m-android', 'Phones and emulators', 'mobile', 'Android emulators', '~/.android/avd', 14.0, 'Not started for 90+ days', 'Review', 'trash', 'Move to Trash', 'Three emulator images you have not started.', 'Restore from the Trash, or create them again.', { parts: [['Pixel_6_API_33', 6.0], ['Pixel_4_API_30', 4.5], ['Tablet_API_31', 3.5]] }),
+    I('m-sim', 'Phones and emulators', 'mobile', 'Unavailable iOS simulators', '9 devices', 8.4, 'Runtime no longer installed', 'Review', 'native', 'xcrun simctl delete unavailable', 'They depend on runtimes that are gone.', 'Create them again in Xcode.'),
+    I('o-apps', 'Old tools and apps', 'apps', 'Apps you never open', '/Applications', 16.3, 'Not opened for a year', 'Review', 'trash', 'Move to Trash', 'You have not opened these apps for 12+ months.', 'Restore from the Trash, or reinstall.', { parts: [['GarageBand', 6.1], ['iMovie', 4.2], ['Unity Hub', 3.0], ['Blender', 3.0]] }),
+    I('o-node', 'Old tools and apps', 'apps', 'Old Node versions', '~/.nvm/versions', 4.8, 'No project asks for them', 'Review', 'native', 'nvm uninstall', 'No project pins these 3 versions.', 'Run nvm install.', { parts: [['Node 14', 1.4], ['Node 16', 1.6], ['Node 18', 1.8]] }),
+    I('o-rust', 'Old tools and apps', 'apps', 'Old Rust toolchains', '~/.rustup/toolchains', 3.7, 'Last used 5 months ago', 'Review', 'native', 'rustup toolchain uninstall', 'Two nightly toolchains no project uses.', 'Run rustup toolchain install.'),
+    I('f-dups', 'Your files', 'files', 'Duplicate files', '214 copies', 9.4, 'Exact byte-for-byte copies', 'Review', 'trash', 'Move extra copies to Trash', 'One copy of each file stays where it is.', 'Restore from the Trash.'),
+    I('f-rec', 'Your files', 'files', 'Old screen recordings', '~/Desktop', 8.8, 'Not opened for 6+ months', 'Review', 'trash', 'Move to Trash', '11 large video files on your Desktop.', 'Restore from the Trash.'),
+    I('f-dl', 'Your files', 'files', 'Installers in Downloads', '~/Downloads', 4.6, 'Not opened for 90+ days', 'Review', 'trash', 'Move to Trash', '12 installers and disk images.', 'Restore from the Trash.'),
+    I('s-snap', 'System', 'system', 'Time Machine snapshots', 'Local snapshots', 15.2, 'Your latest backup is safe', 'Review', 'native', 'tmutil deletelocalsnapshots', 'macOS keeps these on disk until it needs the room.', 'Time Machine makes new ones.'),
+    I('f-laptop', 'Your files', 'files', 'old-laptop backup', '~/archive/old-laptop', 11.2, 'Not opened since 2023', 'Review', 'trash', 'Move to Trash', 'A full copy of a previous computer.', 'Restore from the Trash.', { need: 'archive' }),
+    I('s-temp', 'System', 'system', 'Leftover app temp files', '/private/var/folders', 5.4, 'Over 30 days old', 'Review', 'trash', 'Move to Trash', 'Files left behind by apps that are no longer running.', 'Restore from the Trash.', { need: 'access' })
   ];
-  var SAMPLE_HISTORY = [
-    { date: 'Oct 28, 2026', items: 7, freed: 21.4, trash: 1.2, skipped: 0 },
-    { date: 'Oct 12, 2026', items: 11, freed: 34.9, trash: 3.0, skipped: 1 }
+  ITEMS.forEach(function (i) { if (i.parts) i.parts = i.parts.map(function (x) { return { n: x[0], s: x[1], on: true }; }); });
+  var TILES = [
+    { id: 'projects', name: 'Projects', size: 96, c: 'var(--t-a)', rest: 'Active projects and code' },
+    { id: 'docker', name: 'Docker', size: 72, c: 'var(--t-b)', rest: 'Images and data you are using' },
+    { id: 'ai', name: 'AI models', size: 61.6, c: 'var(--t-e)', rest: 'Models you used recently' },
+    { id: 'caches', name: 'Caches', size: 58, c: 'var(--t-c)', rest: 'Caches in active use' },
+    { id: 'files', name: 'Your files', size: 58, c: 'var(--t-d)', rest: 'Documents, photos and videos' },
+    { id: 'mobile', name: 'Phones and emulators', size: 45, c: 'var(--t-f)', rest: 'Current simulators' },
+    { id: 'apps', name: 'Apps and tools', size: 44, c: 'var(--t-g)', rest: 'Apps and tools you use' },
+    { id: 'system', name: 'macOS', size: 44.2, c: 'var(--t-h)', rest: 'macOS itself' },
+    { id: 'unknown', name: 'Not explained', size: 20.8, c: '', rest: '' }
   ];
-  var TREND = [41, 38.5, 37, 33, 31.2, 30, 26.4, 24, 23.1, 20.5, 18, 16.6, 14.1];
-  var RATE = 2.2, TOTAL = 512, SCALE = 120;
+  var SPOTS = [
+    { id: 'archive', size: 11.2, to: 'files', title: 'A folder I was not asked to scan', text: '~/archive holds 11.2 GB that no detector looked at.', action: 'Scan this folder', done: 'Scanned. I found an old laptop backup.' },
+    { id: 'access', size: 5.4, to: 'system', title: 'A place I am not allowed to read', text: '5.4 GB in /private/var/folders needs Full Disk Access.', action: 'Allow access', done: 'Now readable. I found leftover temp files.' },
+    { id: 'mystery', size: 4.2, to: 'files', title: 'Files I do not recognize', text: '~/tools/sim-data has 4.2 GB of .dat files from an unknown tool.', action: 'They are mine, keep them', done: 'Marked as yours. I will not ask again.' }
+  ];
+  var GROWING = [['Docker', 9.3], ['AI models', 7.0], ['~/projects/web-app', 4.1], ['Slack cache', 1.2]];
+  var EXTRA_PLACES = ['npm cache', 'Yarn cache', 'Bun cache', 'Maven repository', 'Gradle caches', 'Go module cache', 'CocoaPods', 'Conda environments', 'pyenv versions', 'Cargo registry', 'Turbo and Nx caches', 'VS Code old extensions', 'Browser caches', 'LM Studio models', 'Trash', 'Log files', 'iOS device support', 'Mail attachments'];
+  var SAMPLE_LOG = [
+    { when: 'Oct 28', text: 'Tossed 7 crates', freed: 21.4, note: 'Kept 1.2 GB in the Trash' },
+    { when: 'Oct 12', text: 'Tossed 11 crates', freed: 34.9, note: '1 skipped because it changed' }
+  ];
 
+  function partSum(i) { return Math.round(i.parts.reduce(function (t, x) { return t + (x.on ? x.s : 0); }, 0) * 10) / 10; }
   function fresh() {
-    var sel = {};
-    ITEMS.forEach(function (i) { if (i.risk === 'Safe') sel[i.id] = true; });
-    return { os: 'mac', free: 12.4, warn: 20, crit: 8, view: 'overview', filter: 'All', sel: sel, removed: {}, changed: {}, acks: {}, trash: 0, trashAsk: false,
-      phase: 'review', run: [], last: null, history: SAMPLE_HISTORY.slice(), dismissed: false, trayOpen: false };
+    ITEMS.forEach(function (i) { if (i.parts) { i.parts.forEach(function (x) { x.on = true; x.done = false; }); i.size = partSum(i); } });
+    return { manual: null, areas: {}, open: {}, target: [], goal: 50, tab: 'tidy', tile: 'ai', drift: 0, tossed: 0, queued: {}, excl: {}, gone: {}, held: {}, kept: {}, later: {}, skipped: {}, acks: {}, spots: {}, freedBy: {}, heldBy: {}, log: SAMPLE_LOG.slice(), low: 20, crit: 8, pile: false, tray: false, sheet: null, run: null, report: false, auto: { caches: false, docker: false } };
   }
   var S = fresh();
-
   var $ = function (id) { return document.getElementById(id); };
   var gb = function (n) { return n.toFixed(1) + ' GB'; };
-  var sum = function (list) { return list.reduce(function (t, i) { return t + i.size; }, 0); };
-  var trashWord = function () { return S.os === 'win' ? 'Recycle Bin' : 'Trash'; };
-  var sleep = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
+  var sum = function (l) { return l.reduce(function (t, i) { return t + i.size; }, 0); };
+  var esc = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
   var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var sleep = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
 
-  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
-  function visible() { return ITEMS.filter(function (i) { return !S.removed[i.id] && (!i.os || i.os.indexOf(S.os) > -1); }); }
-  function selected() { return visible().filter(function (i) { return S.sel[i.id] && !i.blocked; }); }
-  function pathFor(p) {
-    if (S.os === 'win' && p.indexOf('~/') === 0) return 'C:\\Users\\you\\' + p.slice(2).replace(/\//g, '\\');
-    if (S.os === 'linux' && p.indexOf('~/Library') === 0) return p;
-    return p;
+  function boatAt(f) { return 'translate(292px,' + (212 - 44 * Math.min(1, f / 60)).toFixed(1) + 'px)'; }
+  function free() { return BASE_FREE + S.tossed - S.drift; }
+  function active() { return ITEMS.filter(function (i) { return !S.gone[i.id] && !S.held[i.id] && (!i.need || S.spots[i.need]); }); }
+  function anyArea() { return Object.keys(S.areas).length > 0; }
+  function safeItems() { return active().filter(function (i) { return i.risk === 'Safe' && !S.excl[i.id] && !S.kept[i.id] && i.size > 0 && (!anyArea() || S.areas[i.group]); }).sort(function (a, b) { return b.size - a.size; }); }
+  function queued() { return active().filter(function (i) { return S.queued[i.id] && i.size > 0; }); }
+  function picks() {
+    if (S.manual) return active().filter(function (i) { return S.manual[i.id] && !S.kept[i.id] && i.size > 0; }).sort(function (a, b) { return b.size - a.size; });
+    var out = queued(), have = sum(out);
+    if (S.goal === 'all') return out.concat(safeItems());
+    safeItems().forEach(function (i) { if (have < S.goal) { out.push(i); have += i.size; } });
+    return out;
   }
-  function textFor(s) { return S.os === 'win' ? s.replace('Move to Trash', 'Move to Recycle Bin').replace(/the Trash/g, 'the Recycle Bin') : s; }
-  function status(free) {
-    if (free < S.crit) return { key: 'crit', label: 'Critical' };
-    if (free < S.warn) return { key: 'warn', label: 'Low' };
+  function freezePile() { if (!S.manual) { var m = {}; picks().forEach(function (i) { m[i.id] = true; }); S.manual = m; } }
+  function addToPile(id) { S.queued[id] = true; delete S.excl[id]; if (S.manual) S.manual[id] = true; }
+  function takeOut(id) { freezePile(); delete S.manual[id]; delete S.queued[id]; S.excl[id] = true; }
+  function deck() {
+    return active().filter(function (i) { return i.risk !== 'Safe' && !i.blocked && i.size > 0 && !S.queued[i.id] && !S.kept[i.id] && !S.later[i.id] && !S.skipped[i.id]; }).sort(function (a, b) { return b.size - a.size; });
+  }
+  function status(f) {
+    if (f < S.crit) return { key: 'crit', label: 'Critical' };
+    if (f < S.low) return { key: 'warn', label: 'Low' };
     return { key: 'good', label: 'Healthy' };
   }
-  function safeGB() { return sum(visible().filter(function (i) { return i.risk === 'Safe'; })); }
+  function tileSize(t) {
+    var v = t.size - (S.freedBy[t.id] || 0);
+    SPOTS.forEach(function (s) { if (S.spots[s.id]) { if (t.id === 'unknown') v -= s.size; if (t.id === s.to) v += s.size; } });
+    if (t.id === 'files') v += S.drift;
+    return Math.max(0, Math.round(v * 10) / 10);
+  }
+  function explained() {
+    var used = TILES.reduce(function (t, x) { return t + tileSize(x); }, 0), un = tileSize(TILES[TILES.length - 1]);
+    return { used: used, un: un, pct: used ? (used - un) / used * 100 : 100 };
+  }
+  var groupOf = function (i) { return i.action === 'trash' ? 'held' : 'now'; };
 
-  /* Gauge */
-  var yOf = function (v) { return 40 + Math.min(v, SCALE) / SCALE * 220; };
-  function buildGauge() {
-    var ticks = '';
-    [0, 30, 60, 90, 120].forEach(function (v) {
-      var y = yOf(v);
-      ticks += '<line x1="46" x2="56" y1="' + y + '" y2="' + y + '" stroke="var(--muted)"/><text x="42" y="' + (y + 4) + '" text-anchor="end" fill="var(--muted)">' + v + '</text>';
+  /* Scene */
+  function waves() {
+    function wave(y, amp) { var d = 'M-600 ' + y; for (var x = -600; x < 1320; x += 60) d += ' q15 ' + (-amp) + ' 30 0 t30 0'; return d + ' V360 H-600 Z'; }
+    $('wave-back').setAttribute('d', wave(232, 7));
+    $('wave-front').setAttribute('d', wave(258, 9));
+  }
+  function faceSVG(k) {
+    var ink = 'var(--boat-ink)', cheeks = '<circle cx="-82" cy="-30" r="6" fill="#FFB4A8"/><circle cx="-32" cy="-30" r="6" fill="#FFB4A8"/>';
+    if (k === 'good') return cheeks + '<path d="M-78 -46q7 -9 14 0M-50 -46q7 -9 14 0" fill="none" stroke="' + ink + '" stroke-width="3.5" stroke-linecap="round"/><path d="M-68 -30q11 12 22 0" fill="' + ink + '"/>';
+    if (k === 'warn') return cheeks + '<circle cx="-71" cy="-44" r="5" fill="' + ink + '"/><circle cx="-43" cy="-44" r="5" fill="' + ink + '"/><path d="M-80 -56l13 -4M-34 -56l-13 -4" stroke="' + ink + '" stroke-width="3" stroke-linecap="round"/><path d="M-66 -24q9 -8 18 0" fill="none" stroke="' + ink + '" stroke-width="3" stroke-linecap="round"/>';
+    return cheeks + '<circle cx="-71" cy="-44" r="7" fill="#fff" stroke="' + ink + '" stroke-width="3"/><circle cx="-43" cy="-44" r="7" fill="#fff" stroke="' + ink + '" stroke-width="3"/><circle cx="-71" cy="-43" r="2.5" fill="' + ink + '"/><circle cx="-43" cy="-43" r="2.5" fill="' + ink + '"/><ellipse cx="-57" cy="-24" rx="7" ry="6" fill="' + ink + '"/><path d="M-22 -62q6 8 0 11q-6 -3 0 -11Z" fill="#6FD0F0"/>';
+  }
+  function cratesSVG(list) {
+    var pos = [[6, -32], [40, -32], [74, -32], [108, -32], [23, -60], [57, -60], [91, -60], [40, -88], [74, -88]], out = '';
+    list.slice(0, pos.length).forEach(function (it, n) {
+      var p = pos[n];
+      out += '<g data-crate="' + it.id + '"><g transform="translate(' + p[0] + ' ' + p[1] + ')"><rect width="32" height="26" rx="5" fill="var(--crate)" stroke="var(--crate-edge)" stroke-width="2.5"/><path d="M0 9H32M0 17H32" stroke="var(--crate-edge)" stroke-width="1.5"/><text x="16" y="17" text-anchor="middle" font-family="Nunito, sans-serif" font-weight="800" font-size="11" fill="#5B3A06">' + Math.round(it.size) + '</text></g></g>';
     });
-    $('ticks').innerHTML = ticks;
-    var d = 'M-40 0';
-    for (var x = -40; x < 500; x += 40) d += ' q10 -8 20 0 t20 0';
-    Array.prototype.forEach.call(document.querySelectorAll('.wave'), function (w) { w.setAttribute('d', d + ' V320 H-40 Z'); });
-  }
-  function loadLines() {
-    var yw = yOf(S.warn), yc = yOf(S.crit);
-    $('loads').innerHTML =
-      '<line x1="56" x2="396" y1="' + yw + '" y2="' + yw + '" stroke="var(--hull-ink)" stroke-dasharray="6 4"/>' +
-      '<text x="384" y="' + (yw + 13) + '" text-anchor="end" fill="var(--hull-ink)">Low ' + S.warn + ' GB</text>' +
-      '<line x1="56" x2="398" y1="' + yc + '" y2="' + yc + '" stroke="var(--hull-ink)" stroke-dasharray="2 3"/>' +
-      '<text x="66" y="' + (yc + 13) + '" fill="var(--hull-ink)">Critical ' + S.crit + ' GB</text>';
+    return out;
   }
 
-  /* Status surfaces */
-  function ringSVG(st) {
-    var used = 1 - Math.min(S.free, SCALE) / SCALE, c = 2 * Math.PI * 7;
-    var color = st.key === 'good' ? 'var(--hull-ink)' : st.key === 'warn' ? 'var(--bar-warn)' : 'var(--bar-crit)';
-    return '<svg class="ring st-' + st.key + '" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="7" fill="none" stroke="rgba(255,255,255,.28)" stroke-width="3"/>' +
-      '<circle cx="9" cy="9" r="7" fill="none" stroke="' + color + '" stroke-width="3" stroke-dasharray="' + (c * used).toFixed(1) + ' ' + c.toFixed(1) + '" transform="rotate(-90 9 9)"/></svg>';
+  /* Top half */
+  function renderHero() {
+    var f = free(), st = status(f), p = picks(), total = sum(p), safeAll = sum(safeItems());
+    $('free').textContent = f.toFixed(1);
+    var pill = $('status'); pill.className = 'pill ' + st.key; pill.textContent = st.label;
+    $('forecast').textContent = 'At about 2.2 GB a day, this disk fills in about ' + Math.max(1, Math.round(f / 2.2)) + ' days.';
+    $('boat').style.transform = boatAt(f);
+    $('face').innerHTML = faceSVG(st.key);
+    if (!S.running) $('crates').innerHTML = cratesSVG(p);
+    $('bubble').textContent = st.key === 'crit' ? 'Help! I am nearly under. Only ' + gb(f) + ' left.' : st.key === 'warn' ? 'I am riding low. Toss ' + gb(total) + ' and I will float again.' : total ? 'Floating nicely! ' + gb(f) + ' free.' : 'All tidy! Nothing to toss right now.';
+    var goals = [[20, '20 GB'], [50, '50 GB'], [100, '100 GB'], ['all', 'All I can']];
+    $('goals').innerHTML = goals.map(function (g) { return '<button class="chip" data-goal="' + g[0] + '" aria-pressed="' + (S.goal === g[0]) + '">' + g[1] + '</button>'; }).join('');
+    var names = GROUPS.filter(function (g) { return active().some(function (i) { return i.group === g; }); });
+    $('areas').innerHTML = '<button class="chip" data-area="" aria-pressed="' + !anyArea() + '">Everywhere</button>' + names.map(function (g) { return '<button class="chip" data-area="' + g + '" aria-pressed="' + !!S.areas[g] + '">' + g + '</button>'; }).join('');
+    var cta = $('cta'); cta.disabled = !p.length;
+    cta.textContent = p.length ? 'Toss ' + gb(total) + ' overboard' : 'Nothing to toss';
+    var gap = S.goal === 'all' || S.manual ? 0 : S.goal - total, note = p.length + ' crate' + (p.length === 1 ? '' : 's') + '. ';
+    var risky = p.some(function (i) { return i.risk === 'Risky'; });
+    if (S.manual) note += 'You chose these by hand. Pick a size again to refill the pile.';
+    else if (gap > 0.05) note += (anyArea() ? 'Safe crates in this area stop at ' : 'Safe crates stop at ') + gb(safeAll) + '. Add more items below to find ' + gb(gap) + ' more.';
+    else if (p.every(function (i) { return i.risk === 'Safe'; })) note += 'Everything here can be rebuilt by its tool.';
+    else note += risky ? 'Includes something that cannot be recovered.' : 'Includes crates you approved.';
+    $('cta-note').textContent = p.length ? note : S.manual ? 'The pile is empty. Pick a size to fill it again.' : anyArea() ? 'This area has no Safe crates. Tick the items you want below.' : 'Answer a quick question below, or check the disk map.';
+    $('pile-btn').textContent = S.pile ? 'Hide what is inside' : 'See what is inside';
+    var pile = $('pile'); pile.hidden = !S.pile;
+    pile.innerHTML = p.map(function (i) {
+      return '<div class="pile-row"><span>' + esc(i.name) + '<span class="sub">' + esc(i.back) + '</span></span><span class="num">' + gb(i.size) + '</span><button class="x" data-out="' + i.id + '" aria-label="Take ' + esc(i.name) + ' out of the pile" title="Take out of the pile">&times;</button></div>';
+    }).join('');
+    var heldTotal = Object.keys(S.held).reduce(function (t, k) { return t + S.held[k]; }, 0);
+    $('trash').innerHTML = heldTotal > 0 ? '<div class="row between note"><span class="num">' + gb(heldTotal) + ' is in the Trash and not free yet.</span><button class="link" data-act="empty">Empty it</button></div>' : '';
+    $('sim-free').value = Math.min(60, f);
+    $('tray-btn').textContent = 'Menu bar: ' + gb(f);
+    $('tray-btn').setAttribute('aria-expanded', S.tray ? 'true' : 'false');
+    var pop = $('popover'); pop.hidden = !S.tray;
+    pop.innerHTML = '<div class="row between"><b>Your menu bar</b><button class="x" id="tray-close" data-act="close-tray" aria-label="Close menu bar">&times;</button></div><p>Most days, this is all you need to open.</p><div class="row between"><span class="num">' + gb(f) + ' free</span><span class="pill ' + st.key + '">' + st.label + '</span></div><button class="btn primary" data-act="confirm"' + (p.length ? '' : ' disabled') + '>Toss ' + gb(total) + '</button>';
+    var d = deck().length, ex = explained();
+    $('tab-tidy').innerHTML = 'Quick questions' + (d ? '<span class="dot num">' + d + '</span>' : '');
+    $('tab-map').innerHTML = 'Disk map' + (ex.un > 0 ? '<span class="dot num">' + Math.round(ex.pct) + '%</span>' : '');
+    ['tidy', 'map', 'log'].forEach(function (t) { $('tab-' + t).setAttribute('aria-selected', S.tab === t); $('v-' + t).hidden = S.tab !== t; });
   }
-  function renderStatus() {
-    var st = status(S.free), safe = safeGB();
-    $('menu-label').textContent = S.os === 'win' ? 'System tray' : S.os === 'linux' ? 'Status area' : 'Menu bar';
-    $('tray-btn').innerHTML = ringSVG(st) + '<span class="num">' + gb(S.free) + ' free</span>';
-    $('tray-btn').setAttribute('aria-expanded', S.trayOpen ? 'true' : 'false');
-    var pop = $('popover'); pop.hidden = !S.trayOpen;
-    pop.innerHTML = '<div><span class="pill st-' + st.key + '">' + st.label + '</span></div>' +
-      '<p><b class="num">' + gb(S.free) + '</b> free of ' + TOTAL + ' GB</p>' +
-      '<p class="muted num">' + gb(safe) + ' can be freed from Safe items</p>' +
-      '<div class="actions"><button class="btn primary" data-action="go-suggestions">Open suggestions</button></div>';
 
-    var n = $('notice');
-    if (st.key === 'good' || S.dismissed) { n.innerHTML = ''; }
+  /* Quick questions */
+  function question() {
+    var d = deck(), q = d[0], laters = Object.keys(S.later).length;
+    if (!q) return '<div class="card stack"><h2>All answered</h2><p class="muted">You have no questions left. Your answers are in the crate pile above.</p>' + (laters ? '<button class="btn" data-act="bring-back">Ask me about ' + laters + ' I skipped</button>' : '') + '</div>';
+    var acked = !q.ack || S.acks[q.id];
+    return '<div class="card q"><div class="row between"><span class="note">' + d.length + ' left, biggest first</span><span class="pill ' + q.risk.toLowerCase() + '">' + q.risk + '</span></div>' +
+      '<h2>' + esc(q.name) + '</h2><div class="q-size num">' + gb(q.size) + '</div><p>' + esc(q.why) + '</p>' +
+      '<dl class="facts"><dt>Where</dt><dd class="mono">' + esc(q.where) + '</dd><dt>Last used</dt><dd>' + esc(q.last) + '</dd><dt>Would run</dt><dd class="mono">' + esc(q.cmd) + '</dd><dt>To get it back</dt><dd>' + esc(q.back) + '</dd></dl>' +
+      (q.ack ? '<label class="ack"><input type="checkbox" id="ack-' + q.id + '" data-ack="' + q.id + '"' + (S.acks[q.id] ? ' checked' : '') + '>I understand this cannot be recovered.</label>' : '') +
+      partsHTML(q, 'q') + '<div class="q-actions"><button class="btn primary" id="q-toss" data-q="toss"' + (acked ? '' : ' disabled') + '>Add to pile</button><button class="btn" data-q="keep">Keep, don’t ask again</button><button class="btn" data-q="later">Ask me later</button></div></div>';
+  }
+  function tagFor(i) { return i.blocked ? 'Protected' : S.kept[i.id] ? 'Kept' : S.skipped[i.id] ? 'Changed, scan again' : i.risk; }
+  function partsHTML(i, ctx) {
+    if (!i.parts) return '';
+    var on = i.parts.filter(function (x) { return x.on; }).length, key = ctx + '-parts-' + i.id;
+    var left = i.parts.filter(function (x) { return !x.done; }).length;
+    return '<details class="parts" data-open="' + key + '"' + (S.open[key] ? ' open' : '') + '><summary>Choose which (' + on + ' of ' + left + ')</summary>' + i.parts.map(function (x, n) {
+      if (x.done) return '';
+      var id = ctx + '-part-' + i.id + '-' + n;
+      return '<label class="part" for="' + id + '"><input type="checkbox" id="' + id + '" data-part="' + i.id + ':' + n + '"' + (x.on ? ' checked' : '') + '><span>' + esc(x.n) + '</span><span class="num">' + gb(x.s) + '</span></label>';
+    }).join('') + '</details>';
+  }
+  function rowHTML(i, ctx, chosen) {
+    var can = !i.blocked && !S.skipped[i.id], kept = S.kept[i.id], box = '<span></span>', ctl = '';
+    if (can && !kept) box = '<input type="checkbox" id="' + ctx + '-pile-' + i.id + '" data-pile="' + i.id + '" aria-label="Add ' + esc(i.name) + ' to the pile"' + (chosen[i.id] ? ' checked' : '') + (i.size > 0 ? '' : ' disabled') + '>';
+    if (can && !kept) ctl = '<div class="ctl"><button class="mini go" id="' + ctx + '-now-' + i.id + '" data-now="' + i.id + '"' + (i.size > 0 ? '' : ' disabled') + '>Remove now</button><button class="mini" id="' + ctx + '-keep-' + i.id + '" data-keep="' + i.id + '">Keep</button></div>';
+    if (kept) ctl = '<div class="ctl"><button class="mini" id="' + ctx + '-keep-' + i.id + '" data-keep="' + i.id + '">Stop keeping</button></div>';
+    return '<div class="row-item">' + box + '<span class="main">' + esc(i.name) + '<span class="sub">' + esc(tagFor(i)) + ' \u00B7 ' + esc(i.last) + '</span></span><span class="num size">' + gb(i.size) + '</span>' + (can && !kept ? '<div class="parts">' + partsHTML(i, ctx) + '</div>' : '') + ctl + '</div>';
+  }
+  function chosenMap() { var m = {}; picks().forEach(function (i) { m[i.id] = true; }); return m; }
+  function usable(kind, val) { return active().filter(function (i) { return i[kind] === val && !i.blocked && !S.kept[i.id] && !S.skipped[i.id] && !i.ack && i.size > 0; }); }
+  function areaButtons(kind, val, slug) {
+    var l = usable(kind, val);
+    if (!l.length) return '';
+    return '<div class="grp-actions"><button class="mini go" id="clean-' + slug + '" data-clean="' + kind + ':' + val + '">Remove all here (' + gb(sum(l)) + ')</button><button class="mini" id="add-' + slug + '" data-add="' + kind + ':' + val + '">Add all to pile</button></div>';
+  }
+  function everything() {
+    var act = active(), chosen = chosenMap();
+    var groups = GROUPS.map(function (g) {
+      var l = act.filter(function (i) { return i.group === g; }).sort(function (a, b) { return b.size - a.size; });
+      if (!l.length) return '';
+      var key = 'grp-' + g.replace(/ /g, '-');
+      return '<details class="grp" data-open="' + key + '"' + (S.open[key] ? ' open' : '') + '><summary><span>' + g + '</span><span class="num muted">' + gb(sum(l)) + '</span></summary>' + areaButtons('group', g, key) + l.map(function (i) { return rowHTML(i, 'l', chosen); }).join('') + '</details>';
+    }).join('');
+    var pro = act.filter(function (i) { return i.blocked; }).map(function (i) {
+      return '<div class="protect"><b>' + esc(i.name) + ' <span class="num">' + gb(i.size) + '</span></b><span>' + esc(i.why) + ' I will not touch it.</span><span class="muted">' + esc(i.blocked) + '</span></div>';
+    }).join('');
+    return '<div class="stack">' + pro + '<div class="card"><h3>Everything I found</h3><p class="note" style="margin-bottom:6px">' + act.length + ' items, ' + gb(sum(act)) + ' in total. Open a group to pick exactly what goes.</p>' + groups + '</div>' +
+      '<div class="card stack"><h3>Keep me tidy</h3><p class="note">Optional. Each rule only covers Safe items, and every run shows in the Logbook.</p>' +
+      '<label class="toggle"><input type="checkbox" id="auto-caches" data-auto="caches"' + (S.auto.caches ? ' checked' : '') + '><span>Clear package caches over 30 days old when space is Low</span></label>' +
+      '<label class="toggle"><input type="checkbox" id="auto-docker" data-auto="docker"' + (S.auto.docker ? ' checked' : '') + '><span>Clear unused Docker build cache every week</span></label></div></div>';
+  }
+  function renderTidy() { $('v-tidy').innerHTML = question() + everything(); }
+
+  /* Disk map */
+  function squarify(list, x, y, w, h) {
+    var out = [], rest = list.filter(function (t) { return t.v > 0; }).sort(function (a, b) { return b.v - a.v; });
+    var total = rest.reduce(function (t, r) { return t + r.v; }, 0), k = w * h / total;
+    var worst = function (row, side) {
+      var s = row.reduce(function (t, r) { return t + r.v * k; }, 0), mx = 0, mn = Infinity;
+      row.forEach(function (r) { var a = r.v * k; mx = Math.max(mx, a); mn = Math.min(mn, a); });
+      return Math.max(side * side * mx / (s * s), s * s / (side * side * mn));
+    };
+    while (rest.length) {
+      var side = Math.min(w, h), row = [rest[0]], n = 1;
+      while (n < rest.length && worst(row.concat([rest[n]]), side) <= worst(row, side)) { row.push(rest[n]); n++; }
+      rest = rest.slice(n);
+      var area = row.reduce(function (t, r) { return t + r.v * k; }, 0), thick = area / side, pos = 0;
+      row.forEach(function (r) {
+        var len = r.v * k / thick;
+        if (w >= h) out.push({ t: r, x: x, y: y + pos, w: thick, h: len });
+        else out.push({ t: r, x: x + pos, y: y, w: len, h: thick });
+        pos += len;
+      });
+      if (w >= h) { x += thick; w -= thick; } else { y += thick; h -= thick; }
+    }
+    return out;
+  }
+  function ring(pct) {
+    var c = 2 * Math.PI * 34, done = pct >= 99.95;
+    return '<svg viewBox="0 0 88 88" role="img" aria-label="' + pct.toFixed(1) + ' percent of used space explained"><circle cx="44" cy="44" r="34" fill="none" stroke="var(--soft)" stroke-width="14"/><circle cx="44" cy="44" r="34" fill="none" stroke="' + (done ? 'var(--safe)' : 'var(--hull)') + '" stroke-width="14" stroke-dasharray="' + (c * pct / 100).toFixed(1) + ' ' + c.toFixed(1) + '" transform="rotate(-90 44 44)"/><g stroke="var(--card)" stroke-width="5"><path d="M44 3v14M44 71v14M3 44h14M71 44h14"/></g></svg>';
+  }
+  function placesList() {
+    var names = ITEMS.filter(function (i) { return !i.need || S.spots[i.need]; }).map(function (i) { return { n: i.name, hit: !S.gone[i.id] }; });
+    return names.concat(EXTRA_PLACES.map(function (n) { return { n: n, hit: false }; }));
+  }
+  function renderMap() {
+    var ex = explained(), allT = TILES.map(function (t) { return { id: t.id, name: t.name, c: t.c, v: tileSize(t) }; });
+    var boxes = squarify(allT, 0, 0, 100, 100);
+    var map = boxes.map(function (b) {
+      var a = b.w * b.h, cls = 'tile' + (b.t.id === 'unknown' ? ' unknown' : '') + (a < 240 ? ' tiny' : '') + (b.h < 14 && b.w > 25 ? ' flat' : '');
+      return '<button class="' + cls + '" data-tile="' + b.t.id + '" aria-pressed="' + (S.tile === b.t.id) + '" aria-label="' + esc(b.t.name) + ', ' + gb(b.t.v) + '" style="left:' + b.x.toFixed(2) + '%;top:' + b.y.toFixed(2) + '%;width:' + b.w.toFixed(2) + '%;height:' + b.h.toFixed(2) + '%;--c:' + b.t.c + '"><span><b>' + esc(b.t.name) + '</b><i class="num">' + b.t.v.toFixed(1) + ' GB</i></span></button>';
+    }).join('');
+    var t = TILES.filter(function (x) { return x.id === S.tile; })[0] || TILES[0], size = tileSize(t);
+    var inside = active().filter(function (i) { return i.map === t.id; }).sort(function (a, b) { return b.size - a.size; });
+    var rest = Math.max(0, size - sum(inside));
+    var rows = '';
+    if (t.id === 'unknown') rows = SPOTS.filter(function (s) { return !S.spots[s.id]; }).map(function (s) { return '<div class="detail-row"><span>' + esc(s.text) + '</span><span class="num">' + gb(s.size) + '</span></div>'; }).join('') || '<p class="muted">Nothing is left unexplained.</p>';
     else {
-      n.innerHTML = '<div class="notice st-' + st.key + '"><div><b>' + (st.key === 'crit' ? 'Disk space is critical' : 'Disk space is low') + '</b>' +
-        '<p class="muted num">' + gb(S.free) + ' left. ' + gb(safe) + ' can be freed from Safe items. This is how the notification would read.</p></div>' +
-        '<div class="notice-actions"><button class="btn" data-action="go-suggestions">Review</button><button class="btn" data-action="dismiss">Dismiss</button></div></div>';
+      var chosen = chosenMap();
+      rows = areaButtons('map', t.id, 'map-' + t.id) + inside.map(function (i) { return rowHTML(i, 'm', chosen); }).join('');
+      if (rest > 0.05) rows += '<div class="detail-row"><span class="muted">' + esc(t.rest || 'Other') + ' (leave these)</span><span class="num muted">' + gb(rest) + '</span></div>';
     }
-
-    var pill = $('st-pill'); pill.className = 'pill st-' + st.key; pill.textContent = st.label;
-    $('big-free').textContent = S.free.toFixed(1);
-    $('free-of').textContent = 'of ' + TOTAL + ' GB. ' + (TOTAL - S.free).toFixed(1) + ' GB used.';
-    var days = Math.round(S.free / RATE);
-    $('forecast').textContent = 'At about ' + RATE + ' GB a day, this disk fills in ' + (days <= 1 ? 'about a day' : 'about ' + days + ' days') + '.';
-    $('cta').textContent = 'Review ' + gb(safe) + ' of Safe items';
-    $('gauge').style.setProperty('--wy', yOf(S.free) + 'px');
-    $('sim-free').value = Math.min(S.free, 120);
-    $('sim-out').textContent = gb(S.free);
-    renderTrend();
-    renderBars();
-    renderTrashBoxes();
-  }
-  function renderTrend() {
-    var pts = TREND.concat([S.free]), max = Math.max(45, S.free, S.warn), W = 320, H = 118, L = 8, R = 62, T = 10, B = 22;
-    var x = function (i) { return L + i / (pts.length - 1) * (W - L - R); };
-    var y = function (v) { return T + (1 - v / max) * (H - T - B); };
-    var line = pts.map(function (v, i) { return (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(v).toFixed(1); }).join(' ');
-    var end = pts.length - 1, yw = y(S.warn);
-    $('trend').innerHTML = '<svg class="trend" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Sample free space falling from 41 GB to ' + gb(S.free) + ' over 14 days">' +
-      '<path d="' + line + ' L' + x(end) + ' ' + (H - B) + ' L' + L + ' ' + (H - B) + ' Z" fill="var(--water)" fill-opacity=".18"/>' +
-      '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + (H - B) + '" y2="' + (H - B) + '" stroke="var(--line)"/>' +
-      '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + yw + '" y2="' + yw + '" stroke="var(--warn)" stroke-dasharray="4 3"/>' +
-      '<path d="' + line + '" fill="none" stroke="var(--accent)" stroke-width="2"/>' +
-      '<circle cx="' + x(end) + '" cy="' + y(S.free) + '" r="3.5" fill="var(--accent)"/>' +
-      '<text x="' + (x(end) + 7) + '" y="' + (y(S.free) + 4) + '" style="fill:var(--ink)">' + gb(S.free) + '</text>' +
-      '<text x="' + (x(0)) + '" y="' + (yw - 4) + '">Low ' + S.warn + ' GB</text>' +
-      '<text x="' + L + '" y="' + (H - 7) + '">14 days ago</text><text x="' + (W - R) + '" y="' + (H - 7) + '" text-anchor="end">Today</text></svg>';
-  }
-  function renderBars() {
-    var vis = visible(), rows = CATS.map(function (c) {
-      var list = vis.filter(function (i) { return i.cat === c.id; });
-      return { c: c, list: list, t: sum(list) };
-    }).filter(function (r) { return r.t > 0; }).sort(function (a, b) { return b.t - a.t; });
-    var max = rows.reduce(function (m, r) { return Math.max(m, r.t); }, 1);
-    var color = { Safe: 'var(--good)', Review: 'var(--warn)', Risky: 'var(--crit)' };
-    $('bars').innerHTML = rows.length ? rows.map(function (r) {
-      var segs = ['Safe', 'Review', 'Risky'].map(function (k) {
-        var v = sum(r.list.filter(function (i) { return i.risk === k; }));
-        return v ? '<i style="width:' + (v / max * 100).toFixed(1) + '%;background:' + color[k] + '" title="' + k + ' ' + gb(v) + '"></i>' : '';
-      }).join('');
-      return '<div class="bar-row"><div class="bar-top"><span>' + r.c.name + '</span><span class="num">' + gb(r.t) + '</span></div><div class="bar">' + segs + '</div></div>';
-    }).join('') : '<p class="muted">Nothing left to suggest. Run another scan later.</p>';
-  }
-  function trashBox() {
-    if (S.trash <= 0) return '';
-    var w = trashWord();
-    if (S.trashAsk) return '<div class="trash"><p><b>Permanently delete what Freeboard moved to the ' + w + '?</b> This frees ' + gb(S.trash) + ' and cannot be undone.</p>' +
-      '<div class="trash-actions"><button class="btn danger" data-action="empty-yes">Delete permanently</button><button class="btn" data-action="empty-no">Keep it</button></div></div>';
-    return '<div class="trash"><p class="num"><b>' + gb(S.trash) + '</b> is still held in the ' + w + '. It does not count as free space yet.</p>' +
-      '<div class="trash-actions"><button class="btn" data-action="empty-ask">Empty items from ' + w + '</button></div></div>';
-  }
-  function renderTrashBoxes() {
-    $('ov-trash').innerHTML = trashBox();
-    var t = $('plan-trash'); if (t) t.innerHTML = trashBox();
-  }
-
-  /* Suggestions */
-  function renderChips() {
-    $('chips').innerHTML = ['All', 'Safe', 'Review', 'Risky'].map(function (f) {
-      return '<button class="chip" data-filter="' + f + '" aria-pressed="' + (S.filter === f) + '">' + f + '</button>';
+    var left = '<div class="stack"><div class="card stack"><div class="cover">' + ring(ex.pct) + '<div><b class="num">' + ex.pct.toFixed(1) + '% explained</b><span class="muted num">I can account for ' + (ex.used - ex.un).toFixed(1) + ' of the ' + ex.used.toFixed(1) + ' GB in use.</span></div></div>' +
+      '<div class="map" id="map">' + map + '</div></div>' +
+      '<div class="card stack" id="tile-detail"><div class="row between"><h3>' + esc(t.name) + '</h3><span class="num muted">' + gb(size) + '</span></div><div>' + rows + '</div></div></div>';
+    var spots = SPOTS.map(function (s) {
+      if (S.spots[s.id]) return '<div class="spot done"><b>' + esc(s.title) + '</b><span class="muted">' + esc(s.done) + '</span></div>';
+      return '<div class="spot"><b>' + esc(s.title) + '</b><span>' + esc(s.text) + '</span><button class="btn" style="align-self:flex-start" data-spot="' + s.id + '">' + esc(s.action) + '</button></div>';
     }).join('');
+    var open = SPOTS.filter(function (s) { return !S.spots[s.id]; }).length, mx = GROWING[0][1];
+    var places = placesList();
+    var right = '<div class="stack"><div class="card stack"><h3>' + (open ? open + ' thing' + (open === 1 ? '' : 's') + ' I cannot see yet' : 'I can see everything now') + '</h3>' + spots + '</div>' +
+      '<div class="card stack"><h3>Growing fastest this week</h3>' + GROWING.map(function (g) { return '<div class="grow"><span>' + esc(g[0]) + '</span><span class="num">+' + g[1].toFixed(1) + ' GB</span><i style="width:' + (g[1] / mx * 100).toFixed(0) + '%"></i></div>'; }).join('') + '</div>' +
+      '<div class="card"><details><summary>' + places.length + ' places I checked</summary><p class="note" style="margin-top:6px">Green means I found something. Grey means I looked and it was clean.</p><div class="places">' + places.map(function (p) { return '<span class="place' + (p.hit ? ' hit' : '') + '">' + esc(p.n) + '</span>'; }).join('') + '</div></details></div>' +
+      '<div class="card stack"><h3>Get a second opinion</h3><p class="note">Copy a summary with sizes and folder names, then ask your AI agent what I missed. File contents are not included.</p><button class="btn" style="align-self:flex-start" data-act="report">Copy disk report</button><div id="report-box"></div></div></div>';
+    $('v-map').innerHTML = left + right;
   }
-  function itemRow(i) {
-    var box = '<input type="checkbox" id="sel-' + i.id + '" aria-label="Select ' + esc(i.name) + '"' + (S.sel[i.id] && !i.blocked ? ' checked' : '') + (i.blocked ? ' disabled' : '') + ' data-sel="' + i.id + '">';
-    return '<div class="item">' + box + '<details><summary><span class="name">' + esc(i.name) + '</span>' +
-      '<span class="sub mono">' + esc(pathFor(i.path)) + '</span><span class="sub">' + esc(i.last) + '</span>' +
-      (i.blocked ? '<span class="blocked">' + i.blocked + '</span>' : '') +
-      (S.changed[i.id] ? '<span class="blocked">Changed during the last cleanup. Scan again before removing it.</span>' : '') +
-      '</summary><dl><dt>Why it is listed</dt><dd>' + esc(i.why) + '</dd><dt>What would run</dt><dd class="mono">' + esc(textFor(i.cmd)) + '</dd><dt>How to get it back</dt><dd>' + esc(textFor(i.recover)) + '</dd></dl></details>' +
-      '<div class="item-right"><span class="size">' + gb(i.size) + '</span><span class="pill r-' + i.risk.toLowerCase() + '">' + i.risk + '</span></div></div>';
+  function reportText() {
+    var ex = explained();
+    return JSON.stringify({ disk_gb: TOTAL, free_gb: +free().toFixed(1), explained_pct: +ex.pct.toFixed(1), areas: TILES.map(function (t) { return { name: t.name, gb: tileSize(t) }; }), suggestions: active().map(function (i) { return { name: i.name, gb: i.size, risk: i.risk, where: i.where }; }), not_explained: SPOTS.filter(function (s) { return !S.spots[s.id]; }).map(function (s) { return { what: s.text, gb: s.size }; }) }, null, 2);
   }
-  function renderGroups() {
-    var vis = visible().filter(function (i) { return S.filter === 'All' || i.risk === S.filter; });
-    var html = CATS.map(function (c) {
-      var list = vis.filter(function (i) { return i.cat === c.id; });
-      if (!list.length) return '';
-      list.sort(function (a, b) { return b.size - a.size; });
-      var note = c.id === 'docker' && S.os !== 'linux' ? '<p class="group-note">Docker Desktop keeps this data in a virtual disk, so space may not return to your main drive right away.</p>' : '';
-      return '<div class="group"><div class="group-head"><h3>' + c.name + '</h3><span class="num muted">' + gb(sum(list)) + '</span></div>' + note + list.map(itemRow).join('') + '</div>';
-    }).join('');
-    $('groups').innerHTML = html || '<p class="muted">No suggestions at this risk level.</p>';
-  }
-  function renderSelection() {
-    var sel = selected();
-    $('sel-total').textContent = sel.length + ' selected, ' + gb(sum(sel));
-    $('sel-go').disabled = !sel.length;
-    $('nav-count').textContent = sel.length ? sel.length : '';
+  function renderLog() {
+    $('v-log').innerHTML = '<h2 style="margin-bottom:8px">Logbook</h2>' + S.log.map(function (l) { return '<div class="log"><span class="when muted">' + esc(l.when) + '</span><span>' + esc(l.text) + '<br><span class="note">' + esc(l.note) + '</span></span><span class="num">' + gb(l.freed) + '</span></div>'; }).join('');
   }
 
-  /* Plan */
-  function renderPlan() {
-    var v = $('v-plan');
-    if (S.phase === 'review') {
-      var sel = selected();
-      if (!sel.length) {
-        v.innerHTML = '<h2>Cleanup plan</h2><p class="muted">No items selected yet.</p><div class="actions"><button class="btn primary" data-action="go-suggestions">Choose suggestions</button></div>' + '<div id="plan-trash"></div>';
-        renderTrashBoxes(); return;
-      }
-      var now = sum(sel.filter(function (i) { return i.action !== 'trash'; }));
-      var held = sum(sel.filter(function (i) { return i.action === 'trash'; }));
-      var lost = sel.filter(function (i) { return i.unrecoverable; });
-      var needAck = sel.filter(function (i) { return i.ack; });
-      var ready = needAck.every(function (i) { return S.acks[i.id]; });
-      v.innerHTML = '<div><h2>Cleanup plan</h2><p class="muted">Nothing runs until you confirm. Each item is checked again just before cleanup.</p></div>' +
-        '<div class="totals">' +
-        '<div class="total"><b>' + gb(now) + '</b>Freed right away</div>' +
-        '<div class="total"><b>' + gb(held) + '</b>Held in the ' + trashWord() + ' until you empty it</div>' +
-        '<div class="total' + (lost.length ? ' bad' : '') + '"><b>' + lost.length + ' item' + (lost.length === 1 ? '' : 's') + '</b>Cannot be recovered' + (lost.length ? ' (' + gb(sum(lost)) + ')' : '') + '</div></div>' +
-        '<p class="num">Free space after cleanup: <b>' + gb(S.free) + ' to ' + gb(S.free + now) + '</b></p>' +
-        '<div>' + sel.map(function (i) {
-          return '<div class="plan-row"><div><b>' + esc(i.name) + '</b><div class="sub mono">' + esc(textFor(i.cmd)) + '</div><div class="sub">' + esc(textFor(i.recover)) + '</div></div><span class="size">' + gb(i.size) + '</span>' +
-            (i.ack ? '<label class="ack"><input type="checkbox" id="ack-' + i.id + '" data-ack="' + i.id + '"' + (S.acks[i.id] ? ' checked' : '') + '>I understand the ' + esc(i.ackName) + ' will be deleted and cannot be recovered.</label>' : '') + '</div>';
-        }).join('') + '</div>' +
-        '<div class="actions"><button class="btn primary" id="confirm-plan" data-action="confirm"' + (ready ? '' : ' disabled') + '>Confirm and clean up ' + sel.length + ' item' + (sel.length === 1 ? '' : 's') + '</button><button class="btn" data-action="go-suggestions">Change selection</button></div>';
-      return;
-    }
-    var running = S.phase === 'running';
-    var head = running ? '<h2>Cleaning up</h2><p class="muted">Each item is checked again first. Anything that changed is skipped.</p>'
-      : '<h2>Cleanup finished</h2><p class="num">Freed <b>' + gb(S.last.freed) + '</b>. Free space is now <b>' + gb(S.free) + '</b>.' + (S.last.skipped ? ' ' + S.last.skipped + ' item was skipped.' : '') + '</p>' +
-        (S.last.docker && S.os !== 'linux' ? '<p class="muted">Docker Desktop may take time to return space to your main drive.</p>' : '');
-    v.innerHTML = '<div>' + head + '</div><div>' + S.run.map(function (r) {
-      var cls = r.state === 'skip' ? 'skip' : r.state === 'done' ? 'ok' : '';
-      return '<div class="plan-row"><div><b>' + esc(r.item.name) + '</b>' + (r.note ? '<div class="sub">' + esc(r.note) + '</div>' : '') + '</div><span class="result ' + cls + '">' + r.label + '</span></div>';
-    }).join('') + '</div>' + (running ? '' : '<div id="plan-trash"></div><div class="actions"><button class="btn primary" data-action="go-overview">Back to overview</button><button class="btn" data-action="plan-more">Plan another cleanup</button></div>');
-    renderTrashBoxes();
+  /* Sheets */
+  function closeSheet() { S.sheet = null; $('sheet-root').innerHTML = ''; }
+  function openSheet(html) {
+    $('sheet-root').innerHTML = '<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" tabindex="-1" id="sheet">' + html + '</div></div>';
+    $('sheet').focus();
   }
-  async function runPlan() {
-    var sel = selected(), step = reduced ? 60 : 320, freed = 0, held = 0, skipped = 0;
-    S.phase = 'running'; S.run = sel.map(function (i) { return { item: i, label: 'Waiting', state: 'wait', note: '' }; });
-    renderPlan();
-    for (var n = 0; n < S.run.length; n++) {
-      var r = S.run[n], i = r.item;
-      r.label = 'Checking'; renderPlan(); await sleep(step);
-      if (i.id === 'wt-exp') {
-        r.label = 'Skipped'; r.state = 'skip'; r.note = 'A new commit appeared after the scan.';
-        skipped++; S.changed[i.id] = true; delete S.sel[i.id];
-      } else if (i.action === 'trash') {
-        r.label = 'Moved to ' + trashWord(); r.state = 'done'; held += i.size; S.trash += i.size; S.removed[i.id] = true;
-      } else {
-        r.label = 'Cleaned'; r.state = 'done'; freed += i.size; S.free += i.size; S.removed[i.id] = true;
+  function acksDone(l) { return l.every(function (i) { return !i.ack || S.acks[i.id]; }); }
+  function byId(id) { return ITEMS.filter(function (i) { return i.id === id; })[0]; }
+  function cmdFor(i) { if (!i.parts) return i.cmd; var on = i.parts.filter(function (x) { return x.on; }); return on.length === i.parts.filter(function (x) { return !x.done; }).length ? i.cmd : i.cmd + ': ' + on.map(function (x) { return x.n; }).join(', '); }
+  function confirmSheet(p) {
+    S.target = p.map(function (i) { return i.id; });
+    var now = sum(p.filter(function (i) { return groupOf(i) === 'now'; })), held = sum(p.filter(function (i) { return groupOf(i) === 'held'; })), lost = p.filter(function (i) { return i.lost; });
+    S.sheet = 'confirm';
+    openSheet('<h2 id="sheet-title">Toss ' + p.length + ' crate' + (p.length === 1 ? '' : 's') + '?</h2><p class="muted">Each one is checked again first. Anything that changed since the scan stays on board.</p>' +
+      '<div class="sum3"><div><b class="num">' + gb(now) + '</b>Free right away</div><div><b class="num">' + gb(held) + '</b>Held in the Trash</div><div class="' + (lost.length ? 'bad' : '') + '"><b class="num">' + lost.length + '</b>Cannot be recovered</div></div>' +
+      '<div class="plan-list">' + p.map(function (i) { return '<div class="pile-row" style="grid-template-columns:minmax(0,1fr) auto"><span>' + esc(i.name) + '<span class="sub mono">' + esc(cmdFor(i)) + '</span></span><span class="num">' + gb(i.size) + '</span>' + (i.ack ? '<label class="ack" style="grid-column:1/-1"><input type="checkbox" id="sheet-ack-' + i.id + '" data-ack="' + i.id + '"' + (S.acks[i.id] ? ' checked' : '') + '>I understand this cannot be recovered.</label>' : '') + '</div>'; }).join('') + '</div>' +
+      '<div class="row"><button class="btn primary" id="go" data-act="run"' + (acksDone(p) ? '' : ' disabled') + '>' + (p.length === 1 ? 'Remove it' : 'Toss them') + '</button><button class="btn" data-act="close">Not now</button></div>');
+  }
+  async function run() {
+    var p = S.target.map(byId), done = 0, freed = 0, held = 0, skipped = [], step = reduced ? 50 : 260;
+    S.running = true;
+    openSheet('<h2 id="sheet-title">Tossing crates</h2><p id="run-now" class="muted"></p><div class="progress"><i id="run-bar" style="width:0"></i></div>');
+    for (var n = 0; n < p.length; n++) {
+      var i = p[n];
+      $('run-now').textContent = 'Checking ' + i.name;
+      var c = document.querySelector('[data-crate="' + i.id + '"]');
+      await sleep(step);
+      delete S.queued[i.id];
+      if (i.id === 'wt-exp') { skipped.push(i); S.skipped[i.id] = true; }
+      else {
+        if (c) c.classList.add('crate-fly');
+        var partial = i.parts && i.parts.some(function (x) { return !x.on; }), size = i.size, key = partial ? i.id + '#' + n : i.id;
+        if (i.action === 'trash') { S.held[key] = size; S.heldBy[key] = i.map; held += size; }
+        else { if (!partial) S.gone[i.id] = true; S.tossed += size; S.freedBy[i.map] = (S.freedBy[i.map] || 0) + size; freed += size; }
+        if (partial) { i.parts.forEach(function (x) { x.done = x.done || x.on; x.on = !x.done; }); i.size = partSum(i); delete S.excl[i.id]; S.excl[i.id] = true; }
       }
-      renderStatus(); renderPlan(); await sleep(step / 2);
+      done++;
+      $('run-bar').style.width = (done / p.length * 100) + '%';
+      var bx = $('free'); if (bx) bx.textContent = free().toFixed(1);
+      $('boat').style.transform = boatAt(free());
+      await sleep(step / 2);
     }
-    S.last = { freed: freed, skipped: skipped, docker: sel.some(function (i) { return i.cat === 'docker'; }) };
-    S.history.unshift({ date: 'Today', items: sel.length, freed: freed, trash: held, skipped: skipped });
-    S.acks = {}; S.phase = 'done'; S.dismissed = false;
+    S.running = false; S.manual = null;
+    var count = p.length - skipped.length;
+    S.log.unshift({ when: 'Today', text: 'Tossed ' + count + ' crate' + (count === 1 ? '' : 's'), freed: freed, note: (held ? gb(held) + ' in the Trash. ' : '') + (skipped.length ? skipped.length + ' skipped because it changed.' : 'Nothing skipped.') });
+    openSheet('<h2 id="sheet-title">Much better!</h2><p class="num">I freed <b>' + gb(freed) + '</b>. You now have <b>' + gb(free()) + '</b> free.</p>' +
+      (held ? '<p class="num">' + gb(held) + ' is in the Trash and frees up when you empty it.</p>' : '') +
+      skipped.map(function (s) { return '<p style="color:var(--review)">' + esc(s.name) + ' stayed on board. A new commit appeared after the scan.</p>'; }).join('') +
+      (p.some(function (x) { return x.group === 'Docker'; }) ? '<p class="note">Docker Desktop may take a while to return its space. I will show the measured change in the Logbook.</p>' : '') +
+      '<div class="row"><button class="btn primary" id="go" data-act="close">Done</button></div>');
     renderAll();
   }
-
-  /* History */
-  function renderHistory() {
-    $('history').innerHTML = '<table><thead><tr><th scope="col">Date</th><th class="n" scope="col">Items</th><th class="n" scope="col">Freed</th><th class="n" scope="col">Sent to ' + trashWord() + '</th><th class="n" scope="col">Skipped</th></tr></thead><tbody>' +
-      S.history.map(function (h) { return '<tr><td>' + h.date + '</td><td class="n">' + h.items + '</td><td class="n">' + gb(h.freed) + '</td><td class="n">' + gb(h.trash) + '</td><td class="n">' + h.skipped + '</td></tr>'; }).join('') + '</tbody></table>';
+  function settingsSheet() {
+    S.sheet = 'settings';
+    openSheet('<h2 id="sheet-title">Settings</h2><div class="set stack"><div><label for="low-gb">Warn me below <b class="num" id="low-out">' + S.low + ' GB</b></label><input id="low-gb" type="range" min="15" max="60" step="5" value="' + S.low + '"></div>' +
+      '<div><label for="crit-gb">Urgent warning below <b class="num" id="crit-out">' + S.crit + ' GB</b></label><input id="crit-gb" type="range" min="3" max="10" step="1" value="' + S.crit + '"></div>' +
+      '<div><b>Folders I scan</b><p class="mono">~/projects, ~/work, ~/Downloads, ~/Desktop</p></div><div><b>Never touched</b><p class="muted">System folders, repository roots, .git and paths you exclude.</p></div></div><div class="row"><button class="btn primary" data-act="close">Done</button></div>');
   }
 
-  function show(view) {
-    S.view = view; S.trayOpen = false;
-    ['overview', 'suggestions', 'plan', 'history', 'settings'].forEach(function (v) { $('v-' + v).hidden = v !== view; });
-    Array.prototype.forEach.call($('nav').querySelectorAll('button'), function (b) {
-      if (b.dataset.view === view) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
-    });
-    if (view === 'plan') renderPlan();
-    renderStatus();
-  }
-  function renderSettings() {
-    $('warn-gb').value = S.warn; $('crit-gb').value = S.crit;
-    $('warn-out').textContent = 'Warn below ' + S.warn + ' GB free';
-    $('crit-out').textContent = 'Warn urgently below ' + S.crit + ' GB free';
-    loadLines();
-  }
   function renderAll() {
-    renderSettings(); renderChips(); renderGroups(); renderSelection(); renderHistory(); renderPlan(); renderStatus();
-    Array.prototype.forEach.call($('os-seg').querySelectorAll('button'), function (b) { b.setAttribute('aria-pressed', b.dataset.os === S.os); });
+    var f = document.activeElement && document.activeElement.id;
+    renderHero(); renderTidy(); renderMap(); renderLog();
+    if (f && $(f)) $(f).focus({ preventScroll: true });
   }
 
-  /* Events */
   document.addEventListener('click', function (e) {
-    var t = e.target.closest('button'); if (!t) { if (S.trayOpen && !e.target.closest('.popover')) { S.trayOpen = false; renderStatus(); } return; }
-    if (t.id === 'tray-btn') { S.trayOpen = !S.trayOpen; renderStatus(); return; }
-    if (t.dataset.view) { show(t.dataset.view); return; }
-    if (t.dataset.os) { S.os = t.dataset.os; renderAll(); return; }
-    if (t.dataset.filter) { S.filter = t.dataset.filter; renderChips(); renderGroups(); return; }
-    var a = t.dataset.action;
-    if (a === 'go-suggestions') { if (S.phase === 'done') S.phase = 'review'; show('suggestions'); }
-    else if (a === 'go-plan') { if (S.phase === 'done') S.phase = 'review'; show('plan'); }
-    else if (a === 'go-overview') show('overview');
-    else if (a === 'plan-more') { S.phase = 'review'; renderAll(); show('suggestions'); }
-    else if (a === 'dismiss') { S.dismissed = true; renderStatus(); }
-    else if (a === 'confirm') runPlan();
-    else if (a === 'empty-ask') { S.trashAsk = true; renderTrashBoxes(); }
-    else if (a === 'empty-no') { S.trashAsk = false; renderTrashBoxes(); }
-    else if (a === 'empty-yes') { S.free += S.trash; S.trash = 0; S.trashAsk = false; renderStatus(); }
-    else if (a === 'scan') scan();
-    else if (a === 'reset') { S = fresh(); renderAll(); show('overview'); $('scan-note').textContent = 'Last scan 18 minutes ago'; }
+    var b = e.target.closest('button');
+    if (e.target.id === 'scrim' && !S.running) { closeSheet(); return; }
+    if (!b) { if (S.tray && !e.target.closest('.popover')) { S.tray = false; renderHero(); } return; }
+    if (b.id === 'tray-btn') { S.tray = !S.tray; renderHero(); return; }
+    if (S.tray && !b.closest('.popover')) { S.tray = false; renderHero(); }
+    if (b.dataset.goal) { S.goal = b.dataset.goal === 'all' ? 'all' : +b.dataset.goal; S.manual = null; S.excl = {}; renderAll(); return; }
+    if (b.dataset.area !== undefined) { if (!b.dataset.area) S.areas = {}; else if (S.areas[b.dataset.area]) delete S.areas[b.dataset.area]; else S.areas[b.dataset.area] = true; S.manual = null; renderAll(); return; }
+    if (b.dataset.now) { confirmSheet([byId(b.dataset.now)]); return; }
+    if (b.dataset.keep) { var k = b.dataset.keep; if (S.kept[k]) delete S.kept[k]; else { S.kept[k] = true; delete S.queued[k]; if (S.manual) delete S.manual[k]; } renderAll(); return; }
+    if (b.dataset.clean) { var c = b.dataset.clean.split(':'); confirmSheet(usable(c[0], c[1])); return; }
+    if (b.dataset.add) { var d = b.dataset.add.split(':'); usable(d[0], d[1]).forEach(function (i) { addToPile(i.id); }); renderAll(); return; }
+    if (b.dataset.tab) { S.tab = b.dataset.tab; renderHero(); return; }
+    if (b.dataset.tile) { S.tile = b.dataset.tile; renderMap(); var d = $('tile-detail'); if (d && window.innerWidth < 800) d.scrollIntoView({ block: 'nearest' }); return; }
+    if (b.dataset.out) { takeOut(b.dataset.out); renderAll(); return; }
+    if (b.dataset.q) {
+      var q = deck()[0]; if (!q) return;
+      if (b.dataset.q === 'toss') addToPile(q.id);
+      if (b.dataset.q === 'keep') S.kept[q.id] = true;
+      if (b.dataset.q === 'later') S.later[q.id] = true;
+      renderAll(); return;
+    }
+    if (b.dataset.spot) { S.spots[b.dataset.spot] = true; renderAll(); return; }
+    var a = b.dataset.act;
+    if (a === 'close-tray') { S.tray = false; renderHero(); $('tray-btn').focus(); }
+    else if (a === 'confirm') { S.tray = false; renderHero(); confirmSheet(picks()); }
+    else if (a === 'run') run();
+    else if (a === 'close') { closeSheet(); renderAll(); }
+    else if (a === 'toggle-pile') { S.pile = !S.pile; renderHero(); }
+    else if (a === 'bring-back') { S.later = {}; renderAll(); }
+    else if (a === 'settings') settingsSheet();
+    else if (a === 'reset') { S = fresh(); closeSheet(); renderAll(); }
+    else if (a === 'empty') {
+      Object.keys(S.held).forEach(function (k) { S.tossed += S.held[k]; var m = S.heldBy[k]; S.freedBy[m] = (S.freedBy[m] || 0) + S.held[k]; S.gone[k] = true; delete S.held[k]; });
+      renderAll();
+    }
+    else if (a === 'report') {
+      var text = reportText(), box = $('report-box'), show = function (msg) { box.innerHTML = '<p class="note">' + msg + '</p>'; };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { show('Copied. Paste it into your agent.'); }, function () { box.innerHTML = '<textarea id="report-text" aria-label="Disk report" readonly>' + esc(text) + '</textarea>'; $('report-text').select(); });
+      else { box.innerHTML = '<textarea id="report-text" aria-label="Disk report" readonly>' + esc(text) + '</textarea>'; $('report-text').select(); }
+    }
   });
   document.addEventListener('change', function (e) {
     var t = e.target;
-    if (t.dataset.sel) { if (t.checked) S.sel[t.dataset.sel] = true; else delete S.sel[t.dataset.sel]; if (S.phase === 'done') S.phase = 'review'; renderSelection(); }
-    if (t.dataset.ack) { S.acks[t.dataset.ack] = t.checked; var b = $('confirm-plan'); if (b) b.disabled = !selected().filter(function (i) { return i.ack; }).every(function (i) { return S.acks[i.id]; }); }
+    if (t.dataset.ack) { S.acks[t.dataset.ack] = t.checked; var b = $('q-toss'); if (b) b.disabled = !t.checked; var g = $('go'); if (g && S.sheet === 'confirm') g.disabled = !acksDone(S.target.map(byId)); }
+    if (t.dataset.pile) { var id = t.dataset.pile; if (t.checked) addToPile(id); else takeOut(id); renderAll(); }
+    if (t.dataset.part) { var pt = t.dataset.part.split(':'), it = byId(pt[0]); it.parts[+pt[1]].on = t.checked; it.size = partSum(it); renderAll(); }
+    if (t.dataset.auto) S.auto[t.dataset.auto] = t.checked;
   });
-  $('sim-free').addEventListener('input', function (e) {
-    var before = status(S.free).key;
-    S.free = parseFloat(e.target.value);
-    if (status(S.free).key !== before) S.dismissed = false;
-    renderStatus();
+  document.addEventListener('pointerdown', function (e) { if (e.button === 0 && e.target.closest && e.target.closest('#tray-close')) { e.preventDefault(); S.tray = false; renderHero(); $('tray-btn').focus(); } });
+  document.addEventListener('toggle', function (e) { var k = e.target.dataset && e.target.dataset.open; if (k) S.open[k] = e.target.open; }, true);
+  document.addEventListener('input', function (e) {
+    var t = e.target;
+    if (t.id === 'sim-free') { S.drift = BASE_FREE + S.tossed - parseFloat(t.value); renderHero(); renderMap(); }
+    if (t.id === 'low-gb') { S.low = +t.value; $('low-out').textContent = S.low + ' GB'; renderHero(); }
+    if (t.id === 'crit-gb') { S.crit = +t.value; $('crit-out').textContent = S.crit + ' GB'; renderHero(); }
   });
-  $('warn-gb').addEventListener('input', function (e) { S.warn = +e.target.value; renderSettings(); renderStatus(); });
-  $('crit-gb').addEventListener('input', function (e) { S.crit = +e.target.value; renderSettings(); renderStatus(); });
-  async function scan() {
-    var b = $('scan-btn'), n = $('scan-note'), steps = ['Checking Docker', 'Checking Git worktrees', 'Checking project folders', 'Checking caches'];
-    b.disabled = true;
-    for (var i = 0; i < steps.length; i++) { n.textContent = steps[i]; await sleep(reduced ? 80 : 380); }
-    n.textContent = 'Last scan just now'; b.disabled = false;
-  }
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && S.tray) { S.tray = false; renderHero(); $('tray-btn').focus(); return; } if (e.key === 'Escape' && S.sheet && !S.running) { closeSheet(); renderAll(); } });
 
-  buildGauge();
+  waves();
   renderAll();
 })();
 </script>
-
-</body></html>

@@ -2,11 +2,12 @@ schema: spec-driven
 context: |
   Freeboard is a local-only Tauri 2 desktop app with a Rust core and React/TypeScript UI for macOS, Linux, and Windows.
   Product source: docs/reference/FREEBOARD_SPEC.md. Visual and interaction reference: docs/reference/freeboard-prototype.html.
+  The spec wins on data, safety and behavior; the prototype wins on layout, flows, labels and tone. Record conflicts in docs/decisions.md.
   Safety invariants in the product specification override feature requirements and prototype behavior.
-  Deliver the five source milestones in order; each requires evidence on all three platforms before proceeding.
+  Deliver the six source milestones in order; each requires evidence on all three platforms before proceeding.
   Never execute real cleanup against the developer machine; use temporary fixtures and fake tool executables.
   Never run kubectl exec or bypass the Kubernetes remote execution ban.
-  Visual fidelity to the supplied prototype is mandatory, including the hull gauge, typography, layout, colors, themes, and responsive behavior.
+  Visual fidelity to the supplied prototype is mandatory, including Dinghy, the harbor scene, typography, layout, colors, light and night themes, and responsive behavior.
 rules:
   specs:
     - Include observable acceptance scenarios and source traceability.

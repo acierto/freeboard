@@ -1,29 +1,59 @@
 # Freeboard: Product and Implementation Specification
 
-Nov 4, 2026 · @Bogdan
+Nov 6, 2026 · @Bogdan
 
 ## Overview
 
-Freeboard is a local Tauri 2 desktop app for macOS, Linux and Windows that warns developers before disk space runs out, then shows what can be removed and how risky each removal is. "Freeboard" is the working name.
+Freeboard is a local Tauri 2 desktop app for macOS, Linux and Windows. It warns developers before the disk fills, explains where all used space went, and lets them choose exactly what to remove. Rebuild the approved prototype, `freeboard-prototype.html`, as the real app.
 
-**Problem:** developer machines fill up with Docker data, Git worktrees, dependencies, build output and package caches. These are spread across many tools, so finding safe space to reclaim is slow and easy to get wrong.
+**Problem:** developer machines fill up with Docker data, worktrees, dependencies, build output, AI models and caches. Cleanup tools are slow to use, and they stay silent about anything they don't recognize.
 
-**Primary user:** a developer on a workstation with limited disk space who needs to recover space quickly during normal work.
+**Primary user:** a developer on a workstation with limited disk space who needs space back quickly during normal work.
+
+### What this rebuild must solve
+
+| Concern | What the product does |
+| --- | --- |
+| Cleanup takes too many steps | Choose how much room you need, confirm once, and let Freeboard pick Safe items |
+| A single button gives too little control | Choose by area, group, item, or individual folders and models inside an item |
+| It may miss things | Account for all used space, show what is unexplained, and offer a fix for each blind spot |
+| A utility feels cold | Dinghy, a small boat, shows disk health at a glance through its waterline and mood |
+
+### Build reference
+
+The prototype defines the layout, flows, labels and tone. This spec wins on data, safety and behavior. If they conflict, follow this spec and record the conflict in `docs/decisions.md`.
+
+If a Freeboard codebase already exists, keep any Rust code that meets this spec and rebuild the interface. Do not preserve older screens or flows.
+
+Do not ship these prototype-only parts: example data, **Pretend free space**, **Start over**, the forced skip of `old-experiment`, and the simulated **Allow access** result.
+
+### Product decisions
+
+| Decision | Build this |
+| --- | --- |
+| Disk map | In the first version |
+| Duplicate detection | In the first version |
+| Keep me tidy rules | In the first version, off by default, Safe items only |
+| Docker disk compaction | In the first version as a Review item, only where a supported method exists |
+| Manual folder browsing | Not in the first version |
+| Mascot name | Dinghy, as a placeholder |
+| Product name | Freeboard, as the working name |
 
 ### Goals
 
 - Show current free space and warn before it becomes critical.
-- Find reclaimable resources across developer tools, including worktrees and Docker data.
-- Explain each suggestion: what it is, its size, its last known use, its risk and how it would be restored.
-- Let the user reclaim space safely, with a preview before every cleanup.
-- Stay small and quiet enough to run in the background.
+- Explain as close to 100% of used space as possible, and label the rest as not explained.
+- Show the size, risk, reason, action and recovery for every suggestion.
+- Let the user clean quickly, or control each removal down to individual parts.
+- Preview every manual cleanup before it runs.
+- Stay small and quiet in the background.
 
-### Non-goals for v1
+### Non-goals for the first version
 
-- Automatic deletion. Freeboard never removes anything without a confirmed plan.
-- Cloud accounts, sync, analytics or remote management.
+- Removing Review or Risky items without user confirmation.
+- Cloud accounts, sync, telemetry or remote management.
 - General PC optimization, such as memory cleaning, registry cleaning or startup management.
-- Duplicate-file detection and a full treemap explorer. Both are candidates for a later version.
+- A general file manager or manual folder browser.
 - Mac App Store distribution, because its sandbox limits whole-disk scanning.
 
 ### Performance targets
@@ -54,7 +84,7 @@ Implement this specification milestone by milestone, and treat the safety invari
 Every invariant needs at least one automated test.
 
 1. **Scans are read-only.** Detectors may read files and run read-only commands. They must never change anything.
-2. **Nothing runs without a confirmed plan.** Cleanup requires a saved plan, and the user must confirm that exact plan.
+2. **Nothing runs without a confirmed plan.** Cleanup requires a saved plan, and the user must confirm that exact plan. The only exception is a Keep me tidy rule that the user turned on.
 3. **The backend owns paths and commands.** The frontend sends only plan and suggestion IDs. It never sends a path or command to execute.
 4. **Every item is checked again immediately before cleanup.** The check confirms the item's identity, path, modification state and Git or Docker status. If anything changed, skip the item and report why.
 5. **Protected paths are never touched.** Reject the filesystem root, home directory, system directories, application directories, repository roots, and `.git` directories or files. Canonicalize the path first and test against the canonical form.
@@ -68,6 +98,10 @@ Every invariant needs at least one automated test.
 13. **Every action leaves a record.** Store the plan, each item result, and the before and after free space in local history.
 
 One exception applies to invariant 7. `docker builder prune` and `docker image prune` stop to ask for confirmation, so the backend may pass `--force` to these two commands after the user has confirmed the plan. It only skips Docker's prompt. No other command may use a force flag.
+
+Keep me tidy rules have strict limits. A rule covers only the Safe detector it names, passes the same pre-cleanup checks, and writes the same local record. A rule can never remove Review or Risky items, or anything the user marked Keep.
+
+The disk report stays on the computer until the user pastes it somewhere. It contains sizes, folder names and risk levels, and never file contents.
 
 ### Delete and restore policy
 
@@ -85,31 +119,22 @@ The plan must show three totals: space freed immediately, space held in the Tras
 
 Freeboard is a Tauri 2 app with a Rust core that does all scanning and cleanup, and a React interface that only displays results and sends IDs back. The Rust core keeps running in the tray after the webview is destroyed.
 
-```mermaid
-flowchart TD
-  UI["React interface: shows results, sends IDs only"] <-->|"commands and IDs, events back"| CORE
-  CORE -->|"status changes"| TRAY["Tray and notifications"]
-  subgraph CORE["Rust core"]
-    MON["Monitor"] --> DB["Local SQLite"]
-    SCAN["Scan and detectors"] --> GUARD["Guard and command runner"]
-    CLEAN["Cleanup engine"] --> GUARD
-  end
-  GUARD --> TOOLS["Developer tools: Docker, Git, pnpm, pip"]
-  GUARD --> FILES["Files and Trash"]
-```
+&#91;embedded content: Freeboard architecture · 3 layers\]
 
 All filesystem and command access passes through the guard and runner, which is where the safety invariants are enforced.
 
 | Layer | Choice | Purpose |
 | --- | --- | --- |
-| Shell | Tauri 2 | Windows, tray icon, notifications, packaging |
-| Core | Rust stable, Tokio | Scans, detectors, monitoring, cleanup |
+| Shell | Tauri 2 | Windows, tray, notifications, packaging |
+| Core | Rust stable, Tokio | Scans, detectors, disk map, monitoring, cleanup |
 | Interface | React, TypeScript, Vite | Screens only, with no filesystem or command access |
 | Filesystem walking | `jwalk` | Parallel directory traversal |
+| File hashing | `blake3` | Exact duplicate detection |
 | Free space | `sysinfo` | Volume capacity and free space |
-| Local storage | SQLite through `rusqlite` | Settings, samples, plans and history |
-| Trash | `trash` crate | Trash on macOS, Linux and Recycle Bin on Windows |
+| Local storage | SQLite through `rusqlite` | Settings, samples, decisions, plans and logbook |
+| Trash | `trash` crate | Trash on macOS and Linux, Recycle Bin on Windows |
 | Logging | `tracing` | Local rotating logs, with no file contents |
+| Fonts | Fredoka, Nunito, DM Mono | Bundled with the app, never loaded from a remote host |
 
 ### Tauri permissions
 
@@ -121,8 +146,13 @@ All filesystem and command access passes through the guard and runner, which is 
 
 ```text
 freeboard/
-├── src/                    # React screens and components
-│   ├── screens/            # overview, suggestions, plan, history, settings
+├── src/                    # React interface
+│   ├── features/
+│   │   ├── home/           # Dinghy, free space, goal, areas, pile
+│   │   ├── questions/      # quick questions and Everything I found
+│   │   ├── disk-map/       # map, blind spots, growth, places checked, report
+│   │   ├── cleanup/        # confirmation and progress
+│   │   └── logbook/
 │   ├── components/
 │   └── lib/                # typed wrappers around Tauri commands
 ├── src-tauri/
@@ -131,8 +161,11 @@ freeboard/
 │       ├── commands/       # thin Tauri command handlers
 │       ├── monitor/        # free-space sampling, status and forecast
 │       ├── scan/           # scan orchestration and size measurement
-│       ├── detectors/      # docker, worktrees, projects, caches, files
+│       ├── detectors/      # one module for each detector family
+│       ├── diskmap/        # areas, coverage, blind spots and growth
+│       ├── selection/      # goal, area and pile rules
 │       ├── cleanup/        # plans, safety checks, execution
+│       ├── rules/          # Keep me tidy rules
 │       ├── platform/       # macOS, Linux and Windows differences
 │       ├── runner.rs       # the only module that starts external commands
 │       ├── guard.rs        # protected-path checks
@@ -149,14 +182,26 @@ Every detector returns the same `Suggestion` shape, so the interface and cleanup
 ```ts
 type Risk = "safe" | "review" | "risky";
 type Action = "native_command" | "delete" | "trash" | "none";
+type Group = "docker" | "projects" | "caches" | "ai_models" | "phones_emulators"
+  | "old_tools_apps" | "your_files" | "system";
+
+interface SuggestionPart {
+  id: string;
+  label: string;           // for example a project or model name
+  location: string;
+  sizeBytes: number;
+  selected: boolean;
+}
 
 interface Suggestion {
   id: string;              // stable hash of detector ID and resource identity
   detector: string;        // for example "docker.build_cache"
-  category: "docker" | "worktrees" | "builds" | "caches" | "files";
+  group: Group;
+  mapArea: string;
   title: string;
   location: string;        // path or tool-level description
-  sizeBytes: number;       // actual on-disk size
+  sizeBytes: number;       // actual on-disk size of the selected parts
+  fullSizeBytes: number;
   lastUsedAt: string | null;
   lastUsedLabel: string;
   risk: Risk;
@@ -167,17 +212,52 @@ interface Suggestion {
   recoverable: boolean;
   blockedReason: string | null;
   needsConfirmation: boolean;
+  parts: SuggestionPart[]; // empty when the item can't be split
   fingerprint: string;     // used by the pre-cleanup check
+}
+
+interface PileState {
+  goalBytes: number | "all";
+  areas: Group[];          // empty means everywhere
+  mode: "auto" | "manual";
+  addedIds: string[];
+  takenOutIds: string[];
+  itemIds: string[];       // the current result
+  totalBytes: number;
 }
 
 interface CleanupPlan {
   id: string;
   createdAt: string;
   expiresAt: string;       // 30 minutes after creation
-  itemIds: string[];
+  items: { suggestionId: string; partIds: string[] }[];
   bytesFreedNow: number;
   bytesHeldInTrash: number;
   unrecoverableIds: string[];
+}
+
+interface DiskMap {
+  usedBytes: number;
+  explainedBytes: number;
+  notExplainedBytes: number;
+  areas: { id: string; label: string; bytes: number; leaveAloneBytes: number }[];
+}
+
+interface BlindSpot {
+  id: string;
+  kind: "unscanned_folder" | "needs_permission" | "unknown_files" | "tool_unavailable";
+  title: string;
+  text: string;
+  location: string;
+  sizeBytes: number | null;
+  actionLabel: string;
+}
+
+interface PlaceChecked {
+  detector: string;
+  label: string;
+  state: "found" | "clean" | "unavailable";
+  bytes: number;
 }
 ```
 
@@ -191,7 +271,7 @@ interface CleanupPlan {
 
 ### Ordering
 
-Group suggestions by category and sort each group by size, largest first. The overview's main action uses the total of Safe items.
+Quick questions and each group in Everything I found are sorted by size, largest first. Quick questions include Review and Risky items, except blocked items, items marked Keep, items in the pile, items set to Ask me later and items that changed during a cleanup.
 
 ### Measuring size
 
@@ -206,9 +286,13 @@ Group suggestions by category and sort each group by size, largest first. The ov
 | --- | --- | --- |
 | `settings` | User settings as key and JSON value | Permanent |
 | `free_space_samples` | Volume, time, free bytes and total bytes | Hourly for 30 days |
-| `suggestions` | Results of the latest scan | Replaced on each scan |
-| `cleanup_runs` | Plan, times and before and after free space | 1 year |
-| `cleanup_items` | Item snapshot, action, result and skip reason | 1 year |
+| `suggestions`, `suggestion_parts` | Results of the latest scan | Replaced on each scan |
+| `item_decisions` | Keep, Ask me later and part selections by stable resource ID | Until changed |
+| `pile_state` | Goal, areas, mode, added and taken-out items | Until the next cleanup or reset |
+| `map_snapshots` | Area totals, used to measure growth | Daily for 30 days |
+| `blind_spot_decisions` | Files the user marked as theirs | Until changed |
+| `tidy_rules`, `tidy_runs` | Enabled rules and their runs | Rules permanent, runs 1 year |
+| `cleanup_runs`, `cleanup_items` | Plan, item results and measured free space | 1 year |
 
 ## Scans and detectors
 
@@ -227,22 +311,38 @@ All external commands run through `runner.rs`, with a 20-second default timeout.
 | --- | --- | --- | --- | --- |
 | `docker.build_cache` | Unused build cache | Safe | `docker builder prune` | All |
 | `docker.dangling_images` | Untagged, unused images | Safe | `docker image prune` | All |
+| `docker.disk_slack` | Empty space inside Docker Desktop's disk | Review | Compact with a supported method, after warning that Docker will stop briefly | macOS, Windows |
 | `docker.unused_images` | Tagged images with no container | Review | `docker image rm <image>` | All |
 | `docker.stopped_containers` | Containers stopped for 14+ days | Review | `docker container rm <id>` | All |
 | `docker.volumes` | Volumes with no container | Risky | `docker volume rm <name>`, with individual confirmation | All |
 | `git.worktrees` | Linked worktrees | Review or Risky | `git worktree remove <path>` | All |
-| `project.dependencies` | `node_modules`, `.venv` | Safe or Review | Delete or Trash | All |
+| `project.dependencies` | `node_modules`, `.venv` | Safe or Review | Delete or Trash, split by project | All |
 | `project.build_output` | `target`, `dist`, `build`, `.next` | Safe | Delete | All |
 | `cache.pnpm` | Unreferenced packages | Safe | `pnpm store prune` | All |
 | `cache.pip` | Download cache | Safe | `pip cache purge` | All |
 | `cache.npm` | npm content cache | Safe | Delete `_cacache` | All |
 | `cache.homebrew` | Old downloads | Safe | `brew cleanup` | macOS, Linux |
+| `cache.jetbrains` | Caches from removed IDE versions | Safe | Delete | All |
+| `cache.electron_apps` | Slack, Discord and Teams caches | Safe | Delete while the apps are closed | All |
+| `cache.playwright` | Browser versions no project needs | Safe | Delete | All |
 | `cache.cargo` | Registry and Git download caches | Review | Trash | All |
 | `cache.gradle` | Gradle caches | Review | Trash, only when no Gradle daemon is running | All |
 | `cache.xcode` | DerivedData | Safe | Delete | macOS |
-| `cache.simulators` | Unavailable iOS simulators | Review | `xcrun simctl delete unavailable` | macOS |
+| `ai.ollama` | Models not run for 60+ days | Review | `ollama rm <model>`, split by model | All |
+| `ai.huggingface` | Downloaded models and datasets | Review | Trash | All |
+| `ai.lm_studio` | Downloaded models | Review | Trash, split by model | All |
+| `mobile.ios_backups` | Old device backups | Review | Trash, split by backup | macOS, Windows |
+| `mobile.android_avd` | Emulators not started for 90+ days | Review | Trash, split by emulator | All |
+| `mobile.simulators` | Unavailable iOS simulators | Review | `xcrun simctl delete unavailable` | macOS |
+| `tools.node_versions` | Node versions no project requests | Review | `nvm uninstall <version>`, split by version | All |
+| `tools.rust_toolchains` | Toolchains no project uses | Review | `rustup toolchain uninstall <name>`, split by toolchain | All |
+| `apps.unused` | Apps not opened for 12+ months | Review | Trash on macOS. On Windows and Linux, link to the system uninstaller | All |
+| `files.duplicates` | Exact duplicate files | Review | Move extra copies to Trash, keeping one copy | All |
+| `files.large_media` | Video files not opened for 6+ months | Review | Trash | All |
 | `files.installers` | Old installers and disk images in Downloads | Review | Trash | All |
 | `files.windows_temp` | Old files in `%TEMP%` | Review | Recycle Bin | Windows |
+| `system.snapshots` | Local Time Machine snapshots | Review | `tmutil deletelocalsnapshots <date>`, only after a newer backup exists | macOS |
+| `system.stale_temp` | Temp files left by apps no longer running | Review | Trash | macOS |
 
 `npm cache clean` requires a force flag, which is not an allowed exception, so the npm detector removes the cache folder through the normal safety checks.
 
@@ -284,39 +384,121 @@ Suggest generated folders only when ownership is clear, so an unrelated folder n
 
 A project counts as inactive when none of its source files have changed for 30 days. Skip projects with a running process in that folder, and never scan inside the generated folders themselves.
 
-### Old files
+### Files and system items
 
-For Downloads, suggest `.dmg`, `.pkg`, `.exe`, `.msi`, `.AppImage`, `.deb`, `.rpm` and `.iso` files that have not been opened or modified for 90 days. Do not suggest documents or media in v1.
+- **Installers:** suggest `.dmg`, `.pkg`, `.exe`, `.msi`, `.AppImage`, `.deb`, `.rpm` and `.iso` files in Downloads that have not been opened or modified for 90 days.
+- **Media:** suggest video files of 500 MB or more that have not been opened for 6 months. Do not suggest photos or documents.
+- **Duplicates:** compare by size first, then hash candidates with `blake3`. Treat files as duplicates only when their contents match exactly. Keep one copy, and never include files in hidden folders, app bundles or repositories.
+- **Apps:** use last-opened data. If that data is missing, do not suggest the app.
+- **Snapshots:** skip this detector unless the newest backup can be confirmed.
+
+If a tool has no safe, supported way to perform an action, show the size for information and keep the item out of cleanup. This applies especially to `docker.disk_slack`.
+
+### Disk accounting
+
+Every scan must account for used space from the top down, then assign it to one area. This is what makes gaps visible.
+
+1. Start with used bytes for the monitored volume.
+2. Assign bytes to Projects, Docker, AI models, Caches, Your files, Phones and emulators, Apps and tools, or macOS, using the matching system name on Windows and Linux.
+3. Count every file once. A more specific detector takes priority over its parent folder.
+4. Put everything else in **Not explained**.
+5. Calculate coverage as explained bytes divided by used bytes.
+
+The map totals must equal used bytes within 1%. If they don't, show that the map is incomplete, and do not hide the difference.
+
+### Blind spots
+
+| Kind | Example | Action |
+| --- | --- | --- |
+| Folder outside the scan list | `~/archive` | Scan this folder |
+| Protected location | `/private/var/folders` | Open the operating system permission flow |
+| Unknown files | `.dat` files from an unknown tool | Mark them as yours, or inspect the folder |
+| Tool not available | Docker is not running | Show how to start it, then scan again |
+
+A blind spot stays visible until it is resolved or the user marks the files as theirs. Show as much size information as the system allows, and write "unknown" instead of guessing.
+
+### Places checked and growth
+
+- List every detector that ran as found, clean or unavailable. **Found** and **Clean** are different results, and an unavailable detector must never look clean.
+- Compare daily area totals, and show the fastest-growing areas over 7 days.
+- Show the disk report as copyable JSON with free space, coverage, areas, suggestions and blind spots.
 
 ## Cleanup and monitoring
 
-Cleanup is one confirmed run of a saved plan, and any item that changed since the scan is skipped rather than removed. Monitoring warns on status changes only, so the app doesn't nag.
+The user can clean from one goal or decide item by item, and every manual path ends in the same confirmed plan. Anything that changed since the scan is skipped.
 
-```mermaid
-flowchart TD
-  A["Select items"] --> B["Save the plan"] --> C["Confirm the plan"] --> D["Check item again"]
-  D --> E{"Unchanged?"}
-  E -->|yes| F["Run the action"]
-  E -->|no| G["Skip and explain"]
-  F --> H["Record the result"]
-  G --> H
-  H --> I{"More items?"}
-  I -->|"yes, next item"| D
-  I -->|no| J["Measure space and report"]
-```
+&#91;embedded content: Cleanup flow · 7 steps, 2 decisions\]
 
 Each item is checked on its own, so one changed item doesn't stop the rest of the plan.
 
+### Building the pile
+
+The pile is the set of crates the main button will remove. The rules below are required behavior.
+
+| User action | Result |
+| --- | --- |
+| Choose 20 GB, 50 GB or 100 GB | Fill automatically to at least that amount |
+| Choose All I can | Add every Safe item in the chosen areas |
+| Choose Where from | Limit automatic filling to those groups. Everywhere clears the limit |
+| Add an item or part | Keep it in the pile, even if it isn't Safe |
+| Take a crate out | Remove it, switch to manual mode, and do not replace it |
+| Keep an item | Remove it from the pile and all automatic choices |
+| Stop keeping | Make the item available again |
+| Choose a size again | Leave manual mode and clear taken-out items |
+| Change Where from | Leave manual mode, but keep taken-out items out |
+
+Automatic filling starts with items the user added. It then adds Safe items, largest first, until the goal is met. Review and Risky items are never added automatically.
+
+In manual mode, show: "You chose these by hand. Pick a size again to refill the pile." If the pile is empty, disable the main button and show: "The pile is empty. Pick a size to fill it again." If Safe items fall short of the goal, show the remaining amount and point to the items below.
+
+### Item-level controls
+
+| Control | Where it appears | Behavior |
+| --- | --- | --- |
+| Checkbox | Everything I found, Disk map | Add to or take out of the pile |
+| Remove now | Everything I found, Disk map | Open a confirmation for that item |
+| Keep | Everything I found, Disk map | Mark as Keep, and offer Stop keeping |
+| Remove all here | Group or map area | Open a confirmation for all eligible items in that scope |
+| Add all to pile | Group or map area | Add all eligible items in that scope |
+| Choose which | Items with parts | Select individual projects, models, emulators, apps, backups or versions |
+
+**Remove all here** and **Add all to pile** exclude blocked items, kept items, changed items, and items that need individual confirmation.
+
+For split items, size and every total follow the selected parts. After a partial cleanup, unselected parts stay listed. If no parts are selected, disable the item's checkbox and **Remove now**.
+
+### Quick questions
+
+Show one card at a time, biggest first. Each card shows the item, size, reason, location, last use, action, recovery and **Choose which** where available.
+
+| Button | Behavior |
+| --- | --- |
+| Add to pile | Add the item and move to the next card |
+| Keep, don't ask again | Mark as Keep until the user chooses Stop keeping |
+| Ask me later | Skip it and offer it again from the finished state or the next scan |
+
+A Risky item with `needsConfirmation` requires a tick before **Add to pile** works.
+
 ### Cleanup rules
 
-- The backend builds and stores the plan, then returns its totals and contents to the interface.
+- The backend builds and stores the plan from selected IDs, then returns its totals and contents.
 - A plan expires after 30 minutes, or sooner if a new scan runs. Confirmation of an expired plan is rejected.
-- Each `needsConfirmation` item requires its own acknowledgment before the plan can be confirmed.
+- Each `needsConfirmation` item requires its own acknowledgment in the confirmation.
+- Show three totals: free right away, held in the Trash, and cannot be recovered.
+- Keep the confirm button visible while a long item list scrolls.
 - Only one cleanup can run at a time.
 - The user can cancel between items. Cancellation never interrupts an item already running.
 - If one item fails, record the error and continue with the next item.
 - After the run, measure free space again and report the measured change as well as the expected total.
-- A skipped item stays in Suggestions and shows why it was skipped.
+- A skipped item stays listed and explains why it was skipped.
+
+### Keep me tidy rules
+
+| Rule | Default | Limit |
+| --- | --- | --- |
+| Clear package caches over 30 days old when space is Low | Off | Named Safe cache detectors only |
+| Clear unused Docker build cache every week | Off | `docker.build_cache` only |
+
+Rules run at low priority, stop if a pre-cleanup check fails, and appear in the Logbook. Turning a rule on must state exactly what it will remove.
 
 ### Pre-cleanup checks
 
@@ -351,25 +533,62 @@ Calculate the daily change with a linear fit over the last 14 days of samples. S
 ### Background behavior
 
 - Closing the window hides it to the tray, and the webview is destroyed after 60 seconds hidden.
-- Monitoring and scheduled quick scans continue in Rust.
+- Monitoring, scheduled quick scans and enabled rules continue in Rust.
 - Deep scans run at low priority and pause on battery power by default.
+- The tray view shows Dinghy's status, free space, the current pile total and a button to review it.
+- The tray view closes with its close button, Esc, or a click anywhere outside it.
 - The tray menu offers Open Freeboard, Scan Now, Pause Notifications and Quit.
 
 ## Interface and app contract
 
-The interactive prototype, `freeboard-prototype.html` in this folder, is the reference for screens and flow. Its numbers are sample data, not requirements, and its hull gauge is the intended main visual.
+`freeboard-prototype.html` is the visual reference for this section. Its numbers are example data, not requirements. Open it in a browser, and use it to match layout, tone and interaction.
 
-| Screen | Must show | Main actions |
+### Screen structure
+
+The app has one home view with three sections. Keep Settings behind the gear button, so the main navigation stays small.
+
+| Area | Must show | Main actions |
 | --- | --- | --- |
-| Tray | Status ring and free space | Open, Scan Now, Pause Notifications, Quit |
-| Overview | Hull gauge, status, free space, forecast, space by category and risk, 14-day trend | Review Safe items, Scan Now |
-| Suggestions | Items by category with size, last use, risk, reason, action and recovery | Filter by risk, select items, review plan |
-| Cleanup plan | Space freed right away, space held in Trash, unrecoverable items, resulting free space | Acknowledge risks, confirm, change selection |
-| Cleanup run | Per-item check and result, skip reasons, final measured result | Cancel, empty Trash items, plan another cleanup |
-| History | Date, items, space freed, Trash amount, skipped items | Open run details |
-| Settings | Thresholds, scan schedule, folders, exclusions, startup and notifications | Change settings |
+| Tray | Status, free space, pile total | Review pile, close |
+| Home | Dinghy, speech bubble, free space, status, forecast, goal, Where from, pile total | Toss, See what is inside, Empty it |
+| Quick questions | One card, protected items, Everything I found, Keep me tidy | Decide items, remove by group or item |
+| Disk map | Coverage, map, area details, blind spots, growth, places checked, disk report | Fix blind spots, remove by area or item, copy report |
+| Logbook | Date, result, space freed, Trash amount, skipped items | Open run details |
+| Settings | Warning levels, scan folders, excluded folders, scan schedule, startup, notifications | Change settings |
 
-The gauge shows the top 120 GB of the disk, with the deck line at 0 GB free and the waterline rising as space runs out. Mark Low and Critical on the hull. Status must always appear in text as well as color.
+### Dinghy
+
+Dinghy is an original mascot. Draw it with code or SVG, and keep status available as text.
+
+| Status | Face | Water |
+| --- | --- | --- |
+| Healthy | Happy | Sits high |
+| Low | Worried | Sits lower |
+| Critical | Panicked, with a sweat drop | Almost at the deck |
+
+Deck height moves in a straight line from 0 GB to 60 GB free, then stays still. Show up to 9 crates, largest first, each labeled with its rounded GB. Crates leave the boat during cleanup, and the boat rises as measured free space changes. Respect the operating system's reduced motion setting.
+
+### Visual system
+
+- Match the prototype's color tokens in light and dark modes. Dark mode is a night scene.
+- Use Fredoka for headings, Nunito for interface text and DM Mono for paths and commands.
+- Use semantic colors for Safe, Review and Risky, and always include the text label.
+- Keep corners soft and spacing generous, with one primary action in view.
+
+### Disk map rules
+
+Draw a squarified treemap to scale. Each area is a real button with a text label for assistive tools. Selecting one shows its items and the space to leave alone. Not explained uses a striped, dashed style. Labels must wrap or hide cleanly, and never clip.
+
+### Copy
+
+Dinghy may speak in the first person in the bubble, blind spots and disk map. Controls stay plain and exact. Use these labels: **Toss**, **Add to pile**, **Remove now**, **Keep**, **Stop keeping**, **Keep, don't ask again**, **Ask me later**, **Choose which**, **Remove all here** and **Add all to pile**.
+
+### Accessibility
+
+- Every control works by keyboard and has a visible focus style.
+- Sheets trap focus, close with Esc when no cleanup is running, and return focus when closed.
+- Do not rely on color or animation alone.
+- Re-rendering a list keeps open groups and keyboard focus in place.
 
 ### Tauri commands
 
@@ -378,12 +597,26 @@ The gauge shows the top 120 GB of the disk, with the deck line at 0 GB free and 
 | `get_status` | None | Volumes, status, forecast, Trash total |
 | `start_scan` | `kind` | `scanId` |
 | `get_suggestions` | Optional filters | `Suggestion[]` |
-| `create_plan` | `itemIds` | `CleanupPlan` |
+| `get_disk_map` | Volume | `DiskMap` |
+| `get_blind_spots` | Volume | `BlindSpot[]` |
+| `resolve_blind_spot` | `id`, `action` | Updated map and blind spots |
+| `get_places_checked` | None | `PlaceChecked[]` |
+| `get_growth` | `days` | Area changes |
+| `get_pile` | None | `PileState` |
+| `set_pile_goal` | `goalBytes` | `PileState` |
+| `set_pile_areas` | `areas` | `PileState` |
+| `add_to_pile` | `itemIds` | `PileState` |
+| `take_out_of_pile` | `itemIds` | `PileState` |
+| `set_item_decision` | `itemId`, `decision` | Updated item |
+| `set_item_parts` | `itemId`, `partIds` | Updated item |
+| `create_plan` | `{ source: "pile" }` or `itemIds` | `CleanupPlan` |
 | `acknowledge_item` | `planId`, `itemId` | Updated plan |
 | `run_plan` | `planId` | `runId` |
 | `cancel_run` | `runId` | Accepted or not |
 | `empty_freeboard_trash` | Confirmation token | Result |
-| `list_history` | Page | Run summaries |
+| `set_tidy_rule` | `ruleId`, `enabled` | Updated rules |
+| `create_disk_report` | None | Report JSON |
+| `list_logbook` | Page | Run summaries |
 | `get_settings` | None | `Settings` |
 | `update_settings` | Partial settings | `Settings` |
 
@@ -394,73 +627,110 @@ The gauge shows the top 120 GB of the disk, with the deck line at 0 GB free and 
 | `status_changed` | Volume, status, free bytes |
 | `scan_progress` | Scan ID, phase, detector, current count |
 | `scan_finished` | Scan ID, detector errors, totals |
+| `pile_changed` | `PileState` |
+| `disk_map_changed` | `DiskMap` |
+| `blind_spots_changed` | `BlindSpot[]` |
 | `cleanup_item_updated` | Run ID, item ID, state, reason |
 | `cleanup_finished` | Run ID, measured bytes freed, skipped count |
+| `tidy_rule_ran` | Rule ID, result, bytes freed |
 
 ### Default settings
 
 | Setting | Default |
 | --- | --- |
-| Low threshold | 20 GB |
-| Critical threshold | 8 GB |
+| Low warning | 20 GB |
+| Critical warning | 8 GB |
+| Goal | 50 GB |
+| Where from | Everywhere |
 | Quick scan | Every hour |
 | Deep scan | Only on request |
 | Inactive project | 30 days |
 | Old installer | 90 days |
+| Keep me tidy rules | Off |
 | Pause deep scans on battery | On |
 | Start at login | On |
 | Notifications | On |
 | Scan folders | Chosen during first run |
 
-The first run explains what Freeboard reads, asks for scan folders, and requests any operating system permission only when a feature needs it.
+The first run explains what Freeboard reads, asks for scan folders, and requests an operating system permission only when a feature needs it. This flow isn't in the prototype, so use its visual style.
+
+### Required behavior missing from the prototype
+
+- First-run setup and the permission flow.
+- A confirmation before emptying Trash items.
+- Cancel during cleanup.
+- Scan progress, scan failure and detector-unavailable states.
+- Empty states for a new install, no suggestions, and an empty Logbook.
+- Run details in the Logbook.
+- Adding and excluding scan folders in Settings.
+- Windows and Linux labels, including Recycle Bin and the correct system area name.
 
 ## Delivery plan
 
-Build the read-only product first, because cleanup should only arrive once its suggestions have proven reliable. Each milestone must pass on macOS, Linux and Windows before the next one starts.
+Build the read-only product first, because cleanup should arrive only after its suggestions and disk map have proven reliable. Each milestone must pass on macOS, Linux and Windows before the next one starts.
 
 ### Platform notes
 
 | Platform | Requirements |
 | --- | --- |
-| macOS | Request Full Disk Access only for protected locations. Report APFS purgeable space and local snapshots separately, because totals may differ from Finder. Sign and notarize release builds. |
-| Linux | Test tray behavior on GNOME and KDE. Test WebKitGTK early. Respect XDG cache and data locations. Ship AppImage and `.deb` first. |
+| macOS | Request Full Disk Access only when the user chooses to fix that blind spot. Report APFS purgeable space and local snapshots separately, because totals may differ from Finder. Sign and notarize release builds. |
+| Linux | Test tray behavior on GNOME and KDE. Test WebKitGTK early, especially animation and the treemap. Respect XDG cache and data locations. Ship AppImage and `.deb` first. |
 | Windows | Treat junctions and reparse points as links. Support long paths. Use the Recycle Bin for Trash actions. Sign release builds to reduce SmartScreen warnings. |
-| Docker Desktop | Pruned space may stay inside its virtual disk, so show the measured change instead of promising the expected amount. Do not compact virtual disks in v1. |
-| WSL | Don't scan WSL filesystems in v1. Show their virtual disk files as large items only when found. |
+| Docker Desktop | Pruned space may stay inside its virtual disk, so show the measured change instead of promising the expected amount. Compact only through a supported method, after warning that Docker will stop briefly. |
+| WSL | Don't scan WSL filesystems in the first version. Show virtual disk files in the map when found. |
 
 ### Milestones
 
-1. **Foundation:** create the Tauri app, permissions, SQLite storage, tray, settings and CI builds on all three platforms.
+1. **Foundation:** create the Tauri app, permissions, SQLite storage, tray, settings, bundled fonts, design tokens and CI builds on all three platforms.
    - Exit: installers build, and the frontend cannot reach filesystem or shell APIs.
-2. **Monitoring:** add free-space sampling, status rules, notifications, forecast, Overview and background mode.
-   - Exit: thresholds and hysteresis are tested, and hidden-mode memory is measured.
-3. **Read-only detection:** add the scan engine, size measurement, all detectors and Suggestions.
-   - Exit: fixture tests pass, and no scan changes any fixture.
-4. **Cleanup:** add plans, pre-cleanup checks, execution, Trash handling, cancellation and History.
+2. **Monitoring and home view:** add sampling, status, notifications, forecast, Dinghy, tray view and background mode.
+   - Exit: thresholds and hysteresis are tested, the tray view closes every required way, and hidden-mode memory is measured.
+3. **Disk understanding:** add the scan engine, size measurement, detectors, disk accounting, blind spots, places checked, growth and disk report.
+   - Exit: fixture tests pass, no scan changes a fixture, and map totals match used bytes within 1%.
+4. **Selection:** add goals, areas, the pile, quick questions, item controls, parts and Keep decisions, all read-only.
+   - Exit: every rule in Building the pile has a passing test.
+5. **Cleanup:** add plans, pre-cleanup checks, execution, Trash handling, cancellation and the Logbook.
    - Exit: every safety invariant has a passing test.
-5. **Release readiness:** add first-run setup, performance work, accessibility, signing and documentation.
+6. **Keep me tidy and release:** add rules, first-run setup, empty states, performance work, accessibility, signing and documentation.
    - Exit: every acceptance criterion below passes.
 
 ### Test plan
 
-- **Unit tests:** risk rules, protected paths, size counting, status thresholds, forecast and plan expiry.
-- **Fixture tests:** Git repositories for every worktree state, project folders, symlink traps, and a fake `docker` executable.
+- **Unit tests:** risk rules, protected paths, size counting, status thresholds, forecast, plan expiry and every pile rule.
+- **Fixture tests:** Git repositories for every worktree state, project folders, duplicates, symlink traps, and fake `docker`, `ollama`, `nvm` and `rustup` executables.
+- **Accounting tests:** hard links, nested detectors, unreadable folders, totals and blind spots.
 - **Change-during-cleanup tests:** add a commit, modify a file, start a container and swap a path for a symlink between scan and cleanup.
+- **Partial-selection tests:** remove selected parts, keep the rest, and confirm that sizes and the map update.
 - **Failure tests:** missing tools, command timeouts, permission errors and malformed JSON.
 - **Contract tests:** the frontend cannot execute a path or command directly.
+- **Rule tests:** rules stay off by default, skip kept items and can't remove Review or Risky items.
+- **Interface tests:** keyboard use, focus return, Esc, reduced motion and persistent open groups.
 - **Manual checks:** tray, notifications, Trash and permissions on real macOS, Linux and Windows machines.
 
 ### Acceptance criteria
 
-- [ ] The tray shows correct status and free space on macOS, Linux and Windows.
-- [ ] Crossing Low or Critical sends exactly one notification under the rules above.
-- [ ] Suggestions cover Docker, Git worktrees, dependencies, build output, caches and old installers.
+- [ ] The app visually matches the prototype in light and dark modes.
+- [ ] Dinghy's position and mood match the disk status, and the status also appears in text.
+- [ ] The tray view closes with its close button, Esc and an outside click.
+- [ ] Choosing a goal fills the pile with Safe items, and one confirmation removes them.
+- [ ] Where from limits automatic filling to the chosen groups.
+- [ ] Taking a crate out reduces the total and doesn't refill the pile.
+- [ ] Users can remove or keep an individual item from Everything I found and the Disk map.
+- [ ] Users can act on a whole group or map area.
+- [ ] Users can choose individual parts, and unselected parts stay listed after cleanup.
+- [ ] Crossing Low or Critical sends one notification under the rules above.
+- [ ] Suggestions cover every detector family in this spec.
 - [ ] Every suggestion shows its size, risk, reason, action and recovery.
+- [ ] The disk map accounts for used space within 1%, and unexplained space is visible.
+- [ ] Each blind spot has a working action, and a resolved blind spot updates coverage.
+- [ ] Places checked separates found, clean and unavailable detectors.
+- [ ] The disk report can be copied and contains no file contents.
 - [ ] Dirty, unpushed, locked and unknown-state worktrees can't be selected.
 - [ ] Docker volumes are never preselected and need individual acknowledgment.
 - [ ] The plan separates space freed now, space held in Trash and unrecoverable items.
 - [ ] Items that changed after the scan are skipped and explained.
 - [ ] Cleanup results show measured free-space changes.
+- [ ] Keep me tidy rules are off by default and can remove only named Safe items.
 - [ ] A failed or missing tool does not stop other detectors.
 - [ ] Every safety invariant has an automated test.
 - [ ] The app makes no network calls of its own.
@@ -470,7 +740,8 @@ Build the read-only product first, because cleanup should only arrive once its s
 
 - Will Freeboard be open source? If so, which license?
 - Which operating system should get the first signed release?
-- Is Freeboard the final name after domain, package and trademark checks?
+- Are Freeboard and Dinghy the final names after domain, package and trademark checks?
+- Should a later version add manual folder browsing?
 
 ## Sources
 

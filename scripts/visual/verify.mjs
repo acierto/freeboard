@@ -47,6 +47,7 @@ if (manifest && manifest.sourceSha256 !== protoSha) problems.push("Baselines wer
 const tolerances = loadJson(TOLERANCE_FILE, { version: 1, entries: {} });
 
 const caps = captures().filter((c) => !only || only.test(c.key));
+if (!captures().length) problems.push("The visual matrix has no entries yet; nothing has been compared with the prototype.");
 const { server, base } = await startServer();
 const browser = await launch();
 const engine = engineInfo(browser);
@@ -102,7 +103,8 @@ const workers = Array.from({ length: 6 }, async () => {
 });
 await Promise.all(workers);
 const motion = only ? [] : await motionChecks(browser, base);
-for (const m of motion) if (!m.ok) problems.push(`Reduced-motion check failed on ${m.side} (${m.motion}): wave animation ${m.wave}, waterline transition ${m.sea}.`);
+for (const m of motion)
+  if (!m.ok) problems.push(`Reduced-motion check failed on ${m.side} (${m.motion}): ${m.error ?? `bob ${m.bob}, waves ${m.wave}, boat transition ${m.boat}`}.`);
 await browser.close();
 server.close();
 

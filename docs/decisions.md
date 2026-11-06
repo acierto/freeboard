@@ -90,6 +90,22 @@ The 40 MB hidden-in-tray target is measured as the app's own memory as the OS re
 - **Single instance** (`tauri-plugin-single-instance`). A second launch hands over to the running copy, which opens its window. Needed once the app can run with no window: launching it from the app menu must not start a second tray icon.
 - **Linux notifications** are shown through the desktop notification service directly (`notify-rust`, already a dependency of the notification plugin) so a click opens Suggestions; the plugin does not report clicks on Linux.
 
+## 2026-11-06 — Rebuild to the new specification (openspec change `rebuild-freeboard`)
+
+**New sources replace the old ones.** The user supplied a new specification and prototype on 2026-11-06. They replace `docs/reference/FREEBOARD_SPEC.md` and `docs/reference/freeboard-prototype.html` in place (hashes in `docs/reference/README.md`); the earlier versions remain in git history. The spec wins on data, safety and behavior; the prototype wins on layout, flows, labels and tone. Reason: the spec's own build-reference rule.
+
+**`build-freeboard` superseded.** The earlier OpenSpec change described the hull-gauge interface. It was deleted (kept in git history) and replaced by `rebuild-freeboard`, chosen by the user. Rust code that meets the new spec is kept and extended; every old screen and flow is replaced (spec: "Do not preserve older screens or flows").
+
+**Unused apps: one narrow exception to protected application directories (decided by the user).** Safety invariant 5 protects application directories, while `apps.unused` moves unused apps to the Trash on macOS. Decision: on macOS only, a single top-level, non-system `.app` bundle directly inside `/Applications` or `~/Applications` may be moved to the Trash — never deleted permanently — and only with its own acknowledgment in the plan. Nothing inside a bundle, no application directory itself and no system app is ever touched. On Windows and Linux the detector links to the system uninstaller. Reason: the spec lists both rules; this keeps the invariant's intent while allowing the listed action.
+
+**Prototype-only parts are not shipped:** example data, Pretend free space, Start over, the forced skip of `old-experiment`, and the simulated Allow access result. The visual verifier hides the first two in the reference.
+
+**Docker disk compaction stays information-only** until a supported method is verified for each platform. Reason: the spec says to show such items for information when no safe, supported action exists.
+
+**Platform scope: Windows is in scope (confirmed by the user, 2026-11-06).** Every milestone must pass on macOS, Linux and Windows, as the new spec requires. This supersedes the 2026-11-04 decision that scoped v1 to macOS and Linux.
+
+**License.** The spec's open question on licensing was already answered: MIT (2026-11-04).
+
 ## Visual baselines
 
 - 2026-11-04: Baselines regenerated from `docs/reference/freeboard-prototype.html` (SHA-256 `62c25122e55f…`, chromium 156.0.8078.4, 191 captures). Rationale: Initial reference-derived baselines captured from the supplied prototype; supplemental states are derived from its own components as documented per entry in the manifest. Rendering uses `--disable-partial-raster` with zero pixel tolerance (experiment in `docs/visual-verification.md`). *(Entry restored from `visual/baseline/manifest.json` after an editing error removed the original line.)*

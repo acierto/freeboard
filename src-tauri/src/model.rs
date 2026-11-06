@@ -42,6 +42,34 @@ pub enum Action {
     None,
 }
 
+/// Suggestion groups (spec "Data model"): the areas the user chooses
+/// Where from, and the groups in Everything I found, in display order.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, PartialOrd, Ord)]
+#[serde(rename_all = "snake_case")]
+pub enum Group {
+    Docker,
+    Projects,
+    Caches,
+    AiModels,
+    PhonesEmulators,
+    OldToolsApps,
+    YourFiles,
+    System,
+}
+
+impl Group {
+    pub const ALL: [Group; 8] = [
+        Group::Docker,
+        Group::Projects,
+        Group::Caches,
+        Group::AiModels,
+        Group::PhonesEmulators,
+        Group::OldToolsApps,
+        Group::YourFiles,
+        Group::System,
+    ];
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, PartialOrd, Ord)]
 #[serde(rename_all = "lowercase")]
 pub enum Category {

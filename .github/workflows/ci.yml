@@ -111,6 +111,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install chromium
+      - name: App stylesheet is the prototype's, byte for byte
+        run: npm run verify:styles
       # Pixel baselines are specific to the machine that rendered them (text
       # rasterization differs between OS versions), so CI compares the app
       # with the prototype rendered on the same runner (decision 2026-11-05).

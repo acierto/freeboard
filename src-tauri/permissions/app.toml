@@ -21,5 +21,22 @@ commands.allow = [
   "remove_folder",
   "folder_suggestions",
   "add_suggested_folder",
-  "set_notifications_paused"
+  "set_notifications_paused",
+  # Rebuild command set (spec "Tauri commands", 2026-11-06). Each one takes IDs,
+  # ID lists, enums, numbers or booleans only; contract_tests.rs enforces this.
+  "get_disk_map",
+  "get_blind_spots",
+  "resolve_blind_spot",
+  "get_places_checked",
+  "get_growth",
+  "get_pile",
+  "set_pile_goal",
+  "set_pile_areas",
+  "add_to_pile",
+  "take_out_of_pile",
+  "set_item_decision",
+  "set_item_parts",
+  "set_tidy_rule",
+  "create_disk_report",
+  "list_logbook"
 ]

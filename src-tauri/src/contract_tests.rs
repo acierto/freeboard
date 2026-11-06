@@ -46,6 +46,10 @@ fn inv03_app_commands_take_ids_not_paths() {
         "get_status", "start_scan", "get_suggestions", "create_plan", "create_permanent_plan", "get_plan", "acknowledge_item", "run_plan",
         "cancel_run", "get_run", "get_trash", "empty_freeboard_trash", "list_history", "get_settings",
         "update_settings", "add_folder", "remove_folder", "set_notifications_paused",
+        // Rebuild command table (spec "Tauri commands").
+        "get_disk_map", "get_blind_spots", "resolve_blind_spot", "get_places_checked", "get_growth", "get_pile",
+        "set_pile_goal", "set_pile_areas", "add_to_pile", "take_out_of_pile", "set_item_decision", "set_item_parts",
+        "set_tidy_rule", "create_disk_report", "list_logbook",
     ];
     for c in expected {
         assert!(toml.contains(&format!("\"{c}\"")), "{c} missing from allowlist");
@@ -138,5 +142,83 @@ fn inv12_frontend_has_no_remote_urls() {
                 assert!(!s.contains(bad), "{} contains {bad}", p.display());
             }
         }
+    }
+}
+
+/// Every command argument must be something that cannot carry a path or a
+/// command line: a framework handle, an ID (a `String` named `id`, `*_id` or
+/// `token`, validated by `app_core::validate_id`), a list of IDs (`*_ids`), a
+/// number, a boolean, or a typed enum or patch defined in Rust. A free-form
+/// string under any other name fails this test (invariant 3).
+#[test]
+fn inv03_command_arguments_are_ids_enums_numbers_or_bools() {
+    let src = std::fs::read_to_string(root().join("src/commands/mod.rs")).unwrap();
+    // Typed, non-string inputs defined in Rust.
+    const TYPED: &[&str] = &[
+        "ScanKind", "Option<SuggestionFilter>", "FolderList", "UiSettingsPatch", "Goal", "Vec<Group>", "ItemDecision",
+        "BlindSpotAction", "PlanSource", "TidyRuleId", "VolumeId",
+    ];
+    const FRAMEWORK: &[&str] = &["Core<'_>", "tauri::AppHandle", "AppHandle"];
+    const SCALARS: &[&str] = &["u32", "u64", "bool", "Option<u32>", "Option<u64>"];
+    let mut checked = 0;
+    let mut lines = src.lines();
+    while let Some(l) = lines.next() {
+        if l.trim() != "#[tauri::command]" {
+            continue;
+        }
+        let mut sig = String::new();
+        for next in lines.by_ref() {
+            sig.push_str(next.trim());
+            if next.contains('{') {
+                break;
+            }
+        }
+        let args = sig.split_once('(').and_then(|(_, r)| r.rsplit_once(") ->").or_else(|| r.rsplit_once(')'))).map(|(a, _)| a).unwrap_or("");
+        for arg in split_args(args) {
+            let (name, ty) = arg.split_once(':').map(|(n, t)| (n.trim(), t.trim())).unwrap_or(("", ""));
+            if name.is_empty() {
+                continue;
+            }
+            let ok = FRAMEWORK.contains(&ty)
+                || SCALARS.contains(&ty)
+                || TYPED.contains(&ty)
+                || (ty == "String" && (name == "id" || name.ends_with("_id") || name == "token"))
+                || (ty == "Vec<String>" && name.ends_with("_ids"));
+            assert!(ok, "command argument `{name}: {ty}` in `{sig}` could carry a path or command");
+            checked += 1;
+        }
+    }
+    assert!(checked > 10, "parsed too few command arguments ({checked})");
+}
+
+fn split_args(s: &str) -> Vec<String> {
+    // Split on commas that are not inside <...> generics.
+    let (mut out, mut cur, mut depth) = (Vec::new(), String::new(), 0i32);
+    for ch in s.chars() {
+        match ch {
+            '<' => depth += 1,
+            '>' => depth -= 1,
+            ',' if depth == 0 => {
+                out.push(std::mem::take(&mut cur));
+                continue;
+            }
+            _ => {}
+        }
+        cur.push(ch);
+    }
+    if !cur.trim().is_empty() {
+        out.push(cur);
+    }
+    out
+}
+
+#[test]
+fn inv03_argument_rule_rejects_a_path_argument() {
+    // The rule above is only useful if it fails on a bad signature.
+    let bad = ["path: String", "folder: String", "command: String", "paths: Vec<String>"];
+    for arg in bad {
+        let (name, ty) = arg.split_once(':').map(|(n, t)| (n.trim(), t.trim())).unwrap();
+        let id_like = (ty == "String" && (name == "id" || name.ends_with("_id") || name == "token")) || (ty == "Vec<String>" && name.ends_with("_ids"));
+        assert!(!id_like, "{arg} would have been accepted");
     }
 }
