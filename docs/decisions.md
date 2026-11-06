@@ -122,6 +122,12 @@ The 40 MB hidden-in-tray target is measured as the app's own memory as the OS re
 
 **Single text strings.** Labels such as "12.4 GB free" are rendered as one string, as the prototype does. Splitting them into separate React text nodes changes Chromium's text shaping by a few pixels (found by the verifier on the tray view).
 
+## 2026-11-06 — Vertical slices (decided by the user)
+
+**What happened.** Milestone 2 built the new home view against the fixture backend and deleted the old screens. The Rust commands it calls (pile, disk map, Logbook) were planned for milestones 3–5, so the installed app could show free space and the tray view but nothing else: goals did nothing, Where from listed no groups, the pile was always empty, the tabs were empty, scan folders could not be changed, and nothing could be cleaned. The browser checks passed because they run against sample data; the real app was not clicked through.
+
+**Decision.** The remaining work is re-planned as vertical slices (`openspec/changes/rebuild-freeboard/tasks.md`, groups 3–5): find and choose; clean up and Logbook; disk map and the new detectors. Each slice ships its Rust commands and its interface together and ends with a scripted click-through of the real installed app. A contract test makes it impossible for the interface to call a command the Rust core does not have. This departs from the spec's milestone order (read-only product first), but each slice still keeps scans read-only and cleanup behind confirmed plans, so the safety invariants are unchanged. Windows checks wait until after slice 1.
+
 ## Visual baselines
 
 - 2026-11-04: Baselines regenerated from `docs/reference/freeboard-prototype.html` (SHA-256 `62c25122e55f…`, chromium 156.0.8078.4, 191 captures). Rationale: Initial reference-derived baselines captured from the supplied prototype; supplemental states are derived from its own components as documented per entry in the manifest. Rendering uses `--disable-partial-raster` with zero pixel tolerance (experiment in `docs/visual-verification.md`). *(Entry restored from `visual/baseline/manifest.json` after an editing error removed the original line.)*
