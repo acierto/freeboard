@@ -86,6 +86,45 @@ const idle = (p) => p.waitForFunction(() => document.documentElement.dataset.bus
   await ctx.close();
 }
 
+// Disk map: tiles are real buttons reachable by keyboard; Enter selects one;
+// blind spots and the report go to the backend by ID only.
+{
+  const { p, ctx } = await page();
+  await p.click("#tab-map");
+  await idle(p);
+  const tiles = await p.$$eval("#map .tile", (ts) => ts.map((t) => ({ tag: t.tagName, name: t.getAttribute("aria-label"), tab: t.tabIndex })));
+  check("map: every tile is a focusable button with a name and size", tiles.length === 9 && tiles.every((t) => t.tag === "BUTTON" && t.tab === 0 && / GB$/.test(t.name)), JSON.stringify(tiles));
+  check("map: the area with the most to remove is selected first", (await p.textContent("#tile-detail h3")) === "AI models");
+  await p.focus('[data-tile="projects"]');
+  let reached = null;
+  for (let i = 0; i < 12 && reached !== "docker"; i++) {
+    await p.keyboard.press("Tab");
+    reached = await p.evaluate(() => document.activeElement?.getAttribute("data-tile"));
+  }
+  check("map: Tab moves from tile to tile", reached === "docker", String(reached));
+  await p.keyboard.press("Enter");
+  await idle(p);
+  check("map: Enter selects the focused tile", (await p.textContent("#tile-detail h3")) === "Docker" && (await p.getAttribute('[data-tile="docker"]', "aria-pressed")) === "true");
+  const outline = await p.evaluate(() => getComputedStyle(document.activeElement).outlineStyle);
+  check("map: the focused tile shows a visible focus ring", outline === "solid", outline);
+  await p.focus('[data-tile="unknown"]');
+  await p.keyboard.press(" ");
+  await idle(p);
+  check("map: Not explained lists the blind spots", (await p.$$("#tile-detail .detail-row")).length === 3);
+  await p.evaluate(() => (window.__FIXTURE_CALLS__ = []));
+  await p.click('[data-spot="mystery"]');
+  await idle(p);
+  const sent = await p.evaluate(() => window.__FIXTURE_CALLS__.find((c) => c.cmd === "resolve_blind_spot")?.args);
+  check("map: a blind spot is resolved by ID and action only", JSON.stringify(sent) === JSON.stringify({ id: "mystery", action: "mark_mine" }), JSON.stringify(sent));
+  check("map: a resolved blind spot shows as done and coverage rises", (await p.$$(".spot.done")).length === 1 && (await p.textContent(".cover b")) === "96.7% explained", await p.textContent(".cover b"));
+  await p.click('[data-act="report"]');
+  await idle(p);
+  await p.waitForSelector("#report-box textarea, #report-box p");
+  const report = await p.evaluate(() => document.querySelector("#report-text")?.value ?? "copied");
+  check("map: the disk report is shown or copied", report === "copied" || JSON.parse(report).free_gb === 12.4, report.slice(0, 80));
+  await ctx.close();
+}
+
 await browser.close();
 server.close();
 for (const r of results) console.log(`${r.ok ? "PASS" : "FAIL"}  ${r.name}${r.ok || !r.detail ? "" : "  (" + r.detail + ")"}`);

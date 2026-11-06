@@ -75,13 +75,64 @@ export interface DiskMapArea {
   label: string;
   bytes: number;
   leaveAloneBytes: number;
+  // Additions (never replace spec fields)
+  /** What the leave-alone space is ("Models you used recently"). */
+  leaveAloneLabel: string;
 }
 
 export interface DiskMap {
   usedBytes: number;
   explainedBytes: number;
   notExplainedBytes: number;
+  /** In prototype TILES order; Not explained is `notExplainedBytes`. */
   areas: DiskMapArea[];
+  // Additions (never replace spec fields)
+  /** The areas add up to more than used space by over 1%. */
+  incomplete: boolean;
+  overBytes: number;
+  /** When folders were last measured (a deep scan); null before the first. */
+  measuredAt: string | null;
+  /** macOS: purgeable space and local snapshots, reported separately. */
+  purgeableBytes: number | null;
+  snapshotCount: number | null;
+}
+
+export type BlindSpotKind = "unscanned_folder" | "needs_permission" | "unknown_files" | "tool_unavailable";
+export type BlindSpotAction = "scan_folder" | "mark_mine" | "open_settings" | "scan_again";
+
+export interface BlindSpot {
+  id: string;
+  kind: BlindSpotKind;
+  title: string;
+  text: string;
+  location: string;
+  /** null when the system does not let Freeboard know ("unknown"). */
+  sizeBytes: number | null;
+  actionLabel: string;
+  // Additions (never replace spec fields)
+  /** Sent back to `resolve_blind_spot`; the backend checks it. */
+  action: BlindSpotAction;
+  state: "open" | "working" | "done";
+  doneText: string | null;
+}
+
+export interface BlindSpotResult {
+  map: DiskMap;
+  blindSpots: BlindSpot[];
+}
+
+export interface PlaceChecked {
+  detector: string;
+  label: string;
+  /** Found and clean differ; unavailable never looks clean. */
+  state: "found" | "clean" | "unavailable";
+  bytes: number;
+}
+
+export interface AreaGrowth {
+  id: string;
+  label: string;
+  bytes: number;
 }
 
 export type DiskStatus = "healthy" | "low" | "critical";
@@ -283,6 +334,7 @@ export interface EventMap {
   scan_finished: ScanFinished;
   pile_changed: PileState;
   disk_map_changed: DiskMap;
+  blind_spots_changed: BlindSpot[];
   cleanup_item_updated: CleanupItemUpdated;
   cleanup_finished: CleanupFinished;
   navigate: Navigate;

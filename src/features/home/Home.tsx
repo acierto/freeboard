@@ -10,7 +10,9 @@ import { SettingsSheet } from "../settings/SettingsSheet";
 import { FirstRun } from "../onboarding/FirstRun";
 import { QuickQuestions } from "../questions/Questions";
 import { Logbook } from "../logbook/Logbook";
-import { areaChoices, bubbleText, coveragePercent, forecastText, moodOf, pileItems, pileNote, questionDeck, scanLabel, tossLabel } from "./homeModel";
+import { DiskMapView } from "../map/DiskMapView";
+import { coverageBadge } from "../map/mapModel";
+import { areaChoices, bubbleText, forecastText, moodOf, pileItems, pileNote, questionDeck, scanLabel, tossLabel } from "./homeModel";
 import { useHarbor } from "./useHarbor";
 
 type Tab = "tidy" | "map" | "log";
@@ -44,7 +46,8 @@ export function Home({ navigate }: { navigate: View | null }) {
   const st = STATUS[status.status];
   const items = pileItems(pile, suggestions);
   const deck = questionDeck(pile, suggestions).length;
-  const coverage = map && map.notExplainedBytes > 0 ? Math.round(coveragePercent(map.usedBytes, map.notExplainedBytes)) : null;
+  // Prototype: the badge shows while some space is unexplained.
+  const coverage = coverageBadge(map);
   const areas = areaChoices(suggestions);
   const anyArea = pile.areas.length > 0;
 
@@ -171,11 +174,19 @@ export function Home({ navigate }: { navigate: View | null }) {
           <QuickQuestions items={suggestions} pile={pile} act={{ add: h.add, takeOut: h.takeOut, decide: h.decide, parts: h.parts }} />
         </section>
         <section id="v-map" className="two" hidden={tab !== "map"}>
-          {/* The disk map needs its Rust accounting (slice 3, tasks 5.9–5.12). */}
-          <div className="card stack">
-            <h3>The disk map is on its way</h3>
-            <p className="muted">I can't yet account for all the space on your disk. Until I can, use Everything I found under Quick questions to see what I found.</p>
-          </div>
+          {map && (
+            <DiskMapView
+              map={map}
+              spots={h.data.spots}
+              places={h.data.places}
+              growth={h.data.growth}
+              items={suggestions}
+              pile={pile}
+              platform={status.platform}
+              act={{ add: h.add, takeOut: h.takeOut, decide: h.decide, parts: h.parts }}
+              onResolve={h.resolveSpot}
+            />
+          )}
         </section>
         <section id="v-log" className="card" hidden={tab !== "log"}>
           {tab === "log" && <Logbook platform={status.platform} refresh={status.trashBytes} />}

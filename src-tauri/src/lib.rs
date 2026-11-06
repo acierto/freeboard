@@ -7,6 +7,7 @@ pub mod cleanup;
 #[cfg(test)]
 mod contract_tests;
 pub mod detectors;
+pub mod diskmap;
 pub mod guard;
 pub mod model;
 pub mod monitor;
@@ -334,6 +335,7 @@ mod shell {
                     clock: system_clock(),
                     platform: crate::platform::platform_name(),
                     extra_protected: vec![data_dir.clone()],
+                    measure_outside_home: true,
                 });
                 core.set_shell(Arc::new(TauriShell(handle.clone())));
                 crate::tray::build(&handle, core.notifications_paused())?;
@@ -374,6 +376,12 @@ mod shell {
                 crate::commands::take_out_of_pile,
                 crate::commands::set_item_decision,
                 crate::commands::set_item_parts,
+                crate::commands::get_disk_map,
+                crate::commands::get_blind_spots,
+                crate::commands::resolve_blind_spot,
+                crate::commands::get_places_checked,
+                crate::commands::get_growth,
+                crate::commands::create_disk_report,
                 crate::commands::get_settings,
                 crate::commands::update_settings,
                 crate::commands::add_folder,

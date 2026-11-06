@@ -463,6 +463,8 @@ pub const EV_SCAN_FINISHED: &str = "scan_finished";
 pub const EV_CLEANUP_ITEM_UPDATED: &str = "cleanup_item_updated";
 pub const EV_CLEANUP_FINISHED: &str = "cleanup_finished";
 pub const EV_PILE_CHANGED: &str = "pile_changed";
+pub const EV_DISK_MAP_CHANGED: &str = "disk_map_changed";
+pub const EV_BLIND_SPOTS_CHANGED: &str = "blind_spots_changed";
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

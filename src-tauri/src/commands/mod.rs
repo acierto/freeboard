@@ -5,7 +5,8 @@ use std::sync::Arc;
 
 use tauri::State;
 
-use crate::app_core::{AppCore, CmdResult, CommandError, FolderList, SuggestionFilter};
+use crate::app_core::{AppCore, BlindSpotResult, CmdResult, CommandError, FolderList, SuggestionFilter, VolumeId};
+use crate::diskmap::{AreaGrowth, BlindSpot, BlindSpotAction, DiskMap, PlaceChecked};
 use crate::model::*;
 use crate::settings::{Goal, Settings, UiSettingsPatch};
 
@@ -111,6 +112,40 @@ pub async fn set_item_decision(core: Core<'_>, item_id: String, decision: Option
 #[tauri::command]
 pub async fn set_item_parts(core: Core<'_>, item_id: String, part_ids: Vec<String>) -> CmdResult<Suggestion> {
     core.set_item_parts(item_id, part_ids)
+}
+
+// ----- disk map (spec "Disk accounting", "Blind spots", "Places checked") -----
+
+#[tauri::command]
+pub async fn get_disk_map(core: Core<'_>, volume: VolumeId) -> CmdResult<DiskMap> {
+    core.get_disk_map(volume)
+}
+
+#[tauri::command]
+pub async fn get_blind_spots(core: Core<'_>, volume: VolumeId) -> CmdResult<Vec<BlindSpot>> {
+    core.get_blind_spots(volume)
+}
+
+/// Fix a blind spot by its ID. The path, if any, comes from the backend's
+/// own measurement; the interface never sends one.
+#[tauri::command]
+pub async fn resolve_blind_spot(core: Core<'_>, id: String, action: BlindSpotAction) -> CmdResult<BlindSpotResult> {
+    core.resolve_blind_spot(&id, action)
+}
+
+#[tauri::command]
+pub async fn get_places_checked(core: Core<'_>) -> CmdResult<Vec<PlaceChecked>> {
+    core.get_places_checked()
+}
+
+#[tauri::command]
+pub async fn get_growth(core: Core<'_>, days: u32) -> CmdResult<Vec<AreaGrowth>> {
+    core.get_growth(days)
+}
+
+#[tauri::command]
+pub async fn create_disk_report(core: Core<'_>) -> CmdResult<serde_json::Value> {
+    core.create_disk_report()
 }
 
 #[tauri::command]

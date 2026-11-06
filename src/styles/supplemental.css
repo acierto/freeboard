@@ -9,3 +9,13 @@
 .tray-window .popover { position: static; width: 100%; }
 /* In the app's transparent tray window, only the card and its shadow show. */
 html.tray-native, html.tray-native body { background: transparent; }
+
+/* Disk map: a tile whose label does not fit hides it, like the prototype's
+   small tiles, so labels never clip (spec "Disk map rules"). */
+.tile.tiny-fit i, .tile.tiny-fit b { display: none; }
+/* Places checked: a detector that could not run never looks clean. */
+.place.off { background: none; border: 1px dashed var(--muted); color: var(--muted); }
+/* The disk report box. The prototype renders in quirks mode, where an inline
+   textarea gets no baseline gap below it; the app (standards mode) shows it
+   as a block to keep the same height. */
+.report-text { display: block; }

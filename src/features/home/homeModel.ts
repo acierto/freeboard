@@ -95,6 +95,7 @@ export function scanLabel(p: { phase: string; detector: string | null; currentCo
   if (p.phase === "discovering") return `Looking through your folders · ${n} files and folders`;
   if (p.phase === "worktrees") return `Checking Git worktrees · ${n} ${p.currentCount === 1 ? "repository" : "repositories"}`;
   if (p.phase === "projects") return `Measuring project folders · ${n} checked`;
+  if (p.phase === "measuring") return `Measuring folders for the disk map · ${n} files and folders`;
   const d = p.detector ?? "";
   const family = d.split(".")[0];
   const names: Record<string, string> = {

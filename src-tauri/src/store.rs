@@ -447,6 +447,43 @@ impl Store {
         Ok(())
     }
 
+    // ----- disk map (map_snapshots, blind_spot_decisions) -----------------
+
+    /// Store one day's area totals (daily, replaced during the day).
+    pub fn save_map_day(&self, volume: &str, day: i64, json: &str) -> Result<(), StoreError> {
+        self.conn().execute(
+            "INSERT INTO map_snapshots(volume, day, json) VALUES (?1, ?2, ?3) ON CONFLICT(volume, day) DO UPDATE SET json = excluded.json",
+            params![volume, day, json],
+        )?;
+        Ok(())
+    }
+
+    /// Daily area totals since `since_day`, oldest first.
+    pub fn map_days(&self, volume: &str, since_day: i64) -> Result<Vec<(i64, String)>, StoreError> {
+        let c = self.conn();
+        let mut st = c.prepare("SELECT day, json FROM map_snapshots WHERE volume = ?1 AND day >= ?2 ORDER BY day")?;
+        let rows = st.query_map(params![volume, since_day], |r| Ok((r.get::<_, i64>(0)?, r.get::<_, String>(1)?)))?.collect::<Result<Vec<_>, _>>()?;
+        Ok(rows)
+    }
+
+    /// Blind-spot decisions: spot ID -> (decision text, time).
+    pub fn spot_decisions(&self) -> Result<std::collections::HashMap<String, (String, i64)>, StoreError> {
+        let c = self.conn();
+        let mut st = c.prepare("SELECT spot_id, decision, at FROM blind_spot_decisions")?;
+        let m = st
+            .query_map([], |r| Ok((r.get::<_, String>(0)?, (r.get::<_, String>(1)?, r.get::<_, i64>(2)?))))?
+            .collect::<Result<std::collections::HashMap<_, _>, _>>()?;
+        Ok(m)
+    }
+
+    pub fn set_spot_decision(&self, spot_id: &str, decision: &str, at: i64) -> Result<(), StoreError> {
+        self.conn().execute(
+            "INSERT INTO blind_spot_decisions(spot_id, decision, at) VALUES (?1, ?2, ?3) ON CONFLICT(spot_id) DO UPDATE SET decision = excluded.decision, at = excluded.at",
+            params![spot_id, decision, at],
+        )?;
+        Ok(())
+    }
+
     // ----- Keep me tidy rules ---------------------------------------------
 
     /// Whether a Keep me tidy rule is on. Rules are off unless the user

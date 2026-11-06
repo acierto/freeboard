@@ -12,6 +12,7 @@ use std::sync::{Arc, Mutex, RwLock};
 use serde::{Deserialize, Serialize};
 
 use crate::cleanup::{CleanupEngine, CleanupError};
+use crate::diskmap;
 use crate::guard::Guard;
 use crate::model::*;
 use crate::monitor::{self, Monitor, VolumeSource};
@@ -88,6 +89,21 @@ pub struct SuggestionFilter {
     pub risk: Option<Risk>,
 }
 
+/// The volume a disk-map command is about. Only the home volume has a map.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum VolumeId {
+    Home,
+}
+
+/// `resolve_blind_spot` answers with the updated map and blind spots.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BlindSpotResult {
+    pub map: diskmap::DiskMap,
+    pub blind_spots: Vec<diskmap::BlindSpot>,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum FolderList {
@@ -138,6 +154,11 @@ pub struct AppCore {
     platform: &'static str,
     /// Folders last offered to the user; the interface picks one by index.
     folder_offers: Mutex<Vec<PathBuf>>,
+    /// Disk map: also measure system locations outside the home folder.
+    /// Off for cores over fixture homes (tests), on for the real app.
+    pub measure_outside_home: bool,
+    /// Disk map: size from which a folder becomes a blind spot.
+    blind_spot_min: std::sync::atomic::AtomicU64,
 }
 
 /// A folder Freeboard offers to scan (shown to the user; chosen by index).
@@ -159,6 +180,8 @@ pub struct CoreConfig {
     pub platform: &'static str,
     /// Extra protected locations (e.g. the app data directory).
     pub extra_protected: Vec<PathBuf>,
+    /// Disk map: measure system locations outside home (the real app only).
+    pub measure_outside_home: bool,
 }
 
 pub fn system_clock() -> Clock {
@@ -208,6 +231,8 @@ impl AppCore {
             clock: cfg.clock,
             platform: cfg.platform,
             folder_offers: Mutex::new(Vec::new()),
+            measure_outside_home: cfg.measure_outside_home,
+            blind_spot_min: std::sync::atomic::AtomicU64::new(diskmap::roots::BLIND_SPOT_MIN),
         })
     }
 
@@ -414,7 +439,7 @@ impl AppCore {
             platform: self.platform,
         };
         let outcome = scan::run_scan(&ctx, &self.detectors);
-        let canceled = self.scan_cancel.load(Ordering::Relaxed);
+        let mut canceled = self.scan_cancel.load(Ordering::Relaxed);
         let mut findings = outcome.findings;
         if kind == ScanKind::Quick {
             // Keep the latest deep-only results; replace everything a quick scan re-checked.
@@ -424,9 +449,26 @@ impl AppCore {
             }
             scan::sort_findings(&mut findings);
         }
+        // Deep scans also measure the area roots for the disk map (design D4);
+        // quick scans reuse the latest measurement and never walk the disk.
+        if kind == ScanKind::Deep && !canceled {
+            let m = self.measure_areas(&ctx, &findings, scan_id);
+            canceled = m.canceled || self.scan_cancel.load(Ordering::Relaxed);
+            if !canceled {
+                let _ = self.store.meta_set("disk_measurement", &serde_json::to_string(&m).unwrap_or_default());
+            }
+        }
         let now = self.now();
         if !canceled {
             let _ = self.store.replace_findings(scan_id, &findings);
+            let ran: Vec<&'static str> = self
+                .detectors
+                .iter()
+                .filter(|d| d.platforms().contains(&self.platform) && (!d.deep_only() || kind == ScanKind::Deep))
+                .map(|d| d.id())
+                .collect();
+            let places = diskmap::merge_places(self.places(), &ran, &findings, &outcome.errors);
+            let _ = self.store.meta_set("places_checked", &serde_json::to_string(&places).unwrap_or_default());
             // Ask me later lasts until the next scan.
             let _ = self.store.clear_later_decisions();
             let _ = self.store.meta_set("detector_errors", &serde_json::to_string(&outcome.errors).unwrap_or_default());
@@ -460,6 +502,245 @@ impl AppCore {
         if let Ok(p) = self.get_pile() {
             self.emit(EV_PILE_CHANGED, &p);
         }
+        if !canceled {
+            self.map_changed(true);
+        }
+    }
+
+    // ----- disk map (spec "Disk accounting", "Blind spots", "Places checked") ----
+
+    fn measure_areas(&self, ctx: &ScanContext, findings: &[Finding], scan_id: &str) -> diskmap::Measurement {
+        let discovery = scan::walk::discover(ctx);
+        let (claims, _) = diskmap::claims_of(findings);
+        let progress = |n: u64| {
+            if let Ok(mut r) = self.scan.try_lock() {
+                r.phase = Some("measuring".into());
+            }
+            self.emit(EV_SCAN_PROGRESS, &ScanProgress { scan_id: scan_id.into(), phase: "measuring".into(), detector: None, current_count: n });
+        };
+        let env = diskmap::roots::MeasureEnv {
+            home: self.home.clone(),
+            platform: self.platform,
+            scan_roots: scan::walk::roots(ctx),
+            exclusions: scan::walk::exclusions(ctx),
+            repos: &discovery.repos,
+            full_disk_access: self.volumes.full_disk_access(self.platform),
+            outside_home: self.measure_outside_home,
+            cancel: ctx.cancel,
+            progress: &progress,
+            now: ctx.now,
+            min_blind_spot: self.blind_spot_min.load(Ordering::Relaxed),
+        };
+        diskmap::roots::measure(&env, &claims)
+    }
+
+    /// Fixtures are small: let tests lower the blind-spot size.
+    #[cfg(test)]
+    pub(crate) fn set_blind_spot_min(&self, bytes: u64) {
+        self.blind_spot_min.store(bytes, Ordering::Relaxed);
+    }
+
+    fn measurement(&self) -> Option<diskmap::Measurement> {
+        self.store.meta_get("disk_measurement").and_then(|v| serde_json::from_str(&v).ok())
+    }
+
+    fn spot_decisions(&self) -> std::collections::HashMap<String, diskmap::SpotDecision> {
+        self.store
+            .spot_decisions()
+            .unwrap_or_default()
+            .into_iter()
+            .map(|(id, (text, at))| {
+                let d = serde_json::from_str::<diskmap::SpotDecision>(&text).unwrap_or(diskmap::SpotDecision {
+                    decision: text,
+                    at,
+                    kind: None,
+                    title: String::new(),
+                    location: String::new(),
+                    path: String::new(),
+                    bytes: None,
+                });
+                (id, diskmap::SpotDecision { at, ..d })
+            })
+            .collect()
+    }
+
+    fn places(&self) -> Vec<diskmap::PlaceChecked> {
+        self.store.meta_get("places_checked").and_then(|v| serde_json::from_str(&v).ok()).unwrap_or_default()
+    }
+
+    fn home_volume(&self) -> Option<VolumeStatus> {
+        let s = self.settings();
+        let r = self.volumes.read(&self.home, &s.extra_volumes).into_iter().next()?;
+        let mut v = vec![VolumeStatus {
+            id: r.id,
+            name: r.name,
+            mount_point: r.mount_point,
+            free_bytes: r.free,
+            total_bytes: r.total,
+            status: DiskStatus::Healthy,
+            purgeable_bytes: None,
+            snapshot_count: None,
+        }];
+        self.add_platform_details(&mut v, self.now());
+        v.pop()
+    }
+
+    fn build_map(&self) -> CmdResult<diskmap::DiskMap> {
+        let vol = self.home_volume();
+        let used = vol.as_ref().map(|v| v.total_bytes.saturating_sub(v.free_bytes)).unwrap_or(0);
+        let findings = self.store.findings()?;
+        let (claims, native) = diskmap::claims_of(&findings);
+        let m = self.measurement();
+        let decisions = self.spot_decisions();
+        Ok(diskmap::build(&diskmap::BuildInput {
+            used_bytes: used,
+            platform: self.platform,
+            claims: &claims,
+            native: &native,
+            measurement: m.as_ref(),
+            system_volume_bytes: self.volumes.platform_volume_bytes(self.platform),
+            decisions: &decisions,
+            purgeable_bytes: vol.as_ref().and_then(|v| v.purgeable_bytes),
+            snapshot_count: vol.as_ref().and_then(|v| v.snapshot_count),
+        }))
+    }
+
+    fn spots(&self) -> CmdResult<Vec<diskmap::BlindSpot>> {
+        let s = self.settings();
+        let m = self.measurement();
+        let errors: Vec<DetectorError> = self.store.meta_get("detector_errors").and_then(|v| serde_json::from_str(&v).ok()).unwrap_or_default();
+        let canon = |v: &[String]| -> Vec<PathBuf> { v.iter().map(|p| std::fs::canonicalize(p).unwrap_or_else(|_| PathBuf::from(p))).collect() };
+        let findings = self.store.findings()?;
+        let decisions = self.spot_decisions();
+        let scanning = self.scan.lock().unwrap().running.is_some();
+        Ok(diskmap::blind_spots(&diskmap::SpotInput {
+            measurement: m.as_ref(),
+            errors: &errors,
+            decisions: &decisions,
+            scan_folders: &canon(&s.scan_folders),
+            exclusions: &canon(&s.exclusions),
+            full_disk_access: self.volumes.full_disk_access(self.platform),
+            scanning,
+            now: self.now(),
+            last_scan_at: self.store.meta_get("last_scan_at").and_then(|v| v.parse().ok()),
+            platform: self.platform,
+            home: &self.home,
+            findings: &findings,
+        }))
+    }
+
+    /// Recompute the map, store today's area totals (growth) and tell the interface.
+    fn map_changed(&self, snapshot: bool) {
+        let Ok(map) = self.build_map() else { return };
+        if snapshot {
+            let day = diskmap::DaySnapshot {
+                used_bytes: map.used_bytes,
+                not_explained_bytes: map.not_explained_bytes,
+                areas: map.areas.iter().map(|a| (a.id.clone(), a.bytes)).collect(),
+            };
+            let _ = self.store.save_map_day("home", self.now().div_euclid(86_400), &serde_json::to_string(&day).unwrap_or_default());
+        }
+        self.emit(EV_DISK_MAP_CHANGED, &map);
+        if let Ok(spots) = self.spots() {
+            self.emit(EV_BLIND_SPOTS_CHANGED, &spots);
+        }
+    }
+
+    pub fn get_disk_map(&self, _volume: VolumeId) -> CmdResult<diskmap::DiskMap> {
+        self.build_map()
+    }
+
+    /// Blind spots, re-checked on every call (the interface asks again when
+    /// the window regains focus, so granted access shows up without a scan).
+    pub fn get_blind_spots(&self, _volume: VolumeId) -> CmdResult<Vec<diskmap::BlindSpot>> {
+        self.spots()
+    }
+
+    pub fn get_places_checked(&self) -> CmdResult<Vec<diskmap::PlaceChecked>> {
+        Ok(self.places())
+    }
+
+    pub fn get_growth(&self, days: u32) -> CmdResult<Vec<diskmap::AreaGrowth>> {
+        let days = days.clamp(1, 30);
+        let today = self.now().div_euclid(86_400);
+        let rows = self.store.map_days("home", today - 30)?;
+        let parsed: Vec<(i64, diskmap::DaySnapshot)> = rows.into_iter().filter_map(|(d, j)| serde_json::from_str(&j).ok().map(|s| (d, s))).collect();
+        Ok(diskmap::growth(&parsed, days, self.platform))
+    }
+
+    /// The copyable disk report. Sizes, folder names and risk levels only.
+    pub fn create_disk_report(&self) -> CmdResult<serde_json::Value> {
+        let map = self.build_map()?;
+        let spots = self.spots()?;
+        let vol = self.home_volume();
+        let suggestions = self.decided_suggestions()?;
+        Ok(diskmap::report(&diskmap::ReportInput {
+            total_bytes: vol.as_ref().map(|v| v.total_bytes).unwrap_or(0),
+            free_bytes: vol.as_ref().map(|v| v.free_bytes).unwrap_or(0),
+            platform: self.platform,
+            map: &map,
+            spots: &spots,
+            suggestions: &suggestions,
+        }))
+    }
+
+    /// Fix a blind spot (design D5). The interface sends the spot's ID and the
+    /// action it was offered; paths come from the backend's own records.
+    pub fn resolve_blind_spot(self: &Arc<Self>, id: &str, action: diskmap::BlindSpotAction) -> CmdResult<BlindSpotResult> {
+        use diskmap::BlindSpotAction as A;
+        validate_id(id)?;
+        let spot = self
+            .spots()?
+            .into_iter()
+            .find(|s| s.id == id && s.state != diskmap::SpotState::Done)
+            .ok_or_else(|| CommandError::new("unknown_id", "That blind spot is no longer open."))?;
+        if spot.action != action {
+            return Err(CommandError::new("invalid_action", "That is not the action for this blind spot."));
+        }
+        let m = self.measurement();
+        let path = diskmap::spot_path(m.as_ref(), id).unwrap_or_default();
+        let record = |decision: &str| {
+            let d = diskmap::SpotDecision {
+                decision: decision.into(),
+                at: self.now(),
+                kind: Some(spot.kind),
+                title: spot.title.clone(),
+                location: spot.location.clone(),
+                path: path.clone(),
+                bytes: spot.size_bytes,
+            };
+            self.store.set_spot_decision(id, &serde_json::to_string(&d).unwrap_or_default(), d.at)
+        };
+        match action {
+            A::ScanFolder => {
+                if path.is_empty() {
+                    return Err(CommandError::new("unknown_id", "That folder is no longer there."));
+                }
+                if !self.settings().scan_folders.iter().any(|f| Path::new(f) == Path::new(&path)) {
+                    self.add_folder(FolderList::ScanFolders, Path::new(&path))?;
+                }
+                record("scan")?;
+                self.start_scan(ScanKind::Deep)?;
+            }
+            A::MarkMine => {
+                record("mine")?;
+            }
+            A::OpenSettings => {
+                // Opens the pane only; the spot stays open until a scan can
+                // really read the place (the result is never simulated).
+                self.runner
+                    .open_settings(crate::runner::SettingsPane::FullDiskAccess, self.platform)
+                    .map_err(|e| CommandError::new("unavailable", format!("Could not open System Settings: {e}")))?;
+                record("asked")?;
+            }
+            A::ScanAgain => {
+                record("rescan")?;
+                let kind = if spot.kind == diskmap::BlindSpotKind::ToolUnavailable { ScanKind::Quick } else { ScanKind::Deep };
+                self.start_scan(kind)?;
+            }
+        }
+        self.map_changed(false);
+        Ok(BlindSpotResult { map: self.build_map()?, blind_spots: self.spots()? })
     }
 
     pub fn get_suggestions(&self, filter: Option<SuggestionFilter>) -> CmdResult<Vec<Suggestion>> {
@@ -872,6 +1153,7 @@ pub(crate) mod tests {
             clock: Arc::new(move || cv.load(Ordering::Relaxed)),
             platform: crate::platform::platform_name(),
             extra_protected: vec![],
+            measure_outside_home: false,
         });
         (core, free, clock_v, sink)
     }

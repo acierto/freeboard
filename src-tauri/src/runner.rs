@@ -72,6 +72,26 @@ pub enum Policy {
     ReadOnly,
     /// Confirmed cleanup actions.
     Action,
+    /// Opening an operating-system settings pane: only the exact constant
+    /// commands in `SETTINGS_PANES`, never an argument from anywhere else.
+    OpenSettings,
+}
+
+/// Operating-system settings panes Freeboard may open for a blind spot.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SettingsPane {
+    /// macOS Privacy & Security > Full Disk Access.
+    FullDiskAccess,
+}
+
+/// The only commands `Policy::OpenSettings` allows: (pane, platform, program,
+/// arguments). Arguments are constants; nothing is ever appended to them.
+pub const SETTINGS_PANES: &[(SettingsPane, &str, &str, &[&str])] =
+    &[(SettingsPane::FullDiskAccess, "macos", "open", &["x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles"])];
+
+/// The command that opens `pane` on `platform`, if there is one.
+pub fn settings_command(pane: SettingsPane, platform: &str) -> Option<Cmd> {
+    SETTINGS_PANES.iter().find(|(p, os, _, _)| *p == pane && *os == platform).map(|(_, _, prog, args)| Cmd::new(prog, args.iter()))
 }
 
 /// Proof that a plan was confirmed. Only the cleanup engine constructs it.
@@ -215,6 +235,11 @@ fn action_allowed(cmd: &Cmd) -> bool {
 /// Check a command against a policy. Force flags are allowed only for
 /// `docker builder prune` and `docker image prune` with a confirmed plan.
 pub fn check(cmd: &Cmd, policy: Policy, confirmed: Option<&Confirmed>) -> Result<(), RunError> {
+    if policy == Policy::OpenSettings {
+        let exact = cmd.cwd.is_none()
+            && SETTINGS_PANES.iter().any(|(_, _, prog, args)| cmd.program == *prog && cmd.args.iter().map(|a| a.as_str()).eq(args.iter().copied()));
+        return if exact { Ok(()) } else { Err(RunError::Forbidden(format!("{} is not an allowed settings pane", cmd.display()))) };
+    }
     if cmd.program.contains('/') || cmd.program.contains('\\') || !PROGRAMS.contains(&cmd.program.as_str()) {
         return Err(RunError::Forbidden(format!("{} is not an allowed program", cmd.program)));
     }
@@ -241,6 +266,7 @@ pub fn check(cmd: &Cmd, policy: Policy, confirmed: Option<&Confirmed>) -> Result
                 return Err(RunError::Forbidden("force flags are not allowed for this command".into()));
             }
         }
+        Policy::OpenSettings => unreachable!("handled above"),
     }
     Ok(())
 }
@@ -306,6 +332,14 @@ impl Runner {
     pub fn run_read(&self, cmd: &Cmd) -> Result<CmdOutput, RunError> {
         check(cmd, Policy::ReadOnly, None)?;
         self.exec(cmd)
+    }
+
+    /// Open an operating-system settings pane (blind spots). Only the constant
+    /// commands in `SETTINGS_PANES` can run this way.
+    pub fn open_settings(&self, pane: SettingsPane, platform: &str) -> Result<CmdOutput, RunError> {
+        let cmd = settings_command(pane, platform).ok_or_else(|| RunError::Forbidden("no settings pane on this platform".into()))?;
+        check(&cmd, Policy::OpenSettings, None)?;
+        self.exec(&cmd)
     }
 
     /// Run a cleanup action for a confirmed plan.
@@ -482,6 +516,46 @@ mod tests {
             assert!(check(&c(p, &["-c", "echo"]), Policy::ReadOnly, None).is_err(), "{p}");
             assert!(check(&c(p, &[]), Policy::Action, Some(&Confirmed::new("p"))).is_err(), "{p}");
         }
+    }
+
+    #[test]
+    fn settings_policy_allows_only_the_constant_panes() {
+        let fda = settings_command(SettingsPane::FullDiskAccess, "macos").unwrap();
+        assert_eq!(fda.program, "open");
+        assert!(check(&fda, Policy::OpenSettings, None).is_ok());
+        // No pane on other platforms.
+        assert!(settings_command(SettingsPane::FullDiskAccess, "linux").is_none());
+        assert!(settings_command(SettingsPane::FullDiskAccess, "windows").is_none());
+        // Anything else is refused: other arguments, extra arguments, paths,
+        // other programs, a working folder.
+        for bad in [
+            c("open", &["/Users/me/Documents"]),
+            c("open", &["-a", "Terminal"]),
+            c("open", &["x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles", "/etc"]),
+            c("open", &["https://example.com"]),
+            c("open", &[]),
+            c("docker", &["system", "df"]),
+            c("/usr/bin/open", &["x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles"]),
+            c("sh", &["-c", "open x-apple.systempreferences:"]),
+        ] {
+            assert!(check(&bad, Policy::OpenSettings, None).is_err(), "{bad:?}");
+        }
+        assert!(check(&fda.clone().in_dir(Path::new("/tmp")), Policy::OpenSettings, None).is_err());
+        // `open` is never allowed by the scan or cleanup policies.
+        assert!(check(&fda, Policy::ReadOnly, None).is_err());
+        assert!(check(&fda, Policy::Action, Some(&Confirmed::new("p"))).is_err());
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn open_settings_runs_the_constant_command_only() {
+        let d = tempfile::tempdir().unwrap();
+        let log = d.path().join("log");
+        fake::tool(d.path(), "open", &format!(r#"for a in "$@"; do echo "[$a]" >> '{}'; done"#, log.display()));
+        let r = Runner::with_path(d.path());
+        assert!(r.open_settings(SettingsPane::FullDiskAccess, "linux").is_err());
+        r.open_settings(SettingsPane::FullDiskAccess, "macos").unwrap();
+        assert_eq!(std::fs::read_to_string(&log).unwrap(), "[x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles]\n");
     }
 
     #[cfg(unix)]

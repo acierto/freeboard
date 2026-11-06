@@ -20,8 +20,8 @@
   "locale": "en-US",
   "timezone": "UTC",
   "adapter": "scripts/visual/lib.mjs referenceHtml(): local fonts, data-theme, host reset (src/styles/reset.css), prototype-only controls hidden (.top-right .sim, .top-right [data-act=\"reset\"], .top > div > .note, .top-right .tray)",
-  "acceptedAt": "2026-11-06T13:42:21.660Z",
-  "rationale": "Rebuild milestone 2: home at Healthy, Low and Critical and the tray view, from the new harbor prototype (2026-11-06)",
+  "acceptedAt": "2026-11-06T21:24:50.800Z",
+  "rationale": "Slice 3 disk map (task 5.12): the Disk map tab at its default, each tile selected, each blind spot resolved, all resolved, places opened and the report shown, from the prototype's own controls; the coverage badge is restored on the home entries. Reference edits: Remove now and Remove all here dropped until cleanup brings the confirmation sheet, and tile labels the prototype would cut off are hidden as the spec requires (2026-11-06)",
   "entries": {
     "home-critical--dark--1120x900": {
       "id": "home-critical",
@@ -328,6 +328,1536 @@
       "supplemental": false,
       "note": null,
       "sha256": "f54854938f6806788a8adabeb95ed331178d1a0eb9f513abeed063f305252aad"
+    },
+    "map-default--dark--1120x900": {
+      "id": "map-default",
+      "surface": "Disk map",
+      "state": "Disk map, AI models selected (the prototype's default)",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "e35554eafe465a0e1258cfe855f88642e817634157a8ec64417efb124d012cea"
+    },
+    "map-default--dark--390x844": {
+      "id": "map-default",
+      "surface": "Disk map",
+      "state": "Disk map, AI models selected (the prototype's default)",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "a574abfc14b82c9c0d94ce523197145127fe29040930a5f4635204ba30682940"
+    },
+    "map-default--dark--760x900": {
+      "id": "map-default",
+      "surface": "Disk map",
+      "state": "Disk map, AI models selected (the prototype's default)",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "8eaa2349a12a5aa923c4305c3c4f4b57a54e487476549106c0c66b8d2a2e0c77"
+    },
+    "map-default--light--1120x900": {
+      "id": "map-default",
+      "surface": "Disk map",
+      "state": "Disk map, AI models selected (the prototype's default)",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "1404721f32fe18dfc5ac6f3109a8bcb626b97e91296d43a78649e9e6f30f8c94"
+    },
+    "map-default--light--390x844": {
+      "id": "map-default",
+      "surface": "Disk map",
+      "state": "Disk map, AI models selected (the prototype's default)",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "8572fd158263a317be688ef18816b4accf499f9f167ab904bdee7abe7266ec46"
+    },
+    "map-default--light--760x900": {
+      "id": "map-default",
+      "surface": "Disk map",
+      "state": "Disk map, AI models selected (the prototype's default)",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "6034023541c87297d3dea5146cde930abfc067a687bbc299baedd20bd56fd360"
+    },
+    "map-places--dark--1120x900": {
+      "id": "map-places",
+      "surface": "Disk map",
+      "state": "Places I checked opened",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "e8891eb13ebf05fcdb8854680e2be7df8a0c771a94a3092d00e75f04f90cbec7"
+    },
+    "map-places--dark--390x844": {
+      "id": "map-places",
+      "surface": "Disk map",
+      "state": "Places I checked opened",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "bde84ea882c25a1e2b81ffa1a6dfc7f38ce6689638666a70839e02f2712f2f91"
+    },
+    "map-places--dark--760x900": {
+      "id": "map-places",
+      "surface": "Disk map",
+      "state": "Places I checked opened",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "8fce5b42a71e44639979f5f1c5d21b4f28598f65f059be137c4a0e5a76978c08"
+    },
+    "map-places--light--1120x900": {
+      "id": "map-places",
+      "surface": "Disk map",
+      "state": "Places I checked opened",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "1b6fd5d35e5bcea36c0970ec1063db1b639ec1e4124866d701e215c0dfe7963a"
+    },
+    "map-places--light--390x844": {
+      "id": "map-places",
+      "surface": "Disk map",
+      "state": "Places I checked opened",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "92db467c0a1cab4fe1a75cab4fdf9fa8508c426ee1592db5ed98eed285148cda"
+    },
+    "map-places--light--760x900": {
+      "id": "map-places",
+      "surface": "Disk map",
+      "state": "Places I checked opened",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "8cacef5940510d4b06a3cb1a9d068818c282f1948415ee6249774bd3d8562e72"
+    },
+    "map-report--dark--1120x900": {
+      "id": "map-report",
+      "surface": "Disk map",
+      "state": "Disk report shown in the copy-by-hand box",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "228e0f5cb0abc0480446fa0bd1da28faf2c8775b2bc455c10764300a8a2124fa"
+    },
+    "map-report--dark--390x844": {
+      "id": "map-report",
+      "surface": "Disk map",
+      "state": "Disk report shown in the copy-by-hand box",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "07bf5ec4c152de9bab0decd6bda1e81408001623b5a5e691b7c20b88a895941a"
+    },
+    "map-report--dark--760x900": {
+      "id": "map-report",
+      "surface": "Disk map",
+      "state": "Disk report shown in the copy-by-hand box",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "cc039a02c9f4cadfd09bb071b1b408f7763403d639fc0d0fd17a222a0200651a"
+    },
+    "map-report--light--1120x900": {
+      "id": "map-report",
+      "surface": "Disk map",
+      "state": "Disk report shown in the copy-by-hand box",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "2c120ac8358f7be53cc57d3bc15207d7f483e2f4ba81736a757a44e30e463b0f"
+    },
+    "map-report--light--390x844": {
+      "id": "map-report",
+      "surface": "Disk map",
+      "state": "Disk report shown in the copy-by-hand box",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "7a99fc3ab9f4ffe79bc220cd0de32c065168df617eaa8038de02f6c78c425cd3"
+    },
+    "map-report--light--760x900": {
+      "id": "map-report",
+      "surface": "Disk map",
+      "state": "Disk report shown in the copy-by-hand box",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "355d5254981b6e1476f4183cfc15891feb423ea1a9c385586245cf2afde3765b"
+    },
+    "map-spot-access--dark--1120x900": {
+      "id": "map-spot-access",
+      "surface": "Disk map",
+      "state": "Blind spot resolved: access granted, then scanned (the app waits for a scan that can read it)",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "72d7b535a57eb238f0918f1b7f0ee252c7e598bb985d1f02792ba19fc962b34f"
+    },
+    "map-spot-access--dark--390x844": {
+      "id": "map-spot-access",
+      "surface": "Disk map",
+      "state": "Blind spot resolved: access granted, then scanned (the app waits for a scan that can read it)",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "5fc7718a58f57b7ee561046fed786f442c311449d1e43a0519fcac4aa44b112a"
+    },
+    "map-spot-access--dark--760x900": {
+      "id": "map-spot-access",
+      "surface": "Disk map",
+      "state": "Blind spot resolved: access granted, then scanned (the app waits for a scan that can read it)",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "458d94420b11aa3bceb6f20aac3b6379b61bf0a3c1db1732ea6238cb6790dae9"
+    },
+    "map-spot-access--light--1120x900": {
+      "id": "map-spot-access",
+      "surface": "Disk map",
+      "state": "Blind spot resolved: access granted, then scanned (the app waits for a scan that can read it)",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "c083abadde99d9dd6ed16c0e17a1948c6e5ae9067eee3a18d6e7a1493bb080fc"
+    },
+    "map-spot-access--light--390x844": {
+      "id": "map-spot-access",
+      "surface": "Disk map",
+      "state": "Blind spot resolved: access granted, then scanned (the app waits for a scan that can read it)",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "b025ef58af78e77fedb578035ab119d1ae41e6feba16e17f30d9f308c59b59e3"
+    },
+    "map-spot-access--light--760x900": {
+      "id": "map-spot-access",
+      "surface": "Disk map",
+      "state": "Blind spot resolved: access granted, then scanned (the app waits for a scan that can read it)",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "3ad7aecb5e22de5aec57668b8b408472a0204a8a85dab39f5917eaed465abc6a"
+    },
+    "map-spot-archive--dark--1120x900": {
+      "id": "map-spot-archive",
+      "surface": "Disk map",
+      "state": "Blind spot resolved: folder scanned",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "01da51bb44beb5df564bdab97f1d3f3a264db966f526f0e75d3792adb114dc4e"
+    },
+    "map-spot-archive--dark--390x844": {
+      "id": "map-spot-archive",
+      "surface": "Disk map",
+      "state": "Blind spot resolved: folder scanned",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "d78154b68916f6a7f3294e6acd14c93dd3fd5bc75250bc2d5b65b4b885209a47"
+    },
+    "map-spot-archive--dark--760x900": {
+      "id": "map-spot-archive",
+      "surface": "Disk map",
+      "state": "Blind spot resolved: folder scanned",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "25aa16d01b6bdd4b082e1341a940052a772665903796c87589b6f6f771796f4a"
+    },
+    "map-spot-archive--light--1120x900": {
+      "id": "map-spot-archive",
+      "surface": "Disk map",
+      "state": "Blind spot resolved: folder scanned",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "c8db021668fd62c50e1b776439cfbfc20b7417dfeaf029718375e413ed5d74cb"
+    },
+    "map-spot-archive--light--390x844": {
+      "id": "map-spot-archive",
+      "surface": "Disk map",
+      "state": "Blind spot resolved: folder scanned",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "4d60cbe3befe7d8890324ed8acfd03ad76d6d8eb42f8dbe406bc8db14358e192"
+    },
+    "map-spot-archive--light--760x900": {
+      "id": "map-spot-archive",
+      "surface": "Disk map",
+      "state": "Blind spot resolved: folder scanned",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "fd7582b486aea3f44dd5a04113e26b0070ce5df45fea4c7c0b1f6df2a3b85f26"
+    },
+    "map-spot-mystery--dark--1120x900": {
+      "id": "map-spot-mystery",
+      "surface": "Disk map",
+      "state": "Blind spot resolved: files marked as mine",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "6de8be4ac3a35a25518803a3b56bdd872f75b39537a095528f8a4cffa1345a02"
+    },
+    "map-spot-mystery--dark--390x844": {
+      "id": "map-spot-mystery",
+      "surface": "Disk map",
+      "state": "Blind spot resolved: files marked as mine",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "c32ee0c2a85b2b9f4acc500df32b9a71d5f968b047e65044a43a9b7e3daa4cfe"
+    },
+    "map-spot-mystery--dark--760x900": {
+      "id": "map-spot-mystery",
+      "surface": "Disk map",
+      "state": "Blind spot resolved: files marked as mine",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "629e843928e98f68f9130076df6f4e733969f7554096234b75debca142971446"
+    },
+    "map-spot-mystery--light--1120x900": {
+      "id": "map-spot-mystery",
+      "surface": "Disk map",
+      "state": "Blind spot resolved: files marked as mine",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "904924bf4837e8751a2cdcc6289e7fee90e9061bf7515c1e9acd70727892b849"
+    },
+    "map-spot-mystery--light--390x844": {
+      "id": "map-spot-mystery",
+      "surface": "Disk map",
+      "state": "Blind spot resolved: files marked as mine",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "cfe354208507aa3e2d61cc6d06406de9354cbebbc1e61b0cfddd33134a5f239c"
+    },
+    "map-spot-mystery--light--760x900": {
+      "id": "map-spot-mystery",
+      "surface": "Disk map",
+      "state": "Blind spot resolved: files marked as mine",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "b5f86e8d0e7242894139490c9c92545fc9e60e9c85d60a0f19f48e720c633de0"
+    },
+    "map-spots-all--dark--1120x900": {
+      "id": "map-spots-all",
+      "surface": "Disk map",
+      "state": "Every blind spot resolved: Not explained is gone, Your files selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "05203283fb65101188176ff42907f0f6902173ad6a0fd17c95ad52fc8f710fce"
+    },
+    "map-spots-all--dark--390x844": {
+      "id": "map-spots-all",
+      "surface": "Disk map",
+      "state": "Every blind spot resolved: Not explained is gone, Your files selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "87a05942a422c23e5eb0684068d4ae43076c1c465119d3c4c05f3a1c09a47bc2"
+    },
+    "map-spots-all--dark--760x900": {
+      "id": "map-spots-all",
+      "surface": "Disk map",
+      "state": "Every blind spot resolved: Not explained is gone, Your files selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "1b0ef2a27c759eef91fd7c4e3cf13794d6643f3c44f9b353e822033f7dfd0341"
+    },
+    "map-spots-all--light--1120x900": {
+      "id": "map-spots-all",
+      "surface": "Disk map",
+      "state": "Every blind spot resolved: Not explained is gone, Your files selected",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "4a80815274a3c00e7e2dd5b4a9d30b3973534cd555cef8bc8b555e6ccf851fa4"
+    },
+    "map-spots-all--light--390x844": {
+      "id": "map-spots-all",
+      "surface": "Disk map",
+      "state": "Every blind spot resolved: Not explained is gone, Your files selected",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "80a665bfcbbcce8f4c272341d99b068465c3fa6eadbe526e7a18434120dae75a"
+    },
+    "map-spots-all--light--760x900": {
+      "id": "map-spots-all",
+      "surface": "Disk map",
+      "state": "Every blind spot resolved: Not explained is gone, Your files selected",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "f60a9336f5eb62290221b4915222b71e9f276e3167e12aead1c59e2fafea1e0c"
+    },
+    "map-tile-apps--dark--1120x900": {
+      "id": "map-tile-apps",
+      "surface": "Disk map",
+      "state": "Disk map, apps selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "1b5703a14817474e8b41c43765543e0003e3bb457502ab960fc33618c010db49"
+    },
+    "map-tile-apps--dark--390x844": {
+      "id": "map-tile-apps",
+      "surface": "Disk map",
+      "state": "Disk map, apps selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "11c4642baf18e53cac921ecdd2b40e9b9b000cf0fb0671d371817f52c5de6b83"
+    },
+    "map-tile-apps--dark--760x900": {
+      "id": "map-tile-apps",
+      "surface": "Disk map",
+      "state": "Disk map, apps selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "dc28e178b7c5edfdd5ce70a4488ab6d6720497354b384312560dc4aca66fae4c"
+    },
+    "map-tile-apps--light--1120x900": {
+      "id": "map-tile-apps",
+      "surface": "Disk map",
+      "state": "Disk map, apps selected",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "392be9ba8ce8a24182ae6c39de7c297c027fdfa5da2c09ab20343cca5b59aa69"
+    },
+    "map-tile-apps--light--390x844": {
+      "id": "map-tile-apps",
+      "surface": "Disk map",
+      "state": "Disk map, apps selected",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "df2e664ac5df4453974fb796f54ae074a76bead4fd1d5f96e038bf134b3b5d33"
+    },
+    "map-tile-apps--light--760x900": {
+      "id": "map-tile-apps",
+      "surface": "Disk map",
+      "state": "Disk map, apps selected",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "55ed254a3d0d778d44f6eb7532e16a4ebc0fd4e1e536835ed5f0b50559ad347d"
+    },
+    "map-tile-caches--dark--1120x900": {
+      "id": "map-tile-caches",
+      "surface": "Disk map",
+      "state": "Disk map, caches selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "d853ca8e4d91c9dcc4f18bada22ff4c1430dce745c1217e301745321cf3b14f2"
+    },
+    "map-tile-caches--dark--390x844": {
+      "id": "map-tile-caches",
+      "surface": "Disk map",
+      "state": "Disk map, caches selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "54d50c3e5e499e155b974e88055e2b96da65103e99ef23478ca4a52df200f915"
+    },
+    "map-tile-caches--dark--760x900": {
+      "id": "map-tile-caches",
+      "surface": "Disk map",
+      "state": "Disk map, caches selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "1c399dd437faa81378e32751a342c049081f3eff515ebf6e250c5aaeacc48bc2"
+    },
+    "map-tile-caches--light--1120x900": {
+      "id": "map-tile-caches",
+      "surface": "Disk map",
+      "state": "Disk map, caches selected",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "e52b0cd35914c9e947c98d77c035a64f744485c4e7039a3d6cfa9fa5705109b5"
+    },
+    "map-tile-caches--light--390x844": {
+      "id": "map-tile-caches",
+      "surface": "Disk map",
+      "state": "Disk map, caches selected",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "a37c6a6db46e3da5491724c523cd433125aaa544939aabec80c2575dd0b95937"
+    },
+    "map-tile-caches--light--760x900": {
+      "id": "map-tile-caches",
+      "surface": "Disk map",
+      "state": "Disk map, caches selected",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "3de9272d22bcadc0ff943b8bdb7d2af92802fb6b5d76309447807118b6643366"
+    },
+    "map-tile-docker--dark--1120x900": {
+      "id": "map-tile-docker",
+      "surface": "Disk map",
+      "state": "Disk map, docker selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "ce8de494c6556045b71aaccde5fc3561c48f2bb84e21e197dcabe946e94645d6"
+    },
+    "map-tile-docker--dark--390x844": {
+      "id": "map-tile-docker",
+      "surface": "Disk map",
+      "state": "Disk map, docker selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "7cd7850a9e397cee542103cbcb933c57f8ffbaa12f31ffd2a3ce60321298ae8e"
+    },
+    "map-tile-docker--dark--760x900": {
+      "id": "map-tile-docker",
+      "surface": "Disk map",
+      "state": "Disk map, docker selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "d6be659c7d949c1de436513bb0d85d92ef2f7e67d283368b3f5102e0525f4b0d"
+    },
+    "map-tile-docker--light--1120x900": {
+      "id": "map-tile-docker",
+      "surface": "Disk map",
+      "state": "Disk map, docker selected",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "5af25d8f1b6e2242db4976990f086bb75402ffc443e3074a28c542ac56ca85ed"
+    },
+    "map-tile-docker--light--390x844": {
+      "id": "map-tile-docker",
+      "surface": "Disk map",
+      "state": "Disk map, docker selected",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "7ad5b3c7129f0ed475d679958a78946ebb86a1e9c72b1f36949a6420ab22c587"
+    },
+    "map-tile-docker--light--760x900": {
+      "id": "map-tile-docker",
+      "surface": "Disk map",
+      "state": "Disk map, docker selected",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "75283254fb1435bd250cb76889247bf227425d9c6fef3da070ac47f9fc7a57d4"
+    },
+    "map-tile-files--dark--1120x900": {
+      "id": "map-tile-files",
+      "surface": "Disk map",
+      "state": "Disk map, files selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "e52abd8a5a51622d004b13da19520627c5f0577fb7c164d3f0e7f4cb80d16f98"
+    },
+    "map-tile-files--dark--390x844": {
+      "id": "map-tile-files",
+      "surface": "Disk map",
+      "state": "Disk map, files selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "0d2ad52379586eeaac40ffa1a2bf373eda6741479fee23abc6782efd521b0047"
+    },
+    "map-tile-files--dark--760x900": {
+      "id": "map-tile-files",
+      "surface": "Disk map",
+      "state": "Disk map, files selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "502ef751af6174aea484b34b1f350c5c4df0d0bbdd575e2a52ec991299f7ef69"
+    },
+    "map-tile-files--light--1120x900": {
+      "id": "map-tile-files",
+      "surface": "Disk map",
+      "state": "Disk map, files selected",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "a811587b9955ac865c3fb627b3b90ab9bc925c543b4b7e49424947f3bb4f3d5f"
+    },
+    "map-tile-files--light--390x844": {
+      "id": "map-tile-files",
+      "surface": "Disk map",
+      "state": "Disk map, files selected",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "14698ce308a7cdaf5a926ed0bbeca1b6fc0225ea81d1453dbab8e86ffb9d1e8f"
+    },
+    "map-tile-files--light--760x900": {
+      "id": "map-tile-files",
+      "surface": "Disk map",
+      "state": "Disk map, files selected",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "212b29528a12e739bcbca7196dd4d251d807ea5a651e7810a9f7bdcf14a23840"
+    },
+    "map-tile-mobile--dark--1120x900": {
+      "id": "map-tile-mobile",
+      "surface": "Disk map",
+      "state": "Disk map, mobile selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "af8fa18238f7f0f610b8cba6478f34d6e17c2759f72215256c8ed40998bbf089"
+    },
+    "map-tile-mobile--dark--390x844": {
+      "id": "map-tile-mobile",
+      "surface": "Disk map",
+      "state": "Disk map, mobile selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "cad0eb4664112f6104e60e14c8f0765a3cc622ce2724191d8979ff41ea75e03c"
+    },
+    "map-tile-mobile--dark--760x900": {
+      "id": "map-tile-mobile",
+      "surface": "Disk map",
+      "state": "Disk map, mobile selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "54c9a7be7c99bda1e463d0982b0216648f31a12d755a2b16e83e687987df4b10"
+    },
+    "map-tile-mobile--light--1120x900": {
+      "id": "map-tile-mobile",
+      "surface": "Disk map",
+      "state": "Disk map, mobile selected",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "02718e9454f4082c204fbefba5ee5f9239397a1a4d72c997bf092d63cfffa437"
+    },
+    "map-tile-mobile--light--390x844": {
+      "id": "map-tile-mobile",
+      "surface": "Disk map",
+      "state": "Disk map, mobile selected",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "a9804425e81c7aa6ad1aedf6a6dcef793e5fdeced772f3a72bbf79aec0a9fd83"
+    },
+    "map-tile-mobile--light--760x900": {
+      "id": "map-tile-mobile",
+      "surface": "Disk map",
+      "state": "Disk map, mobile selected",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "e8e0ccca105202c549218a37ca971e4c4343d4815275aca3f87bce6fd16031fd"
+    },
+    "map-tile-projects--dark--1120x900": {
+      "id": "map-tile-projects",
+      "surface": "Disk map",
+      "state": "Disk map, projects selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "2d4c46df538ca754bed22fdd0081a9225c592b42fd950fa6741c53945b21fc65"
+    },
+    "map-tile-projects--dark--390x844": {
+      "id": "map-tile-projects",
+      "surface": "Disk map",
+      "state": "Disk map, projects selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "34ff37c0d2d1f225bb84350f80fec2835f34a165696f2d05aadb776621ffdeb2"
+    },
+    "map-tile-projects--dark--760x900": {
+      "id": "map-tile-projects",
+      "surface": "Disk map",
+      "state": "Disk map, projects selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "a7b2388df09e1bef8c0ebd95e61e2be0cf7b3d48884ca4e8c1f0b2cb517af82c"
+    },
+    "map-tile-projects--light--1120x900": {
+      "id": "map-tile-projects",
+      "surface": "Disk map",
+      "state": "Disk map, projects selected",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "bc379d9c4a79ff87691fda8aaae28c173e8b7585cf6fdb4d7e6b96da6323b217"
+    },
+    "map-tile-projects--light--390x844": {
+      "id": "map-tile-projects",
+      "surface": "Disk map",
+      "state": "Disk map, projects selected",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "9d4e85fbf3fd763fd64ed8e972ef3a32bac3f05ab2ec44fc839c0c18cfdd8fed"
+    },
+    "map-tile-projects--light--760x900": {
+      "id": "map-tile-projects",
+      "surface": "Disk map",
+      "state": "Disk map, projects selected",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "bce52281a96a41a58e14a74a1f20bb97ea7ae1fa6a11ced11e34bb44d3d872f7"
+    },
+    "map-tile-system--dark--1120x900": {
+      "id": "map-tile-system",
+      "surface": "Disk map",
+      "state": "Disk map, system selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "ad56a673a4de09ecea1182738d5c8bd25db1ce941cd7c2303a4e4dc7588c6564"
+    },
+    "map-tile-system--dark--390x844": {
+      "id": "map-tile-system",
+      "surface": "Disk map",
+      "state": "Disk map, system selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "981902a0e310e6b734220116b0b645366ac955ba744d704fd5a251bbe9e4799b"
+    },
+    "map-tile-system--dark--760x900": {
+      "id": "map-tile-system",
+      "surface": "Disk map",
+      "state": "Disk map, system selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "dfac84ca4ad707e8c43bc031d6ebc880d0a26605a22d5cc6796632f446f202ff"
+    },
+    "map-tile-system--light--1120x900": {
+      "id": "map-tile-system",
+      "surface": "Disk map",
+      "state": "Disk map, system selected",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "41b8bb5cf3d04e72c3307e030b99c1759a0c09e8b6c7eb16bb5e8e1cb61b9047"
+    },
+    "map-tile-system--light--390x844": {
+      "id": "map-tile-system",
+      "surface": "Disk map",
+      "state": "Disk map, system selected",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "98084b7089a29becb9e559c2317a657067f83321a732fc423c0072d714198e87"
+    },
+    "map-tile-system--light--760x900": {
+      "id": "map-tile-system",
+      "surface": "Disk map",
+      "state": "Disk map, system selected",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "43afa947a3b8f60421acf4043e19a51d5dc6c8e021ae0ae2b81034ffa43b7714"
+    },
+    "map-tile-unknown--dark--1120x900": {
+      "id": "map-tile-unknown",
+      "surface": "Disk map",
+      "state": "Disk map, Not explained selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "e29af7ed8eefa766abaf6eaf8f8ec10349ecdce6ebe532527d62d2c69ea8791d"
+    },
+    "map-tile-unknown--dark--390x844": {
+      "id": "map-tile-unknown",
+      "surface": "Disk map",
+      "state": "Disk map, Not explained selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "5f6619ada3807351ab204c46a3daa0cd8ae23b2efd9f4130c546b6b63b3a3c29"
+    },
+    "map-tile-unknown--dark--760x900": {
+      "id": "map-tile-unknown",
+      "surface": "Disk map",
+      "state": "Disk map, Not explained selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "b47eb02e3546bdfb1330ea2d6654e91743812958a579816952ce4e382767b78c"
+    },
+    "map-tile-unknown--light--1120x900": {
+      "id": "map-tile-unknown",
+      "surface": "Disk map",
+      "state": "Disk map, Not explained selected",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "c2d9a2c4ba0c559f0ce899e0da2c448415d4c609f65d1330618c7f8966fff489"
+    },
+    "map-tile-unknown--light--390x844": {
+      "id": "map-tile-unknown",
+      "surface": "Disk map",
+      "state": "Disk map, Not explained selected",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "7d00210a4d85eade93a533636e738a029537e90fafaf2a164f47e59ed8962495"
+    },
+    "map-tile-unknown--light--760x900": {
+      "id": "map-tile-unknown",
+      "surface": "Disk map",
+      "state": "Disk map, Not explained selected",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Remove now and Remove all here are removed from the reference until cleanup (slice 2) brings the confirmation sheet. A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
+      "sha256": "db17d94d43d8de4d3a2e17b8f08793e44736c96329193e5c08bc0a8e533f711a"
     },
     "tray-view--dark--312x260": {
       "id": "tray-view",
