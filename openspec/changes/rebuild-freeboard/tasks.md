@@ -46,14 +46,15 @@ Implement one group at a time. Each exit gate must pass on macOS, Linux and Wind
 
 ## 4. Clean up and Logbook, working in the real app (slice 2)
 
-- [ ] 4.1 Adapt plans to `{ suggestion_id, part_ids }`, `create_plan` from the pile or IDs, and per-part revalidation. Verify the expiry, new-scan invalidation and missing-acknowledgment rejection tests.
-- [ ] 4.2 Add part-level execution and keep unselected parts listed afterward. Verify partial-selection tests that update sizes.
-- [ ] 4.3 Build the confirmation sheet (three totals, item list with exact actions, per-item acknowledgments, confirm button always visible), the progress sheet (current item, bar, Cancel, crates leaving and the boat rising) and the result sheet (measured change, Trash note, skipped reasons, Docker Desktop note), from Toss, Remove now and Remove all here. Verify focus trap, Esc rules and focus return.
-- [ ] 4.4 Build Empty it with its own confirmation, limited to Freeboard's Trash items, with Windows Recycle Bin labels. Verify the scoped-emptying test and that the no-usable-Trash path offers a separate permanent plan.
-- [ ] 4.5 Rename the history command to `list_logbook` and build the Logbook list, run details and empty state. Verify runs show measured freed space, Trash amount and skipped reasons.
-- [ ] 4.6 Re-run and extend the change-during-cleanup, banned-command, protected-path, symlink-swap, cancellation and failure tests. Verify every safety invariant has a named passing test, listed in `docs/safety-traceability.md`.
-- [ ] 4.7 Add cleanup visual entries (confirmation with acknowledgment, long-list scroll, progress, result, Trash confirmation, Logbook, run details) in light and dark at two widths. Verify PASS.
+- [x] 4.1 Adapt plans to `{ suggestion_id, part_ids }`, `create_plan` from the pile or IDs, and per-part revalidation. Verify the expiry, new-scan invalidation and missing-acknowledgment rejection tests.
+- [x] 4.2 Add part-level execution and keep unselected parts listed afterward. Verify partial-selection tests that update sizes.
+- [x] 4.3 Build the confirmation sheet (three totals, item list with exact actions, per-item acknowledgments, confirm button always visible), the progress sheet (current item, bar, Cancel, crates leaving and the boat rising) and the result sheet (measured change, Trash note, skipped reasons, Docker Desktop note), from Toss, Remove now and Remove all here. Verify focus trap, Esc rules and focus return.
+- [x] 4.4 Build Empty it with its own confirmation, limited to Freeboard's Trash items, with Windows Recycle Bin labels. Verify the scoped-emptying test and that the no-usable-Trash path offers a separate permanent plan.
+- [x] 4.5 Rename the history command to `list_logbook` and build the Logbook list, run details and empty state. Verify runs show measured freed space, Trash amount and skipped reasons.
+- [x] 4.6 Re-run and extend the change-during-cleanup, banned-command, protected-path, symlink-swap, cancellation and failure tests. Verify every safety invariant has a named passing test, listed in `docs/safety-traceability.md`.
+- [x] 4.7 Add cleanup visual entries (confirmation with acknowledgment, long-list scroll, progress, result, Trash confirmation, Logbook, run details) in light and dark at two widths. Verify PASS.
 - [ ] 4.8 Slice 2 exit gate: the click-through cleans disposable test resources only (a fixture folder and a test Docker image), shows the result and the Logbook entry, and empties Freeboard's Trash items, on macOS and Linux (Windows with 2.8). Record the evidence in `docs/manual-checks.md`.
+  - Linux (2026-11-06): real cleanup of fixture projects through the installed app, 31/31 checks (`visual/native/linux-gnome/e2e-slice2/`). Still open: Trash emptying and a test Docker image on Linux; macOS.
 
 ## 5. Disk map and the new detectors, working in the real app (slice 3)
 

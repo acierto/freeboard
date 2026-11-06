@@ -154,6 +154,49 @@ try {
     check("Stop keeping makes it available again", (await text(`[data-keep="${keepId}"]`)) === "Keep");
   }
 
+  // ---- Clean up (slice 2): only disposable fixture folders in ~/fbtest ---------------------
+  // The pile holds Safe items only; on a fixture-only test machine those are the
+  // node_modules item (4 projects, one deselected above) and the Rust target folder.
+  const fs = await import("node:fs");
+  const home = process.env.HOME;
+  const nmBefore = ["web-app", "admin-portal", "docs-site", "storybook"].filter((p) => fs.existsSync(`${home}/fbtest/${p}/node_modules`));
+  check("all four fixture node_modules exist before cleanup", nmBefore.length === 4, nmBefore.join(", "));
+  const deselected = await js(`const d=[...document.querySelectorAll('#v-tidy details.parts')].find(d=>d.closest('.row-item').textContent.includes('node_modules in'));const i=[...d.querySelectorAll('input')].find(i=>!i.checked);return i?i.closest('label').querySelector('span').textContent:null`);
+  check("one project is deselected under Choose which", !!deselected, String(deselected));
+  await click('[data-goal="all"]');
+  await sleep(800);
+  await click("#cta");
+  await waitFor("the confirmation sheet", () => find("#sheet").then((l) => l.length));
+  const title = await text("#sheet-title");
+  check("Toss opens the confirmation with the pile", /^Toss \d+ crates?\?$/.test(title), title);
+  const totals = await js(`return [...document.querySelectorAll('#sheet .sum3 > div')].map(d=>d.textContent)`);
+  check("the confirmation shows three totals", totals.length === 3, totals.join(" | "));
+  await shot("confirm");
+  await click('#sheet [data-act="run"]');
+  await waitFor("the result sheet", async () => (await text("#sheet-title")) === "Much better!", 120000);
+  await shot("result");
+  const result = await js(`return document.getElementById('sheet').textContent`);
+  check("the result reports the measured free space", /I freed .*GB/.test(result) || /freed/i.test(result), result.slice(0, 160));
+  const nmAfter = ["web-app", "admin-portal", "docs-site", "storybook"].filter((p) => fs.existsSync(`${home}/fbtest/${p}/node_modules`));
+  check("only the deselected project's node_modules is left", nmAfter.length === 1 && nmAfter[0] === deselected, `left: ${nmAfter.join(", ")}; deselected: ${deselected}`);
+  check("the Rust build output is removed", !fs.existsSync(`${home}/fbtest/rust-cli/target`));
+  check("project sources and repositories are untouched", ["web-app", "rust-cli", "data-tools"].every((p) => fs.existsSync(`${home}/fbtest/${p}/.git`) && fs.existsSync(`${home}/fbtest/${p}/${p === "rust-cli" ? "Cargo.toml" : p === "data-tools" ? "requirements.txt" : "package.json"}`)));
+  check("the Review .venv was not touched (never auto-added)", fs.existsSync(`${home}/fbtest/data-tools/.venv`));
+  await click('#sheet [data-act="close"]');
+  await sleep(800);
+  await click('[data-tab="log"]');
+  await sleep(1200);
+  const log = await js(`return [...document.querySelectorAll('#v-log .log')].map(r=>r.textContent)`);
+  check("the Logbook records the cleanup", log.length === 1 && /Tossed \d+ crates?/.test(log[0]), log.join(" | "));
+  await click("#v-log .log");
+  await waitFor("run details", () => find("#sheet").then((l) => l.length));
+  const details = await js(`return document.querySelectorAll('#sheet .plan-list .pile-row').length`);
+  check("run details list each removed folder", details >= 2, String(details));
+  await shot("run-details");
+  await click('#sheet [data-act="close"]');
+  await sleep(600);
+  await click('[data-tab="tidy"]');
+
   // ---- Settings -------------------------------------------------------------------------
   await click('[data-act="settings"]');
   const folders = await js(`return [...document.querySelectorAll('#sheet .mono')].map(e=>e.textContent)`);
