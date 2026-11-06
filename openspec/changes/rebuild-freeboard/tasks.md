@@ -12,7 +12,8 @@ Implement one milestone at a time. Each exit gate must pass on macOS, Linux and 
 - [x] 1.6 Update Tauri capabilities and CSP for the new command set. Verify the contract tests deny shell and filesystem access and reject path or command inputs on every new command.
 - [x] 1.7 Rework the visual verifier for the new prototype: font adapter, hidden `.sim` and Start over, and new `REQUIRED_FONTS`. Delete the old matrix and baselines. Verify the self-test fails on a changed heading font, Dinghy shape, color and spacing.
 - [x] 1.8 Update CI to build installers and run Rust, TypeScript, contract and visual jobs on all three platforms, keeping visual reports as artifacts. Verify a failing visual entry fails the job.
-- [ ] 1.9 Foundation exit gate: attach installers from all three platforms, contract-test results and the verifier self-test report. Stop before milestone 2.
+- [x] 1.9 Foundation exit gate: attach installers from all three platforms, contract-test results and the verifier self-test report. Stop before milestone 2.
+  - Evidence (2026-11-06): CI run https://github.com/acierto/freeboard/actions/runs/42222070943 on commit `main`. Core and contract tests passed on macOS, Ubuntu 22.04 and Windows. Unsigned installers were built and uploaded for all three (`installers-macos-latest`, `installers-ubuntu-22.04`, `installers-windows-latest`). The verifier self-test passed on the CI runner. The visual comparison and the overall CI gate fail by design until milestone 2 adds matrix entries and Dinghy.
 
 ## 2. Monitoring and home view
 
