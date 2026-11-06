@@ -5,7 +5,7 @@ use std::sync::Arc;
 
 use tauri::State;
 
-use crate::app_core::{AppCore, CmdResult, CommandError, FolderList, SuggestionFilter};
+use crate::app_core::{AppCore, CmdResult, CommandError, FolderList, PlanSource, SuggestionFilter};
 use crate::model::*;
 use crate::settings::{Goal, Settings, UiSettingsPatch};
 
@@ -28,9 +28,11 @@ pub async fn get_suggestions(core: Core<'_>, filters: Option<SuggestionFilter>) 
     core.get_suggestions(filters)
 }
 
+/// `source: "pile"` (with no IDs) plans the pile; `source: "items"` plans the
+/// given item IDs. Split items cover the parts chosen with Choose which.
 #[tauri::command]
-pub async fn create_plan(core: Core<'_>, item_ids: Vec<String>) -> CmdResult<CleanupPlan> {
-    core.create_plan(item_ids)
+pub async fn create_plan(core: Core<'_>, source: PlanSource, item_ids: Vec<String>) -> CmdResult<CleanupPlan> {
+    core.create_plan(source, item_ids)
 }
 
 #[tauri::command]

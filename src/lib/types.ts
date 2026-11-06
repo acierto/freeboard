@@ -136,7 +136,51 @@ export interface AppStatus {
 
 export type ScanKind = "quick" | "deep";
 
-// ----- cleanup and Logbook (adapted in milestone 5) -------------------------
+// ----- cleanup and Logbook (slice 2) -----------------------------------------
+
+/** Where a plan's items come from (spec `create_plan`). */
+export type PlanSource = "pile" | "items";
+
+/** One plan item and the parts it covers (empty for an item without parts). */
+export interface PlanItem {
+  suggestionId: string;
+  partIds: string[];
+}
+
+export type PlanState = "open" | "running" | "finished" | "expired" | "invalidated";
+
+export interface CleanupPlan {
+  id: string;
+  createdAt: string;
+  expiresAt: string;
+  itemIds: string[];
+  planItems: PlanItem[];
+  bytesFreedNow: number;
+  bytesHeldInTrash: number;
+  unrecoverableIds: string[];
+  /** The items as confirmed; sizes and parts follow the selected parts. */
+  items: Suggestion[];
+  needsAckIds: string[];
+  acknowledgedIds: string[];
+  unrecoverableBytes: number;
+  freeBytesNow: number;
+  ready: boolean;
+  state: PlanState;
+}
+
+export interface TrashSummary {
+  bytes: number;
+  items: number;
+  /** Echoed back to `empty_freeboard_trash`; binds the confirmation to this set. */
+  confirmationToken: string | null;
+}
+
+export interface EmptyTrashResult {
+  emptied: number;
+  failed: number;
+  bytes: number;
+  freeBytesAfter: number;
+}
 
 export type ItemState =
   | "waiting"
@@ -150,8 +194,13 @@ export type ItemState =
   | "interrupted";
 
 export interface RunItem {
+  /** The item, or for a split item the part, this row records. */
   itemId: string;
+  /** For a part: the item it belongs to. */
+  parentId: string | null;
   title: string;
+  /** The action kind as recorded ("native_command", "delete", "trash"). */
+  action: string;
   actionLabel: string;
   expectedBytes: number;
   state: ItemState;
@@ -173,6 +222,8 @@ export interface RunDetail {
   failed: number;
   involvesDocker: boolean;
   items: RunItem[];
+  /** Free space measured when this was read. */
+  freeBytesNow: number | null;
 }
 
 export interface RunSummary {
@@ -182,6 +233,8 @@ export interface RunSummary {
   measuredBytesFreed: number | null;
   trashBytes: number;
   skipped: number;
+  /** Crates removed or moved to the Trash, at least in part. */
+  removed: number;
   state: string;
 }
 

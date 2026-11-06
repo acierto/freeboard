@@ -86,10 +86,41 @@ pub type SettingsFn = Arc<dyn Fn() -> Settings + Send + Sync>;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct PlanSnapshot {
-    findings: Vec<Finding>,
+    /// One entry per plan item, in the order the plan lists and runs them.
+    entries: Vec<PlanEntry>,
     /// A separately confirmed permanent-deletion plan for items whose move to
     /// the Trash failed.
     permanent: bool,
+}
+
+/// A plan item as confirmed: what the confirmation showed, the parts it
+/// covers, and what runs. An item split into parts runs one step per
+/// selected part, each with its own target and fingerprint, so every part
+/// goes through the pre-cleanup checks on its own and one changed part never
+/// stops the others. An item without parts runs as a single step.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct PlanEntry {
+    /// The item as shown at confirmation; its size follows the selected parts.
+    suggestion: Suggestion,
+    /// Selected part IDs (empty for an item without parts).
+    part_ids: Vec<String>,
+    steps: Vec<Finding>,
+}
+
+impl PlanSnapshot {
+    fn steps(&self) -> impl Iterator<Item = (&PlanEntry, &Finding)> {
+        self.entries.iter().flat_map(|e| e.steps.iter().map(move |f| (e, f)))
+    }
+}
+
+/// Turn a Trash item whose move failed into a confirmed permanent deletion.
+fn make_permanent(s: &mut Suggestion) {
+    s.action = Action::Delete;
+    s.action_label = "Delete permanently".into();
+    s.recovery = "Not recoverable. No Trash is available for it.".into();
+    s.recoverable = false;
+    s.needs_confirmation = true;
+    s.ack_name = Some(s.title.clone());
 }
 
 struct Job {
@@ -115,7 +146,12 @@ pub struct CleanupEngine {
     cancels: Mutex<HashMap<String, Arc<AtomicBool>>>,
     secret: String,
     counter: AtomicU64,
+    /// Called once each run has finished, before `cleanup_finished` is sent
+    /// (the core refreshes its free-space reading here).
+    after_run: Mutex<Option<AfterRun>>,
 }
+
+pub type AfterRun = Box<dyn Fn() + Send + Sync>;
 
 fn digest(snapshot: &str) -> String {
     hash_hex(snapshot)
@@ -144,7 +180,37 @@ impl CleanupEngine {
             cancels: Mutex::new(HashMap::new()),
             secret: hash_hex(&seed),
             counter: AtomicU64::new(0),
+            after_run: Mutex::new(None),
         }
+    }
+
+    pub fn set_after_run(&self, f: AfterRun) {
+        *self.after_run.lock().unwrap_or_else(|e| e.into_inner()) = Some(f);
+    }
+
+    /// The pile lasts until the next cleanup (spec "Building the pile"):
+    /// after a run it keeps its goal and areas and forgets the crates chosen
+    /// by hand, added or taken out. An item cleaned only in part stays out of
+    /// the pile with its remaining parts selected again, as in the prototype,
+    /// until a size is chosen again.
+    fn reset_pile(&self, partial: &[String]) {
+        let settings = self.settings();
+        let mut p = self.store.load_pile().unwrap_or_else(|| crate::selection::PileStore::new(settings.goal, settings.where_from.clone()));
+        crate::selection::after_cleanup(&mut p, partial);
+        for id in partial {
+            if let Err(e) = self.store.set_deselected_parts(id, &Default::default()) {
+                tracing::error!("could not reset part choices after cleanup: {e}");
+            }
+        }
+        if let Err(e) = self.store.save_pile(&p) {
+            tracing::error!("could not reset the pile after cleanup: {e}");
+            return;
+        }
+        let mut items: Vec<Suggestion> = self.store.findings().unwrap_or_default().into_iter().map(|f| f.suggestion).collect();
+        if let Ok(d) = self.store.load_decisions() {
+            crate::selection::apply_decisions(&mut items, &d);
+        }
+        self.emit(EV_PILE_CHANGED, &crate::selection::fill(&p, &items));
     }
 
     /// Home folder and settings used by the pre-cleanup checks. Defaults:
@@ -208,7 +274,10 @@ impl CleanupEngine {
             return Err(CleanupError::Empty);
         }
         let all = self.store.findings().map_err(|e| CleanupError::Internal(e.to_string()))?;
-        let mut picked = vec![];
+        // Part choices come from the user's stored decisions (Choose which),
+        // never from the interface's request.
+        let decisions = self.store.load_decisions().map_err(|e| CleanupError::Internal(e.to_string()))?;
+        let mut entries = vec![];
         for id in &ids {
             let f = all.iter().find(|f| &f.suggestion.id == id).ok_or_else(|| CleanupError::UnknownItem(id.clone()))?;
             let s = &f.suggestion;
@@ -218,34 +287,65 @@ impl CleanupEngine {
             if s.action == Action::None || matches!(f.target, Target::None) {
                 return Err(CleanupError::Blocked("No cleanup action is available.".into()));
             }
-            // Items split into parts are cleaned part by part, each through
-            // its own pre-cleanup checks. Until that lands (task 4.2), refuse
-            // them rather than act on all parts at once.
-            if !f.parts.is_empty() || !s.parts.is_empty() {
-                return Err(CleanupError::Blocked("Items with parts can't be cleaned up yet.".into()));
-            }
-            let mut f = f.clone();
-            f.suggestion.skip_reason = None;
-            if permanent {
-                let eligible = s.action == Action::Trash && persist::trash_failed(&self.store.conn(), id)?;
-                if !eligible {
+            let mut shown = s.clone();
+            shown.skip_reason = None;
+            let (part_ids, mut steps) = if s.parts.is_empty() && f.parts.is_empty() {
+                if permanent && !(s.action == Action::Trash && persist::trash_failed(&self.store.conn(), id)?) {
                     return Err(CleanupError::NotEligible(id.clone()));
                 }
-                let s = &mut f.suggestion;
-                s.action = Action::Delete;
-                s.action_label = "Delete permanently".into();
-                s.recovery = "Not recoverable. No Trash is available for it.".into();
-                s.recoverable = false;
-                s.needs_confirmation = true;
-                s.ack_name = Some(s.title.clone());
+                let mut whole = f.clone();
+                whole.suggestion.skip_reason = None;
+                (vec![], vec![whole])
+            } else {
+                // Each listed part must have its own finding: a split item is
+                // never cleaned through the item's combined target.
+                let complete = s.parts.len() == f.parts.len() && s.parts.iter().all(|p| f.parts.iter().any(|x| x.suggestion.id == p.id));
+                if !complete {
+                    return Err(CleanupError::Blocked("This item's parts can't be checked one by one. Scan again.".into()));
+                }
+                let off = decisions.deselected.get(id);
+                let mut chosen: Vec<Finding> = vec![];
+                for p in &s.parts {
+                    let Some(part) = f.parts.iter().find(|x| x.suggestion.id == p.id) else { continue };
+                    // A permanent plan covers only the parts whose move to the
+                    // Trash failed; any other plan, the selected parts.
+                    let take = if permanent {
+                        part.suggestion.action == Action::Trash && persist::trash_failed(&self.store.conn(), &p.id)?
+                    } else {
+                        !off.is_some_and(|o| o.contains(&p.id))
+                    };
+                    if take {
+                        let mut part = part.clone();
+                        part.suggestion.skip_reason = None;
+                        chosen.push(part);
+                    }
+                }
+                if chosen.is_empty() {
+                    return Err(if permanent { CleanupError::NotEligible(id.clone()) } else { CleanupError::Blocked("Choose at least one part first.".into()) });
+                }
+                for p in &mut shown.parts {
+                    p.selected = chosen.iter().any(|c| c.suggestion.id == p.id);
+                }
+                shown.size_bytes = shown.parts.iter().filter(|p| p.selected).map(|p| p.size_bytes).sum();
+                shown.needs_confirmation |= chosen.iter().any(|c| c.suggestion.needs_confirmation);
+                shown.recoverable &= chosen.iter().all(|c| c.suggestion.recoverable);
+                (chosen.iter().map(|c| c.suggestion.id.clone()).collect(), chosen)
+            };
+            if permanent {
+                make_permanent(&mut shown);
+                for st in &mut steps {
+                    make_permanent(&mut st.suggestion);
+                }
             }
-            picked.push(f);
+            // Within an item, the biggest parts go first too.
+            steps.sort_by(|a, b| b.suggestion.size_bytes.cmp(&a.suggestion.size_bytes));
+            entries.push(PlanEntry { suggestion: shown, part_ids, steps });
         }
         // Biggest wins first: the plan lists, and the run cleans, the largest
         // items first (requested by the user, 2026-11-05). Stable, so equal
         // sizes keep the selection order.
-        picked.sort_by(|a, b| b.suggestion.size_bytes.cmp(&a.suggestion.size_bytes));
-        let snap = PlanSnapshot { findings: picked, permanent };
+        entries.sort_by(|a, b| b.suggestion.size_bytes.cmp(&a.suggestion.size_bytes));
+        let snap = PlanSnapshot { entries, permanent };
         let snapshot = serde_json::to_string(&snap).map_err(|e| CleanupError::Internal(e.to_string()))?;
         let row = PlanRow {
             id: self.new_id("plan"),
@@ -286,7 +386,7 @@ impl CleanupEngine {
         let snap: PlanSnapshot = serde_json::from_str(&row.snapshot).map_err(|_| CleanupError::Altered)?;
         let state = self.state_of(row, now)?;
         let acks = persist::acks(&self.store.conn(), &row.id)?;
-        let items: Vec<Suggestion> = snap.findings.iter().map(|f| f.suggestion.clone()).collect();
+        let items: Vec<Suggestion> = snap.entries.iter().map(|e| e.suggestion.clone()).collect();
         let needs_ack_ids: Vec<String> = items.iter().filter(|s| s.needs_confirmation).map(|s| s.id.clone()).collect();
         let unrecoverable: Vec<&Suggestion> = items.iter().filter(|s| !s.recoverable).collect();
         let intact = digest(&row.snapshot) == row.digest;
@@ -295,6 +395,7 @@ impl CleanupEngine {
             created_at: rfc3339(row.created_at).unwrap_or_default(),
             expires_at: rfc3339(row.expires_at).unwrap_or_default(),
             item_ids: items.iter().map(|s| s.id.clone()).collect(),
+            plan_items: snap.entries.iter().map(|e| PlanItem { suggestion_id: e.suggestion.id.clone(), part_ids: e.part_ids.clone() }).collect(),
             bytes_freed_now: items.iter().filter(|s| s.action != Action::Trash).map(|s| s.size_bytes).sum(),
             bytes_held_in_trash: items.iter().filter(|s| s.action == Action::Trash).map(|s| s.size_bytes).sum(),
             unrecoverable_ids: unrecoverable.iter().map(|s| s.id.clone()).collect(),
@@ -326,7 +427,7 @@ impl CleanupEngine {
             _ => return Err(CleanupError::AlreadyUsed),
         }
         let snap: PlanSnapshot = serde_json::from_str(&row.snapshot).map_err(|_| CleanupError::Altered)?;
-        if !snap.findings.iter().any(|f| f.suggestion.id == item_id && f.suggestion.needs_confirmation) {
+        if !snap.entries.iter().any(|e| e.suggestion.id == item_id && e.suggestion.needs_confirmation) {
             return Err(CleanupError::UnknownItem(item_id.into()));
         }
         persist::add_ack(&self.store.conn(), plan_id, item_id, now)?;
@@ -371,24 +472,24 @@ impl CleanupEngine {
             PlanState::Running | PlanState::Finished => return Err(CleanupError::AlreadyUsed),
         }
         let snapshot: PlanSnapshot = serde_json::from_str(&row.snapshot).map_err(|_| CleanupError::Altered)?;
-        if snapshot.findings.is_empty() {
+        if snapshot.entries.is_empty() || snapshot.entries.iter().any(|e| e.steps.is_empty()) {
             return Err(CleanupError::Empty);
         }
         let acks = persist::acks(&self.store.conn(), plan_id)?;
-        if snapshot.findings.iter().any(|f| f.suggestion.needs_confirmation && !acks.contains(&f.suggestion.id)) {
+        if snapshot.entries.iter().any(|e| e.suggestion.needs_confirmation && !acks.contains(&e.suggestion.id)) {
             return Err(CleanupError::NeedsAcknowledgment);
         }
         // The plan is valid and confirmed: only now is a Confirmed token made.
         let confirmed = Confirmed::new(plan_id);
         let run_id = self.new_id("run");
         let free_before = (self.free_space)();
+        // One record per step: an item, or one part of a split item.
         let items: Vec<(Suggestion, String)> = snapshot
-            .findings
-            .iter()
-            .map(|f| (f.suggestion.clone(), serde_json::to_string(&f.suggestion.action).unwrap_or_default().trim_matches('"').to_string()))
+            .steps()
+            .map(|(_, f)| (f.suggestion.clone(), serde_json::to_string(&f.suggestion.action).unwrap_or_default().trim_matches('"').to_string()))
             .collect();
-        let expected: u64 = snapshot.findings.iter().filter(|f| f.suggestion.action != Action::Trash).map(|f| f.suggestion.size_bytes).sum();
-        let docker = snapshot.findings.iter().any(|f| f.suggestion.group == Group::Docker);
+        let expected: u64 = snapshot.steps().filter(|(_, f)| f.suggestion.action != Action::Trash).map(|(_, f)| f.suggestion.size_bytes).sum();
+        let docker = snapshot.entries.iter().any(|e| e.suggestion.group == Group::Docker);
         let plan_json = serde_json::to_string(&self.view(&row, now)?).unwrap_or_default();
         persist::insert_run(&mut self.store.conn(), &run_id, plan_id, &plan_json, now_secs(), free_before, expected, docker, &items)?;
         let cancel = Arc::new(AtomicBool::new(false));
@@ -412,13 +513,17 @@ impl CleanupEngine {
         let scan_cancel = AtomicBool::new(false);
         let no_pause = || false;
         let no_progress = |_: &str, _: Option<&str>, _: u64| {};
+        // Parts removed per split item, to update what stays listed.
+        let mut removed_parts: Vec<(String, String)> = vec![];
+        let steps: Vec<(&PlanEntry, &Finding)> = job.snapshot.steps().collect();
         let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             let mut canceled = false;
-            for (i, f) in job.snapshot.findings.iter().enumerate() {
+            for (i, (entry, f)) in steps.iter().enumerate() {
                 let id = f.suggestion.id.as_str();
+                let is_part = !entry.part_ids.is_empty();
                 if job.cancel.load(Ordering::SeqCst) {
                     canceled = true;
-                    for rest in &job.snapshot.findings[i..] {
+                    for (_, rest) in &steps[i..] {
                         self.set_item(&job.run_id, &rest.suggestion.id, ItemState::Canceled, Some("Canceled before it started."));
                     }
                     break;
@@ -438,7 +543,12 @@ impl CleanupEngine {
                 match detectors::probe_with(f, &ctx, &self.guard) {
                     Probe::Unchanged => {}
                     Probe::Changed(r) | Probe::Unknown(r) => {
-                        let _ = self.store.set_skip_note(id, &r);
+                        // A changed item is marked "Changed, scan again". A
+                        // changed part is reported in the run, but does not
+                        // mark the parts beside it.
+                        if !is_part {
+                            let _ = self.store.set_skip_note(id, &r);
+                        }
                         self.set_item(&job.run_id, id, ItemState::Skipped, Some(&r));
                         continue;
                     }
@@ -447,12 +557,33 @@ impl CleanupEngine {
                 let (state, reason) = self.act(f, &job, &ctx);
                 self.set_item(&job.run_id, id, state, reason.as_deref());
                 if matches!(state, ItemState::Done | ItemState::MovedToTrash) {
-                    let _ = self.store.clear_skip_note(id);
-                    let _ = persist::delete_suggestion(&self.store.conn(), id);
+                    if is_part {
+                        removed_parts.push((entry.suggestion.id.clone(), id.to_string()));
+                    } else {
+                        let _ = self.store.clear_skip_note(id);
+                        let _ = persist::delete_suggestion(&self.store.conn(), id);
+                    }
                 }
             }
             canceled
         }));
+        // Split items: removed parts leave the item; the rest stay listed with
+        // their own sizes. An item with no parts left leaves Suggestions.
+        let mut partial: Vec<String> = vec![];
+        let mut parents: Vec<&String> = removed_parts.iter().map(|(p, _)| p).collect();
+        parents.dedup();
+        for parent in parents {
+            let gone: Vec<&str> = removed_parts.iter().filter(|(p, _)| p == parent).map(|(_, x)| x.as_str()).collect();
+            match persist::remove_parts(&self.store.conn(), parent, &gone) {
+                Ok(true) => partial.push(parent.clone()),
+                Ok(false) => {}
+                Err(e) => tracing::error!("could not update a split item after cleanup: {e}"),
+            }
+        }
+        self.reset_pile(&partial);
+        if let Some(after) = self.after_run.lock().unwrap_or_else(|e| e.into_inner()).as_ref() {
+            after();
+        }
         let free_after = (self.free_space)();
         let state = match result {
             Ok(false) => "finished",

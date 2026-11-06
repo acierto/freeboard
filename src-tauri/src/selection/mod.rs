@@ -201,5 +201,15 @@ pub fn on_keep(p: &mut PileStore, id: &str) {
     }
 }
 
+/// After a cleanup run: the pile keeps its goal and areas and leaves manual
+/// mode; items the user added or took out are forgotten. Items cleaned only
+/// in part (`partial`) stay out of the pile until a size is chosen again
+/// (prototype `run()`: `S.manual = null`, partial items in `S.excl`).
+pub fn after_cleanup(p: &mut PileStore, partial: &[String]) {
+    p.manual = None;
+    p.added.clear();
+    p.taken_out = partial.to_vec();
+}
+
 #[cfg(test)]
 mod tests;

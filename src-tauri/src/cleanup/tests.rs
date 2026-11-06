@@ -803,19 +803,240 @@ fn unnamed_volume_group_needs_its_acknowledgment_and_removes_exactly_its_volumes
     assert!(!e.actions().contains("billing_pgdata"), "named volumes are not part of the group");
 }
 
+// ----- items split into parts (tasks 4.1, 4.2) --------------------------------
+
+/// The world plus a second inactive Node project, so node_modules is one item
+/// with a part per project.
+fn split_env() -> Env {
+    let fx = world();
+    node_project(&fx, "projects/api", 60);
+    age(&fx.home.join("projects"), 60);
+    env_with(fx, true)
+}
+
+struct Split {
+    item: String,
+    web: String,
+    api: String,
+}
+
+fn split(e: &Env) -> Split {
+    let f = e
+        .store
+        .findings()
+        .unwrap()
+        .into_iter()
+        .find(|f| f.suggestion.detector == "project.dependencies" && f.suggestion.title.starts_with("node_modules in 2"))
+        .expect("node_modules split into two projects");
+    assert_eq!(f.parts.len(), 2);
+    let part = |name: &str| f.parts.iter().find(|p| p.paths()[0].contains(&format!("/{name}/node_modules"))).unwrap().suggestion.id.clone();
+    Split { item: f.suggestion.id.clone(), web: part("web"), api: part("api") }
+}
+
+fn api_nm(e: &Env) -> PathBuf {
+    e.fx.home.join("projects/api/node_modules")
+}
+
+fn deselect(e: &Env, item: &str, parts: &[&str]) {
+    e.store.set_deselected_parts(item, &parts.iter().map(|p| p.to_string()).collect()).unwrap();
+}
+
 #[test]
-fn items_split_into_parts_are_refused_until_part_cleanup_exists() {
-    // Until part-by-part cleanup lands (task 4.2), a plan must never act on
-    // every part of a split item at once.
+fn only_selected_parts_are_removed_and_the_rest_stay_listed() {
+    let e = split_env();
+    e.scan();
+    let s = split(&e);
+    let before = e.store.finding(&s.item).unwrap().unwrap();
+    let api_size = before.parts.iter().find(|p| p.suggestion.id == s.api).unwrap().suggestion.size_bytes;
+    let web_size = before.parts.iter().find(|p| p.suggestion.id == s.web).unwrap().suggestion.size_bytes;
+    // Choose which: keep the api project.
+    deselect(&e, &s.item, &[&s.api]);
+    let p = e.plan(&[s.item.clone()]);
+    assert_eq!(p.plan_items, vec![PlanItem { suggestion_id: s.item.clone(), part_ids: vec![s.web.clone()] }]);
+    assert_eq!(p.items[0].size_bytes, web_size, "the plan's size follows the selected parts");
+    assert_eq!(p.bytes_freed_now, web_size);
+    let r = e.run(&p);
+    assert_eq!(r.items.len(), 1, "one record per selected part");
+    let it = e.item(&r, &s.web);
+    assert_eq!(it.state, ItemState::Done, "{:?}", it.reason);
+    assert_eq!(it.parent_id.as_deref(), Some(s.item.as_str()));
+    assert!(!nm_path(&e).exists(), "the selected part is gone");
+    assert!(api_nm(&e).join("dep/index.js").exists(), "the unselected part is untouched");
+    assert!(e.fx.home.join("projects/web/package.json").exists());
+    // The item stays listed with only the part that is left, at its size.
+    let after = e.store.finding(&s.item).unwrap().expect("the item stays listed");
+    assert_eq!(after.suggestion.parts.iter().map(|p| p.id.clone()).collect::<Vec<_>>(), vec![s.api.clone()]);
+    assert_eq!(after.parts.len(), 1);
+    assert_eq!(after.suggestion.full_size_bytes, api_size);
+    assert_eq!(after.paths().len(), 1);
+    assert!(after.paths().iter().all(|p| !p.contains("/web/")), "the removed part leaves the item's target: {:?}", after.paths());
+    // It counts as one crate in the Logbook.
+    assert_eq!(e.engine.list_history(0).unwrap().runs[0].removed, 1);
+}
+
+#[test]
+fn a_changed_part_is_skipped_while_the_others_run() {
+    let e = split_env();
+    e.scan();
+    let s = split(&e);
+    let p = e.plan(&[s.item.clone()]);
+    assert_eq!(p.plan_items[0].part_ids.len(), 2);
+    std::fs::write(nm_path(&e).join("dep/index.js"), b"edited after the scan").unwrap();
+    let r = e.run(&p);
+    let web = e.item(&r, &s.web);
+    assert_eq!(web.state, ItemState::Skipped);
+    assert!(web.reason.as_deref().unwrap().contains("changed"), "{:?}", web.reason);
+    assert_eq!(e.item(&r, &s.api).state, ItemState::Done);
+    assert!(nm_path(&e).join("dep/index.js").exists(), "the changed part is untouched");
+    assert!(!api_nm(&e).exists());
+    assert_eq!(r.skipped, 1);
+    // The changed part stays listed; the item is not marked as changed as a whole.
+    let after = e.store.finding(&s.item).unwrap().expect("the item stays listed");
+    assert_eq!(after.suggestion.parts.iter().map(|p| p.id.clone()).collect::<Vec<_>>(), vec![s.web.clone()]);
+    assert_eq!(after.suggestion.skip_reason, None);
+}
+
+#[test]
+fn a_split_item_with_no_part_selected_cannot_be_planned() {
+    let e = split_env();
+    e.scan();
+    let s = split(&e);
+    deselect(&e, &s.item, &[&s.api, &s.web]);
+    assert!(matches!(e.engine.create_plan(&[s.item.clone()], NOW), Err(CleanupError::Blocked(_))));
+    assert!(nm_path(&e).exists() && api_nm(&e).exists());
+}
+
+#[test]
+fn a_split_item_is_never_cleaned_through_its_combined_target() {
+    // A listed part without its own finding cannot be checked on its own,
+    // so the item is refused rather than acting on every part at once.
     let e = Env::new();
     e.scan();
     let nm = nm_path(&e);
     let mut f = template(&e);
     let sub = f.clone();
     f.suggestion.id = "split-item".into();
-    f.suggestion.parts = vec![SuggestionPart { id: sub.suggestion.id.clone(), label: "web".into(), location: "~/projects/web".into(), size_bytes: 1, selected: true }];
+    f.suggestion.parts = vec![
+        SuggestionPart { id: sub.suggestion.id.clone(), label: "web".into(), location: "~/projects/web".into(), size_bytes: 1, selected: true },
+        SuggestionPart { id: "no-finding".into(), label: "other".into(), location: "~/projects/other".into(), size_bytes: 1, selected: true },
+    ];
     f.parts = vec![sub];
     let id = inject(&e, f);
     assert!(matches!(e.engine.create_plan(&[id], NOW), Err(CleanupError::Blocked(_))));
     assert!(nm.exists(), "nothing was removed");
+}
+
+#[test]
+fn split_plans_still_expire_and_are_invalidated_by_a_new_scan() {
+    let e = split_env();
+    e.scan();
+    let s = split(&e);
+    let p = e.plan(&[s.item.clone()]);
+    assert_eq!(e.engine.run_plan_blocking(&p.id, NOW + PLAN_TTL_SECS), Err(CleanupError::Expired));
+    let p = e.plan(&[s.item.clone()]);
+    e.scan();
+    assert_eq!(e.engine.run_plan_blocking(&p.id, NOW), Err(CleanupError::Invalidated));
+    assert!(nm_path(&e).exists() && api_nm(&e).exists());
+}
+
+#[test]
+fn a_volume_beside_a_split_item_still_needs_its_own_acknowledgment() {
+    let e = split_env();
+    e.scan();
+    let (s, vol) = (split(&e), e.volume());
+    let p = e.plan(&[s.item.clone(), vol.clone()]);
+    assert_eq!(p.needs_ack_ids, vec![vol.clone()]);
+    assert!(matches!(e.engine.acknowledge_item(&p.id, &s.item, NOW), Err(CleanupError::UnknownItem(_))));
+    assert_eq!(e.engine.run_plan_blocking(&p.id, NOW), Err(CleanupError::NeedsAcknowledgment));
+    assert!(nm_path(&e).exists() && api_nm(&e).exists() && e.actions().is_empty());
+    let p = e.engine.acknowledge_item(&p.id, &vol, NOW).unwrap();
+    assert!(p.ready);
+    let r = e.run(&p);
+    assert_eq!(e.item(&r, &vol).state, ItemState::Done);
+    assert_eq!(e.item(&r, &s.web).state, ItemState::Done);
+    assert_eq!(e.item(&r, &s.api).state, ItemState::Done);
+    assert!(e.store.finding(&s.item).unwrap().is_none(), "every part gone: the item leaves Suggestions");
+}
+
+#[test]
+fn the_pile_resets_after_a_run() {
+    use crate::selection::PileStore;
+    use crate::settings::Goal;
+    let e = split_env();
+    e.scan();
+    let s = split(&e);
+    let goal = Goal::Bytes(20 * crate::model::GB);
+    e.store
+        .save_pile(&PileStore { goal, areas: vec![Group::Projects], manual: Some(vec![s.item.clone()]), added: vec![e.venv()], taken_out: vec![e.image()] })
+        .unwrap();
+    // Clean one of the two projects: the item stays, cleaned in part.
+    deselect(&e, &s.item, &[&s.api]);
+    let p = e.plan(&[s.item.clone()]);
+    e.run(&p);
+    let pile = e.store.load_pile().unwrap();
+    assert_eq!((pile.goal, pile.areas.clone()), (goal, vec![Group::Projects]), "goal and areas are kept");
+    assert_eq!(pile.manual, None);
+    assert!(pile.added.is_empty());
+    assert_eq!(pile.taken_out, vec![s.item.clone()], "the partly cleaned item stays out until a size is chosen again");
+    // Its remaining parts are selected again.
+    assert!(e.store.load_decisions().unwrap().deselected.get(&s.item).is_none_or(|o| o.is_empty()));
+    let ev = e.events.events(EV_PILE_CHANGED);
+    assert_eq!(ev.len(), 1, "pile_changed is sent once");
+    assert_eq!(ev[0]["mode"], "auto");
+    // pile_changed comes before cleanup_finished, so the interface reloads a reset pile.
+    let names: Vec<String> = e.events.0.lock().unwrap().iter().map(|(n, _)| n.clone()).collect();
+    let pos = |n: &str| names.iter().position(|x| x == n).unwrap();
+    assert!(pos(EV_PILE_CHANGED) < pos(EV_CLEANUP_FINISHED));
+}
+
+#[test]
+fn after_run_hook_runs_before_cleanup_finished() {
+    let e = Env::new();
+    e.scan();
+    let seen = Arc::new(std::sync::atomic::AtomicUsize::new(0));
+    let (s2, ev) = (seen.clone(), e.events.clone());
+    e.engine.set_after_run(Box::new(move || {
+        assert!(ev.events(EV_CLEANUP_FINISHED).is_empty());
+        s2.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+    }));
+    let p = e.plan(&[e.nm()]);
+    e.run(&p);
+    assert_eq!(seen.load(std::sync::atomic::Ordering::SeqCst), 1);
+}
+
+#[test]
+fn a_permanent_plan_covers_only_parts_whose_trash_move_failed() {
+    // Two .venv folders: one item with a part per project, moved to the Trash.
+    let fx = world();
+    fx.write("projects/ml/requirements.txt", b"numpy");
+    fx.write("projects/ml/.venv/lib/site.py", &vec![1u8; 30_000]);
+    age(&fx.home.join("projects"), 60);
+    let e = env_with(fx, false);
+    e.scan();
+    let f = e
+        .store
+        .findings()
+        .unwrap()
+        .into_iter()
+        .find(|f| f.suggestion.title.starts_with(".venv in 2"))
+        .expect(".venv split into two projects");
+    let (item, parts): (String, Vec<String>) = (f.suggestion.id.clone(), f.parts.iter().map(|p| p.suggestion.id.clone()).collect());
+    assert_eq!(f.suggestion.action, Action::Trash);
+    // Nothing failed yet: no permanent plan.
+    assert!(matches!(e.engine.create_permanent_plan(&[item.clone()], NOW), Err(CleanupError::NotEligible(_))));
+    let r = e.run(&e.plan(&[item.clone()]));
+    for p in &parts {
+        assert!(e.item(&r, p).reason.as_deref().unwrap().starts_with(TRASH_UNAVAILABLE));
+    }
+    assert!(e.fx.home.join("projects/ml/.venv").exists() && e.fx.home.join("projects/data-tools/.venv").exists());
+    let pp = e.engine.create_permanent_plan(&[item.clone()], NOW).unwrap();
+    assert_eq!(pp.plan_items[0].part_ids.len(), 2);
+    assert_eq!(pp.unrecoverable_ids, vec![item.clone()]);
+    assert_eq!(pp.needs_ack_ids, vec![item.clone()]);
+    assert_eq!(e.engine.run_plan_blocking(&pp.id, NOW), Err(CleanupError::NeedsAcknowledgment));
+    e.engine.acknowledge_item(&pp.id, &item, NOW).unwrap();
+    let r = e.run(&pp);
+    assert!(r.items.iter().all(|i| i.state == ItemState::Done), "{:?}", r.items);
+    assert!(!e.fx.home.join("projects/ml/.venv").exists());
+    assert!(e.fx.home.join("projects/ml/requirements.txt").exists());
 }

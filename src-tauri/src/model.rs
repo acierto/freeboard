@@ -209,6 +209,16 @@ impl Finding {
     }
 }
 
+/// One item of a plan: the suggestion and the parts it covers (spec
+/// `CleanupPlan` items `{ suggestion_id, part_ids }`). `part_ids` is empty for
+/// an item that is not split into parts.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PlanItem {
+    pub suggestion_id: String,
+    pub part_ids: Vec<String>,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CleanupPlan {
@@ -216,6 +226,9 @@ pub struct CleanupPlan {
     pub created_at: String,
     pub expires_at: String,
     pub item_ids: Vec<String>,
+    /// What the plan covers, item by item, with the selected parts.
+    #[serde(default)]
+    pub plan_items: Vec<PlanItem>,
     pub bytes_freed_now: u64,
     pub bytes_held_in_trash: u64,
     pub unrecoverable_ids: Vec<String>,
@@ -388,8 +401,15 @@ impl ItemState {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RunItem {
+    /// The item, or for a split item the part, this row records.
     pub item_id: String,
+    /// For a part: the item it belongs to.
+    #[serde(default)]
+    pub parent_id: Option<String>,
     pub title: String,
+    /// The action kind as recorded ("native_command", "delete", "trash").
+    #[serde(default)]
+    pub action: String,
     pub action_label: String,
     pub expected_bytes: u64,
     pub state: ItemState,
@@ -414,6 +434,9 @@ pub struct RunDetail {
     pub failed: u32,
     pub involves_docker: bool,
     pub items: Vec<RunItem>,
+    /// Free space measured when this was read (the progress sheet's boat).
+    #[serde(default)]
+    pub free_bytes_now: Option<u64>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -425,6 +448,9 @@ pub struct RunSummary {
     pub measured_bytes_freed: Option<i64>,
     pub trash_bytes: u64,
     pub skipped: u32,
+    /// Crates (plan items) removed or moved to the Trash, at least in part.
+    #[serde(default)]
+    pub removed: u32,
     pub state: String,
 }
 

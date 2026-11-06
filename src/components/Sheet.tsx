@@ -5,13 +5,42 @@ import { useEffect, useRef, type ReactNode } from "react";
 
 const FOCUSABLE = 'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea, a[href], [tabindex]:not([tabindex="-1"])';
 
-export function Sheet({ title, onClose, locked = false, children }: { title: string; onClose: () => void; locked?: boolean; children: ReactNode }) {
+/** `stage`: when a sheet moves on (confirmation, progress, result), focus
+ * returns to the sheet itself, as the prototype's `openSheet()` does.
+ * `fallbackFocus`: where focus goes on close when the opener is gone or
+ * disabled (a removed row, a Toss button with nothing left to toss). */
+export function Sheet({
+  title,
+  onClose,
+  locked = false,
+  stage,
+  fallbackFocus,
+  children,
+}: {
+  title: string;
+  onClose: () => void;
+  locked?: boolean;
+  stage?: string;
+  fallbackFocus?: string;
+  children: ReactNode;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const opener = useRef<Element | null>(null);
   const close = useRef(onClose);
   close.current = onClose;
   const isLocked = useRef(locked);
   isLocked.current = locked;
+  const fallback = useRef(fallbackFocus);
+  fallback.current = fallbackFocus;
+  const first = useRef(true);
+
+  useEffect(() => {
+    if (first.current) {
+      first.current = false;
+      return;
+    }
+    ref.current?.focus();
+  }, [stage]);
 
   useEffect(() => {
     opener.current = document.activeElement;
@@ -49,7 +78,17 @@ export function Sheet({ title, onClose, locked = false, children }: { title: str
     return () => {
       document.removeEventListener("keydown", onKey);
       const o = opener.current;
-      if (o instanceof HTMLElement && o.isConnected) o.focus();
+      const usable = (e: Element | null): e is HTMLElement => e instanceof HTMLElement && e.isConnected && !(e as HTMLButtonElement).disabled;
+      if (usable(o)) o.focus();
+      else {
+        // Wait for the view to re-render after the sheet's change.
+        setTimeout(() => {
+          const now = opener.current;
+          if (usable(now)) return now.focus();
+          const f = fallback.current ? document.querySelector(fallback.current) : null;
+          if (usable(f)) f.focus();
+        }, 0);
+      }
     };
   }, []);
 
@@ -57,6 +96,10 @@ export function Sheet({ title, onClose, locked = false, children }: { title: str
     <div
       className="scrim"
       id="scrim"
+      // A click on the scrim never takes focus out of the sheet.
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) e.preventDefault();
+      }}
       onClick={(e) => {
         if (e.target === e.currentTarget && !isLocked.current) onClose();
       }}

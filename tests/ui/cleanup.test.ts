@@ -1,0 +1,150 @@
+// Slice 2: what the cleanup sheets and the Logbook say.
+// Run with `npm run test:ui` (Node's built-in test runner).
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { ackText, cmdFor, confirmTitle, expectedFreed, goLabel, logNote, progressOf, resultTitle, resultWord } from "../../src/features/cleanup/cleanupModel.ts";
+import type { CleanupPlan, RunDetail, RunItem, Suggestion } from "../../src/lib/types.ts";
+
+const GB = 1e9;
+const trash = (p: string) => (p === "windows" ? "Recycle Bin" : "Trash");
+
+function item(id: string, over: Partial<Suggestion> = {}): Suggestion {
+  return {
+    id,
+    detector: "x",
+    group: "projects",
+    mapArea: "projects",
+    title: id,
+    location: "",
+    sizeBytes: GB,
+    fullSizeBytes: GB,
+    lastUsedAt: null,
+    lastUsedLabel: "",
+    risk: "safe",
+    action: "delete",
+    actionLabel: "Delete the folders",
+    reason: "",
+    recovery: "",
+    recoverable: true,
+    blockedReason: null,
+    needsConfirmation: false,
+    parts: [],
+    fingerprint: "",
+    sizeIsEstimate: false,
+    skipReason: null,
+    decision: null,
+    ackName: null,
+    ...over,
+  };
+}
+
+function plan(items: Suggestion[]): CleanupPlan {
+  return {
+    id: "p",
+    createdAt: "",
+    expiresAt: "",
+    itemIds: items.map((s) => s.id),
+    planItems: items.map((s) => ({ suggestionId: s.id, partIds: s.parts.filter((p) => p.selected).map((p) => p.id) })),
+    bytesFreedNow: 0,
+    bytesHeldInTrash: 0,
+    unrecoverableIds: [],
+    items,
+    needsAckIds: [],
+    acknowledgedIds: [],
+    unrecoverableBytes: 0,
+    freeBytesNow: 0,
+    ready: true,
+    state: "open",
+  };
+}
+
+const row = (itemId: string, state: RunItem["state"], parentId: string | null = null, over: Partial<RunItem> = {}): RunItem => ({
+  itemId,
+  parentId,
+  title: itemId,
+  action: "delete",
+  actionLabel: "Delete",
+  expectedBytes: GB,
+  state,
+  reason: null,
+  ...over,
+});
+
+function run(items: RunItem[], over: Partial<RunDetail> = {}): RunDetail {
+  return {
+    id: "r",
+    planId: "p",
+    startedAt: "",
+    finishedAt: null,
+    state: "running",
+    freeBefore: 0,
+    freeAfter: null,
+    expectedBytes: 0,
+    measuredBytesFreed: null,
+    trashBytes: 0,
+    skipped: 0,
+    failed: 0,
+    involvesDocker: false,
+    items,
+    freeBytesNow: null,
+    ...over,
+  };
+}
+
+const parts = [
+  { id: "a", label: "web-app", location: "", sizeBytes: GB, selected: true },
+  { id: "b", label: "admin", location: "", sizeBytes: GB, selected: false },
+  { id: "c", label: "docs", location: "", sizeBytes: GB, selected: true },
+];
+
+test("the action line names the chosen parts only when some are left out (prototype cmdFor)", () => {
+  assert.equal(cmdFor(item("x")), "Delete the folders");
+  assert.equal(cmdFor(item("x", { parts })), "Delete the folders: web-app, docs");
+  assert.equal(cmdFor(item("x", { parts: parts.map((p) => ({ ...p, selected: true })) })), "Delete the folders");
+});
+
+test("confirmation copy follows the prototype", () => {
+  assert.equal(confirmTitle(plan([item("a")]), false), "Toss 1 crate?");
+  assert.equal(confirmTitle(plan([item("a"), item("b")]), false), "Toss 2 crates?");
+  assert.equal(goLabel(plan([item("a")]), false), "Remove it");
+  assert.equal(goLabel(plan([item("a"), item("b")]), false), "Toss them");
+  assert.equal(confirmTitle(plan([item("a")]), true), "Delete 1 item permanently?");
+  assert.equal(ackText(item("v", { recoverable: false })), "I understand this cannot be recovered.");
+});
+
+test("progress counts crates, not parts, and a crate leaves when its parts are done", () => {
+  const p = plan([item("nm", { parts }), item("cache")]);
+  const r = run([row("a", "done", "nm"), row("c", "running", "nm"), row("cache", "waiting")]);
+  let pr = progressOf(p, r);
+  assert.deepEqual([pr.done, pr.total, pr.current, [...pr.gone]], [0, 2, "nm", []]);
+  r.items[1].state = "skipped";
+  pr = progressOf(p, r);
+  assert.deepEqual([pr.done, pr.current, [...pr.gone]], [1, "nm", ["nm"]], "one part removed is enough for the crate to leave");
+  r.items[2].state = "skipped";
+  pr = progressOf(p, r);
+  assert.deepEqual([pr.done, [...pr.gone]], [2, ["nm"]], "a skipped crate stays on board");
+});
+
+test("expected space counts only what was removed", () => {
+  const r = run([row("a", "done"), row("b", "skipped"), row("c", "moved_to_trash"), row("d", "failed")]);
+  assert.equal(expectedFreed(r), GB);
+});
+
+test("result titles", () => {
+  assert.equal(resultTitle(run([row("a", "done")], { state: "finished" })), "Much better!");
+  assert.equal(resultTitle(run([row("a", "skipped")], { state: "finished" })), "Nothing tossed");
+  assert.equal(resultTitle(run([row("a", "canceled")], { state: "canceled" })), "Stopped");
+});
+
+test("Logbook notes use the prototype's wording, with Recycle Bin on Windows", () => {
+  assert.equal(logNote({ trashBytes: 1.2 * GB, skipped: 0 }, "macos", trash), "Kept 1.2 GB in the Trash");
+  assert.equal(logNote({ trashBytes: 0, skipped: 1 }, "macos", trash), "1 skipped because it changed");
+  assert.equal(logNote({ trashBytes: 1.2 * GB, skipped: 2 }, "windows", trash), "Kept 1.2 GB in the Recycle Bin. 2 skipped because they changed");
+  assert.equal(logNote({ trashBytes: 0, skipped: 0 }, "linux", trash), "Nothing skipped");
+});
+
+test("run details give each item's result and reason", () => {
+  assert.equal(resultWord(row("a", "done"), "macos", trash), "Removed");
+  assert.equal(resultWord(row("a", "moved_to_trash"), "windows", trash), "Moved to the Recycle Bin");
+  assert.equal(resultWord(row("a", "skipped", null, { reason: "A new commit appeared after the scan." }), "macos", trash), "Skipped: A new commit appeared after the scan.");
+});

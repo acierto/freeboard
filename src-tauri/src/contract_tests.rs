@@ -233,9 +233,9 @@ fn interface_calls_only_commands_the_core_has() {
     // Registered but not called by the interface yet, each with the task
     // that wires it up. This list may only shrink.
     const BACKEND_ONLY: &[&str] = &[
-        // Slice 2, group 4: the confirmation, progress and result sheets and Empty it.
-        "create_plan", "create_permanent_plan", "get_plan", "acknowledge_item", "run_plan", "cancel_run", "get_run", "get_trash",
-        "empty_freeboard_trash",
+        // Plans reach the interface through create_plan and acknowledge_item;
+        // get_plan stays for tools and tests.
+        "get_plan",
     ];
     let api = std::fs::read_to_string(root().join("../src/lib/api.ts")).unwrap();
     let called: std::collections::BTreeSet<String> = api

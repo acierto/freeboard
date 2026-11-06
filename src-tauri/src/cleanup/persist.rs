@@ -137,7 +137,58 @@ pub fn mark_interrupted(c: &Connection, run: &str, plan: &str, at: i64) -> R<()>
 
 pub fn delete_suggestion(c: &Connection, id: &str) -> R<()> {
     c.execute("DELETE FROM suggestions WHERE id = ?1", [id])?;
+    c.execute("DELETE FROM suggestion_parts WHERE suggestion_id = ?1", [id])?;
     Ok(())
+}
+
+/// Remove cleaned parts from a split item. The parts left stay listed with
+/// their own sizes; the item's size and target follow them. Returns true when
+/// parts remain, false when the item is gone (or was not found).
+pub fn remove_parts(c: &Connection, item: &str, gone: &[&str]) -> R<bool> {
+    let row: Option<(String, String)> =
+        c.query_row("SELECT json, target FROM suggestions WHERE id = ?1", [item], |r| Ok((r.get(0)?, r.get(1)?))).optional()?;
+    let Some((json, target)) = row else { return Ok(false) };
+    for p in gone {
+        c.execute("DELETE FROM suggestion_parts WHERE suggestion_id = ?1 AND part_id = ?2", params![item, p])?;
+    }
+    let (Ok(mut s), Ok(mut t)) = (serde_json::from_str::<Suggestion>(&json), serde_json::from_str::<Target>(&target)) else {
+        // Unreadable: drop it rather than leave a stale combined item.
+        delete_suggestion(c, item)?;
+        return Ok(false);
+    };
+    // The removed parts' paths and resources leave the combined target too.
+    let mut part_paths: Vec<String> = vec![];
+    let mut part_resources: Vec<String> = vec![];
+    {
+        let mut st = c.prepare("SELECT json FROM suggestion_parts WHERE suggestion_id = ?1")?;
+        let left: Vec<String> = st.query_map([item], |r| r.get(0))?.collect::<R<Vec<_>>>()?;
+        for j in left {
+            if let Ok(f) = serde_json::from_str::<Finding>(&j) {
+                match f.target {
+                    Target::Paths { paths } => part_paths.extend(paths),
+                    Target::Native { resources, .. } => part_resources.extend(resources),
+                    Target::None => {}
+                }
+            }
+        }
+    }
+    s.parts.retain(|p| !gone.contains(&p.id.as_str()));
+    if s.parts.is_empty() {
+        delete_suggestion(c, item)?;
+        return Ok(false);
+    }
+    s.full_size_bytes = s.parts.iter().map(|p| p.size_bytes).sum();
+    s.size_bytes = s.parts.iter().filter(|p| p.selected).map(|p| p.size_bytes).sum();
+    match &mut t {
+        Target::Paths { paths } => paths.retain(|p| part_paths.contains(p)),
+        Target::Native { resources, .. } => resources.retain(|r| part_resources.contains(r)),
+        Target::None => {}
+    }
+    c.execute(
+        "UPDATE suggestions SET json = ?2, target = ?3 WHERE id = ?1",
+        params![item, serde_json::to_string(&s).unwrap_or(json), serde_json::to_string(&t).unwrap_or(target)],
+    )?;
+    Ok(true)
 }
 
 pub fn trash_failed(c: &Connection, item: &str) -> R<bool> {
@@ -208,14 +259,27 @@ pub fn load_run(c: &Connection, run: &str) -> R<Option<RunDetail>> {
         )
         .optional()?;
     let Some((id, plan_id, started, finished, state, before, after, expected, trash, docker)) = row else { return Ok(None) };
-    let mut st = c.prepare("SELECT item_id, snapshot, state, reason, expected_bytes FROM cleanup_items WHERE run_id = ?1 ORDER BY ord")?;
+    // Which item each part belongs to, from the confirmed plan.
+    let plan_json: String = c.query_row("SELECT plan_json FROM cleanup_runs WHERE id = ?1", [run], |r| r.get(0))?;
+    let mut parent_of: std::collections::HashMap<String, String> = std::collections::HashMap::new();
+    if let Ok(plan) = serde_json::from_str::<CleanupPlan>(&plan_json) {
+        for pi in plan.plan_items {
+            for part in pi.part_ids {
+                parent_of.insert(part, pi.suggestion_id.clone());
+            }
+        }
+    }
+    let mut st = c.prepare("SELECT item_id, snapshot, state, reason, expected_bytes, action FROM cleanup_items WHERE run_id = ?1 ORDER BY ord")?;
     let items = st
         .query_map([run], |r| {
             let snap: String = r.get(1)?;
             let s: Option<Suggestion> = serde_json::from_str(&snap).ok();
+            let item_id: String = r.get(0)?;
             Ok(RunItem {
-                item_id: r.get(0)?,
+                parent_id: parent_of.get(&item_id).cloned(),
+                item_id,
                 title: s.as_ref().map(|s| s.title.clone()).unwrap_or_default(),
+                action: r.get(5)?,
                 action_label: s.as_ref().map(|s| s.action_label.clone()).unwrap_or_default(),
                 expected_bytes: r.get::<_, i64>(4)? as u64,
                 state: ItemState::parse(&r.get::<_, String>(2)?),
@@ -244,6 +308,7 @@ pub fn load_run(c: &Connection, run: &str) -> R<Option<RunDetail>> {
         failed: items.iter().filter(|i| i.state == ItemState::Failed).count() as u32,
         involves_docker: docker != 0,
         items,
+        free_bytes_now: None,
     }))
 }
 
@@ -265,11 +330,32 @@ pub fn list_runs(c: &Connection, page: u32, per_page: u32) -> R<HistoryPage> {
                 measured_bytes_freed: after.map(|a| a - before),
                 trash_bytes: r.get::<_, i64>(4)? as u64,
                 skipped: r.get::<_, i64>(7)? as u32,
+                removed: 0,
                 state: r.get(5)?,
             })
         })?
         .collect::<R<Vec<_>>>()?;
     let has_more = runs.len() > per_page as usize;
     runs.truncate(per_page as usize);
+    for r in &mut runs {
+        if let Some(d) = load_run(c, &r.id)? {
+            r.removed = removed_crates(&d);
+        }
+    }
     Ok(HistoryPage { runs, page, has_more })
+}
+
+/// Crates (plan items) of a run that were removed or moved to the Trash, at
+/// least in part. A split item counts once, however many parts it had.
+pub fn removed_crates(d: &RunDetail) -> u32 {
+    let mut seen: Vec<&str> = vec![];
+    for i in &d.items {
+        if matches!(i.state, ItemState::Done | ItemState::MovedToTrash) {
+            let key = i.parent_id.as_deref().unwrap_or(&i.item_id);
+            if !seen.contains(&key) {
+                seen.push(key);
+            }
+        }
+    }
+    seen.len() as u32
 }

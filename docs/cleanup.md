@@ -6,12 +6,18 @@ restore policy", "Cleanup rules", "Pre-cleanup checks", "Trash". Code:
 
 ## Flow
 
-1. `create_plan(itemIds)` resolves IDs to the latest scan's findings and
-   stores an immutable snapshot (findings plus backend-owned targets) with a
-   SHA-256 digest, the scan generation and a 30-minute expiry. Unknown,
-   blocked or action-less IDs are rejected. The plan reports space freed
-   right away, space held in the Trash, unrecoverable items (IDs and bytes)
-   and which items need acknowledgment.
+1. `create_plan(source, itemIds)` takes the pile (`source: "pile"`, no IDs)
+   or item IDs (`source: "items"`), resolves them to the latest scan's
+   findings and stores an immutable snapshot (findings plus backend-owned
+   targets) with a SHA-256 digest, the scan generation and a 30-minute
+   expiry. Unknown, blocked or action-less IDs are rejected. Each plan item
+   is `{ suggestionId, partIds }`: an item split into parts covers the parts
+   selected with Choose which (read from the stored decisions, never from the
+   request), and runs one step per part, each with its own finding, check
+   and record. A split item with no part selected, or whose parts lack their
+   own findings, is rejected. The plan reports space freed right away, space
+   held in the Trash, unrecoverable items (IDs and bytes) and which items
+   need acknowledgment.
 2. `acknowledge_item(planId, itemId)` records a per-plan acknowledgment for
    an item that needs one (Docker volumes, permanent deletions).
 3. `run_plan(planId)` is the confirmation. It is rejected if the plan is

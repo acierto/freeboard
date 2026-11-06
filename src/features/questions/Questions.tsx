@@ -12,6 +12,8 @@ export interface Choices {
   takeOut(id: string): void;
   decide(id: string, d: ItemDecision): void;
   parts(id: string, partIds: string[]): void;
+  /** Remove now and Remove all here: open a confirmation for these items. */
+  remove(ids: string[]): void;
 }
 
 function Question({ items, pile, act }: { items: Suggestion[]; pile: PileState; act: Choices }) {
@@ -108,9 +110,11 @@ export function Row({ s, ctx, chosen, act }: { s: Suggestion; ctx: string; chose
           <Parts item={s} ctx={ctx} onChange={(ids) => act.parts(s.id, ids)} />
         </div>
       )}
-      {/* Remove now opens the confirmation sheet, which arrives with slice 2 (task 4.3). */}
       {can && !kept && (
         <div className="ctl">
+          <button className="mini go" id={`${ctx}-now-${s.id}`} data-now={s.id} disabled={s.sizeBytes <= 0} onClick={() => act.remove([s.id])}>
+            Remove now
+          </button>
           <button className="mini" id={`${ctx}-keep-${s.id}`} data-keep={s.id} onClick={() => act.decide(s.id, "keep")}>
             Keep
           </button>
@@ -132,6 +136,9 @@ export function GroupActions({ items, slug, act }: { items: Suggestion[]; slug: 
   if (!l.length) return null;
   return (
     <div className="grp-actions">
+      <button className="mini go" id={`clean-${slug}`} data-clean={slug} onClick={() => act.remove(l.map((s) => s.id))}>
+        {`Remove all here (${gb(l.reduce((t, s) => t + s.sizeBytes, 0))})`}
+      </button>
       <button className="mini" id={`add-${slug}`} data-add={slug} onClick={() => act.add(l.map((s) => s.id))}>
         Add all to pile
       </button>

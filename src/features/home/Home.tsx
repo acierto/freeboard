@@ -12,6 +12,10 @@ import { QuickQuestions } from "../questions/Questions";
 import { Logbook } from "../logbook/Logbook";
 import { areaChoices, bubbleText, coveragePercent, forecastText, moodOf, pileItems, pileNote, questionDeck, scanLabel, tossLabel } from "./homeModel";
 import { useHarbor } from "./useHarbor";
+import { CleanupSheets } from "../cleanup/CleanupSheets";
+import { progressOf } from "../cleanup/cleanupModel";
+import { useCleanup } from "../cleanup/useCleanup";
+import type { Crate } from "../../components/Dinghy";
 
 type Tab = "tidy" | "map" | "log";
 const GOALS: [Goal, string][] = [
@@ -26,6 +30,11 @@ export function Home({ navigate }: { navigate: View | null }) {
   const [tab, setTab] = useState<Tab>("tidy");
   const [showPile, setShowPile] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const cleanup = useCleanup(h.data?.status.platform ?? "macos", () => void h.reload());
+  // While a cleanup runs, the crates on deck are the ones that were there
+  // when it started; each leaves as its item is removed (prototype `run()`).
+  const [deckAtRun, setDeckAtRun] = useState<Crate[] | null>(null);
+  const running = cleanup.flow?.kind === "run";
 
   useEffect(() => {
     if (navigate === "pile") setShowPile(true);
@@ -38,11 +47,18 @@ export function Home({ navigate }: { navigate: View | null }) {
   const scanning = !!status.scan.running;
 
   const home = status.volumes[0];
-  const freeBytes = home?.freeBytes ?? 0;
+  const run = cleanup.flow?.kind === "run" ? cleanup.flow : null;
+  // The boat rises as measured free space comes back during a run.
+  const freeBytes = run?.run?.freeBytesNow ?? home?.freeBytes ?? 0;
   const freeGb = freeBytes / GB;
   const mood = moodOf(status.status);
   const st = STATUS[status.status];
   const items = pileItems(pile, suggestions);
+  const pileCrates: Crate[] = items.map((s) => ({ id: s.id, sizeGb: s.sizeBytes / GB }));
+  if (running && !deckAtRun) setDeckAtRun(pileCrates);
+  if (!running && deckAtRun) setDeckAtRun(null);
+  const gone = run ? progressOf(run.plan, run.run).gone : null;
+  const crates = running && deckAtRun ? deckAtRun.map((c) => ({ ...c, leaving: !!gone?.has(c.id) })) : pileCrates;
   const deck = questionDeck(pile, suggestions).length;
   const coverage = map && map.notExplainedBytes > 0 ? Math.round(coveragePercent(map.usedBytes, map.notExplainedBytes)) : null;
   const areas = areaChoices(suggestions);
@@ -70,7 +86,7 @@ export function Home({ navigate }: { navigate: View | null }) {
         </header>
 
         <section className="hero">
-          <Dinghy mood={mood} freeGb={freeGb} crates={items.map((s) => ({ id: s.id, sizeGb: s.sizeBytes / GB }))} bubble={bubbleText(mood, freeBytes, pile.totalBytes)} />
+          <Dinghy mood={mood} freeGb={freeGb} crates={crates} bubble={bubbleText(mood, freeBytes, pile.totalBytes)} />
 
           <div className="card helm">
             <div className="row between">
@@ -110,8 +126,7 @@ export function Home({ navigate }: { navigate: View | null }) {
                 ))}
               </div>
             </div>
-            {/* The confirmation sheet arrives with cleanup (task 5.4); until then Toss shows the pile. */}
-            <button className="btn primary big" id="cta" data-act="confirm" disabled={!items.length} onClick={() => setShowPile(true)}>
+            <button className="btn primary big" id="cta" data-act="confirm" disabled={!items.length || running} onClick={cleanup.fromPile}>
               {tossLabel(items.length, pile.totalBytes)}
             </button>
             <p className="note" id="cta-note">
@@ -143,8 +158,7 @@ export function Home({ navigate }: { navigate: View | null }) {
               {status.trashBytes > 0 && (
                 <div className="row between note">
                   <span className="num">{`${gb(status.trashBytes)} is in the ${trashWord(status.platform)} and not free yet.`}</span>
-                  {/* Emptying needs its own confirmation sheet (task 5.5). */}
-                  <button className="link" data-act="empty">
+                  <button className="link" data-act="empty" onClick={cleanup.openTrash}>
                     Empty it
                   </button>
                 </div>
@@ -168,7 +182,7 @@ export function Home({ navigate }: { navigate: View | null }) {
         </div>
 
         <section id="v-tidy" className="two" hidden={tab !== "tidy"}>
-          <QuickQuestions items={suggestions} pile={pile} act={{ add: h.add, takeOut: h.takeOut, decide: h.decide, parts: h.parts }} />
+          <QuickQuestions items={suggestions} pile={pile} act={{ add: h.add, takeOut: h.takeOut, decide: h.decide, parts: h.parts, remove: cleanup.fromItems }} />
         </section>
         <section id="v-map" className="two" hidden={tab !== "map"}>
           {/* The disk map needs its Rust accounting (slice 3, tasks 5.9–5.12). */}
@@ -178,9 +192,10 @@ export function Home({ navigate }: { navigate: View | null }) {
           </div>
         </section>
         <section id="v-log" className="card" hidden={tab !== "log"}>
-          {tab === "log" && <Logbook platform={status.platform} refresh={status.trashBytes} />}
+          {tab === "log" && <Logbook platform={status.platform} refresh={`${status.trashBytes}|${status.volumes[0]?.freeBytes ?? 0}`} />}
         </section>
       </div>
+      <CleanupSheets c={cleanup} />
       {settingsOpen && (
         <SettingsSheet settings={settings} platform={status.platform} scanning={scanning} onChange={h.updateSettings} onSettings={h.setSettings} onClose={() => setSettingsOpen(false)} />
       )}

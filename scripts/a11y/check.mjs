@@ -16,6 +16,14 @@ const STATES = [
   { id: "home-pile-open", query: "", click: ["#pile-btn"] },
   { id: "settings-sheet", query: "", click: ['[data-act="settings"]'] },
   { id: "tray-view", query: "view=tray", root: ".tray-window" },
+  // Slice 2: cleanup sheets and the Logbook.
+  { id: "cleanup-confirm", query: "", click: ["#cta"], wait: "#go" },
+  { id: "cleanup-confirm-ack", query: "", click: ['details[data-open="grp-Docker"] > summary', '[data-now="d-vol"]'], wait: "#sheet-ack-d-vol" },
+  { id: "cleanup-progress", query: "hold=1", click: ["#cta", "#go"], wait: "#run-bar" },
+  { id: "cleanup-result", query: "skip=wt-exp&trash=1", click: ["#cta", "#go"], wait: '#go[data-act="close"]' },
+  { id: "trash-confirm", query: "trash=2.4", click: ['[data-act="empty"]'], wait: "#go" },
+  { id: "logbook", query: "", click: ["#tab-log"], wait: ".log" },
+  { id: "logbook-run-details", query: "", click: ["#tab-log", '[data-run="run-2"]'], wait: "#sheet .plan-list" },
 ];
 const THEMES = ["light", "dark"];
 const SIZES = [
@@ -36,6 +44,8 @@ for (const st of STATES)
       const root = st.root ?? "body";
       await page.waitForSelector(".page .hero, .tray-window");
       for (const sel of st.click ?? []) await page.click(sel);
+      if (st.wait) await page.waitForSelector(st.wait);
+      await page.waitForFunction(() => document.documentElement.dataset.busy === "0");
       await page.waitForTimeout(50);
       const r = await new AxeBuilder({ page }).include(root).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze();
       // Keyboard: every enabled control must be reachable with Tab.

@@ -12,9 +12,18 @@
 //   platform=macos|linux|windows
 //   forecast=none      no forecast
 //   trash=<GB>         held in Freeboard's Trash
+//   hold=<n>           a cleanup handles its first n items, then waits (the
+//                      progress sheet; Cancel stops it there)
+//   skip=<id,...>      these items changed since the scan and are skipped
+//                      (the prototype always skips old-experiment)
+//   notrash=1          moving to the Trash fails, as on a volume without one
+//
+// Cleanup follows the prototype's `run()`: items run in plan order, Trash
+// items are held in the Trash, the rest free space at once, and a split item
+// cleaned in part keeps its other parts listed.
 
 import type { Backend } from "./api";
-import type { AppStatus, DiskMap, EventMap, Goal, Group, PileState, Platform, Settings, Suggestion } from "./types";
+import type { AppStatus, CleanupPlan, DiskMap, EventMap, Goal, Group, PileState, Platform, RunDetail, RunItem, RunSummary, Settings, Suggestion } from "./types";
 
 export const FIXTURE_MARKER = "FREEBOARD_FIXTURE_BACKEND";
 const G = 1e9;
@@ -105,8 +114,13 @@ const round1 = (n: number) => Math.round(n * 10) / 10;
 
 export function createFixtureBackend(params: URLSearchParams): Backend {
   const platform = (params.get("platform") ?? "macos") as Platform;
-  const freeGb = params.has("free") ? parseFloat(params.get("free")!) : BASE_FREE;
-  const trashGb = params.has("trash") ? parseFloat(params.get("trash")!) : 0;
+  let freeGb = params.has("free") ? parseFloat(params.get("free")!) : BASE_FREE;
+  // Freeboard's own Trash records: what a cleanup moved there.
+  const held: { item: string; bytes: number }[] = params.has("trash") ? [{ item: "earlier", bytes: bytes(parseFloat(params.get("trash")!)) }] : [];
+  const trashBytes = () => held.reduce((t, h) => t + h.bytes, 0);
+  const holdAt = params.has("hold") ? parseInt(params.get("hold")!, 10) : null;
+  const changedIds = new Set((params.get("skip") ?? "").split(",").filter(Boolean));
+  const noTrash = params.get("notrash") === "1";
   const resolvedSpots = new Set<string>();
 
   type Item = Suggestion & { need?: string };
@@ -140,7 +154,8 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
       need: extra?.need,
     };
   });
-  const active = () => items.filter((i) => !i.need || resolvedSpots.has(i.need));
+  const gone = new Set<string>();
+  const active = () => items.filter((i) => !gone.has(i.id) && (!i.need || resolvedSpots.has(i.need)));
 
   // ----- the pile (prototype picks / freezePile / addToPile / takeOut) -----
   let goal: Goal = 50 * G;
@@ -209,7 +224,7 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
       volumes: [{ id: "home", name: "Macintosh HD", mountPoint: "/", freeBytes: free, totalBytes: TOTAL_GB * G, status: s, purgeableBytes: null, snapshotCount: null }],
       status: s,
       forecast: params.get("forecast") === "none" ? null : { bytesPerDay: RATE_GB * G, daysLeft: freeGb / RATE_GB },
-      trashBytes: bytes(trashGb),
+      trashBytes: trashBytes(),
       trend: [],
       scan: { running: null, phase: null, lastFinishedAt: "2026-11-04T11:42:00Z", detectorErrors: [] },
       notificationsPaused: false,
@@ -239,7 +254,287 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
     return p;
   };
 
+  // ----- cleanup (prototype confirmSheet / run, through the real contract) -----
+  const fail = (code: string, message: string) => {
+    throw { code, message };
+  };
+  type Step = { id: string; parent: string | null; title: string; action: Suggestion["action"]; actionLabel: string; size: number };
+  type Plan = CleanupPlan & { steps: Step[]; permanent: boolean };
+  const plans = new Map<string, Plan>();
+  const trashFailed = new Set<string>();
+  let planN = 0;
+  let runN = 0;
+  const strip = ({ need: _need, ...s }: Item): Suggestion => ({ ...s, parts: s.parts.map((p) => ({ ...p })) });
+
+  function makePlan(ids: string[], permanent: boolean): Plan {
+    if (!ids.length) fail("empty", "the plan is empty");
+    const shown: Suggestion[] = [];
+    const steps: Step[] = [];
+    const planItems: CleanupPlan["planItems"] = [];
+    for (const id of [...new Set(ids)]) {
+      const it = active().find((i) => i.id === id);
+      if (!it) fail("unknown_id", "unknown item: " + id);
+      if (it!.blockedReason) fail("blocked", "item cannot be selected: " + it!.blockedReason);
+      if (it!.action === "none") fail("blocked", "item cannot be selected: No cleanup action is available.");
+      const s = strip(it!);
+      const parts = s.parts.filter((p) => (permanent ? trashFailed.has(p.id) : p.selected));
+      if (s.parts.length && !parts.length) fail(permanent ? "internal" : "blocked", permanent ? "permanent deletion is only offered for items whose move to the Trash failed" : "item cannot be selected: Choose at least one part first.");
+      if (permanent && !s.parts.length && !trashFailed.has(s.id)) fail("internal", "permanent deletion is only offered for items whose move to the Trash failed");
+      if (s.parts.length) {
+        s.parts.forEach((p) => (p.selected = parts.includes(p)));
+        s.sizeBytes = parts.reduce((t, p) => t + p.sizeBytes, 0);
+      }
+      if (permanent) Object.assign(s, { action: "delete", actionLabel: "Delete permanently", recovery: "Not recoverable. No Trash is available for it.", recoverable: false, needsConfirmation: true, ackName: s.title });
+      shown.push(s);
+      planItems.push({ suggestionId: s.id, partIds: parts.map((p) => p.id) });
+      if (s.parts.length) for (const p of parts) steps.push({ id: p.id, parent: s.id, title: `${s.title} (${p.label})`, action: s.action, actionLabel: s.actionLabel, size: p.sizeBytes });
+      else steps.push({ id: s.id, parent: null, title: s.title, action: s.action, actionLabel: s.actionLabel, size: s.sizeBytes });
+    }
+    const plan: Plan = {
+      id: `plan-${++planN}`,
+      createdAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+      itemIds: shown.map((s) => s.id),
+      planItems,
+      bytesFreedNow: shown.filter((s) => s.action !== "trash").reduce((t, s) => t + s.sizeBytes, 0),
+      bytesHeldInTrash: shown.filter((s) => s.action === "trash").reduce((t, s) => t + s.sizeBytes, 0),
+      unrecoverableIds: shown.filter((s) => !s.recoverable).map((s) => s.id),
+      items: shown,
+      needsAckIds: shown.filter((s) => s.needsConfirmation).map((s) => s.id),
+      acknowledgedIds: [],
+      unrecoverableBytes: shown.filter((s) => !s.recoverable).reduce((t, s) => t + s.sizeBytes, 0),
+      freeBytesNow: bytes(freeGb),
+      ready: false,
+      state: "open",
+      steps,
+      permanent,
+    };
+    plan.ready = plan.needsAckIds.length === 0;
+    plans.set(plan.id, plan);
+    return plan;
+  }
+  const publicPlan = ({ steps: _s, permanent: _p, ...p }: Plan): CleanupPlan => p;
+
+  type Run = { detail: RunDetail; plan: Plan; next: number };
+  const runs = new Map<string, Run>();
+  const runEntries = (r: Run) => r.plan.planItems.map((pi) => r.detail.items.filter((i) => (i.parentId ?? i.itemId) === pi.suggestionId));
+  function setItem(r: Run, i: RunItem, state: RunItem["state"], reason: string | null = null) {
+    i.state = state;
+    i.reason = reason;
+    setTimeout(() => emit("cleanup_item_updated", { runId: r.detail.id, itemId: i.itemId, state, reason }), 0);
+  }
+  /** Prototype `run()` for one plan item: each part or the item, in order. */
+  function runEntry(r: Run, n: number) {
+    const pi = r.plan.planItems[n];
+    const it = items.find((i) => i.id === pi.suggestionId)!;
+    const rows = runEntries(r)[n];
+    for (const row of rows) {
+      const step = r.plan.steps.find((s) => s.id === row.itemId)!;
+      if (changedIds.has(pi.suggestionId) || changedIds.has(step.id)) {
+        setItem(r, row, "skipped", "A new commit appeared after the scan.");
+        it.skipReason = "A new commit appeared after the scan.";
+        continue;
+      }
+      if (step.action === "trash" && !r.plan.permanent) {
+        if (noTrash) {
+          trashFailed.add(step.id);
+          setItem(r, row, "failed", "Trash unavailable: this volume has no Trash. Nothing else was changed. You can plan a permanent deletion separately.");
+          continue;
+        }
+        held.push({ item: step.id, bytes: step.size });
+        setItem(r, row, "moved_to_trash");
+      } else {
+        freeGb += step.size / G;
+        setItem(r, row, "done");
+      }
+      trashFailed.delete(step.id);
+      if (step.parent) {
+        it.parts = it.parts.filter((p) => p.id !== step.id);
+        it.sizeBytes = it.parts.filter((p) => p.selected).reduce((t, p) => t + p.sizeBytes, 0);
+        it.fullSizeBytes = it.parts.reduce((t, p) => t + p.sizeBytes, 0);
+        if (!it.parts.length) gone.add(it.id);
+      } else gone.add(it.id);
+    }
+  }
+  function finish(r: Run, state: RunDetail["state"]) {
+    const d = r.detail;
+    d.state = state;
+    d.finishedAt = new Date().toISOString();
+    d.freeAfter = bytes(freeGb);
+    d.measuredBytesFreed = d.freeAfter - d.freeBefore;
+    d.trashBytes = held.filter((h) => r.plan.steps.some((s) => s.id === h.item)).reduce((t, h) => t + h.bytes, 0);
+    d.skipped = d.items.filter((i) => i.state === "skipped").length;
+    d.failed = d.items.filter((i) => i.state === "failed").length;
+    r.plan.state = "finished";
+    // The pile lasts until the next cleanup: keep the goal and areas, forget
+    // hand-picked crates; an item cleaned in part stays out, its remaining
+    // parts selected again.
+    const partial = r.plan.planItems.filter((pi) => !gone.has(pi.suggestionId) && runEntries(r)[r.plan.planItems.indexOf(pi)].some((i) => i.state === "done" || i.state === "moved_to_trash")).map((pi) => pi.suggestionId);
+    manual = null;
+    queued.clear();
+    excl.clear();
+    for (const id of partial) {
+      excl.add(id);
+      const it = items.find((i) => i.id === id)!;
+      it.parts.forEach((p) => (p.selected = true));
+      it.sizeBytes = it.parts.reduce((t, p) => t + p.sizeBytes, 0);
+    }
+    changed();
+    setTimeout(() => emit("cleanup_finished", { runId: d.id, measuredBytesFreed: d.measuredBytesFreed!, skippedCount: d.skipped }), 0);
+  }
+  const sessionRuns: RunSummary[] = [];
+  const summary = (d: RunDetail): RunSummary => ({
+    id: d.id,
+    startedAt: d.startedAt,
+    items: d.items.length,
+    measuredBytesFreed: d.measuredBytesFreed,
+    trashBytes: d.trashBytes,
+    skipped: d.skipped,
+    removed: new Set(d.items.filter((i) => i.state === "done" || i.state === "moved_to_trash").map((i) => i.parentId ?? i.itemId)).size,
+    state: d.state,
+  });
+
+  // Prototype SAMPLE_LOG: Oct 28 (7 crates, 21.4 GB, 1.2 GB in the Trash) and
+  // Oct 12 (11 crates, 34.9 GB, 1 skipped), with made-up run details.
+  const sampleItem = (itemId: string, title: string, action: string, actionLabel: string, gbs: number, state: RunItem["state"] = "done", reason: string | null = null): RunItem => ({
+    itemId,
+    parentId: null,
+    title,
+    action,
+    actionLabel,
+    expectedBytes: bytes(gbs),
+    state,
+    reason,
+  });
+  const SAMPLE_RUNS: RunDetail[] = [
+    {
+      id: "run-2",
+      planId: "plan-a",
+      startedAt: "2026-10-28T10:00:00Z",
+      finishedAt: "2026-10-28T10:01:00Z",
+      state: "finished",
+      freeBefore: bytes(30),
+      freeAfter: bytes(51.4),
+      expectedBytes: bytes(21.4),
+      measuredBytesFreed: bytes(21.4),
+      trashBytes: bytes(1.2),
+      skipped: 0,
+      failed: 0,
+      involvesDocker: true,
+      freeBytesNow: null,
+      items: [
+        sampleItem("s2-1", "Docker build cache", "native_command", "docker builder prune", 9.6),
+        sampleItem("s2-2", "Xcode DerivedData", "delete", "Delete the folder", 5.1),
+        sampleItem("s2-3", "Old Playwright browsers", "delete", "Delete old versions", 2.4),
+        sampleItem("s2-4", "pip download cache", "native_command", "pip cache purge", 1.8),
+        sampleItem("s2-5", "Old Homebrew downloads", "native_command", "brew cleanup", 1.5),
+        sampleItem("s2-6", ".venv in data-tools", "trash", "Move to Trash", 1.2, "moved_to_trash"),
+        sampleItem("s2-7", "Untagged Docker images", "native_command", "docker image prune", 1.0),
+      ],
+    },
+    {
+      id: "run-1",
+      planId: "plan-b",
+      startedAt: "2026-10-12T10:00:00Z",
+      finishedAt: "2026-10-12T10:02:00Z",
+      state: "finished",
+      freeBefore: bytes(20),
+      freeAfter: bytes(54.9),
+      expectedBytes: bytes(34.9),
+      measuredBytesFreed: bytes(34.9),
+      trashBytes: 0,
+      skipped: 1,
+      failed: 0,
+      involvesDocker: false,
+      freeBytesNow: null,
+      items: [
+        sampleItem("s1-1", "node_modules in quiet projects", "delete", "Delete the folders", 16.2),
+        sampleItem("s1-2", "Rust build output", "delete", "Delete the folder", 7.4),
+        sampleItem("s1-3", "Unused pnpm packages", "native_command", "pnpm store prune", 3.1),
+        sampleItem("s1-4", "Old JetBrains caches", "delete", "Delete the folders", 2.6),
+        sampleItem("s1-5", "Slack, Discord and Teams caches", "delete", "Delete the caches while the apps are closed", 1.9),
+        sampleItem("s1-6", "pip download cache", "native_command", "pip cache purge", 1.2),
+        sampleItem("s1-7", "Old Homebrew downloads", "native_command", "brew cleanup", 0.9),
+        sampleItem("s1-8", "Old Playwright browsers", "delete", "Delete old versions", 0.7),
+        sampleItem("s1-9", "Xcode DerivedData", "delete", "Delete the folder", 0.4),
+        sampleItem("s1-10", "Untagged Docker images", "native_command", "docker image prune", 0.3),
+        sampleItem("s1-11", "Old Rust toolchains", "native_command", "rustup toolchain uninstall", 0.2),
+        sampleItem("s1-12", "Worktree old-experiment", "native_command", "git worktree remove", 5.1, "skipped", "A new commit appeared after the scan."),
+      ],
+    },
+  ];
+
   const handlers: Record<string, (a: Record<string, unknown>) => unknown> = {
+    create_plan: (a) => publicPlan(makePlan(a.source === "pile" ? pile().itemIds : (a.itemIds as string[]), false)),
+    create_permanent_plan: (a) => publicPlan(makePlan(a.itemIds as string[], true)),
+    acknowledge_item: (a) => {
+      const p = plans.get(a.planId as string) ?? fail("unknown_id", "unknown plan");
+      const plan = p as Plan;
+      if (!plan.needsAckIds.includes(a.itemId as string)) fail("unknown_id", "unknown item: " + a.itemId);
+      if (!plan.acknowledgedIds.includes(a.itemId as string)) plan.acknowledgedIds.push(a.itemId as string);
+      plan.ready = plan.needsAckIds.every((id) => plan.acknowledgedIds.includes(id));
+      return publicPlan(plan);
+    },
+    run_plan: (a) => {
+      const plan = (plans.get(a.planId as string) ?? fail("unknown_id", "unknown plan")) as Plan;
+      if (plan.state !== "open") fail("already_used", "this plan was already used; create a new one");
+      if (!plan.ready) fail("needs_acknowledgment", "acknowledge every item that needs it first");
+      if ([...runs.values()].some((r) => r.detail.state === "running")) fail("busy", "another cleanup is running");
+      plan.state = "running";
+      const detail: RunDetail = {
+        id: `run-s${++runN}`,
+        planId: plan.id,
+        startedAt: new Date().toISOString(),
+        finishedAt: null,
+        state: "running",
+        freeBefore: bytes(freeGb),
+        freeAfter: null,
+        expectedBytes: plan.steps.filter((s) => s.action !== "trash" || plan.permanent).reduce((t, s) => t + s.size, 0),
+        measuredBytesFreed: null,
+        trashBytes: 0,
+        skipped: 0,
+        failed: 0,
+        involvesDocker: plan.items.some((s) => s.group === "docker"),
+        freeBytesNow: null,
+        items: plan.steps.map((s) => ({ itemId: s.id, parentId: s.parent, title: s.title, action: plan.permanent ? "delete" : s.action, actionLabel: s.actionLabel, expectedBytes: s.size, state: "waiting", reason: null })),
+      };
+      const r: Run = { detail, plan, next: 0 };
+      runs.set(detail.id, r);
+      sessionRuns.unshift(summary(detail));
+      // Synchronous, so a capture never sees a half-finished run; `hold`
+      // stops after that many items to show the progress sheet.
+      const stop = holdAt ?? plan.planItems.length;
+      while (r.next < Math.min(stop, plan.planItems.length)) runEntry(r, r.next++);
+      if (r.next >= plan.planItems.length) finish(r, "finished");
+      return detail.id;
+    },
+    cancel_run: (a) => {
+      const r = runs.get(a.runId as string);
+      if (!r || r.detail.state !== "running") return false;
+      for (const i of r.detail.items) if (i.state === "waiting") setItem(r, i, "canceled", "Canceled before it started.");
+      finish(r, "canceled");
+      return true;
+    },
+    get_run: (a) => {
+      const r = runs.get(a.runId as string);
+      const d = r?.detail ?? SAMPLE_RUNS.find((x) => x.id === a.runId) ?? fail("unknown_id", "unknown run");
+      if (r) {
+        const s = sessionRuns.findIndex((x) => x.id === r.detail.id);
+        if (s >= 0) sessionRuns[s] = summary(r.detail);
+      }
+      return { ...(d as RunDetail), freeBytesNow: bytes(freeGb) };
+    },
+    get_trash: () => ({ bytes: trashBytes(), items: held.length, confirmationToken: held.length ? `trash-${held.length}-${trashBytes()}` : null }),
+    empty_freeboard_trash: (a) => {
+      const token = held.length ? `trash-${held.length}-${trashBytes()}` : null;
+      if (!token || a.token !== token) fail("bad_token", "invalid confirmation");
+      const b = trashBytes();
+      const n = held.length;
+      freeGb += b / G;
+      held.length = 0;
+      setTimeout(() => emit("status_changed", { volume: "home", status: status().status, freeBytes: bytes(freeGb) }), 0);
+      return { emptied: n, failed: 0, bytes: b, freeBytesAfter: bytes(freeGb) };
+    },
     get_status: () => status(),
     get_settings: () => ({ ...settings }),
     update_settings: (a) => Object.assign(settings, a.patch as Partial<Settings>) && { ...settings },
@@ -302,13 +597,8 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
     },
     add_suggested_folder: () => ({ ...settings }),
     start_scan: () => "scan-1",
-    // Prototype SAMPLE_LOG: Oct 28 (7 crates, 21.4 GB, 1.2 GB in the Trash) and
-    // Oct 12 (11 crates, 34.9 GB, 1 skipped).
     list_logbook: () => ({
-      runs: [
-        { id: "run-2", startedAt: "2026-10-28T10:00:00Z", items: 7, measuredBytesFreed: 21.4 * G, trashBytes: 1.2 * G, skipped: 0, state: "finished" },
-        { id: "run-1", startedAt: "2026-10-12T10:00:00Z", items: 12, measuredBytesFreed: 34.9 * G, trashBytes: 0, skipped: 1, state: "finished" },
-      ],
+      runs: [...sessionRuns.map((s) => summary(runs.get(s.id)!.detail)), ...SAMPLE_RUNS.map(summary)],
       page: 0,
       hasMore: false,
     }),

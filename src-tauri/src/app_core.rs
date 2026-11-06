@@ -88,6 +88,17 @@ pub struct SuggestionFilter {
     pub risk: Option<Risk>,
 }
 
+/// Where a plan's items come from (spec `create_plan`: `{ source: "pile" }`
+/// or `itemIds`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum PlanSource {
+    /// Everything in the pile (Toss).
+    Pile,
+    /// The given item IDs (Remove now, Remove all here).
+    Items,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum FolderList {
@@ -190,7 +201,7 @@ impl AppCore {
         let mut mon = Monitor::new();
         mon.restore(&cfg.store);
         let paused = cfg.store.meta_get("notifications_paused").as_deref() == Some("true");
-        Arc::new(AppCore {
+        let core = Arc::new(AppCore {
             store: cfg.store,
             runner: cfg.runner,
             home: cfg.home,
@@ -208,7 +219,16 @@ impl AppCore {
             clock: cfg.clock,
             platform: cfg.platform,
             folder_offers: Mutex::new(Vec::new()),
-        })
+        });
+        // After a cleanup, read free space again so the status, the tray and
+        // the result show the measured change straight away.
+        let weak = Arc::downgrade(&core);
+        core.cleanup.set_after_run(Box::new(move || {
+            if let Some(c) = weak.upgrade() {
+                let _ = c.tick_monitor();
+            }
+        }));
+        core
     }
 
     pub fn set_shell(&self, shell: Arc<dyn Shell>) {
@@ -576,11 +596,18 @@ impl AppCore {
         self.decided_suggestions()?.into_iter().find(|s| s.id == id).ok_or_else(|| CommandError::new("unknown_item", "That item is gone."))
     }
 
-    pub fn create_plan(&self, item_ids: Vec<String>) -> CmdResult<CleanupPlan> {
+    /// A plan from the pile (Toss) or from item IDs (Remove now, Remove all
+    /// here). Split items cover their selected parts.
+    pub fn create_plan(&self, source: PlanSource, item_ids: Vec<String>) -> CmdResult<CleanupPlan> {
         for id in &item_ids {
             validate_id(id)?;
         }
-        Ok(self.cleanup.create_plan(&item_ids, self.now())?)
+        let ids = match source {
+            PlanSource::Pile if !item_ids.is_empty() => return Err(CommandError::new("invalid_request", "A plan from the pile takes no item IDs.")),
+            PlanSource::Pile => self.get_pile()?.item_ids,
+            PlanSource::Items => item_ids,
+        };
+        Ok(self.cleanup.create_plan(&ids, self.now())?)
     }
 
     /// A separately confirmed permanent-delete plan, offered when an item
@@ -613,9 +640,13 @@ impl AppCore {
         Ok(self.cleanup.cancel_run(run_id))
     }
 
+    /// A run with the free space measured now, so the progress sheet's boat
+    /// rises as space comes back.
     pub fn get_run(&self, run_id: &str) -> CmdResult<RunDetail> {
         validate_id(run_id)?;
-        Ok(self.cleanup.get_run(run_id)?)
+        let mut r = self.cleanup.get_run(run_id)?;
+        r.free_bytes_now = Some((self.cleanup.free_space)());
+        Ok(r)
     }
 
     pub fn get_trash(&self) -> CmdResult<TrashSummary> {
@@ -881,8 +912,9 @@ pub(crate) mod tests {
         let d = tempfile::tempdir().unwrap();
         let (core, ..) = core_with(50, d.path());
         for bad in ["/etc/passwd", "../../x", "C:\\Windows", "rm -rf /", "docker system prune", "", "a/b", "$(id)", "a;b"] {
-            let e = core.create_plan(vec![bad.into()]).unwrap_err();
+            let e = core.create_plan(PlanSource::Items, vec![bad.into()]).unwrap_err();
             assert_eq!(e.code, "invalid_id", "{bad}");
+            assert_eq!(core.create_plan(PlanSource::Pile, vec![bad.into()]).unwrap_err().code, "invalid_id");
             assert_eq!(core.get_plan(bad).unwrap_err().code, "invalid_id");
             assert_eq!(core.run_plan(bad).unwrap_err().code, "invalid_id");
             assert_eq!(core.acknowledge_item("p1", bad).unwrap_err().code, "invalid_id");
@@ -891,7 +923,10 @@ pub(crate) mod tests {
         }
         // Well-formed but unknown IDs are rejected by the engine, not executed.
         assert!(core.run_plan("plan-unknown").is_err());
-        assert!(core.create_plan(vec!["deadbeef".into()]).is_err());
+        assert!(core.create_plan(PlanSource::Items, vec!["deadbeef".into()]).is_err());
+        // A pile plan takes no IDs, and an empty pile makes no plan.
+        assert_eq!(core.create_plan(PlanSource::Pile, vec!["deadbeef".into()]).unwrap_err().code, "invalid_request");
+        assert_eq!(core.create_plan(PlanSource::Pile, vec![]).unwrap_err().code, "empty");
     }
 
     #[test]

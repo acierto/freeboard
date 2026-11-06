@@ -62,6 +62,82 @@ function trayWindow() {
   document.body.prepend(w);
 }
 
+// ---- cleanup (slice 2, task 4.7) --------------------------------------------
+
+export const removeNow = (id) => ({ click: `[data-now="${id}"]` });
+export const sheetAck = (id) => ({ check: [`#sheet-ack-${id}`, true] });
+/** Sheets are compared on their own: the page under the scrim is covered by
+ * the home entries. */
+const SHEET = [".sheet"];
+
+function monoOnlyForCommands() {
+  // Plan rows use the code font only for commands (decision 2026-11-05); the
+  // prototype sets it on every action line. Prose actions lose `mono`.
+  const prose = ["Delete the folders", "Delete the folder", "Move to Trash", "Delete the caches while the apps are closed", "Delete old versions", "Move extra copies to Trash"];
+  for (const e of document.querySelectorAll(".plan-list .sub.mono")) if (prose.some((p) => e.textContent.startsWith(p))) e.classList.remove("mono");
+}
+const MONO = "Plan rows use the code font only for commands (decision 2026-11-05); prose action lines lose the prototype's mono class.";
+
+function addCancel() {
+  // Cancel during cleanup is required behavior the prototype lacks (spec):
+  // a .row with a .btn under the progress bar.
+  const row = document.createElement("div");
+  row.className = "row";
+  row.innerHTML = '<button class="btn" data-act="cancel">Cancel</button>';
+  document.getElementById("sheet").appendChild(row);
+}
+
+function openSheet(html) {
+  // The prototype's own openSheet(): a .scrim with a focused .sheet dialog.
+  document.getElementById("sheet-root").innerHTML =
+    '<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" tabindex="-1" id="sheet">' + html + "</div></div>";
+  document.getElementById("sheet").focus();
+}
+
+function trashSheet(open) {
+  // Emptying the Trash needs its own confirmation (spec). Built from the
+  // prototype's sheet, .muted, .note, .row and .btn components. Under it, the
+  // helm shows the prototype's own Trash line (renderHero) for 2.4 GB held.
+  document.getElementById("trash").innerHTML =
+    '<div class="row between note"><span class="num">2.4 GB is in the Trash and not free yet.</span><button class="link" data-act="empty">Empty it</button></div>';
+  (0, eval)("(" + open + ")")(
+    '<h2 id="sheet-title">Empty 2.4 GB from the Trash?</h2>' +
+      '<p class="muted">Only the items I moved there are deleted. Everything else in your Trash stays where it is.</p>' +
+      '<p class="note">This cannot be undone.</p>' +
+      '<div class="row"><button class="btn primary" id="go" data-act="empty-confirm">Empty it</button><button class="btn" data-act="close">Not now</button></div>',
+  );
+}
+
+function runDetailsSheet(open) {
+  // Run details in the Logbook (spec). Built from the prototype's sheet,
+  // .sum3, .plan-list and .pile-row components, for the fixture's Oct 28 run.
+  const rows = [
+    ["Docker build cache", "docker builder prune", true, "Removed", "9.6"],
+    ["Xcode DerivedData", "Delete the folder", false, "Removed", "5.1"],
+    ["Old Playwright browsers", "Delete old versions", false, "Removed", "2.4"],
+    ["pip download cache", "pip cache purge", true, "Removed", "1.8"],
+    ["Old Homebrew downloads", "brew cleanup", true, "Removed", "1.5"],
+    [".venv in data-tools", "Move to Trash", false, "Moved to the Trash", "1.2"],
+    ["Untagged Docker images", "docker image prune", true, "Removed", "1.0"],
+  ];
+  (0, eval)("(" + open + ")")(
+    '<h2 id="sheet-title">Tossed 7 crates</h2><p class="muted">Oct 28, 10:00</p>' +
+      '<div class="sum3"><div><b class="num">21.4 GB</b>Freed, measured</div><div><b class="num">1.2 GB</b>Held in the Trash</div><div><b class="num">0</b>Skipped</div></div>' +
+      '<p class="note">Docker Desktop may take a while to return its space, so the measured change can be lower than expected.</p>' +
+      '<div class="plan-list">' +
+      rows
+        .map(
+          ([t, a, cmd, r, g]) =>
+            '<div class="pile-row" style="grid-template-columns:minmax(0,1fr) auto"><span>' + t + '<span class="sub' + (cmd ? " mono" : "") + '">' + a + '</span><span class="sub">' + r + '</span></span><span class="num">' + g + " GB</span></div>",
+        )
+        .join("") +
+      "</div>" +
+      '<div class="row"><button class="btn primary" id="go" data-act="close">Done</button></div>',
+  );
+}
+// Reference edits run in the page, so they get openSheet as source text.
+const OPEN_SHEET = openSheet.toString();
+
 /** @type {Array<{id:string,surface:string,state:string,sizes:number[][],query?:string,ref:any[],impl:any[],supplemental?:boolean,note?:string,motion?:boolean,themes?:string[]}>} */
 export const ENTRIES = [
   // Milestone 2: home at the three disk states, and the tray view (task 2.6).
@@ -72,6 +148,47 @@ export const ENTRIES = [
     id: "tray-view", surface: "Tray", state: "Tray view, Low", sizes: [[312, 260]], query: "view=tray",
     ref: [{ click: "#tray-btn" }, evalRef(trayWindow)], impl: [], clip: [".tray-window"], supplemental: true,
     note: "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
+  },
+
+  // Slice 2: cleanup sheets and the Logbook (task 4.7). Sheets at desktop and phone widths.
+  {
+    id: "cleanup-confirm-ack", surface: "Cleanup", state: "Remove now on a Docker volume, acknowledgment ticked", sizes: [DESKTOP, PHONE], query: "",
+    ...both([removeNow("d-vol"), sheetAck("d-vol")]), clip: SHEET,
+  },
+  {
+    id: "cleanup-confirm-pile", surface: "Cleanup", state: "Toss: confirmation for the pile (4 crates)", sizes: [DESKTOP, PHONE], query: "",
+    ref: [act("confirm"), evalRef(monoOnlyForCommands)], impl: [act("confirm")], clip: SHEET, supplemental: true, note: MONO,
+  },
+  {
+    id: "cleanup-confirm-long", surface: "Cleanup", state: "Toss with All I can: 11 crates, the list scrolls and the button stays visible", sizes: [DESKTOP, PHONE], query: "",
+    ref: [goal("all"), act("confirm"), evalRef(monoOnlyForCommands)], impl: [goal("all"), act("confirm")], clip: SHEET, supplemental: true, note: MONO,
+  },
+  {
+    id: "cleanup-progress", surface: "Cleanup", state: "Tossing crates: first of 4 done, with Cancel", sizes: [DESKTOP, PHONE], query: "hold=1",
+    ref: [act("confirm"), act("run"), { clockRun: 60 }, evalRef(addCancel)], impl: [act("confirm"), act("run")], clip: SHEET, supplemental: true,
+    note: "The prototype's progress sheet one item in (its clock advanced 60 ms), plus the Cancel button the spec requires (a .row with a .btn).",
+  },
+  {
+    id: "cleanup-result", surface: "Cleanup", state: "Much better! after tossing the pile, with the Docker Desktop note", sizes: [DESKTOP, PHONE], query: "",
+    ...both([act("confirm"), act("run"), finish]), clip: SHEET,
+  },
+  {
+    id: "cleanup-result-skipped", surface: "Cleanup", state: "Result with a skipped worktree and an item held in the Trash", sizes: [DESKTOP, PHONE], query: "skip=wt-exp",
+    ...both([pile("wt-exp"), pile("b-venv"), act("confirm"), act("run"), finish]), clip: SHEET,
+  },
+  {
+    id: "trash-confirm", surface: "Cleanup", state: "Empty it: confirmation limited to Freeboard's Trash items", sizes: [DESKTOP, PHONE], query: "trash=2.4",
+    ref: [evalRef(trashSheet, OPEN_SHEET)], impl: [act("empty")], clip: SHEET, supplemental: true,
+    note: "Emptying the Trash needs its own confirmation (spec); built from the prototype's sheet, .muted, .note, .row and .btn components.",
+  },
+  {
+    id: "logbook", surface: "Logbook", state: "Logbook with the prototype's two runs", sizes: [DESKTOP, PHONE], query: "",
+    ...both([tab("log")]), clip: ["#v-log"],
+  },
+  {
+    id: "logbook-run-details", surface: "Logbook", state: "Run details for Oct 28: each item with its action and result", sizes: [DESKTOP, PHONE], query: "",
+    ref: [tab("log"), evalRef(runDetailsSheet, OPEN_SHEET)], impl: [tab("log"), { click: '[data-run="run-2"]' }], clip: SHEET, supplemental: true,
+    note: "Run details are required behavior the prototype lacks (spec); built from its sheet, .sum3, .plan-list and .pile-row components.",
   },
 ];
 

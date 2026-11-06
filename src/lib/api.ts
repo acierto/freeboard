@@ -2,7 +2,26 @@
 // The interface sends only IDs, enums and numbers. It never sends a path or a
 // command to execute (invariant 3).
 
-import type { AppStatus, EventMap, FolderList, FolderSuggestion, Goal, Group, ItemDecision, LogbookPage, PileState, ScanKind, Settings, SettingsPatch, Suggestion } from "./types";
+import type {
+  AppStatus,
+  CleanupPlan,
+  EmptyTrashResult,
+  EventMap,
+  FolderList,
+  FolderSuggestion,
+  Goal,
+  Group,
+  ItemDecision,
+  LogbookPage,
+  PileState,
+  PlanSource,
+  RunDetail,
+  ScanKind,
+  Settings,
+  SettingsPatch,
+  Suggestion,
+  TrashSummary,
+} from "./types";
 
 export interface Backend {
   invoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T>;
@@ -43,6 +62,18 @@ export const api = {
   takeOutOfPile: (itemIds: string[]) => call<PileState>("take_out_of_pile", { itemIds }),
   setItemDecision: (itemId: string, decision: ItemDecision) => call<Suggestion>("set_item_decision", { itemId, decision }),
   setItemParts: (itemId: string, partIds: string[]) => call<Suggestion>("set_item_parts", { itemId, partIds }),
+  /** Toss: plan everything in the pile. */
+  createPlanFromPile: () => call<CleanupPlan>("create_plan", { source: "pile" satisfies PlanSource, itemIds: [] }),
+  /** Remove now and Remove all here: plan these items (split items cover their selected parts). */
+  createPlan: (itemIds: string[]) => call<CleanupPlan>("create_plan", { source: "items" satisfies PlanSource, itemIds }),
+  /** A separate plan to delete permanently what could not be moved to the Trash. */
+  createPermanentPlan: (itemIds: string[]) => call<CleanupPlan>("create_permanent_plan", { itemIds }),
+  acknowledgeItem: (planId: string, itemId: string) => call<CleanupPlan>("acknowledge_item", { planId, itemId }),
+  runPlan: (planId: string) => call<string>("run_plan", { planId }),
+  cancelRun: (runId: string) => call<boolean>("cancel_run", { runId }),
+  getRun: (runId: string) => call<RunDetail>("get_run", { runId }),
+  getTrash: () => call<TrashSummary>("get_trash"),
+  emptyFreeboardTrash: (token: string) => call<EmptyTrashResult>("empty_freeboard_trash", { token }),
   listLogbook: (page: number) => call<LogbookPage>("list_logbook", { page }),
   /** Opens a native folder picker in the backend; the path never passes through the interface. */
   addFolder: (list: FolderList) => call<Settings>("add_folder", { list }),
