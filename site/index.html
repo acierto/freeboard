@@ -206,6 +206,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .film video { width: 100%; height: 100%; object-fit: cover; display: block; }
 .film .poster { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; background: radial-gradient(circle at 50% 120%, #2FA9C5 0%, transparent 60%), linear-gradient(#0E1E3E, #0A1630); }
 .film .poster { border-radius: 0; }
+.film .poster[hidden], .teaser[hidden] { display: none; }
 .film .poster .play { width: 84px; height: 84px; border-radius: 50%; display: grid; place-items: center; background: var(--sea-hi); color: #062634; margin: 0 auto 16px; box-shadow: 0 0 0 12px #6FE3F222; }
 .film .poster p { color: var(--muted); }
 
@@ -503,9 +504,10 @@ footer a { color: #fff; }
     <h2 class="reveal">Give Dinghy some freeboard.</h2>
     <p class="lede reveal" style="margin:16px auto 0">Free and open source for macOS, Linux and Windows.</p>
     <div class="cta reveal">
-      <a class="btn primary" href="https://github.com/" data-release-link><svg><use href="#dl"/></svg>Download the latest release</a>
+      <a class="btn primary" href="https://github.com/" data-release-link><svg><use href="#dl"/></svg><span data-os-label>Download the latest release</span></a>
       <a class="btn" href="https://github.com/" data-repo-link><svg><use href="#gh"/></svg>View the source</a>
     </div>
+    <p class="reveal" style="margin-top:18px;font-size:15px;color:var(--muted)">Other downloads: <a href="https://github.com/acierto/freeboard/releases/latest/download/Freeboard-macOS-universal.dmg">macOS (.dmg)</a> · <a href="https://github.com/acierto/freeboard/releases/latest/download/Freeboard-linux-x86_64.deb">Linux x86_64 (.deb)</a> · <a href="https://github.com/acierto/freeboard/releases/latest/download/Freeboard-linux-x86_64.AppImage">AppImage</a> · <a href="https://github.com/acierto/freeboard/releases/latest/download/Freeboard-linux-arm64.deb">Linux arm64 (.deb)</a> · <a href="https://github.com/acierto/freeboard/releases/latest">all releases</a></p>
     <div class="install reveal"><code id="installCmd">git clone https://github.com/your-name/freeboard &amp;&amp; cd freeboard &amp;&amp; pnpm tauri build</code><button class="btn sm" id="copyBtn">Copy</button></div>
   </div>
   <div class="ocean" aria-hidden="true">
@@ -522,10 +524,14 @@ footer a { color: #fff; }
   // Set your repository once here.
   var REPO = 'acierto/freeboard';
   document.querySelectorAll('[data-repo-link]').forEach(function (a) { a.href = 'https://github.com/' + REPO; });
-  document.querySelectorAll('[data-release-link]').forEach(function (a) { a.href = 'https://github.com/' + REPO + '/releases/latest'; });
+  var REL = 'https://github.com/' + REPO + '/releases/latest', DL = REL + '/download/';
+  var ASSETS = { macOS: 'Freeboard-macOS-universal.dmg', Linux: 'Freeboard-linux-x86_64.deb' };
+  document.querySelectorAll('[data-release-link]').forEach(function (a) { a.href = REL; });
   document.getElementById('installCmd').textContent = 'git clone https://github.com/' + REPO + ' && cd freeboard && pnpm tauri build';
   var ua = navigator.userAgent, os = /Mac/.test(ua) ? 'macOS' : /Win/.test(ua) ? 'Windows' : /Linux/.test(ua) ? 'Linux' : '';
-  if (os) document.querySelector('[data-os-label]').textContent = 'Download for ' + os;
+  if (os && os !== 'Windows') document.querySelectorAll('[data-os-label]').forEach(function (l) { l.textContent = 'Download for ' + os; });
+  // macOS and Linux get the file itself, so the download starts at once. Windows has no installer in the release yet.
+  if (ASSETS[os]) document.querySelectorAll('[data-release-link]').forEach(function (a) { a.href = DL + ASSETS[os]; a.setAttribute('download', ''); });
   var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // Hero tilt
