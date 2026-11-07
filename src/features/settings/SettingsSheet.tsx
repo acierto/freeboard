@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { Sheet } from "../../components/Sheet";
 import { api } from "../../lib/api";
 import { GB, gb, plural } from "../../lib/format";
+import { LANGS, LANG_NAMES, ago as agoIn, fx, lang, t, tn, unitGB, type Lang, type LanguagePref } from "../../i18n";
 import { track } from "../../lib/useBusy";
 import type { FolderDetails, FolderInfo, FolderList, Platform, QuickScanSchedule, ScanKind, Settings, SettingsPatch } from "../../lib/types";
 import { displayPath } from "./Folders";
@@ -29,19 +30,20 @@ const LOCK_SVG = (
 );
 
 /** Folder sizes in whole GB from 1 GB up, as the prototype writes them. */
-const folderSize = (b: number) => (b >= GB ? `${Math.round(b / GB)} GB` : gb(b));
+const folderSize = (b: number) => (b >= GB ? `${Math.round(b / GB)} ${unitGB()}` : gb(b));
 
 /** "14 repositories, 96 GB"; just the size for a folder without repositories. */
 export function folderMeta(f: FolderInfo | undefined): string {
   if (!f) return "";
-  if (f.repos === 0) return f.bytes == null ? "Size known after a deep scan" : folderSize(f.bytes);
-  const repos = `${f.repos} ${f.repos === 1 ? "repository" : "repositories"}`;
-  return `${repos}, ${f.bytes == null ? "size after a deep scan" : folderSize(f.bytes)}`;
+  if (f.repos === 0) return f.bytes == null ? t("s.size.later") : folderSize(f.bytes);
+  const repos = tn("ob.m.repos1", "ob.m.reposN", f.repos);
+  return `${repos}, ${f.bytes == null ? t("s.size.later2") : folderSize(f.bytes)}`;
 }
 
 export function ago(iso: string | null, now = Date.now()): string {
-  if (!iso) return "never";
+  if (!iso) return t("s.never.scan");
   const min = Math.floor((now - Date.parse(iso)) / 60000);
+  if (lang() !== "en") return agoIn(min);
   if (min < 1) return "just now";
   if (min < 60) return `${plural(min, "minute")} ago`;
   const h = Math.floor(min / 60);
@@ -49,12 +51,48 @@ export function ago(iso: string | null, now = Date.now()): string {
   return `${plural(Math.floor(h / 24), "day")} ago`;
 }
 
-const QUICK_EVERY: Record<QuickScanSchedule, string> = {
-  hourly: "Quick scans run every hour.",
-  every6_hours: "Quick scans run every 6 hours.",
-  daily: "Quick scans run once a day.",
-  on_request: "Quick scans run when you ask.",
-};
+/** "Last scan 18 minutes ago. Quick scans run every hour." */
+function lastScanLine(when: string, q: QuickScanSchedule): string {
+  if (q === "hourly") return t("s.last", { t: when });
+  const every = { every6_hours: "s.q.6h", daily: "s.q.daily", on_request: "s.q.ask" }[q];
+  return t("s.lastonly", { t: when }) + " " + t(every);
+}
+
+/** A translated sentence with a folder path (in mono) where `{p}` stands. */
+function withPath(key: string, path: string) {
+  const [a, b = ""] = t(key).split("{p}");
+  return (
+    <span>
+      {a}
+      <span className="mono">{path}</span>
+      {b}
+    </span>
+  );
+}
+
+/** "12,4 GB frei": how sizes look in a language (prototype `sample()`). */
+const sample = (l: Lang) => `${fx(12.4, l)} ${l === "fr" ? "Go libres" : t("gb.free", undefined, l)}`;
+
+/** Settings → Language (spec "Language design in the app"): six tiles, each
+ * language in its own name with a preview of its number format. */
+function LanguageSection({ pref, system, onPick }: { pref: LanguagePref; system: Lang; onPick: (l: LanguagePref) => void }) {
+  const tile = (v: LanguagePref, name: string, sub: string, l?: Lang) => (
+    <button key={v} className="lang-tile" role="radio" aria-checked={pref === v} data-applang={v} lang={l} onClick={() => onPick(v)}>
+      <b>{name}</b>
+      <small className="num">{sub}</small>
+    </button>
+  );
+  return (
+    <section className="st-sec" aria-labelledby="st-lang">
+      <h3 id="st-lang">{t("s.lang.h")}</h3>
+      <p>{t("s.lang.p")}</p>
+      <div className="lang-tiles" role="radiogroup" aria-labelledby="st-lang">
+        {tile("system", t("s.lang.system"), LANG_NAMES[system])}
+        {LANGS.map((l) => tile(l, LANG_NAMES[l], sample(l), l))}
+      </div>
+    </section>
+  );
+}
 
 function Stepper({ id, label, value, lo, hi, d, onStep }: { id: string; label: string; value: number; lo: number; hi: number; d: number; onStep: (v: number) => void }) {
   return (
@@ -62,7 +100,7 @@ function Stepper({ id, label, value, lo, hi, d, onStep }: { id: string; label: s
       <button id={`${id}-dn`} aria-label="Lower" disabled={value - d < lo} onClick={() => onStep(value - d)}>
         −
       </button>
-      <output className="num" id={`${id}-out`} aria-live="polite">{`${value} GB`}</output>
+      <output className="num" id={`${id}-out`} aria-live="polite">{`${value} ${unitGB()}`}</output>
       <button id={`${id}-up`} aria-label="Higher" disabled={value + d > hi} onClick={() => onStep(value + d)}>
         +
       </button>
@@ -73,6 +111,7 @@ function Stepper({ id, label, value, lo, hi, d, onStep }: { id: string; label: s
 export function SettingsSheet({
   settings,
   platform,
+  systemLanguage,
   freeBytes,
   scanning,
   onChange,
@@ -81,6 +120,8 @@ export function SettingsSheet({
 }: {
   settings: Settings;
   platform: Platform;
+  /** The system's language, for "Same as my Mac". */
+  systemLanguage: Lang;
   freeBytes: number;
   scanning: boolean;
   onChange: (p: SettingsPatch) => void;
@@ -114,11 +155,10 @@ export function SettingsSheet({
     removed && removed.list === list ? (
       <div className="undo">
         <span>
-          {list === "scanFolders" ? "No longer scanning " : "No longer skipping "}
-          <span className="mono">{removed.label}</span>
+          {withPath(list === "scanFolders" ? "s.noscan" : "s.noskip", removed.label)}
         </span>
         <button className="mini" id="undo-rm" onClick={() => run(api.undoRemoveFolder())}>
-          Undo
+          {t("s.undo")}
         </button>
       </div>
     ) : null;
@@ -141,17 +181,18 @@ export function SettingsSheet({
       </button>
     </div>
   );
-  const status = scanning ? (kind === "quick" ? "Quick scan running…" : kind === "deep" ? "Deep scan running…" : "A scan is running…") : `Last scan ${ago(details?.lastScanAt ?? null)}. ${QUICK_EVERY[settings.quickScan]}`;
+  const status = scanning ? (kind === "quick" ? t("s.quickrun") : kind === "deep" ? t("s.deeprun") : t("s.anyrun")) : lastScanLine(ago(details?.lastScanAt ?? null), settings.quickScan);
   const suggestions = details?.suggestions ?? [];
 
   return (
-    <Sheet title="Settings" onClose={onClose} className="settings" closeLabel="Close settings">
+    <Sheet title={t("s.title")} onClose={onClose} className="settings" closeLabel={t("s.close")}>
       <div className="st-body">
+        <LanguageSection pref={settings.language} system={systemLanguage} onPick={(language) => onChange({ language })} />
         <section className="st-sec" aria-labelledby="st-warn">
-          <h3 id="st-warn">When Dinghy warns you</h3>
-          <p>Dinghy gets worried in the amber zone and panics in the red one.</p>
+          <h3 id="st-warn">{t("s.warn.h")}</h3>
+          <p>{t("s.warn.p")}</p>
           <div className="zone-wrap">
-            <span className="zone-you num" style={{ left: Math.max(6, Math.min(94, pct(free))).toFixed(1) + "%" }}>{`You: ${gb(freeBytes)}`}</span>
+            <span className="zone-you num" style={{ left: Math.max(6, Math.min(94, pct(free))).toFixed(1) + "%" }}>{t("s.you", { x: gb(freeBytes) })}</span>
             <div className="zone" aria-hidden="true">
               <i style={{ width: pct(crit) + "%", background: "var(--risky)" }} />
               <i style={{ width: pct(low) - pct(crit) + "%", background: "var(--review)" }} />
@@ -162,13 +203,13 @@ export function SettingsSheet({
             <span style={{ left: 0 }}>0</span>
             <span style={{ left: pct(crit) + "%" }}>{crit}</span>
             <span style={{ left: pct(low) + "%" }}>{low}</span>
-            <span style={{ left: "100%" }}>60+ GB</span>
+            <span style={{ left: "100%" }}>{`60+ ${unitGB()}`}</span>
           </div>
           <div className="limit">
             <span className="sw" style={{ background: "var(--review)" }} />
             <span>
-              <b>Warn me</b>
-              <small>Low, Dinghy looks worried</small>
+              <b>{t("s.warnme")}</b>
+              <small>{t("s.warnme.s")}</small>
             </span>
             <Stepper
               id="low"
@@ -186,8 +227,8 @@ export function SettingsSheet({
           <div className="limit">
             <span className="sw" style={{ background: "var(--risky)" }} />
             <span>
-              <b>Warn me urgently</b>
-              <small>Critical, Dinghy panics</small>
+              <b>{t("s.urgent")}</b>
+              <small>{t("s.urgent.s")}</small>
             </span>
             <Stepper
               id="crit"
@@ -205,15 +246,15 @@ export function SettingsSheet({
         </section>
 
         <section className="st-sec" aria-labelledby="st-scan">
-          <h3 id="st-scan">Folders I scan</h3>
-          <p>Freeboard looks for projects, worktrees and caches here.</p>
+          <h3 id="st-scan">{t("s.scan.h")}</h3>
+          <p>{t("s.scan.p")}</p>
           <div className="st-list">
-            {settings.scanFolders.length ? settings.scanFolders.map((p, i) => row("scanFolders", p, i, folderMeta(details?.scan[i]))) : <div className="empty">No folders yet. Add one, or Freeboard only checks tool caches.</div>}
+            {settings.scanFolders.length ? settings.scanFolders.map((p, i) => row("scanFolders", p, i, folderMeta(details?.scan[i]))) : <div className="empty">{t("s.empty1")}</div>}
           </div>
           {undo("scanFolders")}
           {suggestions.length > 0 && (
             <>
-              <div className="st-sub">Found outside these folders</div>
+              <div className="st-sub">{t("s.found")}</div>
               <div className="st-list">
                 {suggestions.map((o, i) => (
                   <div className="frow sugg" key={o.label}>
@@ -223,7 +264,7 @@ export function SettingsSheet({
                       <small>{folderMeta({ repos: o.repos, bytes: details?.suggestionBytes[i] ?? null })}</small>
                     </span>
                     <button className="mini go" id={`sugg-add-${i}`} data-offer={i} aria-label={`Add ${o.label}`} onClick={() => run(api.addSuggestedFolder(i))}>
-                      Add
+                      {t("ob.addb")}
                     </button>
                   </div>
                 ))}
@@ -232,59 +273,59 @@ export function SettingsSheet({
           )}
           <div>
             <button className="btn" id="add-scan" data-add="scanFolders" onClick={() => run(api.addFolder("scanFolders"))}>
-              Add a folder
+              {t("s.add")}
             </button>
           </div>
         </section>
 
         <section className="st-sec" aria-labelledby="st-skip">
-          <h3 id="st-skip">Folders I skip</h3>
-          <p>Freeboard never looks inside these.</p>
-          <div className="st-list">{settings.exclusions.length ? settings.exclusions.map((p, i) => row("exclusions", p, i, "Never looked inside")) : <div className="empty">Nothing skipped yet.</div>}</div>
+          <h3 id="st-skip">{t("s.skip.h")}</h3>
+          <p>{t("s.skip.p")}</p>
+          <div className="st-list">{settings.exclusions.length ? settings.exclusions.map((p, i) => row("exclusions", p, i, t("s.never"))) : <div className="empty">{t("s.empty2")}</div>}</div>
           {undo("exclusions")}
           <div>
             <button className="btn" id="add-skip" data-add="exclusions" onClick={() => run(api.addFolder("exclusions"))}>
-              Skip a folder
+              {t("s.skipadd")}
             </button>
           </div>
         </section>
 
         <section className="st-sec" aria-labelledby="st-lock">
-          <h3 id="st-lock">Always protected</h3>
-          <p>Freeboard never removes these, whatever you choose.</p>
+          <h3 id="st-lock">{t("s.lock.h")}</h3>
+          <p>{t("s.lock.p")}</p>
           <div className="lockchips">
-            {["System folders", "Repository roots", ".git folders", "Folders you skip"].map((t) => (
-              <span key={t}>
+            {["s.l1", "s.l2", "s.l3", "s.l4"].map((k) => (
+              <span key={k}>
                 {LOCK_SVG}
-                {t}
+                {t(k)}
               </span>
             ))}
           </div>
         </section>
 
         <section className="st-sec" aria-labelledby="st-run">
-          <h3 id="st-run">Scanning</h3>
+          <h3 id="st-run">{t("s.run.h")}</h3>
           <p id="scan-status" aria-live="polite">
             {status}
           </p>
           <div className="scanrow">
             <button className="scanbtn" id="scan-quick" data-act="scan-quick" disabled={scanning} onClick={() => scan("quick")}>
-              <b>Quick scan</b>
-              <small>Known caches and tools, about 10 seconds</small>
+              <b>{t("s.quick")}</b>
+              <small>{t("s.quick.s")}</small>
             </button>
             <button className="scanbtn" id="scan-deep" data-act="scan-deep" disabled={scanning} onClick={() => scan("deep")}>
-              <b>Deep scan</b>
-              <small>Every file in your folders and the disk map, a few minutes</small>
+              <b>{t("s.deep")}</b>
+              <small>{t("s.deep.s2")}</small>
             </button>
           </div>
         </section>
       </div>
       <div className="st-foot">
         <button className="link small" id="rerun-setup" style={{ marginRight: "auto" }} onClick={() => void track(api.updateSettings({ onboardingComplete: false })).then((s) => { onSettings(s); onClose(); }, () => undefined)}>
-          Run setup again
+          {t("s.rerun")}
         </button>
         <button className="btn primary" id="settings-done" onClick={onClose}>
-          Done
+          {t("s.done")}
         </button>
       </div>
     </Sheet>

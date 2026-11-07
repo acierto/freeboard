@@ -1,6 +1,6 @@
 # Freeboard: Product and Implementation Specification
 
-Nov 6, 2026 · @Bogdan
+Nov 7, 2026 · @Bogdan
 
 ## Overview
 
@@ -371,6 +371,14 @@ Discover repositories under the configured folders, then read each one with `git
 
 Git cannot reliably detect squash merges, so show those branches as "pushed, not merged".
 
+**Removing many worktrees.** Real repositories can hold 100+ worktrees, and `git worktree remove` can be slow or time out on large ones. Rules:
+
+- Never bundle worktrees into one item. Group them in the list per repository, but each worktree is its own item with its own pre-check.
+- Exclude any worktree with a commit or file change in the last 7 days from automatic piles; it can still be removed by hand.
+- Remove one at a time, with a 120 s timeout per worktree instead of the default 20 s. A timeout is a failure for that worktree only; the run continues.
+- Group failures in the outcome under Could not go, by reason (timed out, locked, changes appeared), with **Try N again**.
+- Before **Remove all here** on a repository, open the list so the user sees what is included.
+
 ### Projects
 
 Suggest generated folders only when ownership is clear, so an unrelated folder named `build` is never included.
@@ -583,13 +591,6 @@ Draw a squarified treemap to scale. Each area is a real button with a text label
 
 Dinghy may speak in the first person in the bubble, blind spots and disk map. Controls stay plain and exact. Use these labels: **Toss**, **Add to pile**, **Remove now**, **Keep**, **Stop keeping**, **Keep, don't ask again**, **Ask me later**, **Choose which**, **Remove all here** and **Add all to pile**.
 
-### Accessibility
-
-- Every control works by keyboard and has a visible focus style.
-- Sheets trap focus, close with Esc when no cleanup is running, and return focus when closed.
-- Do not rely on color or animation alone.
-- Re-rendering a list keeps open groups and keyboard focus in place.
-
 ### Languages
 
 Freeboard ships in English, Dutch, German, French and Spanish (`en`, `nl`, `de`, `fr`, `es`), in the app and on the website.
@@ -606,6 +607,20 @@ Rules:
 - Never translate commands, paths, tool names or item ids. Item names that are product names (node\_modules, Xcode DerivedData) stay as they are; descriptive names ("Docker build cache") are translated.
 - Risk labels are translated consistently: Safe/Review/Risky = Veilig/Nakijken/Riskant, Sicher/Prüfen/Riskant, Sûr/À vérifier/Risqué, Seguro/Revisar/Arriesgado.
 - Instructions that name OS controls (Open Anyway, Full Disk Access) use the OS's own label in that language. Have a native speaker check those against a real machine before release.
+
+**Language design in the app** (see the prototype: Settings, setup step 1, and the main card and menu bar window, which are translated):
+
+- **Settings → Language** is the first section: six tiles in a 3 × 2 grid, "Same as my Mac" (showing the detected language) plus English, Nederlands, Deutsch, Français, Español. Names are always in their own language, and each tile previews the number format ("12,4 GB frei", "12,4 Go libres"). Picking one applies at once; nothing restarts.
+- **Setup step 1** has a compact globe + language picker next to Skip setup, preselected from the system, so a user who can't read the detected language can switch before reading anything else.
+- **Text expansion:** German and French run about 30% longer than English. Buttons, sizes and counts never wrap (`white-space: nowrap`); the long fourth option of the size control gets 1.5× width and short labels (Maximal, Maximaal, Le maximum, El máximo); rows let the label wrap and keep the number on one line; footers wrap buttons to a second line instead of squeezing them.
+- **Not translated:** paths, commands, tool and product names (node\_modules, Xcode DerivedData, Docker). Item names that describe something are translated through `n.<item id>` keys the detectors provide.
+
+### Accessibility
+
+- Every control works by keyboard and has a visible focus style.
+- Sheets trap focus, close with Esc when no cleanup is running, and return focus when closed.
+- Do not rely on color or animation alone.
+- Re-rendering a list keeps open groups and keyboard focus in place.
 
 ### First-run setup
 
@@ -638,7 +653,81 @@ Clicking the menu bar item opens a 330 px window that answers "am I OK, and what
 | Critical | Nearly under! Toss something now. | Filled primary |
 | Nothing Safe to toss | (status line only) | Hidden; "Nothing Safe to toss right now." |
 
-The window never shows Review or Risky items as tossable. On phones-width previews it spans the screen with a 12 px gutter.
+The window never shows Review or Risky items as tossable.
+
+### Make room card and Toss button
+
+The Make room card beside Dinghy holds the whole Safe-pile decision in one place, in this order:
+
+1. **How much:** a segmented control 20 GB / 50 GB / 100 GB / All I can.
+2. **From:** one toggle chip per area that has Safe items (Docker, Projects, Caches…) with its Safe total; "All areas" link resets. A line below says how many areas need an OK first ("AI models and 4 more areas need your OK first.").
+3. **Meter:** "X GB ready to toss" against "goal Y GB" with a progress bar; when the goal can't be met, it says how much is missing and links to Quick questions.
+4. **Action row:** the Toss button and a "N crates ▾" button that opens the pile list.
+
+The Toss button is a wide primary button with a crate icon, "Toss X GB overboard" and a second line "All rebuildable" (or "Includes N you approved"). On hover or focus Dinghy's deck crates wobble; pressing it shows a short splash strip, then the confirm sheet. Disabled with an explanation when the pile is empty. Reduced motion removes the wobble and splash.
+
+### Risk explainer
+
+Every Review or Risky item explains its label in place, in a collapsible box titled "What “Risky” means here". It is open by default on Risky quick-question cards and closed on Review cards and in expanded item rows. Safe items have no box.
+
+The box has three parts:
+
+1. **Scale:** three segments, Safe · Review · Risky, each with its short meaning, the item's level highlighted.
+2. **Why this one is \<level>:** the detector's reasons as bullets, from a new `riskWhy: string[]` field on `Suggestion`. Without it, fall back to "It cannot be undone." (Risky) or "To get it back: \<restore>" (Review).
+3. **Make it safer first** (optional): steps from a new `safer: {label, command}[]` field, each a label plus a copyable command. Commands are shown, never run from here.
+
+| Level | Short meaning | Long meaning |
+| --- | --- | --- |
+| Safe | Comes back by itself | Freeboard can show this rebuilds or downloads again on its own. Nothing of yours is lost. |
+| Review | Comes back, with effort | Nothing is lost for good, but getting it back costs a download, a rebuild or a trip to the Trash. |
+| Risky | May not come back | Freeboard can't prove it is safe to remove, and removing it can't be undone. It may be the only copy of something you need. |
+
+Required reasons and steps for the detectors that produce Risky items:
+
+- **Docker volume (named):** no undo; contents unseen; name hints (pgdata, mysql, redis). Steps: list contents with `docker run --rm -v <vol>:/v alpine ls -la /v`; archive to `~/Backups` with a `tar czf` run.
+- **Unnamed (anonymous) volumes, bundled:** no names, so no clue what is inside; no container uses them; no undo. Steps: inspect the largest three first; the bundle must list each volume with size and created date before **Add to pile** works.
+- **Worktree with local work:** counts of uncommitted files and unpushed commits. Steps: `git -C <path> status --short`; `git -C <path> push`. These stay blocked, not merely Risky.
+
+### Item rows, confirm, run and outcome
+
+**Item rows.** Each row is one line: risk dot, name, a short humanized age ("used 23 days ago"), a size bar scaled to the largest item in the list, and the size. Clicking expands it in place to: facts (where, last used, would run, to get it back), the risk explainer for Review and Risky items, parts with checkboxes for split items, and **Remove now** / **Keep, don't suggest**. Group headers carry **Remove all here** and **Add all to pile** as text links. Only one row is expanded per list.
+
+**Confirm sheet.** A framed sheet titled with the verb ("Toss 4 items?"). Top: "X GB free right away" in large type with a before/after bar. Then flags (anything Review, approved Risky, Trash vs. deleted), then each item with what runs, how to get it back and when it was last used. Footer: **Cancel** and the main button repeating the size ("Toss 54.0 GB"). A line notes that every item is checked again right before it goes.
+
+**Run.** The sheet becomes a voyage view: crates as 3D cubes leave Dinghy's deck one at a time while a tally counts freed GB; each item shows queued, running, done or failed. **Stop after this one** finishes the current item and skips the rest. Reduced motion shows the same states without the cubes moving.
+
+**Outcome.** Title "Much better!" when everything went, "Done, mostly" otherwise. A before/after free-space bar, then groups that start collapsed except the non-empty problem groups: Tossed, Stayed on board (skipped by the pre-check, with the reason), Could not go (with the error in plain words), Not started (after Stop). **Try N again** retries only the failures. The logbook gets one entry per run with the same groups.
+
+### Disk map screen
+
+Left column: the explained-percentage ring, the treemap, the small-area chips, and the detail of the selected area. Right column: the "why it isn't explained" card, then one combined scan card. Nothing else stacks there.
+
+**Small areas.** Areas under 3% of used space are not drawn in the treemap, because they render as unreadable slivers. They appear under it as chips, "Under 3%, not drawn: Browser data 7.4 GB · Fonts and plug-ins 4.2 GB", and a chip opens its area like a tile. The treemap plus chips still add up to used space.
+
+**Why X GB isn't explained.** A card that opens with "None of it is lost", then a bar of the unexplained total split by cause. Per cause: swatch, title, count, size ("about" when estimated), a one-line reason and a **Scan all N** button. Under each cause, fixes are compact rows: path in mono (or a plain label), size, **Scan** and **Skip** (Skip = "they're mine", counts as user files). Four rows show, then "Show N more, X GB". Fixed rows collapse into an "N fixed" list. Fixes that are not folders take a wide row with their action on its own line.
+
+| Cause | Example fix | Action |
+| --- | --- | --- |
+| In folders I don't scan | `~/ComfyUI-Installs` 47.3 GB, `~/Movies` 31.5 GB | Scan or Skip per folder; Scan all |
+| Locked by macOS | Mail, Messages, Photos and app data, about 34 GB | **Allow Full Disk Access** (opens System Settings, Privacy & Security) |
+| macOS system data | Snapshots, swap, system volumes | **Measure** |
+| Doesn't add up | Small leftover | **They're mine** |
+
+Scanning a folder updates the map at once and can surface new items (a 44 GB ComfyUI checkpoints item under AI models). When everything is fixed the card becomes an all-clear.
+
+**Combined scan card.** Three sections in one card: Growing fastest this week (bars); places checked as one line, "49 places checked: 31 had something · 18 clean · 8 folders not yet", with a dot strip and **See all**; Second opinion as one row with **Copy report**. **See all** opens a sheet: counts line, found items grouped by area with risk dots and sizes (a row opens that item on the map, expanded), clean places as a two-column checklist, and folders not looked in yet with a link back to the why card.
+
+### Settings sheet
+
+Settings is a framed sheet with titled groups, each a bordered list of rows (label and hint on the left, control on the right), so no button floats on its own.
+
+1. **Warnings:** Low and Critical as steppers in GB (Critical always below Low), with a live line saying the current status at these values.
+2. **Folders I scan:** one row per folder with path, what was found ("14 projects, 96 GB"), **Open** and a remove button; removing shows an inline **Undo**. **Add folder** opens an inline path field plus the native picker. A sub-list "Found outside these folders" offers detected repositories with **Add**.
+3. **Folders I skip:** same rows; anything here is never measured or suggested.
+4. **Automatic tidying:** switches for clearing tool caches and Docker build cache when Critical (both off by default).
+5. **Scans:** last scan time, **Scan now** with inline progress, and **Run setup again**.
+
+Changes apply immediately; there is no Save button.
 
 ### Tauri commands
 
@@ -799,6 +888,13 @@ Release requirement: sign the macOS build with a Developer ID certificate and no
 - [ ] Every safety invariant has an automated test.
 - [ ] The app makes no network calls of its own.
 - [ ] Performance results are reported against the targets in the overview.
+- [ ] First launch shows the five-step setup; Skip keeps defaults; Show me saves thresholds, folders and switches and opens Quick questions.
+- [ ] The menu bar window shows status, gauge, top three pile crates and the forecast; its Toss button is the quiet style when Healthy.
+- [ ] Every Review and Risky item shows the risk explainer with item-specific reasons; Risky boxes start open.
+- [ ] Areas under 3% of used space appear as chips, not treemap tiles, and treemap plus chips equal used space.
+- [ ] The why card fixes update the map immediately; 22 folders show as grouped rows with Show more, not 22 boxes.
+- [ ] Places checked is one line in the combined scan card; See all opens the grouped sheet.
+- [ ] Removing 100+ worktrees runs one at a time with a 120 s timeout each, and timeouts are grouped as failures without stopping the run.
 - [ ] The download page, release notes and README explain the first-launch steps for macOS (Privacy & Security → Open Anyway), Windows (More info → Run anyway) and Linux, until builds are signed and notarized.
 - [ ] App and website open in the user's language when it is one of en, nl, de, fr, es (else English), remember a manual choice, and format sizes with the locale's decimal separator.
 

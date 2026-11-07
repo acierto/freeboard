@@ -6,32 +6,30 @@
 import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
 import { api, on } from "../../lib/api";
 import { GB, gb } from "../../lib/format";
+import { LANGS, LANG_NAMES, itemName, lang, t, tn, unitGB, type Lang } from "../../i18n";
 import { track } from "../../lib/useBusy";
 import type { AppStatus, FolderSuggestion, Settings, Suggestion, ToolFound } from "../../lib/types";
 import { displayPath } from "../settings/Folders";
 
-const STEPS = ["Hello", "Waterline", "Folders", "Promises", "First look"];
 const PRESETS = [
-  { id: "relaxed", name: "Relaxed", low: 10, crit: 4, note: "Fewer nudges. For big disks." },
-  { id: "rec", name: "Balanced", low: 20, crit: 8, note: "Room for a big build or a model pull.", rec: true },
-  { id: "roomy", name: "Roomy", low: 50, crit: 20, note: "Early warnings. For heavy Docker or AI work." },
+  { id: "relaxed", k: "ob.relaxed", low: 10, crit: 4 },
+  { id: "rec", k: "ob.balanced", low: 20, crit: 8, rec: true },
+  { id: "roomy", k: "ob.roomy", low: 50, crit: 20 },
 ] as const;
 type PresetId = (typeof PRESETS)[number]["id"];
 const FOUND_SHOWN = 6;
 
 // What a scan event's detector family is called while it runs.
-const FAMILY: Record<string, string> = {
-  docker: "Docker",
-  git: "git worktrees",
-  project: "project folders",
-  cache: "caches",
-  files: "files",
-  mobile: "phones and emulators",
-  ai: "AI models",
-  tools: "tools",
-  apps: "apps",
-  system: "the system",
-};
+const FAMILIES = ["docker", "git", "project", "cache", "files", "mobile", "ai", "tools", "apps", "system"];
+const familyName = (f: string) => (f === "docker" ? "Docker" : t("ob.fam." + f));
+
+/** A translated sentence whose <b>…</b> parts are bold (prototype strings). */
+function rich(s: string) {
+  return s.split(/<b>(.*?)<\/b>/).map((part, i) => (i % 2 ? <b key={i}>{part}</b> : part));
+}
+
+/** The 49 in the prototype's sentences is the real count of places here. */
+const places = (s: string, n: number | string) => s.replace("49", String(n));
 
 function wave(y: number, a: number): string {
   let d = "M-40 " + y;
@@ -184,11 +182,11 @@ export function FirstRun({ settings, status, onSettings, onDone }: { settings: S
   }, []);
 
   const folders: Folder[] = [
-    ...settings.scanFolders.map((p) => ({ key: "s:" + p, path: displayPath(p, platform), meta: "Chosen by you", bytes: null, on: true, offer: null })),
+    ...settings.scanFolders.map((p) => ({ key: "s:" + p, path: displayPath(p, platform), meta: t("ob.m.mine"), bytes: null, on: true, offer: null })),
     ...(offers ?? []).map((o, i) => ({
       key: "o:" + o.label,
       path: o.label,
-      meta: `${o.repos} ${o.repos === 1 ? "repository" : "repositories"}`,
+      meta: tn("ob.m.repos1", "ob.m.reposN", o.repos),
       bytes: o.bytes,
       on: offerOn[i] ?? true,
       offer: i,
@@ -217,7 +215,7 @@ export function FirstRun({ settings, status, onSettings, onDone }: { settings: S
     const offs = [
       on("scan_progress", (p) => {
         if (p.phase === "detectors") setScan((s) => ({ ...s, total: p.currentCount }));
-        if (p.phase === "detector_done") setScan((s) => ({ ...s, done: Math.max(s.done, p.currentCount), label: FAMILY[(p.detector ?? "").split(".")[0]] ?? s.label }));
+        if (p.phase === "detector_done") setScan((s) => ({ ...s, done: Math.max(s.done, p.currentCount), label: FAMILIES.includes((p.detector ?? "").split(".")[0]) ? (p.detector ?? "").split(".")[0] : s.label }));
       }),
       on("scan_finished", () => {
         void api.getSuggestions().then((all) => {
@@ -267,24 +265,24 @@ export function FirstRun({ settings, status, onSettings, onDone }: { settings: S
     setTimeout(() => next.current?.focus(), 0);
   };
 
+  const f = gb(free * GB);
   const bubble = [
-    "Hi, I’m Dinghy. I keep your disk above the waterline.",
-    free < pr.crit
-      ? `With ${free.toFixed(1)} GB free I’d already be under. Let’s fix that first.`
-      : free < pr.low
-        ? `With ${free.toFixed(1)} GB free I’m riding low. I’ll nudge you.`
-        : `With ${free.toFixed(1)} GB free I’m floating fine.`,
-    "Let me look around. Where do you keep your code?",
-    "Here’s my promise. Read it, then we’re off.",
+    t("ob.b0"),
+    free < pr.crit ? t("ob.b1.crit", { f }) : free < pr.low ? t("ob.b1.warn", { f }) : t("ob.b1.good", { f }),
+    t("ob.b2"),
+    t("ob.b3"),
     done
       ? found.length
-        ? `Found ${gb(found.reduce((t, s) => t + s.sizeBytes, 0))} I could toss. Nothing moved yet.`
-        : "All tidy! Nothing to toss right now."
-      : `Looking around… ${scan.done} of ${scan.total || "…"} places.`,
+        ? t("ob.b4.done", { x: gb(found.reduce((n, s) => n + s.sizeBytes, 0)) })
+        : t("h.b.tidy")
+      : places(t("ob.b4.run", { n: scan.done }), scan.total || "…"),
   ][step];
 
-  const label = step === 0 ? "Let’s set sail" : step === 3 ? "Start first look" : step === 4 ? (done ? "Show me" : "Looking…") : "Next";
-  const hint = step === 2 ? `${chosen} folder${chosen === 1 ? "" : "s"} chosen` : step === 4 && done ? "Nothing is removed until you confirm." : "";
+  const label = step === 0 ? t("ob.next0") : step === 3 ? t("ob.next3") : step === 4 ? (done ? t("ob.next4") : t("ob.next4run")) : t("ob.next");
+  const hint = step === 2 ? tn("ob.fchosen1", "ob.fchosenN", chosen) : step === 4 && done ? t("ob.nothing") : "";
+  const steps = t("ob.steps").split("|");
+  // Setup step 1's language picker applies at once, before anything else is read.
+  const pickLang = (l: Lang) => void track(api.updateSettings({ language: l })).then(onSettings, () => undefined);
 
   return (
     <div className="ob-root" id="ob-root" role="dialog" aria-modal="true" aria-labelledby="ob-title">
@@ -297,19 +295,20 @@ export function FirstRun({ settings, status, onSettings, onDone }: { settings: S
         </div>
         <div className="ob-side">
           <div className="ob-top">
-            <ol className="ob-route" aria-label="Setup progress">
-              {STEPS.map((n, i) => (
+            <ol className="ob-route" aria-label={t("ob.progress")}>
+              {steps.map((n, i) => (
                 <li key={n} className={i < step ? "done" : i === step ? "on" : ""} aria-current={i === step ? "step" : undefined}>
                   <span className="buoy" title={n}>
                     {i < step ? "✓" : i + 1}
                   </span>
-                  {i < STEPS.length - 1 && <span className="leg"></span>}
+                  {i < steps.length - 1 && <span className="leg"></span>}
                 </li>
               ))}
             </ol>
+            {step === 0 && <LangPicker onPick={pickLang} />}
             {step < 4 && (
               <button className="ob-skip" data-ob="skip" onClick={skip}>
-                Skip setup
+                {t("ob.skip")}
               </button>
             )}
           </div>
@@ -323,7 +322,7 @@ export function FirstRun({ settings, status, onSettings, onDone }: { settings: S
           <div className="ob-foot">
             {step > 0 && step < 4 && (
               <button className="btn" data-ob="back" onClick={() => setStep(step - 1)}>
-                Back
+                {t("ob.back")}
               </button>
             )}
             <span className="grow hint">{hint}</span>
@@ -337,19 +336,41 @@ export function FirstRun({ settings, status, onSettings, onDone }: { settings: S
   );
 }
 
+/** Setup step 1: a compact globe and language picker next to Skip setup,
+ * preset to the language in use (spec "Language design in the app"). */
+function LangPicker({ onPick }: { onPick: (l: Lang) => void }) {
+  return (
+    <label className="ob-lang" title={t("ob.lang")}>
+      <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true">
+        <circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" strokeWidth="1.6" />
+        <path d="M2 10h16M10 2c2.6 2.4 2.6 13.6 0 16M10 2c-2.6 2.4-2.6 13.6 0 16" fill="none" stroke="currentColor" strokeWidth="1.6" />
+      </svg>
+      <span className="sr-only">{t("ob.lang")}</span>
+      <select id="ob-lang-sel" value={lang()} onChange={(e) => onPick(e.target.value as Lang)}>
+        {LANGS.map((l) => (
+          <option key={l} value={l} lang={l}>
+            {LANG_NAMES[l]}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
 function Hello({ free, total, name }: { free: number; total: number; name: string }) {
   const used = Math.max(0, total - free);
   return (
     <>
-      <span className="ob-kicker">Welcome aboard</span>
-      <h2 id="ob-title">Know before your disk is full.</h2>
-      <p>Freeboard watches your free space, finds what you can safely remove, and asks before anything goes. Setup takes about a minute.</p>
+      <span className="ob-kicker">{t("ob.k0")}</span>
+      <h2 id="ob-title">{t("ob.h0")}</h2>
+      <p>{t("ob.p0")}</p>
       <div className="ob-disk">
         <div className="row1">
           <span>
-            <b className="num">{`${free.toFixed(1)} GB`}</b> free
+            <b className="num">{gb(free * GB)}</b>
+            {" " + t("ob.free")}
           </span>
-          <span className="muted num">{`of ${Math.round(total)} GB${name ? ", " + name : ""}`}</span>
+          <span className="muted num">{name ? t("ob.of", { n: Math.round(total) }).replace("Macintosh HD", name) : t("ob.of", { n: Math.round(total) }).replace(", Macintosh HD", "")}</span>
         </div>
         <div className="ob-bar" aria-hidden="true">
           <i style={{ width: (total ? (used / total) * 100 : 0).toFixed(1) + "%" }}></i>
@@ -360,19 +381,22 @@ function Hello({ free, total, name }: { free: number; total: number; name: strin
           <span className="ic" aria-hidden="true">
             🔔
           </span>
-          <b>Warns early</b>Before a build fails on a full disk.
+          <b>{t("ob.pr1")}</b>
+          {t("ob.pr1.s")}
         </div>
         <div className="ob-promise">
           <span className="ic" aria-hidden="true">
             ♻️
           </span>
-          <b>Tosses what comes back</b>Caches and builds first. The rest, only if you say yes.
+          <b>{t("ob.pr2")}</b>
+          {t("ob.pr2.s")}
         </div>
         <div className="ob-promise">
           <span className="ic" aria-hidden="true">
             🏠
           </span>
-          <b>Stays here</b>Nothing about your files leaves this computer.
+          <b>{t("ob.pr3")}</b>
+          {t("ob.pr3.s")}
         </div>
       </div>
     </>
@@ -383,27 +407,25 @@ function Waterline({ free, preset, onPreset }: { free: number; preset: PresetId;
   const pr = PRESETS.find((p) => p.id === preset)!;
   const MAX = 160;
   const x = (v: number) => Math.min(100, (v / MAX) * 100);
-  const stt = free < pr.crit ? ["Critical", "var(--risky)"] : free < pr.low ? ["Low", "var(--review)"] : ["Healthy", "var(--safe)"];
+  const stt = free < pr.crit ? [t("st.crit"), "var(--risky)"] : free < pr.low ? [t("st.warn"), "var(--review)"] : [t("st.good"), "var(--safe)"];
   return (
     <>
-      <span className="ob-kicker">Step 1 of 3</span>
-      <h2 id="ob-title">{"Where’s your waterline?"}</h2>
-      <p>
-        I warn you when free space drops under <b>Low</b>, and get loud under <b>Critical</b>. You can change this anytime in Settings.
-      </p>
-      <div className="ob-presets" role="radiogroup" aria-label="Warning levels">
+      <span className="ob-kicker">{t("ob.k1")}</span>
+      <h2 id="ob-title">{t("ob.h1")}</h2>
+      <p>{rich(t("ob.p1"))}</p>
+      <div className="ob-presets" role="radiogroup" aria-label={t("ob.levels")}>
         {PRESETS.map((p) => (
           <button key={p.id} className="ob-preset" role="radio" aria-checked={p.id === preset} aria-pressed={p.id === preset} data-ob-preset={p.id} onClick={() => onPreset(p.id)}>
             {"rec" in p && p.rec ? (
-              <span className="rec">Recommended</span>
+              <span className="rec">{t("ob.rec")}</span>
             ) : (
               <span className="rec" style={{ visibility: "hidden" }}>
                 ·
               </span>
             )}
-            <b>{p.name}</b>
-            <span className="nums num">{`Low ${p.low} GB · Critical ${p.crit} GB`}</span>
-            <span className="note">{p.note}</span>
+            <b>{t(p.k)}</b>
+            <span className="nums num">{t("ob.nums", { l: p.low, c: p.crit })}</span>
+            <span className="note">{t(p.k + ".n")}</span>
           </button>
         ))}
       </div>
@@ -412,16 +434,16 @@ function Waterline({ free, preset, onPreset }: { free: number; preset: PresetId;
           <i className="z crit" style={{ width: x(pr.crit) + "%" }}></i>
           <i className="z warn" style={{ left: x(pr.crit) + "%", width: x(pr.low) - x(pr.crit) + "%" }}></i>
           <i className="z good" style={{ left: x(pr.low) + "%" }}></i>
-          <span className="you" style={{ left: `calc(${x(free)}% - 2px)` }} title="You"></span>
+          <span className="you" style={{ left: `calc(${x(free)}% - 2px)` }} title={t("ob.you")}></span>
         </div>
         <div className="lbl num">
-          <span>0 GB free</span>
-          <span>{`${MAX}+ GB`}</span>
+          <span>{t("ob.zero")}</span>
+          <span>{`${MAX}+ ${unitGB()}`}</span>
         </div>
       </div>
       <p className="ob-verdict">
-        {"Right now: "}
-        <span style={{ color: stt[1] }}>{stt[0]}</span> <span className="muted num">{`(${free.toFixed(1)} GB free)`}</span>
+        {t("ob.now") + " "}
+        <span style={{ color: stt[1] }}>{stt[0]}</span> <span className="muted num">{`(${gb(free * GB)} ${t("ob.free")})`}</span>
       </p>
     </>
   );
@@ -444,9 +466,9 @@ function Folders({
 }) {
   return (
     <>
-      <span className="ob-kicker">Step 2 of 3</span>
-      <h2 id="ob-title">Where do you keep your code?</h2>
-      <p>{"I found these. I’ll look for worktrees, node_modules and build output inside them. Sizes and dates only, never file contents."}</p>
+      <span className="ob-kicker">{t("ob.k2")}</span>
+      <h2 id="ob-title">{t("ob.h2")}</h2>
+      <p>{t("ob.p2")}</p>
       <div className="ob-folders">
         {folders.map((f, n) => (
           <label className="ob-folder" key={f.key}>
@@ -461,20 +483,20 @@ function Folders({
               <span className="fp">{f.path}</span>
               <span className="fm">{f.meta}</span>
             </span>
-            <span className="fs num">{f.bytes !== null ? `${Math.round(f.bytes / GB)} GB` : ""}</span>
+            <span className="fs num">{f.bytes !== null ? `${Math.round(f.bytes / GB)} ${unitGB()}` : ""}</span>
           </label>
         ))}
         <button className="ob-add" data-ob="add" onClick={onPick}>
-          + Add another folder
+          {t("ob.addf")}
         </button>
       </div>
       {tools.length > 0 && (
         <>
-          <div className="ob-sub">Tools I can ask</div>
+          <div className="ob-sub">{t("ob.tools")}</div>
           <div className="ob-tools">
-            {tools.map((t) => (
-              <span key={t.name} className={t.found ? "ob-tool on" : "ob-tool"} title={t.found ? undefined : "Not installed"}>
-                {t.name}
+            {tools.map((x) => (
+              <span key={x.name} className={x.found ? "ob-tool on" : "ob-tool"} title={x.found ? undefined : t("ob.notinst")}>
+                {x.name}
               </span>
             ))}
           </div>
@@ -487,47 +509,49 @@ function Folders({
 function Promises({ sw, onSw, fda, onFda, macos }: { sw: { menubar: boolean; login: boolean }; onSw: (s: { menubar: boolean; login: boolean }) => void; fda: boolean; onFda: () => void; macos: boolean }) {
   return (
     <>
-      <span className="ob-kicker">Step 3 of 3</span>
-      <h2 id="ob-title">What I read, and what I never do.</h2>
+      <span className="ob-kicker">{t("ob.k3")}</span>
+      <h2 id="ob-title">{t("ob.h3")}</h2>
       <div className="ob-two">
         <div className="ob-list yes">
-          <h3>I read</h3>
+          <h3>{t("ob.read")}</h3>
           <ul>
-            <li>Free space on your disk, every 5 minutes</li>
-            <li>Reports from Docker, Git, pnpm, pip and friends</li>
-            <li>Sizes and dates in the folders you chose</li>
+            <li>{t("ob.r1")}</li>
+            <li>{t("ob.r2")}</li>
+            <li>{t("ob.r3")}</li>
           </ul>
         </div>
         <div className="ob-list no">
-          <h3>I never</h3>
+          <h3>{t("ob.never")}</h3>
           <ul>
-            <li>Remove anything without a plan you confirm</li>
-            <li>Send your data anywhere</li>
-            <li>Touch uncommitted or unpushed work</li>
+            <li>{t("ob.n1")}</li>
+            <li>{t("ob.n2")}</li>
+            <li>{t("ob.n3")}</li>
           </ul>
         </div>
       </div>
       <div className="ob-switches">
         <label className="ob-switch">
           <span>
-            {macos ? "Show free space in the menu bar" : "Show free space next to the tray icon"}
-            <small>One glance, no window.</small>
+            {macos ? t("ob.sw1") : t("ob.sw1.tray")}
+            <small>{t("ob.sw1.s")}</small>
           </span>
           <input className="tg-sw" type="checkbox" data-ob-sw="menubar" checked={sw.menubar} onChange={(e) => onSw({ ...sw, menubar: e.target.checked })} />
         </label>
         <label className="ob-switch">
           <span>
-            Open Freeboard at login<small>So the warnings actually reach you.</small>
+            {t("ob.sw2")}
+            <small>{t("ob.sw2.s")}</small>
           </span>
           <input className="tg-sw" type="checkbox" data-ob-sw="login" checked={sw.login} onChange={(e) => onSw({ ...sw, login: e.target.checked })} />
         </label>
         {macos && (
           <div className="ob-switch">
             <span>
-              Mail, Photos and app data<small>macOS hides these until you allow Full Disk Access. Optional.</small>
+              {t("ob.fda")}
+              <small>{t("ob.fda.s")}</small>
             </span>
             <button className="btn" data-ob="fda" disabled={fda} onClick={onFda}>
-              {fda ? "Ask me later ✓" : "Later"}
+              {fda ? t("ob.later2") : t("ob.later")}
             </button>
           </div>
         )}
@@ -542,21 +566,21 @@ function FirstLook({ scan, found, shown, done }: { scan: { total: number; done: 
   const of = scan.total || 0;
   return (
     <>
-      <span className="ob-kicker">First look</span>
-      <h2 id="ob-title">{done ? "Here’s what I found." : "Taking a first look…"}</h2>
+      <span className="ob-kicker">{t("ob.k4")}</span>
+      <h2 id="ob-title">{done ? t("ob.h4.done") : t("ob.h4.run")}</h2>
       <div className="ob-scan">
         <div className="ob-prog" role="progressbar" aria-valuemin={0} aria-valuemax={of || 1} aria-valuenow={scan.done}>
           <i style={{ width: (of ? (scan.done / of) * 100 : scan.finished ? 100 : 0).toFixed(1) + "%" }}></i>
         </div>
         <div className="ob-scanline">
-          <span>{scan.finished ? `Checked ${of || scan.done} places` : scan.label ? `Checking ${scan.label}` : "Starting…"}</span>
+          <span>{scan.finished ? places(t("ob.checked"), of || scan.done) : scan.label ? t("ob.checking", { x: familyName(scan.label) }) : t("ob.starting")}</span>
           <span className="num">{of ? `${scan.done} / ${of}` : ""}</span>
         </div>
       </div>
       <div className="ob-found">
         {found.slice(0, shown).map((s) => (
           <div key={s.id}>
-            <span>{s.title}</span>
+            <span>{itemName(s)}</span>
             <span className="num">{gb(s.sizeBytes)}</span>
           </div>
         ))}
@@ -565,8 +589,8 @@ function FirstLook({ scan, found, shown, done }: { scan: { total: number; done: 
         <div className="ob-total">
           <b className="num">{gb(total)}</b>
           <span>
-            {found.length ? "you could get back. " : "to toss right now. Your disk is tidy. "}
-            {found.length > 0 && <span className="muted">{`${gb(safe)} of it rebuilds by itself.`}</span>}
+            {(found.length ? t("ob.total") : t("ob.tidy")) + " "}
+            {found.length > 0 && <span className="muted">{t("ob.rebuild", { x: gb(safe) })}</span>}
           </span>
         </div>
       )}

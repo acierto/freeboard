@@ -1,12 +1,14 @@
+import { areaName, fx, t, unitGB } from "../i18n/index.ts";
 import type { DiskStatus, Group, Platform, Risk, Suggestion } from "./types";
 
 export const GB = 1e9;
 
-/** Decimal gigabytes with one decimal place, as in the prototype ("12.4 GB"). */
-export const gbNum = (bytes: number) => (bytes / GB).toFixed(1);
+/** Decimal gigabytes with one decimal place, as in the prototype ("12.4 GB");
+ * a decimal comma outside English ("12,4 GB", "12,4 Go"). */
+export const gbNum = (bytes: number) => fx(bytes / GB);
 /** Sizes too small to show at one decimal read "<0.1 GB", never a misleading
  * "0.0 GB" (found on the real app, 2026-11-06). */
-export const gb = (bytes: number) => (bytes > 0 && bytes < 0.05 * GB ? "<0.1 GB" : gbNum(bytes) + " GB");
+export const gb = (bytes: number) => (bytes > 0 && bytes < 0.05 * GB ? "<" + fx(0.1) : gbNum(bytes)) + " " + unitGB();
 export const sizeText = (s: Pick<Suggestion, "sizeBytes" | "sizeIsEstimate">) => (s.sizeIsEstimate ? "about " : "") + gb(s.sizeBytes);
 
 /** Groups in display order, with the prototype's labels. */
@@ -20,15 +22,15 @@ export const GROUPS: { id: Group; label: string }[] = [
   { id: "your_files", label: "Your files" },
   { id: "system", label: "System" },
 ];
-export const groupLabel = (g: Group) => GROUPS.find((x) => x.id === g)?.label ?? g;
+export const groupLabel = (g: Group) => areaName(GROUPS.find((x) => x.id === g)?.label ?? g);
 
 export const RISK_LABEL: Record<Risk, string> = { safe: "Safe", review: "Review", risky: "Risky" };
 
 /** Status pill classes and labels (prototype `status()`). */
-export const STATUS: Record<DiskStatus, { key: "good" | "warn" | "crit"; label: string }> = {
-  healthy: { key: "good", label: "Healthy" },
-  low: { key: "warn", label: "Low" },
-  critical: { key: "crit", label: "Critical" },
+export const STATUS: Record<DiskStatus, { key: "good" | "warn" | "crit"; readonly label: string }> = {
+  healthy: { key: "good", get label() { return t("st.good"); } },
+  low: { key: "warn", get label() { return t("st.warn"); } },
+  critical: { key: "crit", get label() { return t("st.crit"); } },
 };
 
 export const trashWord = (p: Platform) => (p === "windows" ? "Recycle Bin" : "Trash");

@@ -26,7 +26,7 @@ use crate::store::Store;
 pub trait Shell: Send + Sync {
     fn notify(&self, title: &str, body: &str);
     /// `show_free`: the free-space text next to the icon (a setting).
-    fn update_tray(&self, status: DiskStatus, free_bytes: u64, show_free: bool);
+    fn update_tray(&self, status: DiskStatus, free_bytes: u64, show_free: bool, lang: &'static str);
     fn set_autostart(&self, enabled: bool);
 }
 
@@ -34,7 +34,7 @@ pub trait Shell: Send + Sync {
 pub struct NullShell;
 impl Shell for NullShell {
     fn notify(&self, _: &str, _: &str) {}
-    fn update_tray(&self, _: DiskStatus, _: u64, _: bool) {}
+    fn update_tray(&self, _: DiskStatus, _: u64, _: bool, _: &'static str) {}
     fn set_autostart(&self, _: bool) {}
 }
 
@@ -334,14 +334,15 @@ impl AppCore {
         for c in &tick.changes {
             self.emit(EV_STATUS_CHANGED, c);
         }
-        let safe_gb = self.safe_bytes() as f64 / GB as f64;
+        let safe = self.safe_bytes();
+        let lang = crate::i18n::resolve(s.language);
         for (_vol, kind, free) in &tick.notices {
-            let n = monitor::notify::notice_text(*kind, *free as f64 / GB as f64, safe_gb);
+            let n = monitor::notify::notice_text(*kind, *free, safe, lang);
             self.shell().notify(&n.title, &n.body);
             let _ = self.store.meta_set("notification_pending_view", "home");
         }
         if let Some(home) = tick.volumes.first() {
-            self.shell().update_tray(home.status, home.free_bytes, s.menu_bar_free_space);
+            self.shell().update_tray(home.status, home.free_bytes, s.menu_bar_free_space, lang);
         }
         Ok(())
     }
@@ -418,6 +419,7 @@ impl AppCore {
             notifications_paused: self.notifications_paused.load(Ordering::Relaxed),
             platform: self.platform.to_string(),
             first_run: !s.onboarding_complete,
+            system_language: crate::i18n::system_language().to_string(),
         })
     }
 
@@ -1025,7 +1027,8 @@ impl AppCore {
         // a real Mac, 2026-11-07). Status changes still go through the monitor.
         if r.state == "running" {
             let status = self.monitor.lock().unwrap().overall();
-            self.shell().update_tray(status, free, self.settings().menu_bar_free_space);
+            let s = self.settings();
+            self.shell().update_tray(status, free, s.menu_bar_free_space, crate::i18n::resolve(s.language));
         }
         Ok(r)
     }
@@ -1052,15 +1055,18 @@ impl AppCore {
 
     pub fn update_settings(&self, patch: UiSettingsPatch) -> CmdResult<Settings> {
         let login = patch.start_at_login;
-        let title = patch.menu_bar_free_space;
+        // The menu bar text and the tray menu follow the free-space switch
+        // and the language at once.
+        let tray = patch.menu_bar_free_space.is_some() || patch.language.is_some();
         self.apply_patch(patch.into())?;
         if let Some(l) = login {
             self.shell().set_autostart(l);
         }
-        if let Some(show) = title {
+        if tray {
+            let s = self.settings();
             let latest = self.monitor.lock().unwrap().latest().first().map(|v| (v.status, v.free_bytes));
             if let Some((status, free)) = latest {
-                self.shell().update_tray(status, free, show);
+                self.shell().update_tray(status, free, s.menu_bar_free_space, crate::i18n::resolve(s.language));
             }
         }
         Ok(self.settings())
@@ -1354,7 +1360,7 @@ pub(crate) mod tests {
         fn notify(&self, title: &str, _body: &str) {
             self.0.lock().unwrap().push(title.to_string());
         }
-        fn update_tray(&self, _: DiskStatus, _: u64, _: bool) {}
+        fn update_tray(&self, _: DiskStatus, _: u64, _: bool, _: &'static str) {}
         fn set_autostart(&self, _: bool) {}
     }
 

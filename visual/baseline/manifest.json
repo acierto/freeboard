@@ -1,7 +1,7 @@
 {
   "version": 1,
   "source": "docs/reference/freeboard-prototype.html",
-  "sourceSha256": "190be983f4d2f504b03d8d1254d7e8a9399f731ce9ceffc2af8f1eed5758bf3c",
+  "sourceSha256": "690475a45472bbf358ad2d69fddc6e3959aec6813246b8d0eac75f3e33dac4f2",
   "engine": {
     "engine": "chromium",
     "version": "156.0.8078.4",
@@ -20,8 +20,8 @@
   "locale": "en-US",
   "timezone": "UTC",
   "adapter": "scripts/visual/lib.mjs referenceHtml(): local fonts, data-theme, host reset (src/styles/reset.css), prototype-only controls hidden (.top-right .sim, .top-right [data-act=\"reset\"], .top > div > .note, .top-right .tray, .top-right [data-act=\"welcome\"])",
-  "acceptedAt": "2026-11-07T17:22:33.534Z",
-  "rationale": "Why card: Not traced has no fix, so the lede and footer no longer promise one for each part (decision 2026-11-07)",
+  "acceptedAt": "2026-11-07T17:56:56.241Z",
+  "rationale": "Prototype Version 18: languages (Settings → Language, the setup language picker) and German, French, Dutch and Spanish captures of the main card, menu bar window, setup and Settings",
   "entries": {
     "cleanup-confirm-ack--dark--1120x900": {
       "id": "cleanup-confirm-ack",
@@ -480,7 +480,7 @@
       "fixture": "fail=d-cache",
       "supplemental": false,
       "note": null,
-      "sha256": "7908d400c450faf9c218fca80b587278d494e742a392c4fbc528340ef3db87f3"
+      "sha256": "21fcec226bd026e952ee697a325bdbb4dccb67049968dfa5a4206f37cae71ed5"
     },
     "cleanup-retry--dark--390x844": {
       "id": "cleanup-retry",
@@ -514,7 +514,7 @@
       "fixture": "fail=d-cache",
       "supplemental": false,
       "note": null,
-      "sha256": "4f987c75a25daeb73c69370b58e7ecf9e3cda5489d37c7d1e2437ade4b7f1c66"
+      "sha256": "6ca5a228bb7cd5c8a7d83c0a7058f0b473dd65e40f7fd41ad8c27c1263757d39"
     },
     "cleanup-retry--light--390x844": {
       "id": "cleanup-retry",
@@ -567,6 +567,74 @@
       "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
       "sha256": "d4e05e2fe2de2855d353147f51baf488e0e7bdd98a298e5fd1c89aecf3b9b609"
     },
+    "first-run-folders-de--dark--1120x900": {
+      "id": "first-run-folders-de",
+      "surface": "First run",
+      "state": "First run 3: Folders with repositories and the tools found (German)",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "firstrun=1",
+      "supplemental": true,
+      "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
+      "sha256": "ce9d84bb75f3ca90adae8bd4f398e6f681542056e4bc150134b5231e8a630e22"
+    },
+    "first-run-folders-de--light--1120x900": {
+      "id": "first-run-folders-de",
+      "surface": "First run",
+      "state": "First run 3: Folders with repositories and the tools found (German)",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "firstrun=1",
+      "supplemental": true,
+      "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
+      "sha256": "1f58b0be179382920e6c833555bcabb3210e01a48e9a08ca0cd960b88ea93f22"
+    },
+    "first-run-folders-fr--dark--1120x900": {
+      "id": "first-run-folders-fr",
+      "surface": "First run",
+      "state": "First run 3: Folders with repositories and the tools found (French)",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "firstrun=1",
+      "supplemental": true,
+      "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
+      "sha256": "b86ab5cce84badd967f358ef56e6f95ef55981640ae06b1caf600303f349fbb0"
+    },
+    "first-run-folders-fr--light--1120x900": {
+      "id": "first-run-folders-fr",
+      "surface": "First run",
+      "state": "First run 3: Folders with repositories and the tools found (French)",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "firstrun=1",
+      "supplemental": true,
+      "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
+      "sha256": "11a836eec59dbc441006c78e343ec36998ba6118b44156d2c2b957c4015bef9d"
+    },
     "first-run-hello--dark--1120x900": {
       "id": "first-run-hello",
       "surface": "First run",
@@ -582,7 +650,7 @@
       "fixture": "firstrun=1",
       "supplemental": true,
       "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
-      "sha256": "e7ac5fbe4b377ae4bb5b20becdfe13356cbbaab89d97ec0ffd1779123583f726"
+      "sha256": "689a6bf88b77f7672256cf39c53968709195d823186885d3e513958fa5a49f6b"
     },
     "first-run-hello--light--1120x900": {
       "id": "first-run-hello",
@@ -599,7 +667,143 @@
       "fixture": "firstrun=1",
       "supplemental": true,
       "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
-      "sha256": "f4f50797d2c916c7d9d1009439eeca06765bbb3ad4b4db08fd321ad835b6f689"
+      "sha256": "2cc1e212b917d03a6768885f5b01ba5f32fb3f7306154e83cc38d38a20686e71"
+    },
+    "first-run-hello-de--dark--1120x900": {
+      "id": "first-run-hello-de",
+      "surface": "First run",
+      "state": "First run 1: Hello, with the disk and three promises (German)",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "firstrun=1",
+      "supplemental": true,
+      "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
+      "sha256": "6f3cb38807baedaee0b66c090601038fa65429104b09559d39a10a034aad4358"
+    },
+    "first-run-hello-de--light--1120x900": {
+      "id": "first-run-hello-de",
+      "surface": "First run",
+      "state": "First run 1: Hello, with the disk and three promises (German)",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "firstrun=1",
+      "supplemental": true,
+      "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
+      "sha256": "26cd7283f708e7c44c6175b57737bb9c189f6ddac03cb7d7ea04b39094b2a8a8"
+    },
+    "first-run-hello-es--dark--1120x900": {
+      "id": "first-run-hello-es",
+      "surface": "First run",
+      "state": "First run 1: Hello, with the disk and three promises (Spanish)",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "firstrun=1",
+      "supplemental": true,
+      "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
+      "sha256": "1d89630fe18e57e53763cfcf11c6988660d640a61f1c58cb4d16a887e50c2381"
+    },
+    "first-run-hello-es--light--1120x900": {
+      "id": "first-run-hello-es",
+      "surface": "First run",
+      "state": "First run 1: Hello, with the disk and three promises (Spanish)",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "firstrun=1",
+      "supplemental": true,
+      "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
+      "sha256": "bedc2ad13cf0507a30613e705269d5e715b6090e5e40b0aadf3c8b3094a9a327"
+    },
+    "first-run-hello-fr--dark--1120x900": {
+      "id": "first-run-hello-fr",
+      "surface": "First run",
+      "state": "First run 1: Hello, with the disk and three promises (French)",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "firstrun=1",
+      "supplemental": true,
+      "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
+      "sha256": "80b3dee5a20e5b025e99ca4b2ed39032e9326ca6716a60292e31c60270ae1829"
+    },
+    "first-run-hello-fr--light--1120x900": {
+      "id": "first-run-hello-fr",
+      "surface": "First run",
+      "state": "First run 1: Hello, with the disk and three promises (French)",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "firstrun=1",
+      "supplemental": true,
+      "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
+      "sha256": "f31b359232cf525636568cf337e270b5121137bd29bca7ceb5d14aba652c8fd7"
+    },
+    "first-run-hello-nl--dark--1120x900": {
+      "id": "first-run-hello-nl",
+      "surface": "First run",
+      "state": "First run 1: Hello, with the disk and three promises (Dutch)",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "firstrun=1",
+      "supplemental": true,
+      "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
+      "sha256": "6fb7f48c3c80c90d554033334a3977e0d4a42346635140a037e18ee3d7ed415f"
+    },
+    "first-run-hello-nl--light--1120x900": {
+      "id": "first-run-hello-nl",
+      "surface": "First run",
+      "state": "First run 1: Hello, with the disk and three promises (Dutch)",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "firstrun=1",
+      "supplemental": true,
+      "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
+      "sha256": "b1c5e321dfc7d381c0596437b00067fd986d552c806745e6259b46c84c4c84a1"
     },
     "first-run-promises--dark--1120x900": {
       "id": "first-run-promises",
@@ -634,6 +838,74 @@
       "supplemental": true,
       "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
       "sha256": "cd4338f8682d71d7a112041e897df43047d028958f3e8a5de90c6f7951b6cc36"
+    },
+    "first-run-promises-de--dark--1120x900": {
+      "id": "first-run-promises-de",
+      "surface": "First run",
+      "state": "First run 4: what I read, what I never do, and the switches (German)",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "firstrun=1",
+      "supplemental": true,
+      "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
+      "sha256": "41c5fb848acb23b73299334bbf1fd9877d04fa2b268460a276bfeff852e13e9c"
+    },
+    "first-run-promises-de--light--1120x900": {
+      "id": "first-run-promises-de",
+      "surface": "First run",
+      "state": "First run 4: what I read, what I never do, and the switches (German)",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "firstrun=1",
+      "supplemental": true,
+      "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
+      "sha256": "9e2d0f577bbe1d9a4f83594df3d26658be0a962675d01fbbff26560c26dc99f1"
+    },
+    "first-run-promises-fr--dark--1120x900": {
+      "id": "first-run-promises-fr",
+      "surface": "First run",
+      "state": "First run 4: what I read, what I never do, and the switches (French)",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "firstrun=1",
+      "supplemental": true,
+      "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
+      "sha256": "409e0af5f66ae61b962302f3aec4ca1928fd3237cb382fda2fbca21d1b605669"
+    },
+    "first-run-promises-fr--light--1120x900": {
+      "id": "first-run-promises-fr",
+      "surface": "First run",
+      "state": "First run 4: what I read, what I never do, and the switches (French)",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "firstrun=1",
+      "supplemental": true,
+      "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
+      "sha256": "9ee97235f76ecbb894c5da6bc65a5923417e0eb3c255d9ecc56eed1fe31e0a5d"
     },
     "first-run-roomy--dark--1120x900": {
       "id": "first-run-roomy",
@@ -703,6 +975,74 @@
       "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
       "sha256": "552c7d4dc0c3b5920cf2a9bc34a229dca841d4bf2100e8e370ccd8641204efd4"
     },
+    "first-run-waterline-de--dark--1120x900": {
+      "id": "first-run-waterline-de",
+      "surface": "First run",
+      "state": "First run 2: Waterline, Balanced chosen (German)",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "firstrun=1",
+      "supplemental": true,
+      "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
+      "sha256": "14c19db28cc783e4dada5adff4ed4acecab1c9e71bc2c2db3c8e013300d9ebca"
+    },
+    "first-run-waterline-de--light--1120x900": {
+      "id": "first-run-waterline-de",
+      "surface": "First run",
+      "state": "First run 2: Waterline, Balanced chosen (German)",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "firstrun=1",
+      "supplemental": true,
+      "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
+      "sha256": "91d852d73f1d8c8d990c705262f76c3f5d967b380cd4dfd953d2ec9eb30184cc"
+    },
+    "first-run-waterline-fr--dark--1120x900": {
+      "id": "first-run-waterline-fr",
+      "surface": "First run",
+      "state": "First run 2: Waterline, Balanced chosen (French)",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "firstrun=1",
+      "supplemental": true,
+      "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
+      "sha256": "f6d81df36bfe242e358f3142fc3d0e16496a59376977c67e70559cf7b09d3d3a"
+    },
+    "first-run-waterline-fr--light--1120x900": {
+      "id": "first-run-waterline-fr",
+      "surface": "First run",
+      "state": "First run 2: Waterline, Balanced chosen (French)",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "firstrun=1",
+      "supplemental": true,
+      "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
+      "sha256": "5f7bd77146d5a51f0424741109d07d4305088e1f5c3669ef3d68be41a97f9c07"
+    },
     "home-critical--dark--1120x900": {
       "id": "home-critical",
       "surface": "Home",
@@ -718,7 +1058,7 @@
       "fixture": "free=4",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "39825f748e5e4b2055e7226f18842f00a49cc862fe8b3b0c110e211fe4f70b93"
+      "sha256": "6eee671ac97c9835346be19950bacfb1cc3a6393bc0a9a7edb98cca4074f1e5b"
     },
     "home-critical--dark--390x844": {
       "id": "home-critical",
@@ -735,7 +1075,7 @@
       "fixture": "free=4",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "7dd927d7db44f01fd5133cc48f3f5c9780b73a3cc15c30b0eeb55452127d3ef1"
+      "sha256": "cd2475d7169baa93949e6cf621c42f2f5b629c180c938189d5bfe2f90f078376"
     },
     "home-critical--dark--760x900": {
       "id": "home-critical",
@@ -752,7 +1092,7 @@
       "fixture": "free=4",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "511017941e7ba1db1e720db9be5605bba715be6b3faa840b1ff02a63f5326634"
+      "sha256": "2e2ae0250a01a6386e282d9594ce95982406dee133a3eb88ff04b76ae5050208"
     },
     "home-critical--light--1120x900": {
       "id": "home-critical",
@@ -769,7 +1109,7 @@
       "fixture": "free=4",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "ae37772e60c2b1174b8a6e43f201b01e3506e4a3c5f9a659a8321f30b0766855"
+      "sha256": "1ad33254eae07c5975485ed9e558ac0b2f614283611c93ec3a25161163a6a60e"
     },
     "home-critical--light--390x844": {
       "id": "home-critical",
@@ -786,7 +1126,7 @@
       "fixture": "free=4",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "d825414a8f3e0e412f990f200ac5ec02360bb44d7960a9f5747598a79f6e4b84"
+      "sha256": "32483ec16076a5cd19d2300a961a63a3d0df19336caef979d3ad0e5b6ee67dc6"
     },
     "home-critical--light--760x900": {
       "id": "home-critical",
@@ -803,7 +1143,75 @@
       "fixture": "free=4",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "74dd2d24ec6819f95825dea43976ee14908e0fe5ff7b2dd9f387aeefc5f51d49"
+      "sha256": "ba7966296780b776b77b3da683168ad4ac8fad8d0af53ed629ab377f8d8ded2e"
+    },
+    "home-critical-de--dark--1120x900": {
+      "id": "home-critical-de",
+      "surface": "Home",
+      "state": "Critical, 4 GB free (German)",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "free=4",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "70d21ee38a8c9500063287496feb0b6514a8b645d5c4e2dc5216e194aaace25d"
+    },
+    "home-critical-de--dark--390x844": {
+      "id": "home-critical-de",
+      "surface": "Home",
+      "state": "Critical, 4 GB free (German)",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "free=4",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "8a269ee3e8ca3a19143e8a1ff23cce7041c95c19e6c36c6cfb5854d0a8f4a434"
+    },
+    "home-critical-de--light--1120x900": {
+      "id": "home-critical-de",
+      "surface": "Home",
+      "state": "Critical, 4 GB free (German)",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "free=4",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "02e3fe76305485fc718c2d326a6da5493de991588a5ca931fe044d0ce532ce83"
+    },
+    "home-critical-de--light--390x844": {
+      "id": "home-critical-de",
+      "surface": "Home",
+      "state": "Critical, 4 GB free (German)",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "free=4",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "98db18cb8abf03cf13407df42d24f6e6af20d378567d2ff0487d98672811998a"
     },
     "home-healthy--dark--1120x900": {
       "id": "home-healthy",
@@ -820,7 +1228,7 @@
       "fixture": "free=40",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "50a3f2784e7434bfaa0a04cbba6237a3a51f0e05f5c573f856af1936bcbb0fb6"
+      "sha256": "d06c2f771653edcb085f9456523cc8fe0c481e26a8f8e1c1594ae429cfd3fcf5"
     },
     "home-healthy--dark--390x844": {
       "id": "home-healthy",
@@ -837,7 +1245,7 @@
       "fixture": "free=40",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "fc5eba03ed598316af6858d944a63f8677b092ce65203d03e134a37ad7221782"
+      "sha256": "dc3ea5a049e98552dca68961dca657f77eb50986b1afa169758aa62df3917820"
     },
     "home-healthy--dark--760x900": {
       "id": "home-healthy",
@@ -854,7 +1262,7 @@
       "fixture": "free=40",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "eb8aa827527f9e8b2b2ea896dafb5cbfd1d7e32f98734a87f9aa06099fb06433"
+      "sha256": "b9813a0906f64c217a390ad53075cbde5dac95070e13d44492afa59f6e3f7078"
     },
     "home-healthy--light--1120x900": {
       "id": "home-healthy",
@@ -871,7 +1279,7 @@
       "fixture": "free=40",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "07ef830840a8c7c1d1d8f08d821447167bd69dde79a9c761a9c5827aa9578c9b"
+      "sha256": "5fc13f8dab060f376f13c74eadddceb80c9a3f48f25c7fc2503e32fd20cf21dc"
     },
     "home-healthy--light--390x844": {
       "id": "home-healthy",
@@ -888,7 +1296,7 @@
       "fixture": "free=40",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "ef1f93fb8d44664579789d63dd124ecde935e89dbc5021f76c5ed0529288f6ed"
+      "sha256": "344fa6190f2b1f4a2024ad69d219ca94176e97925c0ba9f9ceb289068367eb04"
     },
     "home-healthy--light--760x900": {
       "id": "home-healthy",
@@ -905,7 +1313,7 @@
       "fixture": "free=40",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "85d64089e499080b29c23c69fb8bd9619081b0757ba2522e686728a66cb78fb1"
+      "sha256": "961e90c6d57934e0638041b4e485860ed53fad95e9ccf5c5f3de881ddb37420b"
     },
     "home-low--dark--1120x900": {
       "id": "home-low",
@@ -922,7 +1330,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "dab2505b451ee9065c801eec704e4a11e36fd76f697f8b7cf65115910a770147"
+      "sha256": "5aa943376c6073d7ab28e5965202c042f1cd499eaa6b3b623e565ba443ac91b7"
     },
     "home-low--dark--390x844": {
       "id": "home-low",
@@ -939,7 +1347,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "e4093a09bdbd64fb7b858fc7701198523c2c31d150180bc215484e56b52d548e"
+      "sha256": "0d92b18cc76e220a0ea969e6babb7d62e29c365d3281a84ec66db4486b731c9c"
     },
     "home-low--dark--760x900": {
       "id": "home-low",
@@ -956,7 +1364,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "695844fe78135a57de8592fa3ed7d83be01de4a3927cb99addbedfa490d5795b"
+      "sha256": "8fbcced7be56c5a86f585094f1537c283202a49ea4c89cd16119e6a2d1c6b461"
     },
     "home-low--light--1120x900": {
       "id": "home-low",
@@ -973,7 +1381,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "ad8155c3117ded78370ad452f7c325f4f5e628a45d7164ffb681bb6999d12afc"
+      "sha256": "d2ddcfe7dbfb0e4bfbe353e79c39ae9891d4b9c6506feddfa0fc5a2ce443b626"
     },
     "home-low--light--390x844": {
       "id": "home-low",
@@ -990,7 +1398,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "ea553e16175da2c6d8dd797e5cc995bfebf1730142d4adee376efca42f129dc6"
+      "sha256": "226dd54848e971c75b28d5ab6c31551ce1da06e5d45b57bd14fa7c4f801de7ad"
     },
     "home-low--light--760x900": {
       "id": "home-low",
@@ -1007,7 +1415,279 @@
       "fixture": "",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "5d8ef6fd638a65bba4078d9ee919a16e31b1b7b14f1984ab3d47e6da759482b4"
+      "sha256": "5a9a325d4538515aa8756f9248f15d2b96e88e9dea49d6aaa1d6d306ec6fa4b2"
+    },
+    "home-low-de--dark--1120x900": {
+      "id": "home-low-de",
+      "surface": "Home",
+      "state": "Low, 12.4 GB free (the prototype's starting state) (German)",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "a531061e92326494d8a75ccf951b44a05b81970a166b955cb1ab471efc6f76de"
+    },
+    "home-low-de--dark--390x844": {
+      "id": "home-low-de",
+      "surface": "Home",
+      "state": "Low, 12.4 GB free (the prototype's starting state) (German)",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "ca23d8d65fd01620e87ea878e3a748b84357b60c7ee93dd99e634f10373bbdc0"
+    },
+    "home-low-de--light--1120x900": {
+      "id": "home-low-de",
+      "surface": "Home",
+      "state": "Low, 12.4 GB free (the prototype's starting state) (German)",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "3c9f864f135786e1ae14c0007e5a342629f0419a20819c8cf432c1f61cc50b3d"
+    },
+    "home-low-de--light--390x844": {
+      "id": "home-low-de",
+      "surface": "Home",
+      "state": "Low, 12.4 GB free (the prototype's starting state) (German)",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "b247942b565ecf0cc97a5ce07b29cb13acf60a5a68b01b48bb3bf0653bd4a049"
+    },
+    "home-low-es--dark--1120x900": {
+      "id": "home-low-es",
+      "surface": "Home",
+      "state": "Low, 12.4 GB free (the prototype's starting state) (Spanish)",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "31cffd6d24b4ceba057385461896d29c52a9cb584476ed7ff001faefa0d84d80"
+    },
+    "home-low-es--dark--390x844": {
+      "id": "home-low-es",
+      "surface": "Home",
+      "state": "Low, 12.4 GB free (the prototype's starting state) (Spanish)",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "62549ab9c0cf3dc71ab972e00355cd6aab5e5ca7004decf8d6a066d059fbdcfa"
+    },
+    "home-low-es--light--1120x900": {
+      "id": "home-low-es",
+      "surface": "Home",
+      "state": "Low, 12.4 GB free (the prototype's starting state) (Spanish)",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "767e34fec466ee7e98ff7345439344cf30a2af2b2ccbcb0fa5959ecd997c7672"
+    },
+    "home-low-es--light--390x844": {
+      "id": "home-low-es",
+      "surface": "Home",
+      "state": "Low, 12.4 GB free (the prototype's starting state) (Spanish)",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "b58e64b94d3c8cd79e0909ddc8fdfe411b867a7eddef02664aea5329a399bb1d"
+    },
+    "home-low-fr--dark--1120x900": {
+      "id": "home-low-fr",
+      "surface": "Home",
+      "state": "Low, 12.4 GB free (the prototype's starting state) (French)",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "c4f9be5841347911443da96ef34d305510eae20281ec739581cbfc1848bb68de"
+    },
+    "home-low-fr--dark--390x844": {
+      "id": "home-low-fr",
+      "surface": "Home",
+      "state": "Low, 12.4 GB free (the prototype's starting state) (French)",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "0617d9c799fb7c824b3a50a66f2e532b0ce9954250701b65c7a1dd794b76cae0"
+    },
+    "home-low-fr--light--1120x900": {
+      "id": "home-low-fr",
+      "surface": "Home",
+      "state": "Low, 12.4 GB free (the prototype's starting state) (French)",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "72c5f7ad2905c52ee5fcca47095a76bffc5a874d818338ad2bb9239f917c4ab7"
+    },
+    "home-low-fr--light--390x844": {
+      "id": "home-low-fr",
+      "surface": "Home",
+      "state": "Low, 12.4 GB free (the prototype's starting state) (French)",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "17bff7bbb4fb840830ecd0f1dc42fc014422daac5f564c3bd452747a71683380"
+    },
+    "home-low-nl--dark--1120x900": {
+      "id": "home-low-nl",
+      "surface": "Home",
+      "state": "Low, 12.4 GB free (the prototype's starting state) (Dutch)",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "0fb16d92708527e28933675195b711ba345d43917a0f8d8eb68f8d50bc60d560"
+    },
+    "home-low-nl--dark--390x844": {
+      "id": "home-low-nl",
+      "surface": "Home",
+      "state": "Low, 12.4 GB free (the prototype's starting state) (Dutch)",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "12d9b741646fbef740efb4da02d21c71bf699bb7498ca6e190fb9d26989a09ec"
+    },
+    "home-low-nl--light--1120x900": {
+      "id": "home-low-nl",
+      "surface": "Home",
+      "state": "Low, 12.4 GB free (the prototype's starting state) (Dutch)",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "df44f9245b628e95ca40fd5b2be59cc99390b4e2bc3bade64323875f140004e3"
+    },
+    "home-low-nl--light--390x844": {
+      "id": "home-low-nl",
+      "surface": "Home",
+      "state": "Low, 12.4 GB free (the prototype's starting state) (Dutch)",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "10a8c85a438c220a1bf46300f5cac731b9284220789bc08a3e7aebef9f919690"
     },
     "logbook--dark--1120x900": {
       "id": "logbook",
@@ -3574,7 +4254,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
-      "sha256": "2c133b601ed79ec7fc90d72c098e448d1b76410987efb508b9aa7d4817337cd6"
+      "sha256": "eb5d8492d47159eeca8488559833fec32be6bd4a7a9dc06f5355608d19317722"
     },
     "settings-sheet--dark--390x844": {
       "id": "settings-sheet",
@@ -3591,7 +4271,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
-      "sha256": "080f610f5a4dfd9abe3f9527e8c7f6eddd66f228cfd6941b7ff0b0cc61f5ff31"
+      "sha256": "477a1faa310b50e4d9f358c0fc80c2251eb7c83989b2cadd3665bfdc9bd9e6e1"
     },
     "settings-sheet--light--1120x900": {
       "id": "settings-sheet",
@@ -3608,7 +4288,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
-      "sha256": "131c2ae99de4cd67512f41334281d81c06c845d45410b253091de59452f34bfe"
+      "sha256": "bfe0a96a174cfcf1ff9260793cca136aa44a38de5161b36d293f95579ff3ed58"
     },
     "settings-sheet--light--390x844": {
       "id": "settings-sheet",
@@ -3625,7 +4305,143 @@
       "fixture": "",
       "supplemental": true,
       "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
-      "sha256": "98b798b433a0e307c585a380749d0afa8e662930e35eb400d40589ff2493055f"
+      "sha256": "879b61a43e2d89330b6c8c4b4d3ea3c27525fd328eecfa1987347eb29c49fc7a"
+    },
+    "settings-sheet-de--dark--1120x900": {
+      "id": "settings-sheet-de",
+      "surface": "Settings",
+      "state": "Settings: Language first, then warning zones, folders, scanning (German)",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "sha256": "3de932be7ac00e9c3694b0612a9b5f3bdc078be99e4c1f23fdd4da42eebdc8de"
+    },
+    "settings-sheet-de--dark--390x844": {
+      "id": "settings-sheet-de",
+      "surface": "Settings",
+      "state": "Settings: Language first, then warning zones, folders, scanning (German)",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "sha256": "d217ac3b2ca299d013d944bd566f1e743c9cd715533a263ef1a1b3d45e745a31"
+    },
+    "settings-sheet-de--light--1120x900": {
+      "id": "settings-sheet-de",
+      "surface": "Settings",
+      "state": "Settings: Language first, then warning zones, folders, scanning (German)",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "sha256": "cb75a4068e89739a04c7c484e7583caa40873dda0d1021a608d630699cb418df"
+    },
+    "settings-sheet-de--light--390x844": {
+      "id": "settings-sheet-de",
+      "surface": "Settings",
+      "state": "Settings: Language first, then warning zones, folders, scanning (German)",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "sha256": "13bec1b214a8d5b27d51a13afa1f87a9b8c673a639e9d48bc5a99b929d0ce4b1"
+    },
+    "settings-sheet-fr--dark--1120x900": {
+      "id": "settings-sheet-fr",
+      "surface": "Settings",
+      "state": "Settings: Language first, then warning zones, folders, scanning (French)",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "sha256": "80656fca5598570eef73fe83b5f2a817c5103bd54a1764c3189032a15739708f"
+    },
+    "settings-sheet-fr--dark--390x844": {
+      "id": "settings-sheet-fr",
+      "surface": "Settings",
+      "state": "Settings: Language first, then warning zones, folders, scanning (French)",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "sha256": "6c4bb65c2867b7baada6e88a6c47f46bc89e12f9801e1faa5c30c472cf5e6e6e"
+    },
+    "settings-sheet-fr--light--1120x900": {
+      "id": "settings-sheet-fr",
+      "surface": "Settings",
+      "state": "Settings: Language first, then warning zones, folders, scanning (French)",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "sha256": "e4d4c1a0181af3194330cef3860bb1c5d2797eec69d2006f16571a6530bd3561"
+    },
+    "settings-sheet-fr--light--390x844": {
+      "id": "settings-sheet-fr",
+      "surface": "Settings",
+      "state": "Settings: Language first, then warning zones, folders, scanning (French)",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "sha256": "f882db710a730a4a82d8c370d2a081ea08b08f564a5252cf3010ff5eb0ed2310"
     },
     "settings-suggested-added--dark--1120x900": {
       "id": "settings-suggested-added",
@@ -3642,7 +4458,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
-      "sha256": "f4fb443bdc42326d2e429f324eba8027fe82cc83f9c8a6c529052826501b266c"
+      "sha256": "eb5d8492d47159eeca8488559833fec32be6bd4a7a9dc06f5355608d19317722"
     },
     "settings-suggested-added--dark--390x844": {
       "id": "settings-suggested-added",
@@ -3659,7 +4475,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
-      "sha256": "080f610f5a4dfd9abe3f9527e8c7f6eddd66f228cfd6941b7ff0b0cc61f5ff31"
+      "sha256": "477a1faa310b50e4d9f358c0fc80c2251eb7c83989b2cadd3665bfdc9bd9e6e1"
     },
     "settings-suggested-added--light--1120x900": {
       "id": "settings-suggested-added",
@@ -3676,7 +4492,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
-      "sha256": "64cb35f299b36f69901ac8e8a81aba5fca84d5f9fa8cccaceff66438cf5c1b94"
+      "sha256": "bfe0a96a174cfcf1ff9260793cca136aa44a38de5161b36d293f95579ff3ed58"
     },
     "settings-suggested-added--light--390x844": {
       "id": "settings-suggested-added",
@@ -3693,7 +4509,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
-      "sha256": "98b798b433a0e307c585a380749d0afa8e662930e35eb400d40589ff2493055f"
+      "sha256": "879b61a43e2d89330b6c8c4b4d3ea3c27525fd328eecfa1987347eb29c49fc7a"
     },
     "settings-undo--dark--1120x900": {
       "id": "settings-undo",
@@ -3710,7 +4526,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
-      "sha256": "3e3b2b84b4b55df44c3b64a4dd06ad6054d46c566662d44fc6eab29e87b771f8"
+      "sha256": "0c77c0c943ee0b9ab905e45bb5e8888583cbe2735de3d6e7111d358ae5573830"
     },
     "settings-undo--dark--390x844": {
       "id": "settings-undo",
@@ -3727,7 +4543,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
-      "sha256": "b612562295e8f3bfa680491bbe8bdd02542593e2088a345c1f8848f8dd324ba8"
+      "sha256": "477a1faa310b50e4d9f358c0fc80c2251eb7c83989b2cadd3665bfdc9bd9e6e1"
     },
     "settings-undo--light--1120x900": {
       "id": "settings-undo",
@@ -3744,7 +4560,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
-      "sha256": "3e0e20e0e1d1c2f1017ebbe0e17a754c5694c45677aff1ac51c755d562ac74f2"
+      "sha256": "008f253e541455af687f98652c6b90af9209cb02bbc7adae60632986fa0a9371"
     },
     "settings-undo--light--390x844": {
       "id": "settings-undo",
@@ -3761,7 +4577,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
-      "sha256": "b8e3cac2fe58fed7831bdbfe127654974fb39d7a6a376818ed90cc4fc28f1d0c"
+      "sha256": "879b61a43e2d89330b6c8c4b4d3ea3c27525fd328eecfa1987347eb29c49fc7a"
     },
     "trash-confirm--dark--1120x900": {
       "id": "trash-confirm",
@@ -3846,7 +4662,7 @@
       "fixture": "view=tray",
       "supplemental": true,
       "note": "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
-      "sha256": "4388a0b6bbda347de166bada7820cefa64379cceed4361d8e4533b697d57bb33"
+      "sha256": "531d798e6ea328df740b87424f2c3b5bcec4e699db04a7946581abbebaa718f8"
     },
     "tray-view--light--362x560": {
       "id": "tray-view",
@@ -3863,7 +4679,143 @@
       "fixture": "view=tray",
       "supplemental": true,
       "note": "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
-      "sha256": "0e66a02040b531f46c917a4759826b79c604f72033f1056efdcb4fc679095044"
+      "sha256": "80213c453820707988e874147f45fba0b3fcf21fc0d0910e048c7f8d2ac47d3b"
+    },
+    "tray-view-de--dark--362x560": {
+      "id": "tray-view-de",
+      "surface": "Tray",
+      "state": "Menu bar window, Low (German)",
+      "theme": "dark",
+      "viewport": {
+        "width": 362,
+        "height": 560
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "view=tray",
+      "supplemental": true,
+      "note": "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
+      "sha256": "1f54098705483582feb08109017729780ef87689c864ff808cecfe5bcead7f48"
+    },
+    "tray-view-de--light--362x560": {
+      "id": "tray-view-de",
+      "surface": "Tray",
+      "state": "Menu bar window, Low (German)",
+      "theme": "light",
+      "viewport": {
+        "width": 362,
+        "height": 560
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "view=tray",
+      "supplemental": true,
+      "note": "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
+      "sha256": "02d0b282aee90786be248d1d74328c9d551ef088c259e294db99e5c3b41e8c6f"
+    },
+    "tray-view-es--dark--362x560": {
+      "id": "tray-view-es",
+      "surface": "Tray",
+      "state": "Menu bar window, Low (Spanish)",
+      "theme": "dark",
+      "viewport": {
+        "width": 362,
+        "height": 560
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "view=tray",
+      "supplemental": true,
+      "note": "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
+      "sha256": "c09b5ddcb7ac30450c615c394161a00b0a33bc38674ec7ce8a9a7595c43c5ca4"
+    },
+    "tray-view-es--light--362x560": {
+      "id": "tray-view-es",
+      "surface": "Tray",
+      "state": "Menu bar window, Low (Spanish)",
+      "theme": "light",
+      "viewport": {
+        "width": 362,
+        "height": 560
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "view=tray",
+      "supplemental": true,
+      "note": "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
+      "sha256": "d9a4689cce98d45cb7542c36b31a9c8af5087df82e439609c7c465c23364348c"
+    },
+    "tray-view-fr--dark--362x560": {
+      "id": "tray-view-fr",
+      "surface": "Tray",
+      "state": "Menu bar window, Low (French)",
+      "theme": "dark",
+      "viewport": {
+        "width": 362,
+        "height": 560
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "view=tray",
+      "supplemental": true,
+      "note": "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
+      "sha256": "8e7e215d7ead4a25ddb98a62dac35cad03e1d1d48da0891865bc871def433d79"
+    },
+    "tray-view-fr--light--362x560": {
+      "id": "tray-view-fr",
+      "surface": "Tray",
+      "state": "Menu bar window, Low (French)",
+      "theme": "light",
+      "viewport": {
+        "width": 362,
+        "height": 560
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "view=tray",
+      "supplemental": true,
+      "note": "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
+      "sha256": "e0d1f84759d077c6987b8cba5c68e9db7d1db636c6b0a36fb01400b55fffd5d7"
+    },
+    "tray-view-nl--dark--362x560": {
+      "id": "tray-view-nl",
+      "surface": "Tray",
+      "state": "Menu bar window, Low (Dutch)",
+      "theme": "dark",
+      "viewport": {
+        "width": 362,
+        "height": 560
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "view=tray",
+      "supplemental": true,
+      "note": "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
+      "sha256": "02979c9870175471bbe6c8f04224d71079847b8f2fbf53adb466d65359f4c29b"
+    },
+    "tray-view-nl--light--362x560": {
+      "id": "tray-view-nl",
+      "surface": "Tray",
+      "state": "Menu bar window, Low (Dutch)",
+      "theme": "light",
+      "viewport": {
+        "width": 362,
+        "height": 560
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "view=tray",
+      "supplemental": true,
+      "note": "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
+      "sha256": "be842aaec884df79598ef0cb8c6ea56d503a0be8e304264e7c01f8b43f42cd12"
     }
   }
 }

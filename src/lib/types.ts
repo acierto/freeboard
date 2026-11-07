@@ -1,3 +1,4 @@
+import type { Lang, LanguagePref } from "../i18n";
 // The typed contract between the interface and the Rust core (serde camelCase).
 // Source: docs/reference/FREEBOARD_SPEC.md, "Data model and risk rules" and
 // "Tauri commands". The interface sends only IDs, enums and numbers.
@@ -197,6 +198,8 @@ export interface AppStatus {
   notificationsPaused: boolean;
   platform: Platform;
   firstRun: boolean;
+  /** The first preferred system language Freeboard supports. */
+  systemLanguage: Lang;
 }
 
 export type ScanKind = "quick" | "deep";
@@ -332,6 +335,8 @@ export interface Settings {
   onboardingComplete: boolean;
   /** Free space next to the menu bar or tray icon. */
   menuBarFreeSpace: boolean;
+  /** Settings → Language: "system" follows the operating system. */
+  language: LanguagePref;
 }
 
 /** Settings the interface may change directly. Folder lists change only
@@ -352,6 +357,7 @@ export type SettingsPatch = Partial<
     | "notifications"
     | "onboardingComplete"
     | "menuBarFreeSpace"
+    | "language"
   >
 >;
 

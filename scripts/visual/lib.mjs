@@ -9,7 +9,7 @@ import { chromium } from "@playwright/test";
 export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 export const PROTOTYPE = join(ROOT, "docs/reference/freeboard-prototype.html");
 /** SHA-256 recorded in docs/reference/README.md. */
-export const PROTOTYPE_SHA256 = "190be983f4d2f504b03d8d1254d7e8a9399f731ce9ceffc2af8f1eed5758bf3c";
+export const PROTOTYPE_SHA256 = "690475a45472bbf358ad2d69fddc6e3959aec6813246b8d0eac75f3e33dac4f2";
 export const FIXED_TIME = Date.parse("2026-11-04T12:00:00Z");
 export const BASELINE_DIR = join(ROOT, "visual/baseline");
 export const TOLERANCE_FILE = join(ROOT, "visual/tolerances.json");
@@ -107,7 +107,7 @@ async function newPage(browser, cap, side, { blockFonts = false } = {}) {
     deviceScaleFactor: 1,
     colorScheme: cap.theme,
     reducedMotion: cap.motion ? "no-preference" : "reduce",
-    locale: "en-US",
+    locale: cap.locale ?? "en-US",
     timezoneId: "UTC",
   });
   // Local only: abort every request that leaves the test server.

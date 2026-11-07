@@ -14,6 +14,8 @@ const SCALE_GB: f64 = 120.0;
 pub struct TrayItems {
     pub status: MenuItem<Wry>,
     pub pause: CheckMenuItem<Wry>,
+    /// Renamed when the language changes: (item, string key).
+    pub labels: Vec<(MenuItem<Wry>, &'static str)>,
 }
 
 /// Ring colors follow the prototype's tray ring: neutral for Healthy, amber
@@ -72,8 +74,20 @@ pub fn ring_rgba(status: DiskStatus, free_bytes: u64, size: u32) -> Vec<u8> {
     px
 }
 
-pub fn status_text(status: DiskStatus, free_bytes: u64) -> String {
-    format!("{} · {:.1} GB free", status.label(), free_bytes as f64 / GB as f64)
+/// "Low · 12.4 GB free", "Niedrig · 12,4 GB frei" (the status pill and
+/// the prototype's free-space line, in the language in use).
+pub fn status_text(status: DiskStatus, free_bytes: u64, lang: &str) -> String {
+    use crate::i18n::{gb, tr};
+    let key = match status {
+        DiskStatus::Healthy => "st.good",
+        DiskStatus::Low => "st.warn",
+        DiskStatus::Critical => "st.crit",
+    };
+    let free = gb(lang, free_bytes);
+    // "12,4 GB" + " frei": the unit is part of `gb.free`, so swap it in.
+    let unit = if lang == "fr" { "Go" } else { "GB" };
+    let tail = tr(lang, "gb.free").replacen("GB", unit, 1);
+    format!("{} · {} {}", tr(lang, key), free.trim_end_matches(unit).trim_end(), tail)
 }
 
 pub fn build(app: &AppHandle, paused: bool) -> tauri::Result<()> {
@@ -122,25 +136,42 @@ pub fn build(app: &AppHandle, paused: bool) -> tauri::Result<()> {
             }
         })
         .build(app)?;
-    app.manage(TrayItems { status, pause });
+    let labels = vec![(open.clone(), "m.open"), (summary.clone(), "m.summary"), (scan.clone(), "m.scan"), (quit.clone(), "m.quit")];
+    app.manage(TrayItems { status, pause, labels });
     Ok(())
 }
 
-pub fn update(app: &AppHandle, status: DiskStatus, free_bytes: u64, show_free: bool) {
-    let text = status_text(status, free_bytes);
+pub fn update(app: &AppHandle, status: DiskStatus, free_bytes: u64, show_free: bool, lang: &str) {
+    let text = status_text(status, free_bytes, lang);
     if let Some(tray) = app.tray_by_id(TRAY_ID) {
         let _ = tray.set_icon(Some(Image::new_owned(ring_rgba(status, free_bytes, 44), 44, 44)));
         let _ = tray.set_tooltip(Some(format!("Freeboard: {text}")));
         #[cfg(any(target_os = "macos", target_os = "linux"))]
-        let _ = tray.set_title(if show_free { Some(format!("{:.1} GB", free_bytes as f64 / GB as f64)) } else { None });
+        let _ = tray.set_title(if show_free { Some(crate::i18n::gb(lang, free_bytes)) } else { None });
     }
     if let Some(items) = app.try_state::<TrayItems>() {
         let _ = items.status.set_text(text);
+        let _ = items.pause.set_text(crate::i18n::tr(lang, "m.pause"));
+        for (item, key) in &items.labels {
+            let _ = item.set_text(crate::i18n::tr(lang, key));
+        }
     }
 }
 
 pub fn sync_pause_item(app: &AppHandle, paused: bool) {
     if let Some(items) = app.try_state::<TrayItems>() {
         let _ = items.pause.set_checked(paused);
+    }
+}
+
+#[cfg(test)]
+mod lang_tests {
+    use super::*;
+
+    #[test]
+    fn status_text_follows_the_language() {
+        assert_eq!(status_text(DiskStatus::Low, 12_400_000_000, "en"), "Low · 12.4 GB free");
+        assert_eq!(status_text(DiskStatus::Low, 12_400_000_000, "de"), format!("{} · 12,4 GB frei", crate::i18n::tr("de", "st.warn")));
+        assert_eq!(status_text(DiskStatus::Healthy, 12_400_000_000, "fr"), format!("{} · 12,4 Go libres", crate::i18n::tr("fr", "st.good")));
     }
 }

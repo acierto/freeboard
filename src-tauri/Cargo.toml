@@ -1,6 +1,6 @@
 [package]
 name = "freeboard"
-version = "1.1.1"
+version = "1.2.0"
 description = "Warns before disk space runs out and explains what can be reclaimed safely"
 edition = "2021"
 rust-version = "1.80"
@@ -51,6 +51,7 @@ notify-rust = { version = "4", optional = true }
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"
+sys-locale = "0.3"
 
 [target.'cfg(windows)'.dependencies]
 windows-sys = { version = "0.59", features = ["Win32_Foundation", "Win32_Storage_FileSystem", "Win32_System_Power", "Win32_Security", "Win32_System_Threading"] }

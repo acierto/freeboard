@@ -2,9 +2,10 @@
 // the helm (free space, status, forecast, goal, Where from, Toss, the pile,
 // Trash), and the section tabs. Markup and class names follow the prototype
 // so the visual verifier can drive both with the same steps.
+import { fx, itemName, lang, t, tn, unitGB } from "../../i18n";
 import { useEffect, useState } from "react";
 import { Dinghy } from "../../components/Dinghy";
-import { GB, STATUS, gb, groupLabel, trashWord } from "../../lib/format";
+import { GB, GROUPS, STATUS, gb, groupLabel, trashWord } from "../../lib/format";
 import type { Goal, Group, View } from "../../lib/types";
 import { SettingsSheet } from "../settings/SettingsSheet";
 import { FirstRun } from "../onboarding/FirstRun";
@@ -22,12 +23,24 @@ import type { Crate } from "../../components/Dinghy";
 type Tab = "tidy" | "map" | "log";
 // The wave strip along the bottom of the Toss button (prototype `.splash`).
 const SPLASH = "M0 6 q6 -5 12 0" + " t12 0".repeat(33) + " V10 H0Z";
-const GOALS: [Goal, string][] = [
-  [20 * GB, "20 GB"],
-  [50 * GB, "50 GB"],
-  [100 * GB, "100 GB"],
-  ["all", "All I can"],
+const GOALS = (): [Goal, string][] => [
+  [20 * GB, "20 " + unitGB()],
+  [50 * GB, "50 " + unitGB()],
+  [100 * GB, "100 " + unitGB()],
+  ["all", t("h.allican")],
 ];
+
+/** A translated sentence with one bold part where `{x}` stands. */
+function withBold(key: string, bold: string) {
+  const [a, b = ""] = t(key).split("{x}");
+  return (
+    <>
+      {a}
+      <b>{bold}</b>
+      {b}
+    </>
+  );
+}
 
 export function Home({ navigate }: { navigate: View | null }) {
   const h = useHarbor();
@@ -103,7 +116,7 @@ export function Home({ navigate }: { navigate: View | null }) {
             <div className="brand">Freeboard</div>
           </div>
           <div className="top-right">
-            <button className="icon-btn" data-act="settings" aria-label="Settings" onClick={() => setSettingsOpen(true)}>
+            <button className="icon-btn" data-act="settings" aria-label={t("t.settings")} onClick={() => setSettingsOpen(true)}>
               {"⚙"}
             </button>
           </div>
@@ -116,9 +129,9 @@ export function Home({ navigate }: { navigate: View | null }) {
             <div className="row between">
               <div className="big-free">
                 <span id="free" className="num">
-                  {freeGb.toFixed(1)}
+                  {fx(freeGb)}
                 </span>{" "}
-                <small>GB free</small>
+                <small>{t("gb.free")}</small>
               </div>
               <span className={"pill " + st.key} id="status">
                 {st.label}
@@ -128,14 +141,14 @@ export function Home({ navigate }: { navigate: View | null }) {
               {forecastText(status.forecast)}
             </p>
             <div className="make" role="group" aria-labelledby="make-title">
-              <h3 id="make-title">Make room</h3>
+              <h3 id="make-title">{t("h.make")}</h3>
               <div className="field">
                 <span className="flabel" id="goal-label">
-                  How much
+                  {t("h.howmuch")}
                 </span>
                 <div className="seg" id="goals" role="group" aria-labelledby="goal-label">
-                  {GOALS.map(([g, label]) => (
-                    <button key={label} data-goal={g === "all" ? "all" : g / GB} aria-pressed={pile.goalBytes === g && pile.mode !== "manual"} onClick={() => h.setGoal(g)}>
+                  {GOALS().map(([g, label]) => (
+                    <button key={String(g)} data-goal={g === "all" ? "all" : g / GB} aria-pressed={pile.goalBytes === g && pile.mode !== "manual"} onClick={() => h.setGoal(g)}>
                       {label}
                     </button>
                   ))}
@@ -144,15 +157,15 @@ export function Home({ navigate }: { navigate: View | null }) {
               <div className="field">
                 <div className="flabel-row">
                   <span className="flabel" id="area-label">
-                    From
+                    {t("h.from")}
                   </span>
                   <button className="link small" id="areas-all" data-area="" disabled={!anyArea} onClick={() => toggleArea(null)}>
-                    {anyArea ? "Use all areas" : "All areas"}
+                    {anyArea ? t("h.useall") : t("h.allareas")}
                   </button>
                 </div>
                 <div className="areas" id="areas" role="group" aria-labelledby="area-label">
                   {areas.map((g) => (
-                    <button key={g} className="area" data-area={groupLabel(g)} aria-pressed={areaTicked(pile, g)} onClick={() => toggleArea(g)}>
+                    <button key={g} className="area" data-area={GROUPS.find((x) => x.id === g)?.label} aria-pressed={areaTicked(pile, g)} onClick={() => toggleArea(g)}>
                       <span className="box">
                         <svg viewBox="0 0 12 12" aria-hidden="true">
                           <path d="M2 6.5l2.5 2.5L10 3" fill="none" stroke="var(--accent-ink)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
@@ -163,16 +176,14 @@ export function Home({ navigate }: { navigate: View | null }) {
                   ))}
                   {others.length > 0 && (
                     <p className="flabel-note" title={others.map(groupLabel).join(", ")}>
-                      {`${others.length === 1 ? `${groupLabel(others[0])} needs` : `${groupLabel(others[0])} and ${others.length - 1} more areas need`} your OK first.`}
+                      {others.length === 1 ? t("h.others1", { a: groupLabel(others[0]) }) : t("h.othersN", { a: groupLabel(others[0]), n: others.length - 1 })}
                     </p>
                   )}
                 </div>
               </div>
               <div className="field" id="meter">
                 <div className="meter-top">
-                  <span className="num">
-                    <b>{gb(meter.total)}</b> ready to toss
-                  </span>
+                  <span className="num">{withBold("h.ready", gb(meter.total))}</span>
                   <span className="num muted">{meter.right}</span>
                 </div>
                 <div className="meter" role="img" aria-label={`${gb(meter.total)} of ${gb(meter.target)} ready`}>
@@ -180,9 +191,9 @@ export function Home({ navigate }: { navigate: View | null }) {
                 </div>
                 {meter.short > 0 && (
                   <div className="gaprow">
-                    <span className="num">{`${gb(meter.short)} more needs your OK`}</span>
+                    <span className="num">{t("h.more", { x: gb(meter.short) })}</span>
                     <button className="link small" data-act="goto-questions" onClick={toQuestions}>
-                      Review items
+                      {t("h.review")}
                     </button>
                   </div>
                 )}
@@ -210,8 +221,8 @@ export function Home({ navigate }: { navigate: View | null }) {
                     </svg>
                     <span className="tlabel">
                       <span className="tmain">
-                        {`Toss ${gb(pile.totalBytes)}`}
-                        <span className="tlong"> overboard</span>
+                        {t("h.toss", { x: gb(pile.totalBytes) })}
+                        <span className="tlong">{t("h.overboard")}</span>
                       </span>{" "}
                       {/* The visible text is the button's name (WCAG 2.5.3); the space separates its two lines for assistive tools. */}
                       <small className="tnote">{tossNote(items)}</small>
@@ -221,11 +232,11 @@ export function Home({ navigate }: { navigate: View | null }) {
                     </svg>
                   </>
                 ) : (
-                  "Nothing to toss"
+                  t("h.nothing")
                 )}
               </button>
               <button className="btn pile-toggle" data-act="toggle-pile" id="pile-btn" aria-controls="pile" aria-expanded={showPile && items.length > 0} disabled={!items.length} onClick={() => setShowPile((v) => !v)}>
-                {`${items.length} crate${items.length === 1 ? "" : "s"}`}
+                {tn("h.crate1", "h.craten", items.length)}
               </button>
             </div>
             <p className="note" id="cta-note">
@@ -240,7 +251,7 @@ export function Home({ navigate }: { navigate: View | null }) {
               {items.map((s) => (
                 <div className="pile-row" key={s.id}>
                   <span>
-                    {s.title}
+                    {itemName(s)}
                     <span className="sub">{s.recovery}</span>
                   </span>
                   <span className="num">{gb(s.sizeBytes)}</span>
@@ -253,9 +264,9 @@ export function Home({ navigate }: { navigate: View | null }) {
             <div id="trash">
               {status.trashBytes > 0 && (
                 <div className="row between note">
-                  <span className="num">{`${gb(status.trashBytes)} is in the ${trashWord(status.platform)} and not free yet.`}</span>
+                  <span className="num">{status.platform === "windows" && lang() === "en" ? `${gb(status.trashBytes)} is in the ${trashWord(status.platform)} and not free yet.` : t("h.trash", { x: gb(status.trashBytes) })}</span>
                   <button className="link" data-act="empty" onClick={cleanup.openTrash}>
-                    Empty it
+                    {t("h.empty")}
                   </button>
                 </div>
               )}
@@ -265,15 +276,15 @@ export function Home({ navigate }: { navigate: View | null }) {
 
         <div className="tabs" role="tablist" aria-label="Freeboard sections">
           <button className="tab" role="tab" data-tab="tidy" id="tab-tidy" aria-selected={tab === "tidy"} onClick={() => setTab("tidy")}>
-            Quick questions
+            {t("tab.q")}
             {deck > 0 && <span className="dot num">{deck}</span>}
           </button>
           <button className="tab" role="tab" data-tab="map" id="tab-map" aria-selected={tab === "map"} onClick={() => setTab("map")}>
-            Disk map
+            {t("tab.map")}
             {coverage !== null && <span className="dot num">{coverage}%</span>}
           </button>
           <button className="tab" role="tab" data-tab="log" id="tab-log" aria-selected={tab === "log"} onClick={() => setTab("log")}>
-            Logbook
+            {t("tab.log")}
           </button>
         </div>
 
@@ -301,7 +312,7 @@ export function Home({ navigate }: { navigate: View | null }) {
       </div>
       <CleanupSheets c={cleanup} />
       {settingsOpen && (
-        <SettingsSheet settings={settings} platform={status.platform} freeBytes={freeBytes} scanning={scanning} onChange={h.updateSettings} onSettings={h.setSettings} onClose={() => setSettingsOpen(false)} />
+        <SettingsSheet settings={settings} platform={status.platform} systemLanguage={status.systemLanguage} freeBytes={freeBytes} scanning={scanning} onChange={h.updateSettings} onSettings={h.setSettings} onClose={() => setSettingsOpen(false)} />
       )}
     </>
   );

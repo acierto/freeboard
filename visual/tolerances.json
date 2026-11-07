@@ -5,6 +5,31 @@
       "threshold": 0,
       "maxDiffPixels": 60,
       "rationale": "Only the two bottom corners of the setup dialog differ, each pixel by one colour level, where the rounded corners show the blurred backdrop. Layout is identical to 1/1000 px on both sides; the page behind was removed and the nesting matched, and the light theme alone still differs. A compositing artifact of the 704 px tall dialog, not visible. Experiment recorded in docs/decisions.md, 2026-11-07."
+    },
+    "tray-view-fr--light--362x560": {
+      "threshold": 0,
+      "maxDiffPixels": 48,
+      "rationale": "One glyph differs in anti-aliasing only (an 8 x 8 px box, in “dans” / “libres”); the markup and text of both sides are identical (compared with outerHTML), and the count is the same on every run and in both themes. French text only; the same screens in English, German, Dutch and Spanish match exactly. Recorded in docs/decisions.md, 2026-11-07."
+    },
+    "tray-view-fr--dark--362x560": {
+      "threshold": 0,
+      "maxDiffPixels": 48,
+      "rationale": "One glyph differs in anti-aliasing only (an 8 x 8 px box, in “dans” / “libres”); the markup and text of both sides are identical (compared with outerHTML), and the count is the same on every run and in both themes. French text only; the same screens in English, German, Dutch and Spanish match exactly. Recorded in docs/decisions.md, 2026-11-07."
+    },
+    "first-run-hello-fr--light--1120x900": {
+      "threshold": 0,
+      "maxDiffPixels": 44,
+      "rationale": "One glyph differs in anti-aliasing only (an 8 x 8 px box, in “dans” / “libres”); the markup and text of both sides are identical (compared with outerHTML), and the count is the same on every run and in both themes. French text only; the same screens in English, German, Dutch and Spanish match exactly. Recorded in docs/decisions.md, 2026-11-07."
+    },
+    "first-run-hello-fr--dark--1120x900": {
+      "threshold": 0,
+      "maxDiffPixels": 44,
+      "rationale": "One glyph differs in anti-aliasing only (an 8 x 8 px box, in “dans” / “libres”); the markup and text of both sides are identical (compared with outerHTML), and the count is the same on every run and in both themes. French text only; the same screens in English, German, Dutch and Spanish match exactly. Recorded in docs/decisions.md, 2026-11-07."
+    },
+    "first-run-waterline-fr--light--1120x900": {
+      "threshold": 0,
+      "maxDiffPixels": 60,
+      "rationale": "The same bottom-corner artifact as first-run-promises--light--1120x900: one colour level (max difference 1) along the dialog's bottom edge, light theme only."
     }
   }
 }

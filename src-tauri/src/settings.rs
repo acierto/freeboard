@@ -64,6 +64,33 @@ impl<'de> Deserialize<'de> for Goal {
     }
 }
 
+/// The interface language: the system's, or one chosen in Settings.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum Language {
+    #[default]
+    System,
+    En,
+    Nl,
+    De,
+    Fr,
+    Es,
+}
+
+impl Language {
+    /// The language code, or None for the system's.
+    pub fn code(self) -> Option<&'static str> {
+        match self {
+            Language::System => None,
+            Language::En => Some("en"),
+            Language::Nl => Some("nl"),
+            Language::De => Some("de"),
+            Language::Fr => Some("fr"),
+            Language::Es => Some("es"),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Settings {
@@ -89,6 +116,9 @@ pub struct Settings {
     /// Show free space next to the menu bar or tray icon (first-run switch).
     #[serde(default = "yes")]
     pub menu_bar_free_space: bool,
+    /// Settings → Language; "system" follows the operating system.
+    #[serde(default)]
+    pub language: Language,
 }
 
 fn yes() -> bool {
@@ -114,6 +144,7 @@ impl Default for Settings {
             extra_volumes: Vec::new(),
             onboarding_complete: false,
             menu_bar_free_space: true,
+            language: Language::System,
         }
     }
 }
@@ -138,6 +169,7 @@ pub struct SettingsPatch {
     pub extra_volumes: Option<Vec<String>>,
     pub onboarding_complete: Option<bool>,
     pub menu_bar_free_space: Option<bool>,
+    pub language: Option<Language>,
 }
 
 /// The subset of settings the interface may change with `update_settings`.
@@ -159,6 +191,7 @@ pub struct UiSettingsPatch {
     pub notifications: Option<bool>,
     pub onboarding_complete: Option<bool>,
     pub menu_bar_free_space: Option<bool>,
+    pub language: Option<Language>,
 }
 
 impl From<UiSettingsPatch> for SettingsPatch {
@@ -177,6 +210,7 @@ impl From<UiSettingsPatch> for SettingsPatch {
             notifications: p.notifications,
             onboarding_complete: p.onboarding_complete,
             menu_bar_free_space: p.menu_bar_free_space,
+            language: p.language,
             ..Default::default()
         }
     }
@@ -249,7 +283,8 @@ impl Settings {
             exclusions,
             extra_volumes,
             onboarding_complete,
-            menu_bar_free_space
+            menu_bar_free_space,
+            language
         );
         s.validate()?;
         Ok(s)

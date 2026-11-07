@@ -10,8 +10,8 @@ const browser = await launch();
 const results = [];
 const check = (name, ok, detail = "") => results.push({ name, ok: !!ok, detail });
 
-async function page(query = "", size = { width: 1120, height: 900 }) {
-  const ctx = await browser.newContext({ viewport: size, reducedMotion: "reduce" });
+async function page(query = "", size = { width: 1120, height: 900 }, locale = "en-US") {
+  const ctx = await browser.newContext({ viewport: size, reducedMotion: "reduce", locale });
   await ctx.route("**/*", (r) => (new URL(r.request().url()).hostname === "127.0.0.1" ? r.continue() : r.abort()));
   const p = await ctx.newPage();
   await p.goto(`${base}/?${query}`);
@@ -42,6 +42,39 @@ const idle = (p) => p.waitForFunction(() => document.documentElement.dataset.bus
   check("tray view: close button closes it", (await calls(p)).includes("close_tray_view"));
   await p.click('[data-act="confirm"]');
   check("tray view: Toss opens the pile in the main window", (await calls(p)).includes("review_pile"));
+  await ctx.close();
+}
+
+// Languages (spec "Languages"): Settings → Language applies at once; setup
+// step 1 has a picker preset to the system's language; sizes follow it.
+{
+  const { p, ctx } = await page();
+  await p.click('[data-act="settings"]');
+  const tiles = await p.$$eval(".lang-tile", (l) => l.map((x) => [x.dataset.applang, x.getAttribute("aria-checked"), x.querySelector("b").textContent, x.querySelector("small").textContent]));
+  check("language: six tiles, Same as my Mac chosen, each name in its own language", JSON.stringify(tiles) === JSON.stringify([["system", "true", "Same as my Mac", "English"], ["en", "false", "English", "12.4 GB free"], ["nl", "false", "Nederlands", "12,4 GB vrij"], ["de", "false", "Deutsch", "12,4 GB frei"], ["fr", "false", "Français", "12,4 Go libres"], ["es", "false", "Español", "12,4 GB libres"]]), JSON.stringify(tiles));
+  await p.evaluate(() => (window.__FIXTURE_CALLS__ = []));
+  await p.click('[data-applang="de"]');
+  await idle(p);
+  check("language: picking one saves it", JSON.stringify((await p.evaluate(() => window.__FIXTURE_CALLS__)).find((c) => c.cmd === "update_settings")?.args) === '{"patch":{"language":"de"}}');
+  check("language: everything switches at once, the sheet stays open", (await p.textContent("#sheet-title")) === "Einstellungen" && (await p.textContent("#make-title")) === "Platz schaffen" && (await p.getAttribute('[data-applang="de"]', "aria-checked")) === "true" && (await p.getAttribute("html", "lang")) === "de");
+  await p.click("#settings-done");
+  check("language: sizes take a decimal comma", (await p.textContent("#free")) === "12,4" && (await p.textContent("#cta .tmain")).startsWith("Toss ") === false && /^\d+,\d GB über Bord$/.test(await p.textContent("#cta .tmain")), await p.textContent("#cta .tmain"));
+  await ctx.close();
+}
+{
+  const { p, ctx } = await page("view=tray&lang=fr");
+  check("language: the menu bar window in French, with Go and translated item names", (await p.textContent(".tb-free")).includes("12,4 Go libres") && (await p.textContent(".tl")).includes("Cache de build Docker") && /^Analysé il y a \d+ (min|h|heures?|jours?)$/.test(await p.textContent(".tb-foot .note")), await p.textContent(".tb-foot .note"));
+  await ctx.close();
+}
+{
+  const { p, ctx } = await page("firstrun=1", undefined, "de-DE");
+  check("language: setup follows the system's language, the picker preset to it", (await p.textContent("#ob-title")) === "Wissen, bevor die Platte voll ist." && (await p.inputValue("#ob-lang-sel")) === "de");
+  await p.evaluate(() => (window.__FIXTURE_CALLS__ = []));
+  await p.selectOption("#ob-lang-sel", "fr");
+  await idle(p);
+  check("language: switching in setup applies at once and is saved", (await p.textContent("#ob-title")) === "Soyez prévenu avant que le disque soit plein." && JSON.stringify((await p.evaluate(() => window.__FIXTURE_CALLS__)).find((c) => c.cmd === "update_settings")?.args) === '{"patch":{"language":"fr"}}');
+  await p.click("#ob-next");
+  check("language: the picker is on step 1 only", !(await p.$("#ob-lang-sel")));
   await ctx.close();
 }
 

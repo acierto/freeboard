@@ -5,6 +5,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { api, errorText, on } from "../../lib/api";
 import { track } from "../../lib/useBusy";
+import { resolveLang, setLang } from "../../i18n";
 import type { AppStatus, AreaGrowth, BlindSpot, BlindSpotAction, DiskMap, Goal, Group, ItemDecision, PileState, PlaceChecked, Settings, SettingsPatch, Suggestion } from "../../lib/types";
 
 export type Progress = { phase: string; detector: string | null; currentCount: number } | null;
@@ -74,6 +75,10 @@ export function useHarbor() {
       .then((pile) => setData((d) => d && { ...d, pile }))
       .catch((e) => setError(errorText(e)));
   }, []);
+
+  // The language follows Settings, else the system's; set before anything
+  // under this hook renders, so a change applies at once (spec "Languages").
+  if (data) setLang(resolveLang(data.settings.language, data.status.systemLanguage));
 
   return {
     data,

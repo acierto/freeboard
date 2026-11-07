@@ -31,6 +31,12 @@ const STATES = [
   { id: "trash-confirm", query: "trash=2.4", click: ['[data-act="empty"]'], wait: "#go" },
   { id: "logbook", query: "", click: ["#tab-log"], wait: ".log" },
   { id: "logbook-run-details", query: "", click: ["#tab-log", '[data-run="run-2"]'], wait: "#sheet .plan-list" },
+  // Languages: longer German and French text, and the language controls.
+  { id: "home-low-de", query: "lang=de" },
+  { id: "settings-sheet-fr", query: "lang=fr", click: ['[data-act="settings"]'] },
+  { id: "tray-view-de", query: "view=tray&lang=de", root: ".tray-window" },
+  { id: "first-run-hello-fr", query: "firstrun=1&lang=fr", root: "#ob-root" },
+  { id: "first-run-promises-de", query: "firstrun=1&lang=de", click: ["#ob-next", "#ob-next", "#ob-next"], root: "#ob-root" },
 ];
 const THEMES = ["light", "dark"];
 const SIZES = [

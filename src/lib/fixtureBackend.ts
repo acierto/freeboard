@@ -1,3 +1,4 @@
+import { firstSupported, type LanguagePref } from "../i18n";
 // TEST-ONLY fixture backend used by the visual verifier (`vite build --mode visual`).
 // It is never part of the production bundle (scripts/visual/verify.mjs checks).
 // Marker: FREEBOARD_FIXTURE_BACKEND
@@ -308,6 +309,8 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
     // firstrun=1: the five-step setup, with nothing chosen yet.
     onboardingComplete: !params.has("firstrun"),
     menuBarFreeSpace: true,
+    // lang=de: a language chosen in Settings; otherwise the system's.
+    language: (params.get("lang") as LanguagePref | null) ?? "system",
   };
 
   const status = (): AppStatus => {
@@ -323,6 +326,9 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
       notificationsPaused: false,
       platform,
       firstRun: false,
+      // Stands in for the operating system's languages (Rust sys-locale),
+      // as the prototype follows the browser's.
+      systemLanguage: firstSupported([...(navigator.languages ?? []), navigator.language]),
     };
   };
 

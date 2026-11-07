@@ -357,6 +357,9 @@ pub struct AppStatus {
     pub notifications_paused: bool,
     pub platform: String,
     pub first_run: bool,
+    /// The first preferred system language Freeboard supports (en, nl, de,
+    /// fr, es), for Settings → Language "Same as my Mac".
+    pub system_language: String,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

@@ -1,3 +1,8 @@
+import { readFileSync } from "node:fs";
+
+/** The interface strings per language, for reference edits in that language. */
+const STR = Object.fromEntries(["en", "nl", "de", "fr", "es"].map((l) => [l, JSON.parse(readFileSync(new URL(`../../src/i18n/${l}.json`, import.meta.url), "utf8"))]));
+
 // Visual verification matrix for the rebuild (openspec change
 // `rebuild-freeboard`, capability `visual-verification`).
 //
@@ -263,11 +268,13 @@ const firstRunEntry = (id, state, steps, extra = {}) => ({
 
 // ---- settings ------------------------------------------------------------------
 
-function settingsWording() {
+function settingsWording(w = { repos: "$1 repositories,", rerun: "Run setup again", deep: "Every file in your folders and the disk map, a few minutes" }) {
   // Folder rows count Git repositories, which is what the scan finds; the
   // prototype calls the first row's "projects". A deep scan also measures the
-  // disk map, which takes a few minutes on a full disk.
-  for (const e of document.querySelectorAll("#sheet .frow small")) e.textContent = e.textContent.replace(/^(\d+) projects,/, "$1 repositories,");
+  // disk map, which takes a few minutes on a full disk. `w` holds these in
+  // the language under test (the prototype keeps its example folder rows in
+  // English; the app writes them in the language in use).
+  for (const e of document.querySelectorAll("#sheet .frow small")) e.textContent = e.textContent.replace(/^(\d+) (projects|repositories),/, w.repos).replace(/ GB$/, " " + (w.unit ?? "GB"));
   // Spec "First-run setup": Settings offers Run setup again.
   const foot = document.querySelector("#sheet .st-foot");
   if (foot && !document.getElementById("rerun-setup")) {
@@ -275,17 +282,17 @@ function settingsWording() {
     b.className = "link small";
     b.id = "rerun-setup";
     b.style.marginRight = "auto";
-    b.textContent = "Run setup again";
+    b.textContent = w.rerun;
     foot.prepend(b);
   }
   const deep = document.querySelector("#scan-deep small");
-  if (deep) deep.textContent = "Every file in your folders and the disk map, a few minutes";
+  if (deep) deep.textContent = w.deep;
 }
 const SETTINGS_NOTE =
   "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.";
-const settingsEntry = (id, state, steps) => ({
+const settingsEntry = (id, state, steps, lang) => ({
   id, surface: "Settings", state, sizes: [DESKTOP, PHONE], query: "",
-  ref: [act("settings"), ...steps, evalRef(settingsWording)], impl: [act("settings"), ...steps], clip: SHEET, supplemental: true, note: SETTINGS_NOTE,
+  ref: [act("settings"), ...steps, evalRef(settingsWording, lang && { repos: STR[lang]["ob.m.reposN"].replace("{n}", "$1") + ",", rerun: STR[lang]["s.rerun"], deep: STR[lang]["s.deep.s2"], unit: lang === "fr" ? "Go" : "GB" })], impl: [act("settings"), ...steps], clip: SHEET, supplemental: true, note: SETTINGS_NOTE,
 });
 
 // Reference edits run in the page, so they get openSheet as source text.
@@ -392,6 +399,22 @@ export const ENTRIES = [
     note: "Run details are required behavior the prototype lacks (spec); built from its sheet, .sum3, .plan-list and .pile-row components.",
   },
 ];
+
+// Languages (prototype Version 18): the page follows the browser's language,
+// as the app follows the system's, so each capture runs in that locale.
+const LOCALES = { de: "de-DE", fr: "fr-FR", nl: "nl-NL", es: "es-ES" };
+const NAMES = { de: "German", fr: "French", nl: "Dutch", es: "Spanish" };
+const byId = (id) => ENTRIES.find((e) => e.id === id);
+const inLang = (e, lang, sizes = e.sizes) => ({ ...e, id: `${e.id}-${lang}`, state: `${e.state} (${NAMES[lang]})`, locale: LOCALES[lang], sizes });
+const LANG_ENTRIES = [
+  ...["de", "fr", "nl", "es"].map((l) => inLang(byId("home-low"), l, [DESKTOP, PHONE])),
+  inLang(byId("home-critical"), "de", [DESKTOP, PHONE]),
+  ...["de", "fr", "nl", "es"].map((l) => inLang(byId("tray-view"), l)),
+  ...["de", "fr", "nl", "es"].map((l) => inLang(byId("first-run-hello"), l)),
+  ...["de", "fr"].flatMap((l) => ["first-run-waterline", "first-run-folders", "first-run-promises"].map((id) => inLang(byId(id), l))),
+  ...["de", "fr"].map((l) => inLang(settingsEntry("settings-sheet", "Settings: Language first, then warning zones, folders, scanning", [], l), l)),
+];
+ENTRIES.push(...LANG_ENTRIES);
 
 /** Native surfaces that browser comparison cannot establish. */
 export const NATIVE = [

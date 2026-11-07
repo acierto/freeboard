@@ -68,19 +68,22 @@ impl NotifyPolicy {
     }
 }
 
-pub fn notice_text(kind: NoticeKind, free_gb: f64, safe_gb: f64) -> Notice {
+/// The notification in `lang` (spec "Languages": notifications follow it).
+pub fn notice_text(kind: NoticeKind, free_bytes: u64, safe_bytes: u64, lang: &str) -> Notice {
+    use crate::i18n::{gb, tr, trv};
     let title = match kind {
-        NoticeKind::EnteredLow => "Disk space is low",
-        NoticeKind::EnteredCritical | NoticeKind::CriticalReminder => "Disk space is critical",
+        NoticeKind::EnteredLow => tr(lang, "nt.low"),
+        NoticeKind::EnteredCritical | NoticeKind::CriticalReminder => tr(lang, "nt.crit"),
     };
+    let f = ("f", gb(lang, free_bytes));
     Notice {
         kind,
-        title: title.into(),
+        title,
         // Before any scan (or with nothing Safe found), don't claim "0.0 GB".
-        body: if safe_gb >= 0.05 {
-            format!("{free_gb:.1} GB left. {safe_gb:.1} GB can be freed from Safe items.")
+        body: if safe_bytes >= crate::model::GB / 20 {
+            trv(lang, "nt.safe", &[f, ("s", gb(lang, safe_bytes))])
         } else {
-            format!("{free_gb:.1} GB left. Open Freeboard to see what you can remove.")
+            trv(lang, "nt.none", &[f])
         },
     }
 }
@@ -145,10 +148,17 @@ mod tests {
 
     #[test]
     fn text_matches_prototype_notice() {
-        let n = notice_text(NoticeKind::EnteredLow, 12.4, 54.6);
+        let n = notice_text(NoticeKind::EnteredLow, 12_400_000_000, 54_600_000_000, "en");
         assert_eq!(n.title, "Disk space is low");
         assert_eq!(n.body, "12.4 GB left. 54.6 GB can be freed from Safe items.");
-        let n = notice_text(NoticeKind::EnteredLow, 34.4, 0.0);
+        let n = notice_text(NoticeKind::EnteredLow, 34_400_000_000, 0, "en");
         assert_eq!(n.body, "34.4 GB left. Open Freeboard to see what you can remove.");
+    }
+
+    #[test]
+    fn text_follows_the_language() {
+        let n = notice_text(NoticeKind::EnteredCritical, 4_000_000_000, 54_600_000_000, "fr");
+        assert_eq!(n.title, "Espace disque critique");
+        assert_eq!(n.body, "Il reste 4,0 Go. 54,6 Go peuvent être libérés à partir des éléments sûrs.");
     }
 }

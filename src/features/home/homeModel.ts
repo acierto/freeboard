@@ -2,6 +2,7 @@
 // the prototype's `renderHero()`; the pile itself is computed by the backend
 // (design D3), this only describes it.
 import { GB, GROUPS, gb } from "../../lib/format.ts";
+import { t, unitGB } from "../../i18n/index.ts";
 import type { DiskStatus, Forecast, Group, PileState, Suggestion } from "../../lib/types.ts";
 import type { Mood } from "../../components/dinghyGeometry.ts";
 
@@ -29,18 +30,18 @@ export function pileItems(pile: PileState, all: Suggestion[]): Suggestion[] {
 }
 
 export function bubbleText(mood: Mood, freeBytes: number, pileBytes: number): string {
-  if (mood === "crit") return "Help! I am nearly under. Only " + gb(freeBytes) + " left.";
-  if (mood === "warn") return "I am riding low. Toss " + gb(pileBytes) + " and I will float again.";
-  return pileBytes > 0 ? "Floating nicely! " + gb(freeBytes) + " free." : "All tidy! Nothing to toss right now.";
+  if (mood === "crit") return t("h.b.crit", { f: gb(freeBytes) });
+  if (mood === "warn") return t("h.b.warn", { t: gb(pileBytes) });
+  return pileBytes > 0 ? t("h.b.good", { f: gb(freeBytes) }) : t("h.b.tidy");
 }
 
 export function forecastText(f: Forecast | null): string {
   if (!f) return "";
-  return "At about " + gb(f.bytesPerDay) + " a day, this disk fills in about " + Math.max(1, Math.round(f.daysLeft)) + " days.";
+  return t("h.forecast", { r: gb(f.bytesPerDay), n: Math.max(1, Math.round(f.daysLeft)) });
 }
 
 /** The small line in the Toss button. */
-export const tossNote = (items: Suggestion[]) => (items.every((s) => s.risk === "safe") ? "All rebuildable" : "Includes items you approved");
+export const tossNote = (items: Suggestion[]) => (items.every((s) => s.risk === "safe") ? t("h.allreb") : t("h.incl"));
 
 const kept = (s: Suggestion) => s.decision === "keep";
 
@@ -59,13 +60,13 @@ export function pileNote(pile: PileState, all: Suggestion[]): string {
   const items = pileItems(pile, all);
   const anyArea = pile.areas.length > 0;
   if (!items.length) {
-    if (pile.noAreas) return "No areas picked. Tick at least one, or use all areas.";
-    if (pile.mode === "manual") return "The pile is empty. Pick a size to fill it again.";
-    return anyArea ? "This area has no Safe crates. Tick the items you want below." : "Answer a quick question below, or check the disk map.";
+    if (pile.noAreas) return t("h.n.noareas");
+    if (pile.mode === "manual") return t("h.n.empty");
+    return anyArea ? t("h.n.nosafe") : t("h.n.answer");
   }
-  if (pile.mode === "manual") return "You chose these by hand. Pick a size again to refill the pile.";
+  if (pile.mode === "manual") return t("h.n.manual");
   if (items.every((s) => s.risk === "safe")) return "";
-  return items.some((s) => s.risk === "risky") ? "Includes something that cannot be recovered." : "Includes crates you approved.";
+  return items.some((s) => s.risk === "risky") ? t("h.n.risky") : t("h.n.approved");
 }
 
 /** Safe space automatic filling may use in one area. */
@@ -108,7 +109,7 @@ export function meterOf(pile: PileState, all: Suggestion[]) {
   const target = pile.goalBytes === "all" ? Math.max(total, safeAvailableBytes(pile, all)) : pile.goalBytes;
   const fill = target ? Math.min(100, (total / target) * 100) : 0;
   const short = manual || pile.goalBytes === "all" ? 0 : Math.max(0, pile.goalBytes - total);
-  const right = manual ? "chosen by hand" : pile.goalBytes === "all" ? "every Safe crate" : `goal ${Math.round(pile.goalBytes / GB)} GB`;
+  const right = manual ? t("h.byhand") : pile.goalBytes === "all" ? t("h.everysafe") : t("h.goal", { n: `${Math.round(pile.goalBytes / GB)} ${unitGB()}` });
   return { total, target, fill, short: short > 0.05 * GB ? short : 0, right, manual };
 }
 

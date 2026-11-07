@@ -9,6 +9,7 @@ mod contract_tests;
 pub mod detectors;
 pub mod diskmap;
 pub mod guard;
+pub mod i18n;
 pub mod model;
 pub mod risk_notes;
 pub mod monitor;
@@ -104,9 +105,9 @@ mod shell {
             }
             let _ = self.0.notification().builder().title(title).body(body).show();
         }
-        fn update_tray(&self, status: DiskStatus, free_bytes: u64, show_free: bool) {
+        fn update_tray(&self, status: DiskStatus, free_bytes: u64, show_free: bool, lang: &'static str) {
             let app = self.0.clone();
-            let _ = self.0.run_on_main_thread(move || crate::tray::update(&app, status, free_bytes, show_free));
+            let _ = self.0.run_on_main_thread(move || crate::tray::update(&app, status, free_bytes, show_free, lang));
         }
         fn set_autostart(&self, enabled: bool) {
             // Only release builds register themselves; a dev binary never does.
