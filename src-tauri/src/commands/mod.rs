@@ -135,6 +135,12 @@ pub async fn resolve_blind_spot(core: Core<'_>, id: String, action: BlindSpotAct
     core.resolve_blind_spot(&id, action)
 }
 
+/// "Scan all N" and "Skip": several blind spots, one action, one scan.
+#[tauri::command]
+pub async fn resolve_blind_spots(core: Core<'_>, spot_ids: Vec<String>, action: BlindSpotAction) -> CmdResult<BlindSpotResult> {
+    core.resolve_blind_spots(&spot_ids, action)
+}
+
 #[tauri::command]
 pub async fn get_places_checked(core: Core<'_>) -> CmdResult<Vec<PlaceChecked>> {
     core.get_places_checked()

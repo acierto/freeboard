@@ -239,3 +239,15 @@ A third prototype revision from the user redesigned the item rows, the confirmat
 - The result keeps the spec's measured figure and, when it differs, the note "I expected to free X. This is the change your disk reports.", which the prototype does not have. "Delete permanently instead" stays for items whose Trash was unavailable (spec).
 - Commands keep the code font only for commands in the confirmation's Runs line (decision 2026-11-05); the reference applies the same rule.
 - The fixture backend gained `fail=<id>`, failing an item once like the prototype's staged Docker failure.
+- 2026-11-07: Baselines regenerated from `docs/reference/freeboard-prototype.html` (SHA-256 `3c90b8fd0319…`, chromium 156.0.8078.4, 200 captures). Rationale: Disk map redesigned by the product owner in the prototype revision of 2026-11-07 (fourth): a Why-not-explained card that splits Not explained into causes with a bar, one row per folder with Scan and Skip, Scan all, Show N more and a fixed list; areas under 3% as chips under the map. The example data changed (new tiles, ten blind spots). Affected screens: every Disk map entry; new entries for ComfyUI, Skip, Show more, Scan all and the two small areas.
+- 2026-11-07: Baselines regenerated from `docs/reference/freeboard-prototype.html` (SHA-256 `3c90b8fd0319…`, chromium 156.0.8078.4, 200 captures). Rationale: Disk map references now hide a tile name that would break inside a word, as the app does (decision 2026-11-07, 'Proje / cts' on a real Mac). Affected screens: Disk map entries at phone width.
+
+## 2026-11-07 — Why space is not explained, and small areas
+
+A fourth prototype revision from the user redesigned the disk map's right column and the map's smallest areas; it replaced `docs/reference/freeboard-prototype.html` (hash updated). Implemented as drawn, with these choices:
+
+- Blind spots are grouped by cause: folders outside the scan list, places locked by macOS, files no detector recognizes, and tools that did not answer (not in the prototype; shown only when it happens).
+- The prototype's "Kept by macOS for itself" cause has a Measure button. The app cannot measure that space on request, so whatever no blind spot accounts for is shown honestly as "Not traced to a folder" with its reason and no button. The visual reference applies the same wording (`untracedCause`).
+- "Skip" on a folder outside the scan list counts it as the user's own files (`mark_mine`, now accepted for unscanned folders). "Scan all N" is one `resolve_blind_spots` request: every folder joins the scan list, then a single deep scan runs.
+- A locked place's size is unknown until Freeboard can read it; its row says "size unknown" rather than a guess.
+- The visual reference hides a tile name that would break inside a word, as the app does.

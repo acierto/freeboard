@@ -545,6 +545,36 @@ mod core {
     }
 
     #[test]
+    fn scan_all_adds_every_folder_with_one_scan_and_skip_counts_a_folder_as_mine() {
+        let (fx, core, _sink) = setup();
+        write(&fx.home.join("vms/disk.qcow2"), 1500 * KB, b"FREEBOARD-SECRET-MARKER ");
+        deep(&core);
+        let spots = core.get_blind_spots(VolumeId::Home).unwrap();
+        let folder = |end: &str| spots.iter().find(|s| s.kind == BlindSpotKind::UnscannedFolder && s.location.ends_with(end)).unwrap_or_else(|| panic!("{end} spot: {spots:?}")).clone();
+        let (archive, vms) = (folder("archive"), folder("vms"));
+        // Skip: an unscanned folder counts as the user's own files.
+        let before = core.get_disk_map(VolumeId::Home).unwrap();
+        let r = core.resolve_blind_spots(&[vms.id.clone()], BlindSpotAction::MarkMine).unwrap();
+        assert_eq!(area(&r.map, "files").bytes, area(&before, "files").bytes + vms.size_bytes.unwrap());
+        assert!(core.settings().scan_folders.iter().all(|f| !f.ends_with("vms")), "skipping does not scan it");
+        // Scan all: both folders join the scan list; one deep scan runs.
+        let spots = core.get_blind_spots(VolumeId::Home).unwrap();
+        let open: Vec<String> = spots.iter().filter(|s| s.kind == BlindSpotKind::UnscannedFolder && s.state == diskmap_state_open()).map(|s| s.id.clone()).collect();
+        assert!(open.contains(&archive.id) && !open.contains(&vms.id));
+        core.resolve_blind_spots(&open, BlindSpotAction::ScanFolder).unwrap();
+        wait_idle(&core);
+        let s = core.settings();
+        assert!(s.scan_folders.iter().any(|f| f.ends_with("archive")), "{:?}", s.scan_folders);
+        // An unknown or closed spot fails the whole request.
+        assert_eq!(core.resolve_blind_spots(&[archive.id.clone()], BlindSpotAction::ScanFolder).unwrap_err().code, "unknown_id");
+        assert_eq!(core.resolve_blind_spots(&[], BlindSpotAction::ScanFolder).unwrap_err().code, "invalid_request");
+    }
+
+    fn diskmap_state_open() -> crate::diskmap::SpotState {
+        crate::diskmap::SpotState::Open
+    }
+
+    #[test]
     fn scan_this_folder_adds_it_and_runs_a_deep_scan() {
         let (fx, core, _sink) = setup();
         deep(&core);
@@ -552,7 +582,7 @@ mod core {
         let archive = spots.iter().find(|s| s.kind == BlindSpotKind::UnscannedFolder && s.location.ends_with("archive")).expect("archive spot").clone();
         let before = core.get_disk_map(VolumeId::Home).unwrap();
         // Wrong action for the spot is refused.
-        assert_eq!(core.resolve_blind_spot(&archive.id, BlindSpotAction::MarkMine).unwrap_err().code, "invalid_action");
+        assert_eq!(core.resolve_blind_spot(&archive.id, BlindSpotAction::OpenSettings).unwrap_err().code, "invalid_action");
         core.resolve_blind_spot(&archive.id, BlindSpotAction::ScanFolder).unwrap();
         wait_idle(&core);
         let s = core.settings();

@@ -2,8 +2,8 @@
 // Run with `npm run test:ui` (Node's built-in test runner).
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { coverText, coverage, coverageBadge, defaultTile, explained, squarify, tileClass, tilesOf } from "../../src/features/map/mapModel.ts";
-import type { DiskMap } from "../../src/lib/types.ts";
+import { causesOf, coverText, coverage, coverageBadge, defaultTile, explained, splitAreas, squarify, tileClass, tilesOf } from "../../src/features/map/mapModel.ts";
+import type { BlindSpot, DiskMap } from "../../src/lib/types.ts";
 
 const GB = 1e9;
 // The prototype's TILES.
@@ -81,4 +81,37 @@ test("an over-counted map never claims more in use than the disk", () => {
   const m = { ...map(), usedBytes: 921 * GB, notExplainedBytes: 0, explainedBytes: 921 * GB };
   m.areas = m.areas.map((a) => ({ ...a, bytes: a.bytes * 10 }));
   assert.equal(coverText(m).line, "I can account for 921.0 of the 921.0 GB in use.");
+});
+
+test("areas under 3% are listed apart, never Not explained", () => {
+  const m = map(5, [...SIZES, ["browser", "Browser data", 7.4], ["fonts", "Fonts and plug-ins", 4.2]]);
+  const { tiles, small } = splitAreas(tilesOf(m));
+  assert.deepEqual(small.map((t) => t.id), ["browser", "fonts"]);
+  assert.ok(tiles.some((t) => t.id === "unknown"), "Not explained is always drawn, however small");
+});
+
+const spot = (id: string, kind: BlindSpot["kind"], gb: number | null, state: BlindSpot["state"] = "open"): BlindSpot => ({
+  id,
+  kind,
+  title: "",
+  text: "",
+  location: "~/" + id,
+  sizeBytes: gb === null ? null : gb * GB,
+  actionLabel: "",
+  action: kind === "needs_permission" ? "open_settings" : kind === "unknown_files" ? "mark_mine" : "scan_folder",
+  state,
+  doneText: state === "done" ? "scanned" : null,
+});
+
+test("Not explained splits into causes; what no blind spot accounts for is shown as not traced", () => {
+  const m = map(100);
+  const { causes, left } = causesOf(m, [spot("a", "unscanned_folder", 30), spot("b", "unscanned_folder", 50), spot("c", "needs_permission", null), spot("d", "unscanned_folder", 5, "done"), spot("e", "unknown_files", 4)]);
+  assert.deepEqual(causes.map((c) => c.id), ["outside", "locked", "untraced", "strange"]);
+  const outside = causes[0];
+  assert.deepEqual(outside.open.map((s) => s.id), ["b", "a"], "biggest first");
+  assert.deepEqual([outside.bytes / GB, outside.fixed.length], [80, 1]);
+  assert.equal(causes[1].bytes, 0, "an unknown size adds nothing");
+  assert.equal(Math.round(causes[2].bytes / GB), 16, "100 - 80 - 4");
+  assert.equal(Math.round(left / GB), 100);
+  assert.deepEqual(causesOf(map(0), []).causes, [], "a fully explained map has no causes");
 });

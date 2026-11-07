@@ -87,8 +87,8 @@ export function useHarbor() {
     // pile_changed, which reloads the pile and the suggestions.
     decide: (id: string, d: ItemDecision) => void track(api.setItemDecision(id, d)).catch((e) => setError(errorText(e))),
     parts: (id: string, partIds: string[]) => void track(api.setItemParts(id, partIds)).catch((e) => setError(errorText(e))),
-    resolveSpot: (id: string, action: BlindSpotAction) =>
-      void track(api.resolveBlindSpot(id, action))
+    resolveSpot: (ids: string[], action: BlindSpotAction) =>
+      void track(ids.length === 1 ? api.resolveBlindSpot(ids[0], action) : api.resolveBlindSpots(ids, action))
         .then((r) => setData((d) => d && { ...d, map: r.map, spots: r.blindSpots }))
         // A resolved spot can add places (the folder's findings).
         .then(() => track(api.getPlacesChecked()))

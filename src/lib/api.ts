@@ -86,6 +86,8 @@ export const api = {
   getBlindSpots: () => call<BlindSpot[]>("get_blind_spots", { volume: "home" }),
   /** By ID and the offered action only; any folder path stays in the backend. */
   resolveBlindSpot: (id: string, action: BlindSpotAction) => call<BlindSpotResult>("resolve_blind_spot", { id, action }),
+  /** Scan all N, or Skip: several blind spots, one action, one scan. */
+  resolveBlindSpots: (spotIds: string[], action: BlindSpotAction) => call<BlindSpotResult>("resolve_blind_spots", { spotIds, action }),
   getPlacesChecked: () => call<PlaceChecked[]>("get_places_checked"),
   getGrowth: (days: number) => call<AreaGrowth[]>("get_growth", { days }),
   /** Sizes, folder names and risk levels; never file contents. */

@@ -83,6 +83,8 @@ const ROWS: Row[] = [
   ["s-snap", "System", "system", "Time Machine snapshots", "Local snapshots", 15.2, "Your latest backup is safe", "Review", "native", "tmutil deletelocalsnapshots", "macOS keeps these on disk until it needs the room.", "Time Machine makes new ones."],
   ["f-laptop", "Your files", "files", "old-laptop backup", "~/archive/old-laptop", 11.2, "Not opened since 2023", "Review", "trash", "Move to Trash", "A full copy of a previous computer.", "Restore from the Trash.", { need: "archive" }],
   ["s-temp", "System", "system", "Leftover app temp files", "/private/var/folders", 5.4, "Over 30 days old", "Review", "trash", "Move to Trash", "Files left behind by apps that are no longer running.", "Restore from the Trash.", { need: "access" }],
+  ["ai-comfy", "AI models", "ai", "ComfyUI model checkpoints", "~/ComfyUI-Installs/models", 44.0, "Not loaded for 3+ months", "Review", "trash", "Move to Trash", "Large checkpoints that no recent workflow loaded.", "Restore from the Trash, or download again.", { need: "comfy", parts: [["flux1-dev", 23.8], ["sdxl_base_1.0", 6.9], ["animagine-xl", 6.9], ["sd_xl_refiner", 6.1], ["controlnet models", 0.3]] }],
+  ["f-exports", "Your files", "files", "Old video exports", "~/Movies/Exports", 18.6, "Not opened for 1+ year", "Review", "trash", "Move to Trash", "Rendered videos you have not opened in a year.", "Restore from the Trash.", { need: "movies" }],
 ];
 
 const GROUP_ID: Record<string, Group> = {
@@ -99,26 +101,40 @@ const ACTION = { native: "native_command", delete: "delete", trash: "trash", non
 
 // Prototype TILES. Your files absorbs changes in free space (prototype `tileSize`).
 const TILES: [id: string, label: string, gb: number, rest: string][] = [
-  ["projects", "Projects", 96, "Active projects and code"],
-  ["docker", "Docker", 72, "Images and data you are using"],
-  ["ai", "AI models", 61.6, "Models you used recently"],
-  ["caches", "Caches", 58, "Caches in active use"],
-  ["files", "Your files", 58, "Documents, photos and videos"],
+  ["projects", "Projects", 50, "Active projects and code"],
+  ["docker", "Docker", 60, "Images and data you are using"],
+  ["ai", "AI models", 55, "Models you used recently"],
+  ["caches", "Caches", 40, "Caches in active use"],
+  ["files", "Your files", 24, "Documents, photos and videos"],
   ["mobile", "Phones and emulators", 45, "Current simulators"],
-  ["apps", "Apps and tools", 44, "Apps and tools you use"],
-  ["system", "macOS", 44.2, "macOS itself"],
+  ["apps", "Apps and tools", 30, "Apps and tools you use"],
+  ["system", "macOS", 24, "macOS itself"],
+  ["browser", "Browser data", 7.4, "Profiles, history and site data"],
+  ["fonts", "Fonts and plug-ins", 4.2, "Installed fonts and audio plug-ins"],
 ];
-const NOT_EXPLAINED_GB = 20.8;
+// The prototype's 160 GB: its blind spots, plus 15.1 GB of system data it
+// can "Measure". The app has no such action, so that part stays as
+// "Not traced to a folder" (decision 2026-11-07).
+const NOT_EXPLAINED_GB = 160;
 
-// Prototype SPOTS, GROWING and EXTRA_PLACES.
-const SPOTS = [
-  { id: "archive", size: 11.2, to: "files", kind: "unscanned_folder", action: "scan_folder", title: "A folder I was not asked to scan", text: "~/archive holds 11.2 GB that no detector looked at.", label: "Scan this folder", done: "Scanned. I found an old laptop backup.", where: "~/archive" },
+// Prototype SPOTS (without its system-data spot, see above), GROWING and EXTRA_PLACES.
+type Spot = { id: string; size: number; to: Record<string, number>; kind: BlindSpot["kind"]; action: BlindSpot["action"]; title: string; text: string; label: string; where: string; done: string };
+const outside = (id: string, where: string, size: number, to: Record<string, number>, done: string, text: string): Spot => ({ id, size, to, kind: "unscanned_folder", action: "scan_folder", title: "A folder I was not asked to scan", text, label: "Scan this folder", where, done });
+const SPOTS: Spot[] = [
+  outside("comfy", "~/ComfyUI-Installs", 47.3, { ai: 47.3 }, "scanned, found 44.0 GB of model checkpoints.", "~/ComfyUI-Installs holds 47.3 GB outside your scan folders."),
+  outside("movies", "~/Movies", 31.5, { files: 31.5 }, "scanned, found old video exports.", "~/Movies holds 31.5 GB outside your scan folders."),
+  outside("archive", "~/archive", 11.2, { files: 11.2 }, "scanned, found an old laptop backup.", "~/archive holds 11.2 GB outside your scan folders."),
+  outside("vms", "~/vms", 6.0, { apps: 6.0 }, "scanned, virtual machine disks.", "~/vms holds 6.0 GB."),
+  outside("minikube", "~/.minikube", 4.1, { apps: 4.1 }, "scanned, Minikube cluster data.", "~/.minikube holds 4.1 GB."),
+  outside("claudedir", "~/.claude", 2.7, { apps: 2.7 }, "scanned, agent session data.", "~/.claude holds 2.7 GB."),
+  outside("codex", "~/.codex", 2.1, { apps: 2.1 }, "scanned, agent session data.", "~/.codex holds 2.1 GB."),
+  outside("dart", "~/.dartServer", 1.8, { apps: 1.8 }, "scanned, Dart analysis cache.", "~/.dartServer holds 1.8 GB."),
   // The prototype grants access at once. The real app only opens System
   // Settings and waits for a scan that can read the place (design D5); this
   // test-only fixture shows the state after that scan.
-  { id: "access", size: 5.4, to: "system", kind: "needs_permission", action: "open_settings", title: "A place I am not allowed to read", text: "5.4 GB in /private/var/folders needs Full Disk Access.", label: "Allow access", done: "Now readable. I found leftover temp files.", where: "/private/var/folders" },
-  { id: "mystery", size: 4.2, to: "files", kind: "unknown_files", action: "mark_mine", title: "Files I do not recognize", text: "~/tools/sim-data has 4.2 GB of .dat files from an unknown tool.", label: "They are mine, keep them", done: "Marked as yours. I will not ask again.", where: "~/tools/sim-data" },
-] as const;
+  { id: "access", size: 34.0, to: { files: 28.6, system: 5.4 }, kind: "needs_permission", action: "open_settings", title: "A place I am not allowed to read", text: "About 34.0 GB needs Full Disk Access.", label: "Allow access", where: "Mail, Messages, Photos and app data", done: "readable now: Photos 19.2 GB, Mail 6.0 GB, Messages 3.4 GB and 5.4 GB of old temp files." },
+  { id: "mystery", size: 4.2, to: { files: 4.2 }, kind: "unknown_files", action: "mark_mine", title: "Files I do not recognize", text: "~/tools/sim-data has 4.2 GB of .dat files from an unknown tool.", label: "They are mine, keep them", where: "~/tools/sim-data", done: "marked as yours. I won\u2019t ask again." },
+];
 const GROWING: [string, string, number][] = [
   ["docker", "Docker", 9.3],
   ["ai", "AI models", 7.0],
@@ -142,7 +158,9 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
   // Items that fail once, as the prototype stages the Docker build cache
   // (its DEMO_FAIL); a retry then succeeds.
   const failOnce = new Set((params.get("fail") ?? "").split(",").filter(Boolean));
-  const resolvedSpots = new Set<string>();
+  // How each blind spot was fixed: scanned (its space moves into real areas
+  // and its items appear) or marked as the user's own files.
+  const resolvedSpots = new Map<string, "scan" | "mine">();
 
   type Item = Suggestion & { need?: string };
   const items: Item[] = ROWS.map(([id, group, map, name, where, size, last, risk, action, cmd, why, back, extra]) => {
@@ -176,7 +194,7 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
     };
   });
   const gone = new Set<string>();
-  const active = () => items.filter((i) => !gone.has(i.id) && (!i.need || resolvedSpots.has(i.need)));
+  const active = () => items.filter((i) => !gone.has(i.id) && (!i.need || resolvedSpots.get(i.need) === "scan"));
 
   // ----- the pile (prototype picks / freezePile / addToPile / takeOut) -----
   let goal: Goal = 50 * G;
@@ -271,7 +289,7 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
   const diskMap = (): DiskMap => {
     // Prototype tileSize(): Your files grows or shrinks with free space, and
     // a resolved blind spot moves its size out of Not explained.
-    const moved = (id: string) => SPOTS.filter((s) => resolvedSpots.has(s.id) && s.to === id).reduce((t, s) => t + s.size, 0);
+    const moved = (id: string) => SPOTS.reduce((t, s) => t + (resolvedSpots.get(s.id) === "mine" ? (id === "files" ? s.size : 0) : resolvedSpots.has(s.id) ? (s.to[id] ?? 0) : 0), 0);
     const sizes = TILES.map(([id, label, gb, rest]) => ({ id, label, rest, gb: Math.max(0, round1(gb + moved(id) + (id === "files" ? BASE_FREE - freeGb : 0))) }));
     const un = Math.max(0, round1(NOT_EXPLAINED_GB - SPOTS.filter((s) => resolvedSpots.has(s.id)).reduce((t, s) => t + s.size, 0)));
     const used = round1(sizes.reduce((t, a) => t + a.gb, 0) + un);
@@ -299,7 +317,7 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
       actionLabel: s.label,
       action: s.action,
       state: resolvedSpots.has(s.id) ? "done" : "open",
-      doneText: resolvedSpots.has(s.id) ? s.done : null,
+      doneText: resolvedSpots.get(s.id) === "mine" ? "marked as yours, I won\u2019t look inside." : resolvedSpots.has(s.id) ? s.done : null,
     }));
   // Prototype placesList(): every item's name (found), then the extra places (clean).
   const places = (): PlaceChecked[] => [
@@ -622,8 +640,17 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
     get_suggestions: () => active().map(({ need: _need, ...s }) => ({ ...s, parts: s.parts.map((p) => ({ ...p })) })),
     get_disk_map: () => diskMap(),
     get_blind_spots: () => blindSpots(),
+    resolve_blind_spots: (a) => {
+      for (const id of a.spotIds as string[]) resolvedSpots.set(id, a.action === "mark_mine" && SPOTS.find((s) => s.id === id)?.kind === "unscanned_folder" ? "mine" : "scan");
+      changed();
+      setTimeout(() => {
+        emit("disk_map_changed", diskMap());
+        emit("blind_spots_changed", blindSpots());
+      }, 0);
+      return { map: diskMap(), blindSpots: blindSpots() };
+    },
     resolve_blind_spot: (a) => {
-      resolvedSpots.add(a.id as string);
+      resolvedSpots.set(a.id as string, a.action === "mark_mine" && SPOTS.find((s) => s.id === a.id)?.kind === "unscanned_folder" ? "mine" : "scan");
       // New items appear (prototype `need`), so the suggestions reload too.
       changed();
       setTimeout(() => {

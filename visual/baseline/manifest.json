@@ -1,7 +1,7 @@
 {
   "version": 1,
   "source": "docs/reference/freeboard-prototype.html",
-  "sourceSha256": "ad5d6471db141cd2e4debfc448849e7742ee1a6a94ce2b7cc54a097c89477c28",
+  "sourceSha256": "3c90b8fd031962ab76f30c63696242b3b4421ebe21fc41916e66df789dc35a8f",
   "engine": {
     "engine": "chromium",
     "version": "156.0.8078.4",
@@ -20,8 +20,8 @@
   "locale": "en-US",
   "timezone": "UTC",
   "adapter": "scripts/visual/lib.mjs referenceHtml(): local fonts, data-theme, host reset (src/styles/reset.css), prototype-only controls hidden (.top-right .sim, .top-right [data-act=\"reset\"], .top > div > .note, .top-right .tray)",
-  "acceptedAt": "2026-11-07T07:59:22.006Z",
-  "rationale": "Item rows, confirmation, cleanup run and result redesigned by the product owner in the prototype revision of 2026-11-07 (third): one-line item rows with details on demand, quiet group links and a pile bar, a framed confirmation with a big free-now figure and flags, a 3D deck of crates during the run with live counters and Stop after this one, and a result with a before/after bar, grouped sections and Try again. Affected screens: Quick questions and disk map lists, every cleanup sheet; new entries cleanup-result-open and cleanup-retry.",
+  "acceptedAt": "2026-11-07T08:40:03.683Z",
+  "rationale": "Disk map references now hide a tile name that would break inside a word, as the app does (decision 2026-11-07, 'Proje / cts' on a real Mac). Affected screens: Disk map entries at phone width.",
   "entries": {
     "cleanup-confirm-ack--dark--1120x900": {
       "id": "cleanup-confirm-ack",
@@ -548,7 +548,7 @@
       "fixture": "free=4",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "3761c6a4a3380c853cf324b5c4020bf200ff7599011b4c49f9c382089244f27d"
+      "sha256": "39825f748e5e4b2055e7226f18842f00a49cc862fe8b3b0c110e211fe4f70b93"
     },
     "home-critical--dark--390x844": {
       "id": "home-critical",
@@ -565,7 +565,7 @@
       "fixture": "free=4",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "9a4e6d3f3586e365bed3d3d3280c274700c31c6795aaf07b4163280817122caf"
+      "sha256": "7dd927d7db44f01fd5133cc48f3f5c9780b73a3cc15c30b0eeb55452127d3ef1"
     },
     "home-critical--dark--760x900": {
       "id": "home-critical",
@@ -582,7 +582,7 @@
       "fixture": "free=4",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "81c05bb702f80cd0b9618bdfb0db3ba1a9aac4075734608def89bc959cdc115d"
+      "sha256": "511017941e7ba1db1e720db9be5605bba715be6b3faa840b1ff02a63f5326634"
     },
     "home-critical--light--1120x900": {
       "id": "home-critical",
@@ -599,7 +599,7 @@
       "fixture": "free=4",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "c63e392285818343750b6e3b884d589a1e3ccd94a13bf92f053081208890ad62"
+      "sha256": "ae37772e60c2b1174b8a6e43f201b01e3506e4a3c5f9a659a8321f30b0766855"
     },
     "home-critical--light--390x844": {
       "id": "home-critical",
@@ -616,7 +616,7 @@
       "fixture": "free=4",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "1b8a5f0ecbbac22e863cd79c28848be02659f6801e9fe34f394b20caf0019425"
+      "sha256": "d825414a8f3e0e412f990f200ac5ec02360bb44d7960a9f5747598a79f6e4b84"
     },
     "home-critical--light--760x900": {
       "id": "home-critical",
@@ -633,7 +633,7 @@
       "fixture": "free=4",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "a067021fb67f681b4308aff7e40752d1deca80fc8ac3e9085ff3d29feb9b22a5"
+      "sha256": "74dd2d24ec6819f95825dea43976ee14908e0fe5ff7b2dd9f387aeefc5f51d49"
     },
     "home-healthy--dark--1120x900": {
       "id": "home-healthy",
@@ -650,7 +650,7 @@
       "fixture": "free=40",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "e77d727061fc2f3a11ac8dba98f3d883dfd7ae33f5a697062d33aa4faee2d745"
+      "sha256": "50a3f2784e7434bfaa0a04cbba6237a3a51f0e05f5c573f856af1936bcbb0fb6"
     },
     "home-healthy--dark--390x844": {
       "id": "home-healthy",
@@ -667,7 +667,7 @@
       "fixture": "free=40",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "3d9734f8413dbebeaad4a717a126ceb2c9248d9f1d654bc13b29f801c6038621"
+      "sha256": "fc5eba03ed598316af6858d944a63f8677b092ce65203d03e134a37ad7221782"
     },
     "home-healthy--dark--760x900": {
       "id": "home-healthy",
@@ -684,7 +684,7 @@
       "fixture": "free=40",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "7aaf63f3f58cc016f8345f1b9f2901983dbe297db817bd7ccaabc39fe9e7c10f"
+      "sha256": "eb8aa827527f9e8b2b2ea896dafb5cbfd1d7e32f98734a87f9aa06099fb06433"
     },
     "home-healthy--light--1120x900": {
       "id": "home-healthy",
@@ -701,7 +701,7 @@
       "fixture": "free=40",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "08b942f33141973b63581927e900122095d1b17f382701c0aaf12aa86ab19d79"
+      "sha256": "07ef830840a8c7c1d1d8f08d821447167bd69dde79a9c761a9c5827aa9578c9b"
     },
     "home-healthy--light--390x844": {
       "id": "home-healthy",
@@ -718,7 +718,7 @@
       "fixture": "free=40",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "ec680846c81af43272d3f6019ef07a3f838947c60bc7a328f0be9c54c0e9f3bd"
+      "sha256": "ef1f93fb8d44664579789d63dd124ecde935e89dbc5021f76c5ed0529288f6ed"
     },
     "home-healthy--light--760x900": {
       "id": "home-healthy",
@@ -735,7 +735,7 @@
       "fixture": "free=40",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "4d7c142cb53f40e1ad890268c61477731033e7a96990fe26ac45c40643b03c30"
+      "sha256": "85d64089e499080b29c23c69fb8bd9619081b0757ba2522e686728a66cb78fb1"
     },
     "home-low--dark--1120x900": {
       "id": "home-low",
@@ -752,7 +752,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "9f4f12c398f4f006341efacaa37de5adef1bb1c75829aa59e6edf80a976f2ca7"
+      "sha256": "dab2505b451ee9065c801eec704e4a11e36fd76f697f8b7cf65115910a770147"
     },
     "home-low--dark--390x844": {
       "id": "home-low",
@@ -769,7 +769,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "76f9f9a352507e6ee05f77ea8ac2ca16fbc6c63074d74865f49f0372c8730264"
+      "sha256": "e4093a09bdbd64fb7b858fc7701198523c2c31d150180bc215484e56b52d548e"
     },
     "home-low--dark--760x900": {
       "id": "home-low",
@@ -786,7 +786,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "80f932611d757e119c68eb5f29ab9bf13fa00e53ae6467a44d8cbd7fb4060a94"
+      "sha256": "695844fe78135a57de8592fa3ed7d83be01de4a3927cb99addbedfa490d5795b"
     },
     "home-low--light--1120x900": {
       "id": "home-low",
@@ -803,7 +803,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "b83c601635c799e79134b0951851c0825294fb5d8f7b9e2bcfdc9198fd9f7571"
+      "sha256": "ad8155c3117ded78370ad452f7c325f4f5e628a45d7164ffb681bb6999d12afc"
     },
     "home-low--light--390x844": {
       "id": "home-low",
@@ -820,7 +820,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "322e8fa229ede1e5baa5747836fe5822a11fad31ff2c76f10a4a4f2399acdfde"
+      "sha256": "ea553e16175da2c6d8dd797e5cc995bfebf1730142d4adee376efca42f129dc6"
     },
     "home-low--light--760x900": {
       "id": "home-low",
@@ -837,7 +837,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "4ce6f6c61c04fbd7614f817d50e50fb09ebbe41c10e5839c346ebec4d3bbc611"
+      "sha256": "5d8ef6fd638a65bba4078d9ee919a16e31b1b7b14f1984ab3d47e6da759482b4"
     },
     "logbook--dark--1120x900": {
       "id": "logbook",
@@ -989,8 +989,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "643d792f05e6e7c56615220b37057c0c309aa2de619d72d43cd0cd6f23e09c4b"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "cb55b6d98a315f3ec96a5c85c3c64b2bb5ff45b2c2991995781af8b9291890ae"
     },
     "map-default--dark--390x844": {
       "id": "map-default",
@@ -1006,8 +1006,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "1b57a2cb5e69df5594a4111cc8d6db19009b266da7249a1eccc3570515465b68"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "946e7743588ed3631ae5cd0301bcde88ed5aa2ff06c612c7eacb7915a59c4bc7"
     },
     "map-default--dark--760x900": {
       "id": "map-default",
@@ -1023,8 +1023,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "b4fb592a79a45021b5398e950538f428b4538a2c775865048c365149f42e3e94"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "196f36db023abf6b41c275b73330253f6deeca881a0531a20ce237c16911ea73"
     },
     "map-default--light--1120x900": {
       "id": "map-default",
@@ -1040,8 +1040,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "e1209c066001ea77976a679f8515f90d6fbe707ad427ebabb6c641966ba1ac7b"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "147ef3fe84416f4fde348b33de11f7bd37589c90e78c19e5f31e152ecb9b5a57"
     },
     "map-default--light--390x844": {
       "id": "map-default",
@@ -1057,8 +1057,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "e5832de2f7fc49bd6192fa65b7b2d1e6efb647827b0bf7aeb530938929d04f18"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "e0504b002fcd0024f41aefffb705852045d0b0438432994ec4dfd98cd379c710"
     },
     "map-default--light--760x900": {
       "id": "map-default",
@@ -1074,8 +1074,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "804f3edfa47e381b3ec08312bfa2b4b0b8e3bfc40b74a6a8056540c828eea777"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "279f0f5b3d342b9b041096506fe01a22c5968ca4597c66d2d77dca3201a1dee7"
     },
     "map-places--dark--1120x900": {
       "id": "map-places",
@@ -1091,8 +1091,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "d5bd0b922d2bc03f362f5092da997ea2cd5b19109db8c4d48676b14810f27c77"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "10eb26ca5d69183f0d9e9fdb13161c7165f0ecbc108bbf2528180ed9aaa61e0f"
     },
     "map-places--dark--390x844": {
       "id": "map-places",
@@ -1108,8 +1108,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "59d36c1fe1472ef27daedeb6dbaf834281ebea3f947b98cbb73fefa43238a8e7"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "c574d46581f081218f4eb6345643527c0a372a5fa7f9d2a8da83588a3e2f379f"
     },
     "map-places--dark--760x900": {
       "id": "map-places",
@@ -1125,8 +1125,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "77fe7b7f9c1d53d6bf32763b4c9cd379edd9e452403e3457e1913dda078fcf62"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "b9b506085ead126f3c67480525f952d9bc4ce8eb6e0cec1a98ed12f1d317ec5e"
     },
     "map-places--light--1120x900": {
       "id": "map-places",
@@ -1142,8 +1142,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "73e35988eef7d30859e770fe3cf4ed146d7de29efbfe13fd36ac4b510ebf2b94"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "c132b74a7927492fa3cf493c469bfc2fdc8f4bd9d22abf3e373e836439e0d12f"
     },
     "map-places--light--390x844": {
       "id": "map-places",
@@ -1159,8 +1159,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "5d8972a149692c4cf4d2dcaa9fc42ba537b1117dc96fd8a1e0d14ddd3aa6012a"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "de134bed9e6b00bde67ab0fbf551421fa2756379a5d2b24056efa3847e0ce025"
     },
     "map-places--light--760x900": {
       "id": "map-places",
@@ -1176,8 +1176,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "82a795c48c3efa6c8ac3a527c86c868964a158925e236d1d4d29ad3c5f04b05f"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "d5d5716447c4ecf092a151ec72963e178086556f10c0c23f8d57b0a7db4ffb80"
     },
     "map-report--dark--1120x900": {
       "id": "map-report",
@@ -1193,8 +1193,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "ea9ac780e7efd56d18fc1127dd3b13a5725c625a64c5bb7e51edea56c5f60600"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "372db253a7953ed64be37db729c22d6e4848caaa9b595793c04abbb238140e49"
     },
     "map-report--dark--390x844": {
       "id": "map-report",
@@ -1210,8 +1210,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "06898a91e062c06703e07f31c87f2dbd3cefc6d14f7ba052c662d1e4fce3e567"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "5ec138124c3a83f83d53b19d4c575ef8b8c33671b83966b3a7501659231af9b0"
     },
     "map-report--dark--760x900": {
       "id": "map-report",
@@ -1227,8 +1227,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "28bd5295b592646dc3266e5cc3b777aaaddb0e1fede470fbe6695593dc6ba532"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "5f4b1cb181e488471ef413c20bc637715f0848ed9bdb669bed67e5faf908ca28"
     },
     "map-report--light--1120x900": {
       "id": "map-report",
@@ -1244,8 +1244,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "31b88c192db99f81d32db9831d029624a7cbcf213cdf00e2c23768057de85d11"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "2e3a58690990059bad2d77432b1d226a09330c8971ff98560147671a980b8755"
     },
     "map-report--light--390x844": {
       "id": "map-report",
@@ -1261,8 +1261,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "c4ee2f0a1af54b0c51d228e4ff9685014bc4bcdb0a2ea50c9fbdcd632909c585"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "052f3754fed9af429d4eb9371a09399a49f15fb7ecab50de0529ac56c51d6e5a"
     },
     "map-report--light--760x900": {
       "id": "map-report",
@@ -1278,13 +1278,115 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "a88d091f245df0d75f49290da2fac1dc8024ef09521ee5daacdfa2750d580a4e"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "3970aea1473fe3ddd386de49a4bbe197972913753520985fc75a78a4fbf9be5f"
+    },
+    "map-scan-all--dark--1120x900": {
+      "id": "map-scan-all",
+      "surface": "Disk map",
+      "state": "Why card: Scan all 8, the fixed list opened",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "63b54e30f5ec751d35682ed3b2bf0926f7305872eb5d86609a5650d31accf12b"
+    },
+    "map-scan-all--dark--390x844": {
+      "id": "map-scan-all",
+      "surface": "Disk map",
+      "state": "Why card: Scan all 8, the fixed list opened",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "4f92f06279e269e6cd39185b0684c007e314ec139e2bbaaccc54219526289e0d"
+    },
+    "map-scan-all--dark--760x900": {
+      "id": "map-scan-all",
+      "surface": "Disk map",
+      "state": "Why card: Scan all 8, the fixed list opened",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "d47c82d3afbf07a1b8d0701484ae1895d12d05d708560f4638e92c4f067c7e40"
+    },
+    "map-scan-all--light--1120x900": {
+      "id": "map-scan-all",
+      "surface": "Disk map",
+      "state": "Why card: Scan all 8, the fixed list opened",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "209f9005ff78bb7dd4cc0e1aefa525d7fb6f720e746222ba4c7978cb3b17521f"
+    },
+    "map-scan-all--light--390x844": {
+      "id": "map-scan-all",
+      "surface": "Disk map",
+      "state": "Why card: Scan all 8, the fixed list opened",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "44fd7b1fc62f3779873a62f32e1168bf47092c1d6e6db322a12727f8f531f231"
+    },
+    "map-scan-all--light--760x900": {
+      "id": "map-scan-all",
+      "surface": "Disk map",
+      "state": "Why card: Scan all 8, the fixed list opened",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "2d8e3cc73c97678c20834380e9411d25f5a203a3c6026470599fd1090d86c862"
     },
     "map-spot-access--dark--1120x900": {
       "id": "map-spot-access",
       "surface": "Disk map",
-      "state": "Blind spot resolved: access granted, then scanned (the app waits for a scan that can read it)",
+      "state": "Why card: access granted, then scanned (the app waits for a scan that can read it)",
       "theme": "dark",
       "viewport": {
         "width": 1120,
@@ -1295,13 +1397,13 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "e2f3d9e7bb5c351b6c29eb9b0b9c25f62c1f0ecd5ce826ccb7b9d2cb255f1600"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "6f4664319fe5d30e436910826c940dead32dfe8978ee57cf9b2b28b27158dc08"
     },
     "map-spot-access--dark--390x844": {
       "id": "map-spot-access",
       "surface": "Disk map",
-      "state": "Blind spot resolved: access granted, then scanned (the app waits for a scan that can read it)",
+      "state": "Why card: access granted, then scanned (the app waits for a scan that can read it)",
       "theme": "dark",
       "viewport": {
         "width": 390,
@@ -1312,13 +1414,13 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "3b9ca4ed7a0980007d820cc4df4d7fb91bd52ecd19a1d689af76b0ef9f7318e1"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "dc1093e3ddd73a885209d571e10ef5245fd8ea366d565f8b0f5c8b4ff463aaf5"
     },
     "map-spot-access--dark--760x900": {
       "id": "map-spot-access",
       "surface": "Disk map",
-      "state": "Blind spot resolved: access granted, then scanned (the app waits for a scan that can read it)",
+      "state": "Why card: access granted, then scanned (the app waits for a scan that can read it)",
       "theme": "dark",
       "viewport": {
         "width": 760,
@@ -1329,13 +1431,13 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "cce644ae41f3bf08aad9f1e47fb795dbe70bffc3a45fa673effb44567f424eb7"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "72bace734106c0519f3b6e297290977ffbfbca123205be269d719d84f7f804f5"
     },
     "map-spot-access--light--1120x900": {
       "id": "map-spot-access",
       "surface": "Disk map",
-      "state": "Blind spot resolved: access granted, then scanned (the app waits for a scan that can read it)",
+      "state": "Why card: access granted, then scanned (the app waits for a scan that can read it)",
       "theme": "light",
       "viewport": {
         "width": 1120,
@@ -1346,13 +1448,13 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "1dbb2f2a2585bbe69be934393b08151555455b22f56bb2ae778d3b5dc28d9afd"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "6bd8e36faaf422b45e267cb3f2f27145075bd996e55faf651f39fde16e9ac5a9"
     },
     "map-spot-access--light--390x844": {
       "id": "map-spot-access",
       "surface": "Disk map",
-      "state": "Blind spot resolved: access granted, then scanned (the app waits for a scan that can read it)",
+      "state": "Why card: access granted, then scanned (the app waits for a scan that can read it)",
       "theme": "light",
       "viewport": {
         "width": 390,
@@ -1363,13 +1465,13 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "e269b72168c14d5d18f19f89ea1c2649cdce844286f7e496a01b07a8d4755e2a"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "b12fe24c6ecea58fe8e949df66fe98379b9b82de167e04814b69d4f647137d10"
     },
     "map-spot-access--light--760x900": {
       "id": "map-spot-access",
       "surface": "Disk map",
-      "state": "Blind spot resolved: access granted, then scanned (the app waits for a scan that can read it)",
+      "state": "Why card: access granted, then scanned (the app waits for a scan that can read it)",
       "theme": "light",
       "viewport": {
         "width": 760,
@@ -1380,13 +1482,13 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "0a4e6e3853952edb13886cfdac9eb339158b657b93ba9c18c748525491eb4285"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "56f80f1f614f9da89e64f145a74f29e9124d58e34ce55362b385bbeac1eb2353"
     },
     "map-spot-archive--dark--1120x900": {
       "id": "map-spot-archive",
       "surface": "Disk map",
-      "state": "Blind spot resolved: folder scanned",
+      "state": "Why card: ~/archive scanned, one fixed",
       "theme": "dark",
       "viewport": {
         "width": 1120,
@@ -1397,13 +1499,13 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "3a3ec822f67fd2abeb45170e8d09c864dd3bc12ca4324bded24ffe129786a01e"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "0d7abdc505c4146d2dbedb90d8899b27379665b8a7b36edb7b17b562bfd7c6af"
     },
     "map-spot-archive--dark--390x844": {
       "id": "map-spot-archive",
       "surface": "Disk map",
-      "state": "Blind spot resolved: folder scanned",
+      "state": "Why card: ~/archive scanned, one fixed",
       "theme": "dark",
       "viewport": {
         "width": 390,
@@ -1414,13 +1516,13 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "3aad35833ba8c74c2896cb9413f6fb938f6026712630ac17b05251e9262a5d8f"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "50076c4d0cf35d54aa4c4a45e15a97b797d11546c06592011b3afe53af4efdba"
     },
     "map-spot-archive--dark--760x900": {
       "id": "map-spot-archive",
       "surface": "Disk map",
-      "state": "Blind spot resolved: folder scanned",
+      "state": "Why card: ~/archive scanned, one fixed",
       "theme": "dark",
       "viewport": {
         "width": 760,
@@ -1431,13 +1533,13 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "f76ec201afd5a0d7973072a534ef7f64f77a62b2677359199705ea43850092fa"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "42ca26273070881250b2c69b0087099f702406d8cadae7c63e40b4da5160003f"
     },
     "map-spot-archive--light--1120x900": {
       "id": "map-spot-archive",
       "surface": "Disk map",
-      "state": "Blind spot resolved: folder scanned",
+      "state": "Why card: ~/archive scanned, one fixed",
       "theme": "light",
       "viewport": {
         "width": 1120,
@@ -1448,13 +1550,13 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "fbbb82386e7b6713be2919cc67928eb21f2ed49c365341d21b400e13e7d4550a"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "2ac31d360833e5378f28ed0258397c15ec4b8375d7b9bd0718769ccb4705aaeb"
     },
     "map-spot-archive--light--390x844": {
       "id": "map-spot-archive",
       "surface": "Disk map",
-      "state": "Blind spot resolved: folder scanned",
+      "state": "Why card: ~/archive scanned, one fixed",
       "theme": "light",
       "viewport": {
         "width": 390,
@@ -1465,13 +1567,13 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "2345d3d6092493830c2f4f8f983d5f384799e0bfda4623820796d4f36540f691"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "1233391cab22185c1a8f85c2c9cb2a815ddb571802cc1fe65d9dac88460dc57d"
     },
     "map-spot-archive--light--760x900": {
       "id": "map-spot-archive",
       "surface": "Disk map",
-      "state": "Blind spot resolved: folder scanned",
+      "state": "Why card: ~/archive scanned, one fixed",
       "theme": "light",
       "viewport": {
         "width": 760,
@@ -1482,13 +1584,115 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "0adb55ff2507b4f6552d58a31d1617d677902cded36b7df1350b014db2932665"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "1a035b514ece7c8b5fea2be3c01e52f2085a0530e40229c3d085331a5fdd03d0"
+    },
+    "map-spot-comfy--dark--1120x900": {
+      "id": "map-spot-comfy",
+      "surface": "Disk map",
+      "state": "Why card: ~/ComfyUI-Installs scanned; its checkpoints appear under AI models",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "6531ca781824c1ee297b42fb0b2125134a67f4fd987da920a4217c8f1a65ce1a"
+    },
+    "map-spot-comfy--dark--390x844": {
+      "id": "map-spot-comfy",
+      "surface": "Disk map",
+      "state": "Why card: ~/ComfyUI-Installs scanned; its checkpoints appear under AI models",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "497a9c1778e713d82ea333a132bccfd6a0b52dcb1d48b326412a25147368fe4f"
+    },
+    "map-spot-comfy--dark--760x900": {
+      "id": "map-spot-comfy",
+      "surface": "Disk map",
+      "state": "Why card: ~/ComfyUI-Installs scanned; its checkpoints appear under AI models",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "b47185b961849bf17c81119b5a7cd7526eac4ca55b0b78f0b332ac10930d95a0"
+    },
+    "map-spot-comfy--light--1120x900": {
+      "id": "map-spot-comfy",
+      "surface": "Disk map",
+      "state": "Why card: ~/ComfyUI-Installs scanned; its checkpoints appear under AI models",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "f523e224bbdfbd76cb5bebfbe45049e76ff3abfd6696b0c11a3dd0e53ab0cf9c"
+    },
+    "map-spot-comfy--light--390x844": {
+      "id": "map-spot-comfy",
+      "surface": "Disk map",
+      "state": "Why card: ~/ComfyUI-Installs scanned; its checkpoints appear under AI models",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "128471864af50dded98018b3313c266c03445d9aaf1abc4177fc6d88dc3f8617"
+    },
+    "map-spot-comfy--light--760x900": {
+      "id": "map-spot-comfy",
+      "surface": "Disk map",
+      "state": "Why card: ~/ComfyUI-Installs scanned; its checkpoints appear under AI models",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "b85bdb1709fe6d0364a983083ea314de0215b2376779936ffd613ce3432117f0"
     },
     "map-spot-mystery--dark--1120x900": {
       "id": "map-spot-mystery",
       "surface": "Disk map",
-      "state": "Blind spot resolved: files marked as mine",
+      "state": "Why card: files marked as mine",
       "theme": "dark",
       "viewport": {
         "width": 1120,
@@ -1499,13 +1703,13 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "e9546be3287ca5e22b016cce32f1b650fb7a8856480a9ab3497771ed6022f4c8"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "f3825566af662ae3c3204411bc1358a3454afb5af9017ced5bc19cd1f5aa3335"
     },
     "map-spot-mystery--dark--390x844": {
       "id": "map-spot-mystery",
       "surface": "Disk map",
-      "state": "Blind spot resolved: files marked as mine",
+      "state": "Why card: files marked as mine",
       "theme": "dark",
       "viewport": {
         "width": 390,
@@ -1516,13 +1720,13 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "d6a061dbc2491fa62265c2bfb916fbe3b58fc1310977baa29a21c073807adaf4"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "7f36c970142f951f42db6b6120bdbdc6f792933123af1e77335a61d08ec4042d"
     },
     "map-spot-mystery--dark--760x900": {
       "id": "map-spot-mystery",
       "surface": "Disk map",
-      "state": "Blind spot resolved: files marked as mine",
+      "state": "Why card: files marked as mine",
       "theme": "dark",
       "viewport": {
         "width": 760,
@@ -1533,13 +1737,13 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "25c34d25872a1d4e98ac42dfb55ac1383b3d3357493a0a45e2f237b2e5fda916"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "4ad1042c3e704f300eb234d3aa32fa2b3a22b4a6e552bfd6ac0dd6d4a09383ad"
     },
     "map-spot-mystery--light--1120x900": {
       "id": "map-spot-mystery",
       "surface": "Disk map",
-      "state": "Blind spot resolved: files marked as mine",
+      "state": "Why card: files marked as mine",
       "theme": "light",
       "viewport": {
         "width": 1120,
@@ -1550,13 +1754,13 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "ca63dce609071f3de2b6435fac8b8e22c9a889e7cbbbc54481633809a60d69f0"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "f5a4cf824909669636c75b188182439d44828b2bda8a0a60be63aaf4860385ea"
     },
     "map-spot-mystery--light--390x844": {
       "id": "map-spot-mystery",
       "surface": "Disk map",
-      "state": "Blind spot resolved: files marked as mine",
+      "state": "Why card: files marked as mine",
       "theme": "light",
       "viewport": {
         "width": 390,
@@ -1567,13 +1771,13 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "c058a7fefabf909aa24f8ad80132f56d3642221894bb45dac4ecd134b0dbff97"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "156d15c13e69e053d8812b3ef0d03284cfe166ba50eb0b4b3fee5af2f9120870"
     },
     "map-spot-mystery--light--760x900": {
       "id": "map-spot-mystery",
       "surface": "Disk map",
-      "state": "Blind spot resolved: files marked as mine",
+      "state": "Why card: files marked as mine",
       "theme": "light",
       "viewport": {
         "width": 760,
@@ -1584,13 +1788,115 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "cc28ad5f3652e8d7e7f1b23cfae84f6889db9160c85e44fdeae24430ff5a7b76"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "3c8aea8e5158d41a758ae61c78ad6b91dda73c7691dd03b918d80b1e64ceb111"
+    },
+    "map-spot-skip--dark--1120x900": {
+      "id": "map-spot-skip",
+      "surface": "Disk map",
+      "state": "Why card: ~/vms skipped (counted as your files)",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "fbac867a60eddd292ea3ccde674689f2a35b25238cdf635d7b0ce73eb1e2ec48"
+    },
+    "map-spot-skip--dark--390x844": {
+      "id": "map-spot-skip",
+      "surface": "Disk map",
+      "state": "Why card: ~/vms skipped (counted as your files)",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "83fc234abf14e46bbd591b8ec46dddbda8083bdeae45dcb9713b91c09aaefc0b"
+    },
+    "map-spot-skip--dark--760x900": {
+      "id": "map-spot-skip",
+      "surface": "Disk map",
+      "state": "Why card: ~/vms skipped (counted as your files)",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "6365d03fac182739cecb1807eda000b31f6482e86436cf54cd33e9c24cc36eed"
+    },
+    "map-spot-skip--light--1120x900": {
+      "id": "map-spot-skip",
+      "surface": "Disk map",
+      "state": "Why card: ~/vms skipped (counted as your files)",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "c2b836a58c5e3e5c426454eb4138a0b25e47325971f7853326a4fab03ca3c7dc"
+    },
+    "map-spot-skip--light--390x844": {
+      "id": "map-spot-skip",
+      "surface": "Disk map",
+      "state": "Why card: ~/vms skipped (counted as your files)",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "b50e59b11bfaad05ad1beceba2646ce41361adfad12af0e1fb28b200101688e9"
+    },
+    "map-spot-skip--light--760x900": {
+      "id": "map-spot-skip",
+      "surface": "Disk map",
+      "state": "Why card: ~/vms skipped (counted as your files)",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "68d7b36aec77e73afc89d5657b89de6d4f809793f427ef0a54491e1199451931"
     },
     "map-spots-all--dark--1120x900": {
       "id": "map-spots-all",
       "surface": "Disk map",
-      "state": "Every blind spot resolved: Not explained is gone, Your files selected",
+      "state": "Every fixable blind spot resolved, Your files selected",
       "theme": "dark",
       "viewport": {
         "width": 1120,
@@ -1601,13 +1907,13 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "495a444126fc54118a18685a57bcf336145b88c2346bd01b8e657e248b8b6116"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "845d7acf66d993b48d13aaf794e8988d27e089e59df6b99facc5a5f56ec1babc"
     },
     "map-spots-all--dark--390x844": {
       "id": "map-spots-all",
       "surface": "Disk map",
-      "state": "Every blind spot resolved: Not explained is gone, Your files selected",
+      "state": "Every fixable blind spot resolved, Your files selected",
       "theme": "dark",
       "viewport": {
         "width": 390,
@@ -1618,13 +1924,13 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "675bda290f37ce99d35f26ca3afe65221aaf4caa618438bd76ab0a6073aec4fc"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "2d1698e92465fcf996ca85dee9c0e0a4937b437853f4354a071a6bd95c55a772"
     },
     "map-spots-all--dark--760x900": {
       "id": "map-spots-all",
       "surface": "Disk map",
-      "state": "Every blind spot resolved: Not explained is gone, Your files selected",
+      "state": "Every fixable blind spot resolved, Your files selected",
       "theme": "dark",
       "viewport": {
         "width": 760,
@@ -1635,13 +1941,13 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "1c81a338ccff4beac5367749b1b26640746e0ecf3fd5b628d7b3a070aa1b6422"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "1e9a2c6f4dff739a76504a423abf6f6abd3d70984ce45b3f5ffdf95a730ece2f"
     },
     "map-spots-all--light--1120x900": {
       "id": "map-spots-all",
       "surface": "Disk map",
-      "state": "Every blind spot resolved: Not explained is gone, Your files selected",
+      "state": "Every fixable blind spot resolved, Your files selected",
       "theme": "light",
       "viewport": {
         "width": 1120,
@@ -1652,13 +1958,13 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "8ece6ebe7000e8e2111d00b83318e51a2bfec9a7c947af18058943bcb92c32f7"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "61620d7e3c0690480c2a33b113d85838026459da9dfd77c1a706f9c98111251a"
     },
     "map-spots-all--light--390x844": {
       "id": "map-spots-all",
       "surface": "Disk map",
-      "state": "Every blind spot resolved: Not explained is gone, Your files selected",
+      "state": "Every fixable blind spot resolved, Your files selected",
       "theme": "light",
       "viewport": {
         "width": 390,
@@ -1669,13 +1975,13 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "80a4298dc83acfdbb0750ebe098113a11748baa9a3af3485756984d02bb84c62"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "8e9ef048e1fca82b3c37bb6f0f83ef1c8c38107a55732ce32275288f398da85b"
     },
     "map-spots-all--light--760x900": {
       "id": "map-spots-all",
       "surface": "Disk map",
-      "state": "Every blind spot resolved: Not explained is gone, Your files selected",
+      "state": "Every fixable blind spot resolved, Your files selected",
       "theme": "light",
       "viewport": {
         "width": 760,
@@ -1686,8 +1992,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "42f377c40ccd2fff5d95de34646afee28762f98e1dabd4c80cf34e978c361e33"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "29100c012e4b2dbde8393c7784d67e1bc1495d8684a02bfe78a728bb9ed68af5"
     },
     "map-tile-apps--dark--1120x900": {
       "id": "map-tile-apps",
@@ -1703,8 +2009,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "b8bdaa0b3479920419408c458ea2800f93a5817d0c1a5add2287663f4d390c00"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "974c52f07ba835d849dd2697c4c97328432c48a3b3570ed5473b5899b11fdf84"
     },
     "map-tile-apps--dark--390x844": {
       "id": "map-tile-apps",
@@ -1720,8 +2026,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "52dc8d6543b761e306f8a54f78f9b6748802bd4491bb3cbe902a0efc1198aaec"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "7b42e9699aa0a67e0b1320d961d19f91166f6a344c6f1a5838947c853e1371f8"
     },
     "map-tile-apps--dark--760x900": {
       "id": "map-tile-apps",
@@ -1737,8 +2043,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "a35ce14edabc7a84a252bd2e196689f3f7b993b8a303b3903c081e4d58410718"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "83c9a5e643a12dde1fd77c3e9f5a38e84fabf900e8aa95115cadb1a092e0c9dd"
     },
     "map-tile-apps--light--1120x900": {
       "id": "map-tile-apps",
@@ -1754,8 +2060,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "f1c638f3ff850b56e272456dd8b23443385dde3ea7e24d26fc9145101e42a068"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "e29251324d2afdf3349862bf94bce9929b1b7e942963ec05f4ad95f32ffca277"
     },
     "map-tile-apps--light--390x844": {
       "id": "map-tile-apps",
@@ -1771,8 +2077,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "47a1356e413bf5766bc5d6e102c1dd730e89daaaf1383a5f35d9db2fdf76f656"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "05eb3e6d00b7186be8bb839e5a950b245b9ea27c56d37be5cc1d66c4addd4e6c"
     },
     "map-tile-apps--light--760x900": {
       "id": "map-tile-apps",
@@ -1788,8 +2094,110 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "346ae65cfa123e1530debe692384cf504945e2e85afebc4603b34214a89ef495"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "b9d7b64b4c280b9583adb03cddda372f3dbfa9e5f3822fd0c28adc7e0aef524a"
+    },
+    "map-tile-browser--dark--1120x900": {
+      "id": "map-tile-browser",
+      "surface": "Disk map",
+      "state": "Disk map, browser selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "5b5eff2ccea894f2a37c023647907a9157636e11e462a7a8b2994d2e013003e3"
+    },
+    "map-tile-browser--dark--390x844": {
+      "id": "map-tile-browser",
+      "surface": "Disk map",
+      "state": "Disk map, browser selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "21f24bfd019c79d1b691ef79b46bbc84cc173534ffd96e83d8c371ff3fac8456"
+    },
+    "map-tile-browser--dark--760x900": {
+      "id": "map-tile-browser",
+      "surface": "Disk map",
+      "state": "Disk map, browser selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "d3f09b8db83c6e63cd294eacb069643364baed98e8d435737ea3e5c9a2e97506"
+    },
+    "map-tile-browser--light--1120x900": {
+      "id": "map-tile-browser",
+      "surface": "Disk map",
+      "state": "Disk map, browser selected",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "32da9fdf90a73fec6a56c25c032be6d0eefdcf9be892d39b18a713c7dddaedae"
+    },
+    "map-tile-browser--light--390x844": {
+      "id": "map-tile-browser",
+      "surface": "Disk map",
+      "state": "Disk map, browser selected",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "f4ee35374ccd680c0eb952558e8ffcefe9e75c3c01f56b4bd241495fa1a06b8c"
+    },
+    "map-tile-browser--light--760x900": {
+      "id": "map-tile-browser",
+      "surface": "Disk map",
+      "state": "Disk map, browser selected",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "316c0fa8919b3c91a30b2f20452712326a90f6194822b6de1f54291917a6c779"
     },
     "map-tile-caches--dark--1120x900": {
       "id": "map-tile-caches",
@@ -1805,8 +2213,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "8794d0b2358172f409cb5861d3ee25d853bcbb0f02ab191bbdf6cbf9888cc038"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "83691d0884560ac0417017d5e1d563e1e714cab0ecc2bbf476fd51059c19afa4"
     },
     "map-tile-caches--dark--390x844": {
       "id": "map-tile-caches",
@@ -1822,8 +2230,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "8b34181097a7fc24185c0c4439b1e74b03455638346a30ceb61c555c1b8432e4"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "893379cf25c84e61e1c8746ca2dd3de56422373622ea28d1f5e3fa93565464b8"
     },
     "map-tile-caches--dark--760x900": {
       "id": "map-tile-caches",
@@ -1839,8 +2247,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "a72b6f4af120d0dd3cf715a888aa1d465c86361784bdb5ebc805abcea708b809"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "3d5df5bceea3d22423c4e87994031ccd6b4cd560548ec60fed2b131c2b30f320"
     },
     "map-tile-caches--light--1120x900": {
       "id": "map-tile-caches",
@@ -1856,8 +2264,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "d7db67ee30e10ba6753f1358ef9d35571c93c09f2c2c318a0f8b6b4f1ef14f22"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "41677c64ef28da11d71d7056c1dc08360105b4ae180061cb1fcb158ff3a331fe"
     },
     "map-tile-caches--light--390x844": {
       "id": "map-tile-caches",
@@ -1873,8 +2281,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "37db73b8faaea9b14d5f2a6717eee22ccbbfc59192253e6e5ab4bfc6dbd52328"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "a20ca4338b7fd034d26de6f9fd55171dbcfaa054ef7ec545d09a780bdaf38b3e"
     },
     "map-tile-caches--light--760x900": {
       "id": "map-tile-caches",
@@ -1890,8 +2298,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "2452fae5c6d1114d5e3ce531bbce1e90decd2c3ec741665fb041b8517c13879f"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "051e5ad93396e5e3c5caac6a2df3ea8c30df28e4deab46f8f7ecee7c3d910f98"
     },
     "map-tile-docker--dark--1120x900": {
       "id": "map-tile-docker",
@@ -1907,8 +2315,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "7b6c483db1989d3996cbd80753671c931878bbb88e7905b0f0d9620a1a5edc0d"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "c7561c98e024b80b87c1d20b86b016ac6c6717ebd561e271aa7d8bdd83b147bd"
     },
     "map-tile-docker--dark--390x844": {
       "id": "map-tile-docker",
@@ -1924,8 +2332,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "45eaddc78b0cb42867bdedab7f1a284c6737c3a9502f7a46d9b79164096ff34f"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "465bcc3ae861b13c0dbef3ec8d56ed0ddb61f1bd186c4e2a9049c2d106e23f5f"
     },
     "map-tile-docker--dark--760x900": {
       "id": "map-tile-docker",
@@ -1941,8 +2349,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "b976ebcb2421687bbbd5647816dc1624b5acedae2e2936106da8ab28a55783ef"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "d79fc9e2b64c4bc9bbad225ae316a60f9e6b43d9ff38655f6ffc865dae8125ec"
     },
     "map-tile-docker--light--1120x900": {
       "id": "map-tile-docker",
@@ -1958,8 +2366,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "3e16db9dbb4461aa1abc0e91532b9bbdfc3b3a6aad4712573bd1b284b38fedf2"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "8c05c5a4b55c26dd99c00fb937b792cd910baa4fe6ec7e00779f5c0f6d147111"
     },
     "map-tile-docker--light--390x844": {
       "id": "map-tile-docker",
@@ -1975,8 +2383,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "3d039fbe5ef835c4298446b366bd34b1e489dd0507c6b86275a4a1ce8e4b3562"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "58a529604a337eb7f4bf23cdb944656e651f6af457a3485f5fe037900f0f2445"
     },
     "map-tile-docker--light--760x900": {
       "id": "map-tile-docker",
@@ -1992,8 +2400,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "6582d34073d3c7108ef1cd44632b1da721c494094c61e40fbe0f6605e46efd5a"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "9c03f14219c87a5af83ea3bce20e95ee39225c52047699d6e1019b1c5676245b"
     },
     "map-tile-files--dark--1120x900": {
       "id": "map-tile-files",
@@ -2009,8 +2417,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "af95492d9c86ac4a19b25c347cfecd93bc3108e5ba75fe3fc75586ad93681404"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "1e4ac92f63f965af5cb220239c6e5b8e39c0d0c06c32cb5dc4ee37bff78d908d"
     },
     "map-tile-files--dark--390x844": {
       "id": "map-tile-files",
@@ -2026,8 +2434,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "dedbc44d9d34ffc2cc86613f2384c8e7eb204a3ae1904bed25958dbaacda8b66"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "35f5ee37459b4a85e24efb75adbe2619680abb84d1e7da87799f37810f82de56"
     },
     "map-tile-files--dark--760x900": {
       "id": "map-tile-files",
@@ -2043,8 +2451,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "b459cd7b1281e2cf665ec842f82b8c25601ee32ae28f12f18b5565e37879dbff"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "208c27bba4a9358235011f15f7b211201aff93fe849c20863e13b064fcaa2b1c"
     },
     "map-tile-files--light--1120x900": {
       "id": "map-tile-files",
@@ -2060,8 +2468,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "d83cd539363e78e291f3b1ce90fb7144e6a04af6e5144933cb91463461acdc2f"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "ac22a78ccc89731bfc2576c0963ed5f341b8b34d498400fc63edfdd2bdf55752"
     },
     "map-tile-files--light--390x844": {
       "id": "map-tile-files",
@@ -2077,8 +2485,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "614884031a0a9ab6545c2fb75f57c6957cf9176f03d56f164137f3ba0908559e"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "d7dd68fe1e870c450cd5de5b6f51f0e49a9e47efad779242b6d28d9c9a4ff948"
     },
     "map-tile-files--light--760x900": {
       "id": "map-tile-files",
@@ -2094,8 +2502,110 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "df68cd4aab9c903213367cd2b324c52cace60d5118b212dba4413376ab96656e"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "a4e7855b0a1fe24ed62e8cacfafc17554da775fef2ba0b4d5fca3c860602e7e6"
+    },
+    "map-tile-fonts--dark--1120x900": {
+      "id": "map-tile-fonts",
+      "surface": "Disk map",
+      "state": "Disk map, fonts selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "5fe0e9722e5129a15f68271342a7eb899c07fc89477c3eeab1a1430d376e63d7"
+    },
+    "map-tile-fonts--dark--390x844": {
+      "id": "map-tile-fonts",
+      "surface": "Disk map",
+      "state": "Disk map, fonts selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "88c9e0732bb39dad1e4b2da6c5f1b58439ab3f08d2099a2e08e490a2b4553a9d"
+    },
+    "map-tile-fonts--dark--760x900": {
+      "id": "map-tile-fonts",
+      "surface": "Disk map",
+      "state": "Disk map, fonts selected",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "2a6e980a7197e0b94a8b904b0c11d11297490e67fa3e9cbb6750af831a8711ab"
+    },
+    "map-tile-fonts--light--1120x900": {
+      "id": "map-tile-fonts",
+      "surface": "Disk map",
+      "state": "Disk map, fonts selected",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "53ed77914b8e0005e4bf922afb8ef83ed5197ea3e883cf4a3e84293feb3bdebe"
+    },
+    "map-tile-fonts--light--390x844": {
+      "id": "map-tile-fonts",
+      "surface": "Disk map",
+      "state": "Disk map, fonts selected",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "ba30ab35f5b8815093f30c10ef5ea0796001e8df142ba4c18cf838a58905221a"
+    },
+    "map-tile-fonts--light--760x900": {
+      "id": "map-tile-fonts",
+      "surface": "Disk map",
+      "state": "Disk map, fonts selected",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "74490f958d3bf3681752f16edf48dbca26b7d21aa82a4d6322812147dceac63c"
     },
     "map-tile-mobile--dark--1120x900": {
       "id": "map-tile-mobile",
@@ -2111,8 +2621,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "618b937ee75d2d3abe43d489a3eb97701d29fd572ac9b884219e9da411485b63"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "e50c8cb077b9cebd95648937f02e4dfa6f74cc4e0ab9f6cf187c74a33ef79617"
     },
     "map-tile-mobile--dark--390x844": {
       "id": "map-tile-mobile",
@@ -2128,8 +2638,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "e6e8e88fceaf1e791b346fc1c52c602be87e0e28a6f01cf5b1bbe44728f62556"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "a11a314508da22139ca0ae702b41a62214fbc6f0cb00dedc39f6832b1f2e7f79"
     },
     "map-tile-mobile--dark--760x900": {
       "id": "map-tile-mobile",
@@ -2145,8 +2655,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "fe346fd64a1a799997a1b3cc08e781fac8ffafad3d99228c37349cc2240294db"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "e938f95d5491340fbc4cad07a9e980149667d40336daf3a8bb90bee08b090211"
     },
     "map-tile-mobile--light--1120x900": {
       "id": "map-tile-mobile",
@@ -2162,8 +2672,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "5a1960d298989ca0ce22eca51030c2f66c88a6f0e4e08df6d21fc5eb866a0b24"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "06106d3b5666dfaa2c6f6eb231beedc66152ebfeb3dd3dafa74bd3d4b83df038"
     },
     "map-tile-mobile--light--390x844": {
       "id": "map-tile-mobile",
@@ -2179,8 +2689,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "670f8c3ddb76e44bb7cb7117010aa4638612268a416cc172dda78e098d0d25f2"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "3efbf1b6c9c34265407813cb1f5acf90c835d4044efc3331f712567e77efbf4a"
     },
     "map-tile-mobile--light--760x900": {
       "id": "map-tile-mobile",
@@ -2196,8 +2706,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "e92679455d83d962e2cf36c1428bbd952277ff7e51fbd5abfe8394ce169a70ea"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "7765cd3319aa74e6620d7559efb2ec90cb72d6ee2ae253aa2300efcb050499d4"
     },
     "map-tile-projects--dark--1120x900": {
       "id": "map-tile-projects",
@@ -2213,8 +2723,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "30b3732370337b1a1cb2c0001aba3366562e3bcb3c8795662e4aff319b4e0d16"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "3e11376fc782c296f16f0d60bf2b13eec56641628dd02036bc87d2aa044cddf8"
     },
     "map-tile-projects--dark--390x844": {
       "id": "map-tile-projects",
@@ -2230,8 +2740,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "edf6219fe6fddbde744fa98c56efc94deec309e96aea9e92bb501d6ad1774c73"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "187c03c7ef2206dec8682419a0fad93d1ce5ba315da8df8e9c529c7e08634983"
     },
     "map-tile-projects--dark--760x900": {
       "id": "map-tile-projects",
@@ -2247,8 +2757,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "5c977d61d62f30126ac65c762cf1a702fe328cb40ebc2b37928672940210339d"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "3a152b02e41946aa9c6f3d010a873e55d1bdca1ffbdbba1e6108f40c4309d7b9"
     },
     "map-tile-projects--light--1120x900": {
       "id": "map-tile-projects",
@@ -2264,8 +2774,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "302de7329652b37ea98de807145b00f291578c7e851451c467132d400a9400c8"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "8b009771d202cab8981f5122271af295a989c9c6d1d89554fba438eb7976bff5"
     },
     "map-tile-projects--light--390x844": {
       "id": "map-tile-projects",
@@ -2281,8 +2791,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "70b8d5c869e912d5bbd8af5528de0aeefe19532902907120cd9ec205d0f00291"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "648dd20d549ce6303a7753abfd84f921ff8cc4a6930fa36ad2405fa985934fc8"
     },
     "map-tile-projects--light--760x900": {
       "id": "map-tile-projects",
@@ -2298,8 +2808,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "0a0338ad1fefdc5ff488e57cccbdddfacedc307f0ce9214c148fb6ef093bc088"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "ce3128ba6f00d91fabc5bfcdf0a1ded7c37c1374b5b851803e57a8d3473663d8"
     },
     "map-tile-system--dark--1120x900": {
       "id": "map-tile-system",
@@ -2315,8 +2825,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "175a87fa1ca4e9aa6f53b0d601429d3d030a03beba7a1358ac6989d3e38bf477"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "a38f3e97207be6205e0a19fdaf9d7b4ceac1b66f7b95aa3e807a8cf9160872c8"
     },
     "map-tile-system--dark--390x844": {
       "id": "map-tile-system",
@@ -2332,8 +2842,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "0a3089a559ebe0299f1d1630c192436ad9a6990588a1069483f30ecb08f1b669"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "5516d4ccaad74424db4e7fa415214568fd34c1122aade33e1c79d795c0c698bd"
     },
     "map-tile-system--dark--760x900": {
       "id": "map-tile-system",
@@ -2349,8 +2859,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "fc3d0bedcb4898a3e7fcc6722de610b0604a6ad7f59e7b700ee0abee24c98751"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "ce3f19c03f8d5e3cca9e50981d87f3b4c4e15a3304516372e95ea1b162d70190"
     },
     "map-tile-system--light--1120x900": {
       "id": "map-tile-system",
@@ -2366,8 +2876,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "cc7efc51d937773a81699fbda8168888df093ed6b2a09283b58b175da9b24985"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "bca0a1740e12b4c5e6faf08f55c6ef2a731669981eaa5997e6f3d285ff6ae66b"
     },
     "map-tile-system--light--390x844": {
       "id": "map-tile-system",
@@ -2383,8 +2893,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "3e88b9c45cdf93643f468576012e1276ed275ddedb4c2a86393ca62ca1a268da"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "141d1bb67e893ade20ceff0de1f92ef41bbb9fb7d1362473c078190dccf0cf28"
     },
     "map-tile-system--light--760x900": {
       "id": "map-tile-system",
@@ -2400,8 +2910,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "73369482f8af013db50cee28ef7d9d0541ec9a8ce1086639e4f9cd1f85b4581d"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "94659e6eda535901f1d39f9353abdcf1f9910dd8ca39edfaba057ab42decc84a"
     },
     "map-tile-unknown--dark--1120x900": {
       "id": "map-tile-unknown",
@@ -2417,8 +2927,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "be431e18369905c76ce8a66402b454908c1ab15122b6c0cd0526ab78ec3b3962"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "6e627e42a18d41083f9e96981331bffca27e7971840749ecfb581971f559902b"
     },
     "map-tile-unknown--dark--390x844": {
       "id": "map-tile-unknown",
@@ -2434,8 +2944,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "8504bb552be8092a169ceefdecaf30eb1c09e07c40afec0fadf0970a2a7b90a8"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "c38df55526159d67804273d6910d20e6f7d26a717c9aa5255061b3ce6ed78d7d"
     },
     "map-tile-unknown--dark--760x900": {
       "id": "map-tile-unknown",
@@ -2451,8 +2961,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "1036030b7e2d4667eb94440d7fd065fd5bf5ef320fa6563cc39d4d26898be0a0"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "bfd24dd7e4f5eb4a46f54f138c77b8fd44acc9d5ee2dd07e03c8eaff10587ade"
     },
     "map-tile-unknown--light--1120x900": {
       "id": "map-tile-unknown",
@@ -2468,8 +2978,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "705e0ddf211a55ad6418e40b398bb2a6eb1145344baeed805e534b6fe8e6b877"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "54b166246fcfc3015af4d59757faf3a10a0cc49d2e4d96d6c1516a7e5228cc71"
     },
     "map-tile-unknown--light--390x844": {
       "id": "map-tile-unknown",
@@ -2485,8 +2995,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "72064a1c80b615818b345134ce8608f6cf4ab19396243967dd09ab4f00d11da2"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "80c85abb48e08b9399aba228374107f31cc2e61a7348d223569ab19596f1f5af"
     },
     "map-tile-unknown--light--760x900": {
       "id": "map-tile-unknown",
@@ -2502,8 +3012,110 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "5bbfd2acdfc0c443ed85bee2ee5db98ec4faf79f19a5a522b5b55bdd7aeda029"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "3aa65bdde4512ecbddb0ca7f592b6e56ee61cf306b07d1dc1bafc7cde25b3562"
+    },
+    "map-why-more--dark--1120x900": {
+      "id": "map-why-more",
+      "surface": "Disk map",
+      "state": "Why card: Show 4 more folders",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "5b1d62c71b027f4ded6ad41b854c3948e76c6c8cd0836af04033b37c6a9e71b0"
+    },
+    "map-why-more--dark--390x844": {
+      "id": "map-why-more",
+      "surface": "Disk map",
+      "state": "Why card: Show 4 more folders",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "4a6495e7814b9ac87dd85b77f3ed43ed6c93482eedf3c7197806bcc278364bd5"
+    },
+    "map-why-more--dark--760x900": {
+      "id": "map-why-more",
+      "surface": "Disk map",
+      "state": "Why card: Show 4 more folders",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "1bb03d844bd9e95e83dd779b07f662c05c38c145adbb26c75ddf2e167b57280a"
+    },
+    "map-why-more--light--1120x900": {
+      "id": "map-why-more",
+      "surface": "Disk map",
+      "state": "Why card: Show 4 more folders",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "ad42b3c911e870a7f93d9256be44237be5dc80e3dc7cfbc6abdffea594d96e56"
+    },
+    "map-why-more--light--390x844": {
+      "id": "map-why-more",
+      "surface": "Disk map",
+      "state": "Why card: Show 4 more folders",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "9e701f57c349274a9136fab36ca46373efd9d3e091848527c27dc57754977c5a"
+    },
+    "map-why-more--light--760x900": {
+      "id": "map-why-more",
+      "surface": "Disk map",
+      "state": "Why card: Show 4 more folders",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "b7370eb6d98aae993b678727645dc888b0e7143cc9525e96e0fb431c02dae76e"
     },
     "settings-sheet--dark--1120x900": {
       "id": "settings-sheet",

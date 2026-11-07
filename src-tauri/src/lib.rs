@@ -379,6 +379,7 @@ mod shell {
                 crate::commands::get_disk_map,
                 crate::commands::get_blind_spots,
                 crate::commands::resolve_blind_spot,
+                crate::commands::resolve_blind_spots,
                 crate::commands::get_places_checked,
                 crate::commands::get_growth,
                 crate::commands::create_disk_report,

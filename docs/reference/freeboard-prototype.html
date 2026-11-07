@@ -289,6 +289,49 @@ details > summary { cursor: pointer; font-weight: 800; }
 .tile.tiny i, .tile.tiny b { display: none; } .tile i { font-style: normal; }
 .tile.flat span { display: flex; flex-wrap: wrap; align-items: center; gap: 0 8px; padding-block: 0; }
 .detail-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding: 6px 0; border-top: 2px dotted var(--line); font-size: 14px; }
+.why { gap: 12px; }
+.why .lede { font-size: 13.5px; color: var(--muted); margin-top: -6px; }
+.wbar { display: flex; height: 16px; border-radius: 99px; overflow: hidden; background: var(--soft); gap: 2px; }
+.wbar i { display: block; height: 100%; background: var(--c); }
+.wbar i.stripes, .sw.stripes { background: repeating-linear-gradient(135deg, #FFE3A8 0 5px, #FFF3D6 5px 10px); }
+.cause { display: flex; flex-direction: column; gap: 8px; padding-top: 12px; border-top: 2px dotted var(--line); }
+.cause-head { display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; gap: 4px 10px; align-items: baseline; }
+.cause-head .sw { width: 14px; height: 14px; border-radius: 4px; background: var(--c); align-self: center; }
+.cause-head b { font-size: 15px; }
+.cause-head .num { font-weight: 800; }
+.cause-head p { grid-column: 2 / -1; font-size: 13px; color: var(--muted); margin: 0; }
+.fix { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 10px; align-items: center; background: var(--soft); border-radius: 12px; padding: 8px 10px; margin-left: 24px; }
+.fix .lbl { min-width: 0; font-size: 13.5px; font-weight: 700; overflow-wrap: anywhere; }
+.fix .lbl.mono { font-weight: 500; }
+.fix .lbl small { display: block; color: var(--muted); font-family: var(--body); font-weight: 600; font-size: 12px; }
+.fix .acts { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; }
+.fix.done { background: transparent; border: 2px solid var(--line); grid-template-columns: 18px minmax(0, 1fr); }
+.fix.done svg { width: 18px; height: 18px; }
+.fix.done span { font-size: 13px; color: var(--muted); font-weight: 600; }
+.why-foot { font-size: 13px; color: var(--muted); }
+.fix-list { display: flex; flex-direction: column; border-radius: 12px; background: var(--soft); padding: 2px 10px; margin-left: 24px; }
+.fix-list .fix { background: none; border-radius: 0; margin: 0; padding: 7px 0; grid-template-columns: minmax(0, 1fr) auto auto; border-top: 1px solid var(--line); }
+.fix-list .fix:first-child { border-top: 0; }
+.fix-list .fix.wide { grid-template-columns: minmax(0, 1fr) auto; }
+.fix-list .fix.wide .acts { grid-column: 1 / -1; }
+.fix-list .fix .acts { grid-column: auto; flex-wrap: nowrap; }
+.fix .sz { font-weight: 800; font-size: 13.5px; }
+.fix-more { margin: 2px 0 6px; align-self: flex-start; }
+.cause-head .bulk { grid-column: 2 / -1; justify-self: start; padding: 5px 12px; font-size: 13.5px; margin-top: 4px; }
+.cause.cleared .cause-head b { color: var(--muted); }
+.fixed-list { margin-left: 24px; font-size: 13px; color: var(--muted); }
+.fixed-list summary { display: inline-flex; gap: 6px; align-items: center; cursor: pointer; font-weight: 800; color: var(--safe); }
+.fixed-list summary svg { width: 16px; height: 16px; }
+.fixed-list p { margin: 4px 0 0; overflow-wrap: anywhere; }
+@media (max-width: 460px) { .fix-list .fix { grid-template-columns: minmax(0, 1fr) auto; } .fix-list .fix .acts { grid-column: 1 / -1; } .fix-list, .fixed-list { margin-left: 0; } }
+.allclear { display: flex; gap: 10px; align-items: center; font-weight: 800; color: var(--safe); }
+.small-areas { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); }
+.small-areas button { display: inline-flex; align-items: center; gap: 6px; border: 2px solid var(--line); background: var(--card); border-radius: 999px; padding: 2px 10px 2px 7px; font-weight: 800; font-size: 13px; color: var(--ink); }
+.small-areas button[aria-pressed="true"] { border-color: var(--ink); }
+.small-areas i { width: 10px; height: 10px; border-radius: 3px; background: var(--c); }
+.tile.other span { background: var(--soft); border: 2px solid var(--line); color: var(--ink); }
+.tile.tiny .more { display: block; font: 800 12px var(--body); }
+.tile .more { display: none; }
 .spot { border: 2px dashed var(--review); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
 .spot.done { border-style: solid; border-color: var(--line); }
 .grow { display: grid; grid-template-columns: minmax(0, 1fr) 72px; gap: 2px 10px; align-items: center; font-size: 14px; }
@@ -499,24 +542,43 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
     I('f-dl', 'Your files', 'files', 'Installers in Downloads', '~/Downloads', 4.6, 'Not opened for 90+ days', 'Review', 'trash', 'Move to Trash', '12 installers and disk images.', 'Restore from the Trash.'),
     I('s-snap', 'System', 'system', 'Time Machine snapshots', 'Local snapshots', 15.2, 'Your latest backup is safe', 'Review', 'native', 'tmutil deletelocalsnapshots', 'macOS keeps these on disk until it needs the room.', 'Time Machine makes new ones.'),
     I('f-laptop', 'Your files', 'files', 'old-laptop backup', '~/archive/old-laptop', 11.2, 'Not opened since 2023', 'Review', 'trash', 'Move to Trash', 'A full copy of a previous computer.', 'Restore from the Trash.', { need: 'archive' }),
+    I('ai-comfy', 'AI models', 'ai', 'ComfyUI model checkpoints', '~/ComfyUI-Installs/models', 44.0, 'Not loaded for 3+ months', 'Review', 'trash', 'Move to Trash', 'Large checkpoints that no recent workflow loaded.', 'Restore from the Trash, or download again.', { need: 'comfy', parts: [['flux1-dev', 23.8], ['sdxl_base_1.0', 6.9], ['animagine-xl', 6.9], ['sd_xl_refiner', 6.1], ['controlnet models', 0.3]] }),
+    I('f-exports', 'Your files', 'files', 'Old video exports', '~/Movies/Exports', 18.6, 'Not opened for 1+ year', 'Review', 'trash', 'Move to Trash', 'Rendered videos you have not opened in a year.', 'Restore from the Trash.', { need: 'movies' }),
     I('s-temp', 'System', 'system', 'Leftover app temp files', '/private/var/folders', 5.4, 'Over 30 days old', 'Review', 'trash', 'Move to Trash', 'Files left behind by apps that are no longer running.', 'Restore from the Trash.', { need: 'access' })
   ];
   ITEMS.forEach(function (i) { if (i.parts) i.parts = i.parts.map(function (x) { return { n: x[0], s: x[1], on: true }; }); });
   var TILES = [
-    { id: 'projects', name: 'Projects', size: 96, c: 'var(--t-a)', rest: 'Active projects and code' },
-    { id: 'docker', name: 'Docker', size: 72, c: 'var(--t-b)', rest: 'Images and data you are using' },
-    { id: 'ai', name: 'AI models', size: 61.6, c: 'var(--t-e)', rest: 'Models you used recently' },
-    { id: 'caches', name: 'Caches', size: 58, c: 'var(--t-c)', rest: 'Caches in active use' },
-    { id: 'files', name: 'Your files', size: 58, c: 'var(--t-d)', rest: 'Documents, photos and videos' },
+    { id: 'projects', name: 'Projects', size: 50, c: 'var(--t-a)', rest: 'Active projects and code' },
+    { id: 'docker', name: 'Docker', size: 60, c: 'var(--t-b)', rest: 'Images and data you are using' },
+    { id: 'ai', name: 'AI models', size: 55, c: 'var(--t-e)', rest: 'Models you used recently' },
+    { id: 'caches', name: 'Caches', size: 40, c: 'var(--t-c)', rest: 'Caches in active use' },
+    { id: 'files', name: 'Your files', size: 24, c: 'var(--t-d)', rest: 'Documents, photos and videos' },
     { id: 'mobile', name: 'Phones and emulators', size: 45, c: 'var(--t-f)', rest: 'Current simulators' },
-    { id: 'apps', name: 'Apps and tools', size: 44, c: 'var(--t-g)', rest: 'Apps and tools you use' },
-    { id: 'system', name: 'macOS', size: 44.2, c: 'var(--t-h)', rest: 'macOS itself' },
-    { id: 'unknown', name: 'Not explained', size: 20.8, c: '', rest: '' }
+    { id: 'apps', name: 'Apps and tools', size: 30, c: 'var(--t-g)', rest: 'Apps and tools you use' },
+    { id: 'system', name: 'macOS', size: 24, c: 'var(--t-h)', rest: 'macOS itself' },
+    { id: 'browser', name: 'Browser data', size: 7.4, c: 'var(--t-d)', rest: 'Profiles, history and site data' },
+    { id: 'fonts', name: 'Fonts and plug-ins', size: 4.2, c: 'var(--t-e)', rest: 'Installed fonts and audio plug-ins' },
+    { id: 'unknown', name: 'Not explained', size: 160, c: '', rest: '' }
+  ];
+  /* Why space is not explained. Each cause has its own fix; fixing one moves its space into a real area. */
+  var CAUSES = [
+    { id: 'outside', title: 'In folders I don\u2019t scan', why: 'I only look inside the folders in Settings. A quick size check found these elsewhere in your home folder.', c: 'var(--t-c)' },
+    { id: 'locked', title: 'Locked by macOS', why: 'Mail, Messages, Photos and app data stay hidden until Freeboard has Full Disk Access, so this size is an estimate.', c: 'var(--t-e)', est: true },
+    { id: 'system', title: 'Kept by macOS for itself', why: 'Swap, the sleep image and other system volumes use space but are not normal files.', c: 'var(--t-h)' },
+    { id: 'strange', title: 'Files I don\u2019t recognize', why: 'I can read these, but no detector knows which app made them.', c: 'stripes' }
   ];
   var SPOTS = [
-    { id: 'archive', size: 11.2, to: 'files', title: 'A folder I was not asked to scan', text: '~/archive holds 11.2 GB that no detector looked at.', action: 'Scan this folder', done: 'Scanned. I found an old laptop backup.' },
-    { id: 'access', size: 5.4, to: 'system', title: 'A place I am not allowed to read', text: '5.4 GB in /private/var/folders needs Full Disk Access.', action: 'Allow access', done: 'Now readable. I found leftover temp files.' },
-    { id: 'mystery', size: 4.2, to: 'files', title: 'Files I do not recognize', text: '~/tools/sim-data has 4.2 GB of .dat files from an unknown tool.', action: 'They are mine, keep them', done: 'Marked as yours. I will not ask again.' }
+    { id: 'comfy', cause: 'outside', size: 47.3, to: { ai: 47.3 }, label: '~/ComfyUI-Installs', path: true, action: 'Scan', mine: true, done: 'scanned, found 44.0 GB of model checkpoints.', text: '~/ComfyUI-Installs holds 47.3 GB outside your scan folders.' },
+    { id: 'movies', cause: 'outside', size: 31.5, to: { files: 31.5 }, label: '~/Movies', path: true, action: 'Scan', mine: true, done: 'scanned, found old video exports.', text: '~/Movies holds 31.5 GB outside your scan folders.' },
+    { id: 'archive', cause: 'outside', size: 11.2, to: { files: 11.2 }, label: '~/archive', path: true, action: 'Scan', mine: true, done: 'scanned, found an old laptop backup.', text: '~/archive holds 11.2 GB outside your scan folders.' },
+    { id: 'vms', cause: 'outside', size: 6.0, to: { apps: 6.0 }, label: '~/vms', path: true, action: 'Scan', mine: true, done: 'scanned, virtual machine disks.', text: '~/vms holds 6.0 GB.' },
+    { id: 'minikube', cause: 'outside', size: 4.1, to: { apps: 4.1 }, label: '~/.minikube', path: true, action: 'Scan', mine: true, done: 'scanned, Minikube cluster data.', text: '~/.minikube holds 4.1 GB.' },
+    { id: 'claudedir', cause: 'outside', size: 2.7, to: { apps: 2.7 }, label: '~/.claude', path: true, action: 'Scan', mine: true, done: 'scanned, agent session data.', text: '~/.claude holds 2.7 GB.' },
+    { id: 'codex', cause: 'outside', size: 2.1, to: { apps: 2.1 }, label: '~/.codex', path: true, action: 'Scan', mine: true, done: 'scanned, agent session data.', text: '~/.codex holds 2.1 GB.' },
+    { id: 'dart', cause: 'outside', size: 1.8, to: { apps: 1.8 }, label: '~/.dartServer', path: true, action: 'Scan', mine: true, done: 'scanned, Dart analysis cache.', text: '~/.dartServer holds 1.8 GB.' },
+    { id: 'access', cause: 'locked', size: 34.0, to: { files: 28.6, system: 5.4 }, label: 'Mail, Messages, Photos and app data', note: 'Opens System Settings, Privacy & Security', action: 'Allow Full Disk Access', done: 'readable now: Photos 19.2 GB, Mail 6.0 GB, Messages 3.4 GB and 5.4 GB of old temp files.', text: 'About 34.0 GB needs Full Disk Access.' },
+    { id: 'sysdata', cause: 'system', size: 15.1, to: { system: 15.1 }, label: 'Swap, sleep image and other volumes', action: 'Measure', done: 'measured: swap 9.1 GB, other volumes 6.0 GB. macOS manages these on its own.', text: '15.1 GB of system space is not measured yet.' },
+    { id: 'mystery', cause: 'strange', size: 4.2, to: { files: 4.2 }, label: '~/tools/sim-data', path: true, note: '.dat files from an unknown tool', action: 'They\u2019re mine', done: 'marked as yours. I won\u2019t ask again.', text: '~/tools/sim-data has 4.2 GB of .dat files from an unknown tool.' }
   ];
   var GROWING = [['Docker', 9.3], ['AI models', 7.0], ['~/projects/web-app', 4.1], ['Slack cache', 1.2]];
   var EXTRA_PLACES = ['npm cache', 'Yarn cache', 'Bun cache', 'Maven repository', 'Gradle caches', 'Go module cache', 'CocoaPods', 'Conda environments', 'pyenv versions', 'Cargo registry', 'Turbo and Nx caches', 'VS Code old extensions', 'Browser caches', 'LM Studio models', 'Trash', 'Log files', 'iOS device support', 'Mail attachments'];
@@ -528,7 +590,7 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
   function partSum(i) { return Math.round(i.parts.reduce(function (t, x) { return t + (x.on ? x.s : 0); }, 0) * 10) / 10; }
   function fresh() {
     ITEMS.forEach(function (i) { if (i.parts) { i.parts.forEach(function (x) { x.on = true; x.done = false; }); i.size = partSum(i); } });
-    return { expanded: {}, manual: null, areas: {}, open: {}, target: [], goal: 50, tab: 'tidy', tile: 'ai', drift: 0, tossed: 0, queued: {}, excl: {}, gone: {}, held: {}, kept: {}, later: {}, skipped: {}, acks: {}, spots: {}, freedBy: {}, heldBy: {}, log: SAMPLE_LOG.slice(), low: 20, crit: 8, folders: [{ p: '~/projects', m: '14 projects, 96 GB' }, { p: '~/work', m: '2 repositories, 41 GB' }, { p: '~/Downloads', m: '23 GB' }, { p: '~/Desktop', m: '12 GB' }], suggest: [{ p: '~/ComfyUI-Installs', m: '1 repository, 18 GB' }, { p: '~/material-ui', m: '1 repository, 2 GB' }], skip: [], adding: null, removed: null, scanning: null, lastScan: '18 minutes ago', pile: false, tray: false, sheet: null, run: null, report: false, auto: { caches: false, docker: false } };
+    return { whyMore: {}, expanded: {}, manual: null, areas: {}, open: {}, target: [], goal: 50, tab: 'tidy', tile: 'ai', drift: 0, tossed: 0, queued: {}, excl: {}, gone: {}, held: {}, kept: {}, later: {}, skipped: {}, acks: {}, spots: {}, freedBy: {}, heldBy: {}, log: SAMPLE_LOG.slice(), low: 20, crit: 8, folders: [{ p: '~/projects', m: '14 projects, 96 GB' }, { p: '~/work', m: '2 repositories, 41 GB' }, { p: '~/Downloads', m: '23 GB' }, { p: '~/Desktop', m: '12 GB' }], suggest: [{ p: '~/ComfyUI-Installs', m: '1 repository, 18 GB' }, { p: '~/material-ui', m: '1 repository, 2 GB' }], skip: [], adding: null, removed: null, scanning: null, lastScan: '18 minutes ago', pile: false, tray: false, sheet: null, run: null, report: false, auto: { caches: false, docker: false } };
   }
   var S = fresh();
   var $ = function (id) { return document.getElementById(id); };
@@ -540,7 +602,7 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
 
   function boatAt(f) { return 'translate(292px,' + (212 - 44 * Math.min(1, f / 60)).toFixed(1) + 'px)'; }
   function free() { return BASE_FREE + S.tossed - S.drift; }
-  function active() { return ITEMS.filter(function (i) { return !S.gone[i.id] && !S.held[i.id] && (!i.need || S.spots[i.need]); }); }
+  function active() { return ITEMS.filter(function (i) { return !S.gone[i.id] && !S.held[i.id] && (!i.need || S.spots[i.need] === 'scan'); }); }
   function safeAreas() { return GROUPS.filter(function (g) { return active().some(function (i) { return i.group === g && i.risk === 'Safe' && !S.kept[i.id] && i.size > 0; }); }); }
   function anyArea() { return Object.keys(S.areas).length > 0; }
   function safeItems() { return active().filter(function (i) { return i.risk === 'Safe' && !S.excl[i.id] && !S.kept[i.id] && i.size > 0 && (!anyArea() || S.areas[i.group]); }).sort(function (a, b) { return b.size - a.size; }); }
@@ -565,7 +627,7 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
   }
   function tileSize(t) {
     var v = t.size - (S.freedBy[t.id] || 0);
-    SPOTS.forEach(function (s) { if (S.spots[s.id]) { if (t.id === 'unknown') v -= s.size; if (t.id === s.to) v += s.size; } });
+    SPOTS.forEach(function (s) { var m = S.spots[s.id]; if (!m) return; if (t.id === 'unknown') v -= s.size; else if (m === 'mine') { if (t.id === 'files') v += s.size; } else if (s.to[t.id]) v += s.to[t.id]; });
     if (t.id === 'files') v += S.drift;
     return Math.max(0, Math.round(v * 10) / 10);
   }
@@ -749,36 +811,70 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
     return '<svg viewBox="0 0 88 88" role="img" aria-label="' + pct.toFixed(1) + ' percent of used space explained"><circle cx="44" cy="44" r="34" fill="none" stroke="var(--soft)" stroke-width="14"/><circle cx="44" cy="44" r="34" fill="none" stroke="' + (done ? 'var(--safe)' : 'var(--hull)') + '" stroke-width="14" stroke-dasharray="' + (c * pct / 100).toFixed(1) + ' ' + c.toFixed(1) + '" transform="rotate(-90 44 44)"/><g stroke="var(--card)" stroke-width="5"><path d="M44 3v14M44 71v14M3 44h14M71 44h14"/></g></svg>';
   }
   function placesList() {
-    var names = ITEMS.filter(function (i) { return !i.need || S.spots[i.need]; }).map(function (i) { return { n: i.name, hit: !S.gone[i.id] }; });
+    var names = ITEMS.filter(function (i) { return !i.need || S.spots[i.need] === 'scan'; }).map(function (i) { return { n: i.name, hit: !S.gone[i.id] }; });
     return names.concat(EXTRA_PLACES.map(function (n) { return { n: n, hit: false }; }));
   }
-  function renderMap() {
-    var ex = explained(), allT = TILES.map(function (t) { return { id: t.id, name: t.name, c: t.c, v: tileSize(t) }; });
-    var boxes = squarify(allT, 0, 0, 100, 100);
-    var map = boxes.map(function (b) {
-      var a = b.w * b.h, cls = 'tile' + (b.t.id === 'unknown' ? ' unknown' : '') + (a < 240 ? ' tiny' : '') + (b.h < 14 && b.w > 25 ? ' flat' : '');
-      return '<button class="' + cls + '" data-tile="' + b.t.id + '" aria-pressed="' + (S.tile === b.t.id) + '" aria-label="' + esc(b.t.name) + ', ' + gb(b.t.v) + '" style="left:' + b.x.toFixed(2) + '%;top:' + b.y.toFixed(2) + '%;width:' + b.w.toFixed(2) + '%;height:' + b.h.toFixed(2) + '%;--c:' + b.t.c + '"><span><b>' + esc(b.t.name) + '</b><i class="num">' + b.t.v.toFixed(1) + ' GB</i></span></button>';
+  var SMALL = 0.03;
+  function mapAreas() {
+    var all = TILES.map(function (t) { return { id: t.id, name: t.name, c: t.c, v: tileSize(t) }; }), used = all.reduce(function (t, x) { return t + x.v; }, 0);
+    var small = all.filter(function (x) { return x.id !== 'unknown' && x.v > 0 && x.v / used < SMALL; }), big = all.filter(function (x) { return small.indexOf(x) < 0; });
+    return { tiles: big, small: small };
+  }
+  function whyCard() {
+    var open = SPOTS.filter(function (s) { return !S.spots[s.id]; }), left = sum(open);
+    var tick = '<svg viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="8" fill="var(--safe)"/><path d="M5 9.3l2.6 2.5L13 6.4" fill="none" stroke="var(--card)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    if (!open.length) return '<div class="card stack why" id="why"><h3>Everything is explained</h3><p class="allclear">' + tick + 'Every GB in use now belongs to a named area.</p></div>';
+    var bar = CAUSES.map(function (c) { var v = sum(open.filter(function (s) { return s.cause === c.id; })); return v ? '<i class="' + (c.c === 'stripes' ? 'stripes' : '') + '" style="width:' + (v / left * 100).toFixed(1) + '%;--c:' + c.c + '" title="' + esc(c.title) + ' ' + gb(v) + '"></i>' : ''; }).join('');
+    var causes = CAUSES.map(function (c) {
+      var all = SPOTS.filter(function (s) { return s.cause === c.id; }), rest = all.filter(function (s) { return !S.spots[s.id]; }), fixed = all.filter(function (s) { return S.spots[s.id]; }), v = sum(rest);
+      if (!all.length) return '';
+      var LIMIT = 4, more = S.whyMore[c.id], shown = more ? rest : rest.slice(0, LIMIT);
+      var rows = shown.map(function (s) {
+        return '<div class="fix' + (s.path ? '' : ' wide') + '"><span class="lbl' + (s.path ? ' mono' : '') + '">' + esc(s.label) + (s.note ? '<small>' + esc(s.note) + '</small>' : '') + '</span><span class="num sz">' + (c.est ? 'about ' : '') + gb(s.size) + '</span>' +
+          '<span class="acts"><button class="mini go" id="spot-' + s.id + '" data-spot="' + s.id + '">' + esc(s.action) + '</button>' + (s.mine ? '<button class="mini" id="mine-' + s.id + '" data-spot-mine="' + s.id + '" title="Count it as yours and stop asking">Skip</button>' : '') + '</span></div>';
+      }).join('');
+      if (rest.length > LIMIT) rows += '<button class="link small fix-more" data-why-more="' + c.id + '">' + (more ? 'Show fewer' : 'Show ' + (rest.length - LIMIT) + ' more, ' + gb(sum(rest.slice(LIMIT)))) + '</button>';
+      var fixedHTML = '';
+      if (fixed.length) fixedHTML = '<details class="fixed-list"><summary>' + tick + fixed.length + ' fixed</summary>' + fixed.map(function (s) { var m = S.spots[s.id]; return '<p><span class="' + (s.path ? 'mono' : '') + '">' + esc(s.label) + '</span>: ' + esc(m === 'mine' ? 'marked as yours, I won’t look inside.' : s.done) + '</p>'; }).join('') + '</details>';
+      var bulk = rest.length > 1 && rest[0].action === 'Scan' ? '<button class="btn primary bulk" id="all-' + c.id + '" data-spot-all="' + c.id + '">Scan all ' + rest.length + '</button>' : '';
+      return '<div class="cause' + (v ? '' : ' cleared') + '"><div class="cause-head"><span class="sw ' + (c.c === 'stripes' ? 'stripes' : '') + '" style="--c:' + c.c + '"></span><b>' + esc(c.title) + (rest.length > 1 ? ' <span class="muted" style="font-weight:600">' + rest.length + '</span>' : '') + '</b><span class="num">' + (v ? (c.est ? 'about ' : '') + gb(v) : 'Done') + '</span>' + (v ? '<p>' + esc(c.why) + '</p>' : '') + bulk + '</div>' + (v ? '<div class="fix-list">' + rows + '</div>' : '') + fixedHTML + '</div>';
     }).join('');
-    var t = TILES.filter(function (x) { return x.id === S.tile; })[0] || TILES[0], size = tileSize(t);
-    var inside = active().filter(function (i) { return i.map === t.id; }).sort(function (a, b) { return b.size - a.size; });
-    var rest = Math.max(0, size - sum(inside));
-    var rows = '';
-    if (t.id === 'unknown') rows = SPOTS.filter(function (s) { return !S.spots[s.id]; }).map(function (s) { return '<div class="detail-row"><span>' + esc(s.text) + '</span><span class="num">' + gb(s.size) + '</span></div>'; }).join('') || '<p class="muted">Nothing is left unexplained.</p>';
-    else {
-      var chosen = chosenMap();
-      rows = areaButtons('map', t.id, 'map-' + t.id) + inside.map(function (i) { return rowHTML(i, 'm', chosen, inside.length ? inside[0].size : 0); }).join('');
-      if (rest > 0.05) rows += '<div class="detail-row"><span class="muted">' + esc(t.rest || 'Other') + ' (leave these)</span><span class="num muted">' + gb(rest) + '</span></div>';
+    return '<div class="card stack why" id="why"><h3>Why ' + gb(left) + ' isn’t explained</h3><p class="lede">None of it is lost. I just can’t see inside it yet. Each part below has a fix.</p>' +
+      '<div class="wbar" aria-hidden="true">' + bar + '</div>' + causes +
+      '<p class="why-foot">Fix them all and the map reaches 100%. Nothing here is removed, it only gets measured.</p></div>';
+  }
+  function renderMap() {
+    var ex = explained(), areas = mapAreas();
+    var boxes = squarify(areas.tiles, 0, 0, 100, 100);
+    var sel = S.tile;
+    if (areas.small.some(function (x) { return x.id === sel; })) sel = 'other';
+    var map = boxes.map(function (b) {
+      var a = b.w * b.h, cls = 'tile' + (b.t.id === 'unknown' ? ' unknown' : '') + (b.t.id === 'other' ? ' other' : '') + (a < 240 ? ' tiny' : '') + (b.h < 14 && b.w > 25 ? ' flat' : '');
+      return '<button class="' + cls + '" data-tile="' + b.t.id + '" aria-pressed="' + (sel === b.t.id) + '" aria-label="' + esc(b.t.name) + ', ' + gb(b.t.v) + '" style="left:' + b.x.toFixed(2) + '%;top:' + b.y.toFixed(2) + '%;width:' + b.w.toFixed(2) + '%;height:' + b.h.toFixed(2) + '%;--c:' + b.t.c + '"><span><b>' + esc(b.t.name) + '</b><i class="num">' + b.t.v.toFixed(1) + ' GB</i>' + (b.t.id === 'other' ? '<span class="more">+' + b.t.members.length + '</span>' : '') + '</span></button>';
+    }).join('');
+    var smallRow = areas.small.length ? '<div class="small-areas"><span>Under 3%, not drawn:</span>' + areas.small.map(function (x) { return '<button class="tile-chip" data-tile="' + x.id + '" aria-pressed="' + (S.tile === x.id) + '"><i style="--c:' + x.c + '"></i>' + esc(x.name) + ' <span class="num muted">' + x.v.toFixed(1) + ' GB</span></button>'; }).join('') + '</div>' : '';
+    var detail;
+    if (S.tile === 'other') {
+      detail = '<div class="row between"><h3>Smaller areas</h3><span class="num muted">' + gb(sum(areas.small.map(function (x) { return { size: x.v }; }))) + '</span></div><div>' + areas.small.map(function (x) { return '<div class="detail-row"><button class="link" data-tile="' + x.id + '">' + esc(x.name) + '</button><span class="num">' + gb(x.v) + '</span></div>'; }).join('') + '</div>';
+    } else {
+      var t = TILES.filter(function (x) { return x.id === S.tile; })[0] || TILES[0], size = tileSize(t);
+      var inside = active().filter(function (i) { return i.map === t.id; }).sort(function (a, b) { return b.size - a.size; });
+      var rest = Math.max(0, size - sum(inside)), rows = '';
+      if (t.id === 'unknown') {
+        var open = SPOTS.filter(function (s) { return !S.spots[s.id]; });
+        rows = open.length ? CAUSES.map(function (c) { var v = sum(open.filter(function (s) { return s.cause === c.id; })); return v ? '<div class="detail-row"><span>' + esc(c.title) + '</span><span class="num">' + (c.est ? 'about ' : '') + gb(v) + '</span></div>' : ''; }).join('') + '<p class="note" style="margin-top:8px">See <b>Why ' + gb(sum(open)) + ' isn’t explained</b> for the fixes.</p>' : '<p class="muted">Nothing is left unexplained.</p>';
+      } else {
+        var chosen = chosenMap();
+        rows = areaButtons('map', t.id, 'map-' + t.id) + inside.map(function (i) { return rowHTML(i, 'm', chosen, inside.length ? inside[0].size : 0); }).join('');
+        if (rest > 0.05) rows += '<div class="detail-row"><span class="muted">' + esc(t.rest || 'Other') + ' (leave these)</span><span class="num muted">' + gb(rest) + '</span></div>';
+      }
+      detail = '<div class="row between"><h3>' + esc(t.name) + '</h3><span class="num muted">' + gb(size) + '</span></div><div>' + rows + '</div>';
     }
     var left = '<div class="stack"><div class="card stack"><div class="cover">' + ring(ex.pct) + '<div><b class="num">' + ex.pct.toFixed(1) + '% explained</b><span class="muted num">I can account for ' + (ex.used - ex.un).toFixed(1) + ' of the ' + ex.used.toFixed(1) + ' GB in use.</span></div></div>' +
-      '<div class="map" id="map">' + map + '</div></div>' +
-      '<div class="card stack" id="tile-detail"><div class="row between"><h3>' + esc(t.name) + '</h3><span class="num muted">' + gb(size) + '</span></div><div>' + rows + '</div></div></div>';
-    var spots = SPOTS.map(function (s) {
-      if (S.spots[s.id]) return '<div class="spot done"><b>' + esc(s.title) + '</b><span class="muted">' + esc(s.done) + '</span></div>';
-      return '<div class="spot"><b>' + esc(s.title) + '</b><span>' + esc(s.text) + '</span><button class="btn" style="align-self:flex-start" data-spot="' + s.id + '">' + esc(s.action) + '</button></div>';
-    }).join('');
-    var open = SPOTS.filter(function (s) { return !S.spots[s.id]; }).length, mx = GROWING[0][1];
-    var places = placesList();
-    var right = '<div class="stack"><div class="card stack"><h3>' + (open ? open + ' thing' + (open === 1 ? '' : 's') + ' I cannot see yet' : 'I can see everything now') + '</h3>' + spots + '</div>' +
+      '<div class="map" id="map">' + map + '</div>' + smallRow + '</div>' +
+      '<div class="card stack" id="tile-detail">' + detail + '</div></div>';
+    var mx = GROWING[0][1], places = placesList();
+    var right = '<div class="stack">' + whyCard() +
       '<div class="card stack"><h3>Growing fastest this week</h3>' + GROWING.map(function (g) { return '<div class="grow"><span>' + esc(g[0]) + '</span><span class="num">+' + g[1].toFixed(1) + ' GB</span><i style="width:' + (g[1] / mx * 100).toFixed(0) + '%"></i></div>'; }).join('') + '</div>' +
       '<div class="card"><details><summary>' + places.length + ' places I checked</summary><p class="note" style="margin-top:6px">Green means I found something. Grey means I looked and it was clean.</p><div class="places">' + places.map(function (p) { return '<span class="place' + (p.hit ? ' hit' : '') + '">' + esc(p.n) + '</span>'; }).join('') + '</div></details></div>' +
       '<div class="card stack"><h3>Get a second opinion</h3><p class="note">Copy a summary with sizes and folder names, then ask your AI agent what I missed. File contents are not included.</p><button class="btn" style="align-self:flex-start" data-act="report">Copy disk report</button><div id="report-box"></div></div></div>';
@@ -1005,7 +1101,10 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
       if (b.dataset.q === 'later') S.later[q.id] = true;
       renderAll(); return;
     }
-    if (b.dataset.spot) { S.spots[b.dataset.spot] = true; renderAll(); return; }
+    if (b.dataset.spot) { S.spots[b.dataset.spot] = 'scan'; renderAll(); return; }
+    if (b.dataset.whyMore) { S.whyMore[b.dataset.whyMore] = !S.whyMore[b.dataset.whyMore]; renderMap(); return; }
+    if (b.dataset.spotAll) { SPOTS.forEach(function (x) { if (x.cause === b.dataset.spotAll && !S.spots[x.id]) S.spots[x.id] = 'scan'; }); renderAll(); return; }
+    if (b.dataset.spotMine) { S.spots[b.dataset.spotMine] = 'mine'; renderAll(); return; }
     if (b.dataset.expand) { var ek = b.dataset.expand; S.expanded[ek] = !S.expanded[ek]; renderAll(); return; }
     if (b.dataset.step) { var st = b.dataset.step.split(':'); S[st[0]] += +st[1]; renderSettings(); renderHero(); return; }
     if (b.dataset.frm) { var fr = b.dataset.frm.split(':'), list = fr[0] === 'scan' ? S.folders : S.skip; S.removed = { kind: fr[0], f: list.splice(+fr[1], 1)[0], at: +fr[1] }; renderSettings(); return; }

@@ -760,43 +760,65 @@ impl AppCore {
     /// Fix a blind spot (design D5). The interface sends the spot's ID and the
     /// action it was offered; paths come from the backend's own records.
     pub fn resolve_blind_spot(self: &Arc<Self>, id: &str, action: diskmap::BlindSpotAction) -> CmdResult<BlindSpotResult> {
+        self.resolve_blind_spots(&[id.to_string()], action)
+    }
+
+    /// Resolve several blind spots with one action ("Scan all 8" in the
+    /// Why-not-explained card): every folder is added, then one deep scan
+    /// runs. "Skip" on a folder outside the scan list marks it as the user's
+    /// own files, as Mark as mine does for unknown files.
+    pub fn resolve_blind_spots(self: &Arc<Self>, ids: &[String], action: diskmap::BlindSpotAction) -> CmdResult<BlindSpotResult> {
         use diskmap::BlindSpotAction as A;
-        validate_id(id)?;
-        let spot = self
-            .spots()?
-            .into_iter()
-            .find(|s| s.id == id && s.state != diskmap::SpotState::Done)
-            .ok_or_else(|| CommandError::new("unknown_id", "That blind spot is no longer open."))?;
-        if spot.action != action {
-            return Err(CommandError::new("invalid_action", "That is not the action for this blind spot."));
+        use diskmap::BlindSpotKind as K;
+        if ids.is_empty() {
+            return Err(CommandError::new("invalid_request", "No blind spots given."));
         }
+        let open = self.spots()?;
         let m = self.measurement();
-        let path = diskmap::spot_path(m.as_ref(), id).unwrap_or_default();
-        let record = |decision: &str| {
+        let mut spots = Vec::new();
+        for id in ids {
+            validate_id(id)?;
+            let spot = open
+                .iter()
+                .find(|s| &s.id == id && s.state != diskmap::SpotState::Done)
+                .cloned()
+                .ok_or_else(|| CommandError::new("unknown_id", "That blind spot is no longer open."))?;
+            let allowed = spot.action == action || (action == A::MarkMine && spot.kind == K::UnscannedFolder);
+            if !allowed {
+                return Err(CommandError::new("invalid_action", "That is not the action for this blind spot."));
+            }
+            let path = diskmap::spot_path(m.as_ref(), id).unwrap_or_default();
+            if action == A::ScanFolder && path.is_empty() {
+                return Err(CommandError::new("unknown_id", "That folder is no longer there."));
+            }
+            spots.push((spot, path));
+        }
+        let record = |spot: &diskmap::BlindSpot, path: &str, decision: &str| {
             let d = diskmap::SpotDecision {
                 decision: decision.into(),
                 at: self.now(),
                 kind: Some(spot.kind),
                 title: spot.title.clone(),
                 location: spot.location.clone(),
-                path: path.clone(),
+                path: path.to_string(),
                 bytes: spot.size_bytes,
             };
-            self.store.set_spot_decision(id, &serde_json::to_string(&d).unwrap_or_default(), d.at)
+            self.store.set_spot_decision(&spot.id, &serde_json::to_string(&d).unwrap_or_default(), d.at)
         };
         match action {
             A::ScanFolder => {
-                if path.is_empty() {
-                    return Err(CommandError::new("unknown_id", "That folder is no longer there."));
+                for (spot, path) in &spots {
+                    if !self.settings().scan_folders.iter().any(|f| Path::new(f) == Path::new(path)) {
+                        self.add_folder(FolderList::ScanFolders, Path::new(path))?;
+                    }
+                    record(spot, path, "scan")?;
                 }
-                if !self.settings().scan_folders.iter().any(|f| Path::new(f) == Path::new(&path)) {
-                    self.add_folder(FolderList::ScanFolders, Path::new(&path))?;
-                }
-                record("scan")?;
                 self.start_scan(ScanKind::Deep)?;
             }
             A::MarkMine => {
-                record("mine")?;
+                for (spot, path) in &spots {
+                    record(spot, path, "mine")?;
+                }
             }
             A::OpenSettings => {
                 // Opens the pane only; the spot stays open until a scan can
@@ -804,12 +826,16 @@ impl AppCore {
                 self.runner
                     .open_settings(crate::runner::SettingsPane::FullDiskAccess, self.platform)
                     .map_err(|e| CommandError::new("unavailable", format!("Could not open System Settings: {e}")))?;
-                record("asked")?;
+                for (spot, path) in &spots {
+                    record(spot, path, "asked")?;
+                }
             }
             A::ScanAgain => {
-                record("rescan")?;
-                let kind = if spot.kind == diskmap::BlindSpotKind::ToolUnavailable { ScanKind::Quick } else { ScanKind::Deep };
-                self.start_scan(kind)?;
+                for (spot, path) in &spots {
+                    record(spot, path, "rescan")?;
+                }
+                let tool = spots.iter().all(|(s, _)| s.kind == K::ToolUnavailable);
+                self.start_scan(if tool { ScanKind::Quick } else { ScanKind::Deep })?;
             }
         }
         self.map_changed(false);

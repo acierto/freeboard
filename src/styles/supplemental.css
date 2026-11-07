@@ -23,3 +23,7 @@ html.tray-native, html.tray-native body { background: transparent; }
    85% opacity, white on the light theme's teal is 4.1:1, under WCAG AA's
    4.5:1 for 12 px text (spec "Accessibility"). */
 .toss .tlabel small.tnote { opacity: 1; }
+/* The Why card's "N fixed" line. The prototype renders in quirks mode, where
+   its inline-flex summary gets no line-box strut; the app (standards mode)
+   lays it out as a block of its own width to keep the same height. */
+.fixed-list > summary.fx { display: flex; width: max-content; }

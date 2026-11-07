@@ -9,7 +9,7 @@ import { track } from "../../lib/useBusy";
 import { gb, plural } from "../../lib/format";
 import type { AreaGrowth, BlindSpot, BlindSpotAction, DiskMap, PileState, PlaceChecked, Platform, Suggestion } from "../../lib/types";
 import { GroupActions, Row, type Choices } from "../questions/Questions";
-import { GB, coverText, coverage, defaultTile, ringDash, squarify, tileClass, tilesOf } from "./mapModel";
+import { GB, causesOf, coverText, coverage, defaultTile, ringDash, splitAreas, squarify, tileClass, tilesOf, type Cause } from "./mapModel";
 
 function Ring({ pct }: { pct: number }) {
   const { dash, done } = ringDash(pct);
@@ -48,7 +48,8 @@ function CoverNotes({ map, platform }: { map: DiskMap; platform: Platform }) {
 }
 
 function Treemap({ map, selected, onSelect }: { map: DiskMap; selected: string; onSelect: (id: string) => void }) {
-  const boxes = squarify(tilesOf(map), 0, 0, 100, 100);
+  const areas = splitAreas(tilesOf(map));
+  const boxes = squarify(areas.tiles, 0, 0, 100, 100);
   const ref = useRef<HTMLDivElement>(null);
   // Labels must never clip (spec "Disk map rules"): a label that does not
   // fit its tile is hidden, as on the prototype's small tiles. The button
@@ -84,27 +85,41 @@ function Treemap({ map, selected, onSelect }: { map: DiskMap; selected: string; 
     return () => window.removeEventListener("resize", fit);
   });
   return (
-    <div className="map" id="map" ref={ref}>
-      {boxes.map((b) => (
-        <button
-          key={b.t.id}
-          className={tileClass(b)}
-          data-tile={b.t.id}
-          aria-pressed={selected === b.t.id}
-          // The name contains the visible label word for word (WCAG 2.5.3),
-          // and still names tiles whose label is hidden.
-          aria-label={`${b.t.name} ${b.t.v.toFixed(1)} GB`}
-          style={{ left: b.x.toFixed(2) + "%", top: b.y.toFixed(2) + "%", width: b.w.toFixed(2) + "%", height: b.h.toFixed(2) + "%", "--c": b.t.c } as CSSProperties}
-          onClick={() => onSelect(b.t.id)}
-        >
-          <span>
-            {/* The space collapses on screen and separates the words for assistive tools. */}
-            <b>{b.t.name}</b>{" "}
-            <i className="num">{b.t.v.toFixed(1) + " GB"}</i>
-          </span>
-        </button>
-      ))}
-    </div>
+    <>
+      <div className="map" id="map" ref={ref}>
+        {boxes.map((b) => (
+          <button
+            key={b.t.id}
+            className={tileClass(b)}
+            data-tile={b.t.id}
+            aria-pressed={selected === b.t.id}
+            // The name contains the visible label word for word (WCAG 2.5.3),
+            // and still names tiles whose label is hidden.
+            aria-label={`${b.t.name} ${b.t.v.toFixed(1)} GB`}
+            style={{ left: b.x.toFixed(2) + "%", top: b.y.toFixed(2) + "%", width: b.w.toFixed(2) + "%", height: b.h.toFixed(2) + "%", "--c": b.t.c } as CSSProperties}
+            onClick={() => onSelect(b.t.id)}
+          >
+            <span>
+              {/* The space collapses on screen and separates the words for assistive tools. */}
+              <b>{b.t.name}</b>{" "}
+              <i className="num">{b.t.v.toFixed(1) + " GB"}</i>
+            </span>
+          </button>
+        ))}
+      </div>
+      {areas.small.length > 0 && (
+        <div className="small-areas">
+          <span>Under 3%, not drawn:</span>
+          {areas.small.map((x) => (
+            <button key={x.id} className="tile-chip" data-tile={x.id} aria-pressed={selected === x.id} onClick={() => onSelect(x.id)}>
+              <i style={{ ["--c" as string]: x.c }}></i>
+              {`${x.name} `}
+              <span className="num muted">{x.v.toFixed(1) + " GB"}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </>
   );
 }
 
@@ -114,25 +129,22 @@ function Detail({ map, tile, items, spots, chosen, act }: { map: DiskMap; tile: 
   const size = t.v * GB;
   let rows;
   if (t.id === "unknown") {
-    const open = spots.filter((s) => s.state !== "done");
-    const traced = open.reduce((n, s) => n + (s.sizeBytes ?? 0), 0);
-    const rest = map.notExplainedBytes - traced;
-    rows = (
+    const { causes, left } = causesOf(map, spots);
+    const shown = causes.filter((c) => c.bytes > 0);
+    rows = shown.length ? (
       <>
-        {open.map((s) => (
-          <div className="detail-row" key={s.id}>
-            <span>{s.text}</span>
-            <span className="num">{s.sizeBytes === null ? "unknown" : gb(s.sizeBytes)}</span>
+        {shown.map((c) => (
+          <div className="detail-row" key={c.id}>
+            <span>{c.title}</span>
+            <span className="num">{(c.est ? "about " : "") + gb(c.bytes)}</span>
           </div>
         ))}
-        {rest > 0.05 * GB && (
-          <div className="detail-row">
-            <span className="muted">Space I could not trace to a folder</span>
-            <span className="num muted">{gb(rest)}</span>
-          </div>
-        )}
-        {!open.length && rest <= 0.05 * GB && <p className="muted">Nothing is left unexplained.</p>}
+        <p className="note" style={{ marginTop: 8 }}>
+          See <b>{`Why ${gb(left)} isn\u2019t explained`}</b> for the fixes.
+        </p>
       </>
+    ) : (
+      <p className="muted">Nothing is left unexplained.</p>
     );
   } else {
     const area = map.areas.find((a) => a.id === t.id);
@@ -180,33 +192,140 @@ function Detail({ map, tile, items, spots, chosen, act }: { map: DiskMap; tile: 
   );
 }
 
-function Spots({ spots, onResolve }: { spots: BlindSpot[]; onResolve: (id: string, action: BlindSpotAction) => void }) {
-  const open = spots.filter((s) => s.state !== "done").length;
+const TICK = (
+  <svg viewBox="0 0 18 18" aria-hidden="true">
+    <circle cx="9" cy="9" r="8" fill="var(--safe)" />
+    <path d="M5 9.3l2.6 2.5L13 6.4" fill="none" stroke="var(--card)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+type Resolve = (ids: string[], action: BlindSpotAction) => void;
+
+/** The short line under a fix's place: where the button leads, or what the
+ * files are ("~/x has 4.2 GB of .dat files from an unknown tool."). */
+function noteOf(s: BlindSpot): string | null {
+  if (s.kind === "needs_permission") return s.action === "open_settings" ? "Opens System Settings, Privacy & Security" : null;
+  if (s.kind === "unknown_files") return /of (\.?\S* ?files from an unknown tool)\.$/.exec(s.text)?.[1] ?? null;
+  return null;
+}
+
+/** One blind spot as a row: its place, size and fix (prototype `whyCard`). */
+function FixRow({ s, cause, onResolve }: { s: BlindSpot; cause: Cause; onResolve: Resolve }) {
+  const path = cause.id === "outside" || cause.id === "strange";
+  // "Skip" counts a folder outside the scan list as the user's own files.
+  const mine = cause.id === "outside";
+  const size = s.sizeBytes === null ? "size unknown" : (cause.est ? "about " : "") + gb(s.sizeBytes);
   return (
-    <div className="card stack">
-      <h3>{open ? `${open} thing${open === 1 ? "" : "s"} I cannot see yet` : "I can see everything now"}</h3>
-      {spots.map((s) =>
-        s.state === "done" ? (
-          <div className="spot done" key={s.id}>
-            <b>{s.title}</b>
-            <span className="muted">{s.doneText}</span>
-          </div>
-        ) : s.state === "working" ? (
-          <div className="spot" key={s.id} aria-live="polite">
-            <b>{s.title}</b>
-            <span>{s.text}</span>
-            <span className="note">{s.doneText}</span>
-          </div>
-        ) : (
-          <div className="spot" key={s.id}>
-            <b>{s.title}</b>
-            <span>{s.text}</span>
-            <button className="btn" style={{ alignSelf: "flex-start" }} data-spot={s.id} onClick={() => onResolve(s.id, s.action)}>
-              {s.actionLabel}
+    <div className={path ? "fix" : "fix wide"}>
+      <span className={path ? "lbl mono" : "lbl"}>
+        {s.location || s.title}
+        {noteOf(s) && <small>{noteOf(s)}</small>}
+      </span>
+      <span className="num sz">{size}</span>
+      <span className="acts">
+        <button className="mini go" id={`spot-${s.id}`} data-spot={s.id} onClick={() => onResolve([s.id], s.action)}>
+          {s.action === "scan_folder" ? "Scan" : s.action === "open_settings" ? "Allow Full Disk Access" : s.action === "mark_mine" ? "They\u2019re mine" : s.actionLabel}
+        </button>
+        {mine && (
+          <button className="mini" id={`mine-${s.id}`} data-spot-mine={s.id} title="Count it as yours and stop asking" onClick={() => onResolve([s.id], "mark_mine")}>
+            Skip
+          </button>
+        )}
+      </span>
+    </div>
+  );
+}
+
+const LIMIT = 4;
+
+function CauseBlock({ c, onResolve }: { c: Cause; onResolve: Resolve }) {
+  const [more, setMore] = useState(false);
+  const shown = more ? c.open : c.open.slice(0, LIMIT);
+  const rest = c.open.slice(LIMIT);
+  const left = c.bytes > 0 || c.open.length > 0;
+  const bulk = c.open.length > 1 && c.open.every((s) => s.action === "scan_folder");
+  return (
+    <div className={left ? "cause" : "cause cleared"}>
+      <div className="cause-head">
+        <span className={c.c === "stripes" ? "sw stripes" : "sw"} style={{ ["--c" as string]: c.c }}></span>
+        <b>
+          {c.title}
+          {c.open.length > 1 && (
+            <>
+              {" "}
+              <span className="muted" style={{ fontWeight: 600 }}>
+                {c.open.length}
+              </span>
+            </>
+          )}
+        </b>
+        <span className="num">{!left ? "Done" : c.bytes > 0 ? (c.est ? "about " : "") + gb(c.bytes) : "size unknown"}</span>
+        {left && <p>{c.why}</p>}
+        {bulk && (
+          <button className="btn primary bulk" id={`all-${c.id}`} data-spot-all={c.id} onClick={() => onResolve(c.open.map((s) => s.id), "scan_folder")}>
+            {`Scan all ${c.open.length}`}
+          </button>
+        )}
+      </div>
+      {c.open.length > 0 && (
+        <div className="fix-list">
+          {shown.map((s) => (
+            <FixRow key={s.id} s={s} cause={c} onResolve={onResolve} />
+          ))}
+          {rest.length > 0 && (
+            <button className="link small fix-more" data-why-more={c.id} onClick={() => setMore((v) => !v)}>
+              {more ? "Show fewer" : `Show ${rest.length} more, ${gb(rest.reduce((t, s) => t + (s.sizeBytes ?? 0), 0))}`}
             </button>
-          </div>
-        ),
+          )}
+        </div>
       )}
+      {c.fixed.length > 0 && (
+        <details className="fixed-list">
+          <summary className="fx">
+            {TICK}
+            {`${c.fixed.length} fixed`}
+          </summary>
+          {c.fixed.map((s) => (
+            <p key={s.id}>
+              <span className={c.id === "outside" || c.id === "strange" ? "mono" : undefined}>{s.location || s.title}</span>
+              {`: ${s.state === "working" ? "scanning now\u2026" : (s.doneText ?? "")}`}
+            </p>
+          ))}
+        </details>
+      )}
+    </div>
+  );
+}
+
+/** Why space is not explained, by cause, each with its fix (prototype
+ * `whyCard`). Replaces one dashed card per blind spot. */
+function WhyCard({ map, spots, onResolve }: { map: DiskMap; spots: BlindSpot[]; onResolve: Resolve }) {
+  const { causes, left } = causesOf(map, spots);
+  if (left < 0.05 * GB && !causes.some((c) => c.open.length))
+    return (
+      <div className="card stack why" id="why">
+        <h3>Everything is explained</h3>
+        <p className="allclear">
+          {TICK}
+          Every GB in use now belongs to a named area.
+        </p>
+      </div>
+    );
+  return (
+    <div className="card stack why" id="why">
+      <h3>{`Why ${gb(left)} isn\u2019t explained`}</h3>
+      <p className="lede">{"None of it is lost. I just can\u2019t see inside it yet. Each part below has a fix."}</p>
+      <div className="wbar" aria-hidden="true">
+        {causes
+          .filter((c) => c.bytes > 0)
+          .map((c) => (
+            <i key={c.id} className={c.c === "stripes" ? "stripes" : ""} style={{ width: ((c.bytes / left) * 100).toFixed(1) + "%", ["--c" as string]: c.c }} title={`${c.title} ${gb(c.bytes)}`}></i>
+          ))}
+      </div>
+      {causes.map((c) => (
+        <CauseBlock key={c.id} c={c} onResolve={onResolve} />
+      ))}
+      <p className="why-foot">Fix them all and the map reaches 100%. Nothing here is removed, it only gets measured.</p>
     </div>
   );
 }
@@ -293,7 +412,7 @@ export interface MapProps {
   pile: PileState;
   platform: Platform;
   act: Choices;
-  onResolve: (id: string, action: BlindSpotAction) => void;
+  onResolve: Resolve;
 }
 
 export function DiskMapView({ map, spots, places, growth, items, pile, platform, act, onResolve }: MapProps) {
@@ -323,7 +442,7 @@ export function DiskMapView({ map, spots, places, growth, items, pile, platform,
         <Detail map={map} tile={selected} items={items} spots={spots} chosen={chosen} act={act} />
       </div>
       <div className="stack">
-        <Spots spots={spots} onResolve={onResolve} />
+        <WhyCard map={map} spots={spots} onResolve={onResolve} />
         <Growing growth={growth} />
         <Places places={places} />
         <Report />

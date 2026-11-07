@@ -54,7 +54,16 @@ function hideClippedLabels() {
       const r = c.getBoundingClientRect();
       return r.bottom > box.bottom - 2 + r.height / 4 || r.right > box.right - 2 + 1;
     });
-    if (clipped) t.classList.add("tiny-fit");
+    // A name that only fits by breaking inside a word ("Proje / cts") is
+    // hidden too (DiskMapView, found on a real Mac).
+    const name = t.querySelector("b");
+    let broken = false;
+    if (name) {
+      name.style.overflowWrap = "normal";
+      broken = name.scrollWidth > name.clientWidth + 1;
+      name.style.overflowWrap = "";
+    }
+    if (clipped || broken) t.classList.add("tiny-fit");
   });
 }
 const NO_REMOVE =
@@ -69,8 +78,26 @@ const TNOTE = "The small line in the Toss button is fully opaque (`.tnote`): at 
 
 /** Disk map entries compare the tab bar (with its coverage badge) and the map. */
 const MAP = [".tabs", "#v-map"];
-const mapEntry = (id, state, steps) => ({ id, surface: "Disk map", state, sizes: [DESKTOP, MID, PHONE], query: "", ref: [tab("map"), ...steps, evalRef(hideClippedLabels)], impl: [tab("map"), ...steps], clip: MAP, supplemental: true, note: NO_REMOVE });
-const TILES = ["projects", "docker", "caches", "files", "mobile", "apps", "system", "unknown"];
+function untracedCause() {
+  // The prototype's 15.1 GB of system data has a Measure button that the app
+  // cannot offer honestly, so the app shows that part as "Not traced to a
+  // folder" with its reason and no fix (decision 2026-11-07).
+  const title = "Not traced to a folder";
+  const why = "Space in places I do not walk, such as app data in Library and system folders. I can\u2019t say which folder holds it.";
+  for (const c of document.querySelectorAll("#why .cause")) {
+    if (!c.querySelector('.sw[style*="--t-h"]')) continue;
+    c.querySelector(".cause-head b").textContent = title;
+    const p = c.querySelector(".cause-head p");
+    if (p) p.textContent = why;
+    c.querySelector(".fix-list")?.remove();
+    c.querySelector(".fixed-list")?.remove();
+  }
+  for (const r of document.querySelectorAll("#tile-detail .detail-row > span:first-child")) if (r.textContent === "Kept by macOS for itself") r.textContent = title;
+}
+const UNTRACED =
+  "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).";
+const mapEntry = (id, state, steps) => ({ id, surface: "Disk map", state, sizes: [DESKTOP, MID, PHONE], query: "", ref: [tab("map"), ...steps, evalRef(hideClippedLabels), evalRef(untracedCause)], impl: [tab("map"), ...steps], clip: MAP, supplemental: true, note: UNTRACED });
+const TILES = ["projects", "docker", "caches", "files", "mobile", "apps", "system", "unknown", "browser", "fonts"];
 const PLACES = { click: "#v-map .card > details > summary" };
 
 function trayWindow() {
@@ -179,10 +206,14 @@ export const ENTRIES = [
   // Slice 3: the Disk map tab (task 5.12).
   mapEntry("map-default", "Disk map, AI models selected (the prototype's default)", []),
   ...TILES.map((t) => mapEntry(`map-tile-${t}`, `Disk map, ${t === "unknown" ? "Not explained" : t} selected`, [tile(t)])),
-  mapEntry("map-spot-archive", "Blind spot resolved: folder scanned", [spot("archive")]),
-  mapEntry("map-spot-access", "Blind spot resolved: access granted, then scanned (the app waits for a scan that can read it)", [spot("access")]),
-  mapEntry("map-spot-mystery", "Blind spot resolved: files marked as mine", [spot("mystery")]),
-  mapEntry("map-spots-all", "Every blind spot resolved: Not explained is gone, Your files selected", [spot("archive"), spot("access"), spot("mystery"), tile("files")]),
+  mapEntry("map-spot-archive", "Why card: ~/archive scanned, one fixed", [spot("archive")]),
+  mapEntry("map-spot-comfy", "Why card: ~/ComfyUI-Installs scanned; its checkpoints appear under AI models", [spot("comfy"), tile("ai")]),
+  mapEntry("map-spot-access", "Why card: access granted, then scanned (the app waits for a scan that can read it)", [spot("access")]),
+  mapEntry("map-spot-mystery", "Why card: files marked as mine", [spot("mystery")]),
+  mapEntry("map-spot-skip", "Why card: ~/vms skipped (counted as your files)", [{ click: "#mine-vms" }]),
+  mapEntry("map-why-more", "Why card: Show 4 more folders", [{ click: '[data-why-more="outside"]' }]),
+  mapEntry("map-scan-all", "Why card: Scan all 8, the fixed list opened", [{ click: "#all-outside" }, { click: "#why .fixed-list > summary" }]),
+  mapEntry("map-spots-all", "Every fixable blind spot resolved, Your files selected", [{ click: "#all-outside" }, spot("access"), spot("mystery"), tile("files")]),
   mapEntry("map-places", "Places I checked opened", [PLACES]),
   mapEntry("map-report", "Disk report shown in the copy-by-hand box", [act("report")]),
   {

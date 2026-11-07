@@ -2,7 +2,7 @@
 // classes and the coverage figures are ported from the prototype's
 // `renderMap()`, `squarify()` and `explained()`, so the same numbers give the
 // same tiles.
-import type { DiskMap } from "../../lib/types.ts";
+import type { BlindSpot, BlindSpotKind, DiskMap } from "../../lib/types.ts";
 
 export const GB = 1e9;
 
@@ -16,6 +16,8 @@ export const TILE_COLOR: Record<string, string> = {
   mobile: "var(--t-f)",
   apps: "var(--t-g)",
   system: "var(--t-h)",
+  browser: "var(--t-d)",
+  fonts: "var(--t-e)",
   unknown: "",
 };
 
@@ -145,4 +147,62 @@ export function defaultTile(map: DiskMap, sizes: { mapArea: string; sizeBytes: n
     }
   }
   return best || "unknown";
+}
+
+/** Areas under 3% of the map are not drawn as slivers; they are listed as
+ * chips under it (prototype `mapAreas`). Not explained is always drawn. */
+export const SMALL_AREA = 0.03;
+export function splitAreas(tiles: Tile[]): { tiles: Tile[]; small: Tile[] } {
+  const used = tiles.reduce((t, x) => t + x.v, 0);
+  const small = tiles.filter((x) => x.id !== "unknown" && x.v > 0 && x.v / used < SMALL_AREA);
+  return { tiles: tiles.filter((x) => !small.includes(x)), small };
+}
+
+/** Why space is not explained, by cause (prototype `CAUSES`). */
+export interface Cause {
+  id: "outside" | "locked" | "strange" | "tools" | "untraced";
+  title: string;
+  why: string;
+  /** Swatch colour; "stripes" for the striped one. */
+  c: string;
+  /** Sizes here are estimates ("about"). */
+  est: boolean;
+  /** Open blind spots in this cause, biggest first. */
+  open: BlindSpot[];
+  /** Spots already fixed (or being fixed). */
+  fixed: BlindSpot[];
+  bytes: number;
+}
+
+const CAUSE_OF: Record<BlindSpotKind, Cause["id"]> = {
+  unscanned_folder: "outside",
+  needs_permission: "locked",
+  unknown_files: "strange",
+  tool_unavailable: "tools",
+};
+const CAUSE_TEXT: Record<Cause["id"], [title: string, why: string, c: string, est: boolean]> = {
+  outside: ["In folders I don\u2019t scan", "I only look inside the folders in Settings. A quick size check found these elsewhere in your home folder.", "var(--t-c)", false],
+  locked: ["Locked by macOS", "Mail, Messages, Photos and app data stay hidden until Freeboard has Full Disk Access, so this size is an estimate.", "var(--t-e)", true],
+  strange: ["Files I don\u2019t recognize", "I can read these, but no detector knows which app made them.", "stripes", false],
+  tools: ["Tools I could not ask", "A tool did not answer during the last scan, so what it manages is not counted yet.", "var(--t-g)", false],
+  untraced: ["Not traced to a folder", "Space in places I do not walk, such as app data in Library and system folders. I can\u2019t say which folder holds it.", "var(--t-h)", false],
+};
+
+const sizeOf = (s: BlindSpot) => s.sizeBytes ?? 0;
+
+/** The Why-not-explained card's causes, in the prototype's order. What no
+ * blind spot accounts for is shown honestly as "Not traced to a folder". */
+export function causesOf(map: DiskMap, spots: BlindSpot[]): { causes: Cause[]; left: number } {
+  const order: Cause["id"][] = ["outside", "locked", "untraced", "strange", "tools"];
+  const causes = order.map((id): Cause => {
+    const [title, why, c, est] = CAUSE_TEXT[id];
+    const mine = spots.filter((s) => CAUSE_OF[s.kind] === id);
+    const open = mine.filter((s) => s.state === "open").sort((a, b) => sizeOf(b) - sizeOf(a));
+    return { id, title, why, c, est, open, fixed: mine.filter((s) => s.state !== "open"), bytes: open.reduce((t, s) => t + sizeOf(s), 0) };
+  });
+  const traced = causes.reduce((t, c) => t + c.bytes, 0);
+  const untraced = causes.find((c) => c.id === "untraced")!;
+  untraced.bytes = Math.max(0, map.notExplainedBytes - traced);
+  const shown = causes.filter((c) => c.open.length || c.fixed.length || (c.id === "untraced" && c.bytes >= 0.05 * GB));
+  return { causes: shown, left: shown.reduce((t, c) => t + c.bytes, 0) };
 }

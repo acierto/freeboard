@@ -28,6 +28,7 @@ commands.allow = [
   "get_disk_map",
   "get_blind_spots",
   "resolve_blind_spot",
+  "resolve_blind_spots",
   "get_places_checked",
   "get_growth",
   "get_pile",
