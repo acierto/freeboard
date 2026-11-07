@@ -72,9 +72,9 @@ pub fn processes_in_dir(dir: &Path, runner: &crate::runner::Runner) -> Option<Ve
 /// walked each folder's whole tree, took 20+ s on large worktrees, timed out
 /// and blocked them as "status unknown"; found on a real Mac, 2026-11-06.)
 ///
-/// Freeboard itself and every process it started are left out: the scan
-/// runs `git status` in several worktrees at once, and those children made
-/// clean worktrees look "in use by a program" (found in Linux CI, 2026-11-06).
+/// Freeboard itself and the tools it is running (and their children) are
+/// left out: the scan runs `git status` in several worktrees at once, and
+/// those made clean worktrees look "in use by a program" (Linux CI, 2026-11-06).
 pub fn process_cwds(runner: &crate::runner::Runner) -> Option<Vec<(u32, PathBuf)>> {
     #[cfg(target_os = "linux")]
     let list = {
@@ -103,16 +103,19 @@ pub fn process_cwds(runner: &crate::runner::Runner) -> Option<Vec<(u32, PathBuf)
         }
         list
     };
-    Some(without_own(list, std::process::id()))
+    Some(without_own(list, std::process::id(), &crate::runner::own_children()))
 }
 
-/// Drop `me` and every process descended from it.
-pub fn without_own(list: Vec<(u32, u32, PathBuf)>, me: u32) -> Vec<(u32, PathBuf)> {
+/// Drop `me`, and every process in `tools` or descended from one of them.
+pub fn without_own(list: Vec<(u32, u32, PathBuf)>, me: u32, tools: &[u32]) -> Vec<(u32, PathBuf)> {
     let parent: std::collections::HashMap<u32, u32> = list.iter().map(|(p, pp, _)| (*p, *pp)).collect();
     let mine = |mut p: u32| {
+        if p == me {
+            return true;
+        }
         // Bounded walk up the parent chain (a cycle or a missing parent ends it).
         for _ in 0..64 {
-            if p == me {
+            if tools.contains(&p) {
                 return true;
             }
             match parent.get(&p) {
@@ -168,9 +171,11 @@ mod cwd_tests {
     #[test]
     fn freeboard_and_its_own_children_are_never_counted() {
         // 423 is Freeboard; 446 (its git) and 447 (git's helper) are its own.
-        let list = vec![(1, 0, PathBuf::from("/")), (423, 1, PathBuf::from("/")), (446, 423, PathBuf::from("/w/a")), (447, 446, PathBuf::from("/w/b")), (500, 1, PathBuf::from("/w/c"))];
-        let kept: Vec<u32> = without_own(list, 423).into_iter().map(|(p, _)| p).collect();
-        assert_eq!(kept, vec![1, 500]);
+        // 448 is another child of 423 that Freeboard did not start as a tool
+        // (a test's stand-in for another program): it still counts.
+        let list = vec![(1, 0, PathBuf::from("/")), (423, 1, PathBuf::from("/")), (446, 423, PathBuf::from("/w/a")), (447, 446, PathBuf::from("/w/b")), (448, 423, PathBuf::from("/w/d")), (500, 1, PathBuf::from("/w/c"))];
+        let kept: Vec<u32> = without_own(list, 423, &[446]).into_iter().map(|(p, _)| p).collect();
+        assert_eq!(kept, vec![1, 448, 500]);
         assert_eq!(parse_stat_ppid("446 (git (worker) x) S 423 446 ..."), Some(423));
     }
 

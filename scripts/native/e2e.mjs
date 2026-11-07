@@ -200,9 +200,36 @@ try {
   await sleep(600);
   await click('[data-tab="tidy"]');
 
+  // ---- What Review means ------------------------------------------------------------------
+  await click('details[data-open="grp-Projects"] > summary').catch(() => {});
+  const review = await js(`const r=[...document.querySelectorAll('#v-tidy .irow')].find(r=>/Review/.test(r.querySelector('.imeta')?.textContent||''));if(!r)return null;r.querySelector('.irow-main').click();return r.querySelector('.iname').textContent`);
+  if (review) {
+    await sleep(500);
+    const box = await js(`const b=[...document.querySelectorAll('#v-tidy .riskx')].find(b=>b.closest('.irow'));if(!b)return null;b.open=true;return {title:b.querySelector('summary').textContent,on:b.querySelector('.rs.on b')?.textContent,why:b.querySelectorAll('.rx-why li').length}`);
+    check("a Review item explains what Review means", box?.title === "What \u201cReview\u201d means here" && box.on === "Review" && box.why > 0, JSON.stringify(box));
+    await shot("risk-box");
+  }
+
+  // ---- Disk map ---------------------------------------------------------------------------
+  await click('[data-tab="map"]');
+  await waitFor("the disk map", () => find("#map .tile").then((l) => l.length));
+  const cover = await text(".cover b");
+  check("the disk map says how much it explains", /^\d+\.\d% explained$/.test(cover ?? ""), String(cover));
+  const why = await text("#why h3");
+  check("the right column explains what is not explained", /^(Why .+ isn\u2019t explained|Everything is explained)$/.test(why ?? ""), String(why));
+  await shot("disk-map");
+  await click("#places-btn");
+  await waitFor("the places sheet", () => find(".pl-sum").then((l) => l.length));
+  const groups = await js(`return document.querySelectorAll('#sheet .pl-group').length`);
+  check("See all groups the places that had something", groups > 0, String(groups));
+  await shot("places");
+  await wd("POST", `${S}/actions`, { actions: [{ type: "key", id: "k", actions: [{ type: "keyDown", value: "\uE00C" }, { type: "keyUp", value: "\uE00C" }] }] });
+  await sleep(500);
+  await click('[data-tab="tidy"]');
+
   // ---- Settings -------------------------------------------------------------------------
   await click('[data-act="settings"]');
-  const folders = await js(`return [...document.querySelectorAll('#sheet .mono')].map(e=>e.textContent)`);
+  const folders = await js(`return [...document.querySelectorAll('#sheet .frow .path')].map(e=>e.textContent)`);
   check("Settings lists the scan folders", folders.some((f) => f.endsWith("/fbtest")), folders.join(", "));
   await shot("settings");
   await wd("POST", `${S}/actions`, { actions: [{ type: "key", id: "k", actions: [{ type: "keyDown", value: "" }, { type: "keyUp", value: "" }] }] });

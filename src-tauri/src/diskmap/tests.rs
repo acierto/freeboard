@@ -622,7 +622,7 @@ mod core {
         let r = serde_json::to_string(&core.create_disk_report().unwrap()).unwrap();
         assert!(!r.contains("FREEBOARD-SECRET-MARKER"), "report includes file contents: {r}");
         // It does say what it could not explain, by folder name and size.
-        assert!(r.contains("~/archive holds"), "{r}");
+        assert!(r.contains("archive holds"), "{r}");
         assert!(r.contains("\"explained_pct\""));
         drop(fx);
     }

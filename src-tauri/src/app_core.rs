@@ -682,7 +682,8 @@ impl AppCore {
         let s = self.settings();
         let m = self.measurement();
         let errors: Vec<DetectorError> = self.store.meta_get("detector_errors").and_then(|v| serde_json::from_str(&v).ok()).unwrap_or_default();
-        let canon = |v: &[String]| -> Vec<PathBuf> { v.iter().map(|p| std::fs::canonicalize(p).unwrap_or_else(|_| PathBuf::from(p))).collect() };
+        // Plain form on Windows (C:\..., not \\?\C:\...), as measured paths are.
+        let canon = |v: &[String]| -> Vec<PathBuf> { v.iter().map(|p| crate::platform::plain_path(&std::fs::canonicalize(p).unwrap_or_else(|_| PathBuf::from(p)))).collect() };
         let findings = self.store.findings()?;
         let decisions = self.spot_decisions();
         let scanning = self.scan.lock().unwrap().running.is_some();

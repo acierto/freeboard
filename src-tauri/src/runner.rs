@@ -277,6 +277,31 @@ pub fn check(cmd: &Cmd, policy: Policy, confirmed: Option<&Confirmed>) -> Result
     Ok(())
 }
 
+/// Processes Freeboard started through the runner and that are still
+/// running, so the process check never mistakes them for another program
+/// (the scan runs git in several worktrees at once; Linux CI, 2026-11-06).
+static OWN_CHILDREN: std::sync::Mutex<Vec<u32>> = std::sync::Mutex::new(Vec::new());
+
+pub fn own_children() -> Vec<u32> {
+    OWN_CHILDREN.lock().unwrap_or_else(|e| e.into_inner()).clone()
+}
+
+struct OwnChild(u32);
+impl OwnChild {
+    fn new(pid: u32) -> OwnChild {
+        OWN_CHILDREN.lock().unwrap_or_else(|e| e.into_inner()).push(pid);
+        OwnChild(pid)
+    }
+}
+impl Drop for OwnChild {
+    fn drop(&mut self) {
+        let mut v = OWN_CHILDREN.lock().unwrap_or_else(|e| e.into_inner());
+        if let Some(i) = v.iter().position(|p| *p == self.0) {
+            v.swap_remove(i);
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Runner {
     /// PATH used to resolve executables. Tests point this at fake tools.
@@ -400,6 +425,9 @@ impl Runner {
                 Err(e) => return Err(RunError::Io(e.to_string())),
             }
         };
+        // Freeboard's own tool processes never count as "a program using"
+        // a folder (platform::process_cwds); registered while they run.
+        let _own = OwnChild::new(child.id());
         let max = self.max_output;
         let mut so = child.stdout.take().expect("piped");
         let mut se = child.stderr.take().expect("piped");
