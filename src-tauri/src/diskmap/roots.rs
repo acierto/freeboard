@@ -383,6 +383,19 @@ fn s(p: &Path) -> String {
     p.to_string_lossy().into_owned()
 }
 
+/// A folder's size at the last measurement: the measured roots inside it,
+/// plus suggested items inside it (measured separately), or the folder's own
+/// blind-spot size. `None` when the measurement did not reach it.
+pub fn folder_bytes(m: &Measurement, folder: &Path) -> Option<u64> {
+    let inside = |p: &str| Path::new(p).starts_with(folder);
+    let roots: Vec<&RootBytes> = m.roots.iter().filter(|r| inside(&r.path)).collect();
+    if roots.is_empty() {
+        return m.unscanned.iter().chain(&m.unknown).find(|c| Path::new(&c.path) == folder).and_then(|c| c.bytes);
+    }
+    let claimed: u64 = m.claims.iter().filter(|c| c.paths.first().is_some_and(|p| inside(p))).map(|c| c.bytes).sum();
+    Some(roots.iter().map(|r| r.bytes).sum::<u64>() + claimed)
+}
+
 /// Measure every area root for the disk map (deep scans only).
 pub fn measure(env: &MeasureEnv, claims: &[Claim]) -> Measurement {
     let home = std::fs::canonicalize(&env.home).unwrap_or_else(|_| env.home.clone());

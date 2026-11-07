@@ -387,6 +387,8 @@ mod shell {
                 crate::commands::add_folder,
                 crate::commands::remove_folder,
                 crate::commands::folder_suggestions,
+                crate::commands::get_folder_details,
+                crate::commands::undo_remove_folder,
                 crate::commands::add_suggested_folder,
                 crate::commands::set_notifications_paused,
                 crate::commands::close_tray_view,

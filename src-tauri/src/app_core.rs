@@ -165,6 +165,8 @@ pub struct AppCore {
     platform: &'static str,
     /// Folders last offered to the user; the interface picks one by index.
     folder_offers: Mutex<Vec<PathBuf>>,
+    /// The last folder removed in Settings: (list, position, path), for Undo.
+    removed_folder: Mutex<Option<(FolderList, usize, String)>>,
     /// Disk map: also measure system locations outside the home folder.
     /// Off for cores over fixture homes (tests), on for the real app.
     pub measure_outside_home: bool,
@@ -178,6 +180,38 @@ pub struct AppCore {
 pub struct FolderSuggestion {
     pub label: String,
     pub repos: u32,
+}
+
+/// What Settings shows next to a chosen folder: repositories inside it and
+/// its size at the last deep scan (`None` until one measured it).
+#[derive(Debug, Clone, Serialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct FolderInfo {
+    pub repos: u32,
+    pub bytes: Option<u64>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FolderDetails {
+    /// One entry per `settings.scanFolders`, in order.
+    pub scan: Vec<FolderInfo>,
+    /// One entry per `settings.exclusions`, in order.
+    pub skip: Vec<FolderInfo>,
+    /// Offered folders, by index (as `folder_suggestions`).
+    pub suggestions: Vec<FolderSuggestion>,
+    /// Their sizes at the last deep scan, in the same order.
+    pub suggestion_bytes: Vec<Option<u64>>,
+    pub last_scan_at: Option<String>,
+    /// The folder removed last, while it can still be put back.
+    pub removed: Option<RemovedFolder>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RemovedFolder {
+    pub list: FolderList,
+    pub label: String,
 }
 
 pub struct CoreConfig {
@@ -242,6 +276,7 @@ impl AppCore {
             clock: cfg.clock,
             platform: cfg.platform,
             folder_offers: Mutex::new(Vec::new()),
+            removed_folder: Mutex::new(None),
             measure_outside_home: cfg.measure_outside_home,
             blind_spot_min: std::sync::atomic::AtomicU64::new(diskmap::roots::BLIND_SPOT_MIN),
         });
@@ -1056,12 +1091,71 @@ impl AppCore {
         if index as usize >= v.len() {
             return Err(CommandError::new("unknown_id", "No folder at that position."));
         }
-        v.remove(index as usize);
+        let gone = v.remove(index as usize);
+        *self.removed_folder.lock().unwrap() = Some((list, index as usize, gone));
         match list {
             FolderList::ScanFolders => patch.scan_folders = Some(v),
             FolderList::Exclusions => patch.exclusions = Some(v),
         }
         self.apply_patch(patch)
+    }
+
+    /// Put back the folder removed last, at its old position.
+    pub fn undo_remove_folder(&self) -> CmdResult<Settings> {
+        let Some((list, at, path)) = self.removed_folder.lock().unwrap().take() else {
+            return Err(CommandError::new("unknown_id", "There is nothing to undo."));
+        };
+        let s = self.settings();
+        let mut v = match list {
+            FolderList::ScanFolders => s.scan_folders.clone(),
+            FolderList::Exclusions => s.exclusions.clone(),
+        };
+        if !v.contains(&path) {
+            v.insert(at.min(v.len()), path);
+        }
+        let mut patch = SettingsPatch::default();
+        match list {
+            FolderList::ScanFolders => patch.scan_folders = Some(v),
+            FolderList::Exclusions => patch.exclusions = Some(v),
+        }
+        self.apply_patch(patch)
+    }
+
+    /// Settings' folder rows: repositories and last measured size per
+    /// folder, sized suggestions and the last scan time. Paths stay here;
+    /// the interface matches rows by position.
+    pub fn folder_details(&self) -> CmdResult<FolderDetails> {
+        let s = self.settings();
+        let m = self.measurement();
+        let info = |p: &str, repos: bool| FolderInfo {
+            repos: if repos { crate::scan::folders::count_repos(Path::new(p)) } else { 0 },
+            bytes: m.as_ref().and_then(|m| diskmap::roots::folder_bytes(m, Path::new(p))),
+        };
+        let suggestions = self.folder_suggestions()?;
+        let offers = self.folder_offers.lock().unwrap().clone();
+        let suggestion_bytes = offers.iter().map(|p| m.as_ref().and_then(|m| diskmap::roots::folder_bytes(m, p))).collect();
+        let removed = self.removed_folder.lock().unwrap().as_ref().map(|(list, _, p)| RemovedFolder { list: *list, label: self.folder_label(Path::new(p)) });
+        Ok(FolderDetails {
+            scan: s.scan_folders.iter().map(|p| info(p, true)).collect(),
+            skip: s.exclusions.iter().map(|p| info(p, false)).collect(),
+            suggestions,
+            suggestion_bytes,
+            last_scan_at: self.store.meta_get("last_scan_at").and_then(|v| v.parse::<i64>().ok()).map(diskmap::iso),
+            removed,
+        })
+    }
+
+    /// `~/...` for a folder in the home folder, as the interface shows paths.
+    fn folder_label(&self, p: &Path) -> String {
+        if self.platform != "windows" {
+            let home = crate::platform::plain_path(&std::fs::canonicalize(&self.home).unwrap_or_else(|_| self.home.clone()));
+            for h in [&self.home, &home] {
+                if let Ok(rest) = p.strip_prefix(h) {
+                    return format!("~/{}", rest.display());
+                }
+            }
+        }
+        p.display().to_string()
     }
 
     pub fn set_notifications_paused(&self, paused: bool) -> CmdResult<bool> {
@@ -1321,6 +1415,33 @@ pub(crate) mod tests {
         let s = core.remove_folder(FolderList::ScanFolders, 0).unwrap();
         assert!(s.scan_folders.is_empty());
         assert!(core.add_folder(FolderList::Exclusions, &d.path().join("missing")).is_err());
+    }
+
+    #[test]
+    fn folder_details_and_undo_follow_settings_by_position() {
+        let d = tempfile::tempdir().unwrap();
+        let (core, ..) = core_with(50, d.path());
+        let a = d.path().join("a");
+        let b = d.path().join("b");
+        std::fs::create_dir_all(a.join("x/.git")).unwrap();
+        std::fs::create_dir_all(a.join("y/.git")).unwrap();
+        std::fs::create_dir_all(&b).unwrap();
+        core.add_folder(FolderList::ScanFolders, &a).unwrap();
+        core.add_folder(FolderList::ScanFolders, &b).unwrap();
+        let fd = core.folder_details().unwrap();
+        assert_eq!(fd.scan.iter().map(|f| f.repos).collect::<Vec<_>>(), vec![2, 0]);
+        assert!(fd.scan.iter().all(|f| f.bytes.is_none()), "no deep scan yet: size unknown");
+        assert!(fd.removed.is_none());
+        assert!(core.undo_remove_folder().is_err(), "nothing to undo");
+        // Remove the first one, then put it back where it was.
+        let s = core.remove_folder(FolderList::ScanFolders, 0).unwrap();
+        assert_eq!(s.scan_folders.len(), 1);
+        let removed = core.folder_details().unwrap().removed.unwrap();
+        assert_eq!(removed.list, FolderList::ScanFolders);
+        assert!(removed.label.ends_with("/a") || removed.label.ends_with("\\a"), "{}", removed.label);
+        let s = core.undo_remove_folder().unwrap();
+        assert!(s.scan_folders[0].ends_with("a") && s.scan_folders[1].ends_with("b"), "{:?}", s.scan_folders);
+        assert!(core.undo_remove_folder().is_err(), "undo works once");
     }
 
     #[test]

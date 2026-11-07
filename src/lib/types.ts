@@ -346,6 +346,23 @@ export interface FolderSuggestion {
   repos: number;
 }
 
+/** Settings' folder rows, matched to the settings lists by position. */
+export interface FolderInfo {
+  repos: number;
+  /** Size at the last deep scan; null until one measured it. */
+  bytes: number | null;
+}
+
+export interface FolderDetails {
+  scan: FolderInfo[];
+  skip: FolderInfo[];
+  suggestions: FolderSuggestion[];
+  suggestionBytes: (number | null)[];
+  lastScanAt: string | null;
+  /** The folder removed last, while Undo can put it back. */
+  removed: { list: FolderList; label: string } | null;
+}
+
 // ----- events (spec "Events" table) plus `navigate` -----------------------------
 
 export interface StatusChanged {

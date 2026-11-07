@@ -1,7 +1,7 @@
 {
   "version": 1,
   "source": "docs/reference/freeboard-prototype.html",
-  "sourceSha256": "1e0a2102e32695d6f56ec943b46724c7b255deebe87bab81fb72a9b325c26ae9",
+  "sourceSha256": "18e02b27b131810b995ff2f8ca57fa1557a1ae7eaaa994970cce1b2bcb2f51b4",
   "engine": {
     "engine": "chromium",
     "version": "156.0.8078.4",
@@ -20,8 +20,8 @@
   "locale": "en-US",
   "timezone": "UTC",
   "adapter": "scripts/visual/lib.mjs referenceHtml(): local fonts, data-theme, host reset (src/styles/reset.css), prototype-only controls hidden (.top-right .sim, .top-right [data-act=\"reset\"], .top > div > .note, .top-right .tray)",
-  "acceptedAt": "2026-11-06T21:38:42.303Z",
-  "rationale": "Merge of slice 2 (cleanup sheets, Logbook) and slice 3 (disk map): one baseline set for the combined matrix; Remove now and Remove all here are back in the map's area details (2026-11-06)",
+  "acceptedAt": "2026-11-07T07:01:59.175Z",
+  "rationale": "Settings sheet redesigned by the product owner in the prototype revision of 2026-11-07: warning zones with steppers, folder rows, folders found outside, folders skipped, always protected, scanning, pinned Done. Affected screens: Settings (new entries settings-sheet, settings-undo, settings-suggested-added); no other screen changed in the prototype.",
   "entries": {
     "cleanup-confirm-ack--dark--1120x900": {
       "id": "cleanup-confirm-ack",
@@ -2402,6 +2402,210 @@
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
       "sha256": "db17d94d43d8de4d3a2e17b8f08793e44736c96329193e5c08bc0a8e533f711a"
+    },
+    "settings-sheet--dark--1120x900": {
+      "id": "settings-sheet",
+      "surface": "Settings",
+      "state": "Settings: warning zones, folders, always protected, scanning",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "sha256": "160df7bbf172010a079ad3b4d460a98a191a30d0c762a8c4d76d3ff3ae737b9e"
+    },
+    "settings-sheet--dark--390x844": {
+      "id": "settings-sheet",
+      "surface": "Settings",
+      "state": "Settings: warning zones, folders, always protected, scanning",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "sha256": "ed88588357bdd89198913c3a178ef718051e316c3fef3b9a3d99210fca66dda3"
+    },
+    "settings-sheet--light--1120x900": {
+      "id": "settings-sheet",
+      "surface": "Settings",
+      "state": "Settings: warning zones, folders, always protected, scanning",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "sha256": "6fe4c9d06ade6fb358bade1e559ed941ebf741f0a11be29ee2210f09819b772d"
+    },
+    "settings-sheet--light--390x844": {
+      "id": "settings-sheet",
+      "surface": "Settings",
+      "state": "Settings: warning zones, folders, always protected, scanning",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "sha256": "3d8b89ced06c28e29fa4d5745e98ca3f5a3de5529e6d424fa954fad0c31332de"
+    },
+    "settings-suggested-added--dark--1120x900": {
+      "id": "settings-suggested-added",
+      "surface": "Settings",
+      "state": "Settings: a folder found outside the scanned ones added",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "sha256": "8ff31aefaed022e1bea54d4c5c4c36ee7e556446b1cfbaeda7b2c06dd5f2bdb8"
+    },
+    "settings-suggested-added--dark--390x844": {
+      "id": "settings-suggested-added",
+      "surface": "Settings",
+      "state": "Settings: a folder found outside the scanned ones added",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "sha256": "ed88588357bdd89198913c3a178ef718051e316c3fef3b9a3d99210fca66dda3"
+    },
+    "settings-suggested-added--light--1120x900": {
+      "id": "settings-suggested-added",
+      "surface": "Settings",
+      "state": "Settings: a folder found outside the scanned ones added",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "sha256": "1cfbd7d221117cddadfca046426dfe0a58f26dd82db11c89f97d3510b3abe087"
+    },
+    "settings-suggested-added--light--390x844": {
+      "id": "settings-suggested-added",
+      "surface": "Settings",
+      "state": "Settings: a folder found outside the scanned ones added",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "sha256": "3d8b89ced06c28e29fa4d5745e98ca3f5a3de5529e6d424fa954fad0c31332de"
+    },
+    "settings-undo--dark--1120x900": {
+      "id": "settings-undo",
+      "surface": "Settings",
+      "state": "Settings: a scanned folder removed, with Undo",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "sha256": "780460295ffd90e6b1b2b15b599eb6aa4fbc108752d6ead0ada8cc454e6111d5"
+    },
+    "settings-undo--dark--390x844": {
+      "id": "settings-undo",
+      "surface": "Settings",
+      "state": "Settings: a scanned folder removed, with Undo",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "sha256": "12dfb844c5948197513b9619b9fa6e3d2b6554c53f53a0e7ab05b0e10e4f8b2a"
+    },
+    "settings-undo--light--1120x900": {
+      "id": "settings-undo",
+      "surface": "Settings",
+      "state": "Settings: a scanned folder removed, with Undo",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "sha256": "79a3bcaf31d5afd267a4f3e4d618ee15ce8386e9d4a8d6a44e67b2152b52e7e2"
+    },
+    "settings-undo--light--390x844": {
+      "id": "settings-undo",
+      "surface": "Settings",
+      "state": "Settings: a scanned folder removed, with Undo",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "sha256": "70ca8d9d51cb11e61794ddc9e8c5f5a240491f8ed47c173b1647761e540e78b5"
     },
     "trash-confirm--dark--1120x900": {
       "id": "trash-confirm",

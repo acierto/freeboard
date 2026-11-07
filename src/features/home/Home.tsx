@@ -208,7 +208,7 @@ export function Home({ navigate }: { navigate: View | null }) {
       </div>
       <CleanupSheets c={cleanup} />
       {settingsOpen && (
-        <SettingsSheet settings={settings} platform={status.platform} scanning={scanning} onChange={h.updateSettings} onSettings={h.setSettings} onClose={() => setSettingsOpen(false)} />
+        <SettingsSheet settings={settings} platform={status.platform} freeBytes={freeBytes} scanning={scanning} onChange={h.updateSettings} onSettings={h.setSettings} onClose={() => setSettingsOpen(false)} />
       )}
     </>
   );

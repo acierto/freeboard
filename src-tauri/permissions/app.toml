@@ -19,6 +19,8 @@ commands.allow = [
   "add_folder",
   "remove_folder",
   "folder_suggestions",
+  "get_folder_details",
+  "undo_remove_folder",
   "add_suggested_folder",
   "set_notifications_paused",
   # Rebuild command set (spec "Tauri commands", 2026-11-06). Each one takes IDs,

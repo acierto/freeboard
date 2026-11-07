@@ -2,6 +2,8 @@
 
 Replaced on 2026-11-06 with the rebuild sources supplied by the user (`freeboard-prototype.html` and `Freeboard Product and Implementation Specification.md`). The previous versions, which described the hull-gauge interface, remain in git history.
 
+On 2026-11-07 the user supplied a revised prototype (`Freeboard Prototype.html`) that changes only the Settings sheet; it replaced `freeboard-prototype.html` without the page wrapper the file was saved with.
+
 - `FREEBOARD_SPEC.md`: product behavior, safety invariants, detector inventory, disk accounting, pile rules, API contract, milestones and acceptance criteria.
 - `freeboard-prototype.html`: visual and interaction reference (Dinghy, the pile, Quick questions, Disk map, Logbook). Its data, cleanup and blind-spot results are simulations.
 
@@ -12,4 +14,4 @@ Prototype-only parts that must not ship: example data, **Pretend free space**, *
 ## Integrity
 
 - `FREEBOARD_SPEC.md` SHA-256: `98bbfcaca7a0bf7a116bc9a89c27c05739c9566e6ee30d3ff16ff91d9a3458c4`
-- `freeboard-prototype.html` SHA-256: `1e0a2102e32695d6f56ec943b46724c7b255deebe87bab81fb72a9b325c26ae9`
+- `freeboard-prototype.html` SHA-256: `18e02b27b131810b995ff2f8ca57fa1557a1ae7eaaa994970cce1b2bcb2f51b4`

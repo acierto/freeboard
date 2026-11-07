@@ -43,7 +43,8 @@ fn hidden(name: &str) -> bool {
     name.starts_with('.')
 }
 
-fn count_repos(dir: &Path) -> u32 {
+/// Git repositories in `dir`, itself or at most two levels inside.
+pub fn count_repos(dir: &Path) -> u32 {
     if is_repo(dir) {
         return 1;
     }

@@ -15,6 +15,8 @@ export function Sheet({
   locked = false,
   stage,
   fallbackFocus,
+  className,
+  closeLabel,
   children,
 }: {
   title: string;
@@ -22,6 +24,10 @@ export function Sheet({
   locked?: boolean;
   stage?: string;
   fallbackFocus?: string;
+  /** Extra class on the sheet (the prototype's `openSheet(html, cls)`). */
+  className?: string;
+  /** With a label, the title row gets a close button (prototype `.st-head`). */
+  closeLabel?: string;
   children: ReactNode;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -104,8 +110,17 @@ export function Sheet({
         if (e.target === e.currentTarget && !isLocked.current) onClose();
       }}
     >
-      <div className="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" tabIndex={-1} id="sheet" ref={ref}>
-        <h2 id="sheet-title">{title}</h2>
+      <div className={className ? `sheet ${className}` : "sheet"} role="dialog" aria-modal="true" aria-labelledby="sheet-title" tabIndex={-1} id="sheet" ref={ref}>
+        {closeLabel ? (
+          <div className="st-head">
+            <h2 id="sheet-title">{title}</h2>
+            <button className="icon-x" data-act="close" aria-label={closeLabel} onClick={onClose}>
+              ×
+            </button>
+          </div>
+        ) : (
+          <h2 id="sheet-title">{title}</h2>
+        )}
         {children}
       </div>
     </div>

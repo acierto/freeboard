@@ -276,6 +276,21 @@ fn quick_scans_reconcile_claims_against_the_stored_measurement() {
 }
 
 #[test]
+fn folder_bytes_adds_roots_and_suggested_items_inside_the_folder() {
+    use super::roots::{folder_bytes, ClaimRecord, Measurement, RootBytes};
+    let root = |p: &str, b: u64| RootBytes { path: p.into(), area: "projects".into(), bytes: b };
+    let m = Measurement {
+        roots: vec![root("/h/proj", 5), root("/h/proj/app", 10), root("/h/projects-old", 99)],
+        claims: vec![ClaimRecord { paths: vec!["/h/proj/app/node_modules".into()], bytes: 7 }, ClaimRecord { paths: vec!["/h/other".into()], bytes: 50 }],
+        unscanned: vec![super::roots::Candidate { path: "/h/vms".into(), bytes: Some(14), ext: None }],
+        ..Default::default()
+    };
+    assert_eq!(folder_bytes(&m, Path::new("/h/proj")), Some(22), "a sibling with the same prefix is not inside");
+    assert_eq!(folder_bytes(&m, Path::new("/h/vms")), Some(14), "a blind spot keeps its size");
+    assert_eq!(folder_bytes(&m, Path::new("/h/none")), None);
+}
+
+#[test]
 fn macos_private_places_are_never_read_without_full_disk_access() {
     let fx = fixture();
     write(&fx.home.join("Library/Containers/com.example/Data/big.bin"), 500 * KB, b"c");

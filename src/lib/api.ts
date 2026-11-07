@@ -13,6 +13,7 @@ import type {
   DiskMap,
   EventMap,
   FolderList,
+  FolderDetails,
   FolderSuggestion,
   Goal,
   Group,
@@ -95,6 +96,8 @@ export const api = {
   removeFolder: (list: FolderList, index: number) => call<Settings>("remove_folder", { list, index }),
   /** Home folders that hold Git repositories (labels only). */
   folderSuggestions: () => call<FolderSuggestion[]>("folder_suggestions"),
+  getFolderDetails: () => call<FolderDetails>("get_folder_details"),
+  undoRemoveFolder: () => call<Settings>("undo_remove_folder"),
   /** Adds an offered folder by its index; the path never passes through the interface. */
   addSuggestedFolder: (index: number) => call<Settings>("add_suggested_folder", { index }),
   getSettings: () => call<Settings>("get_settings"),

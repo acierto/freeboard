@@ -183,6 +183,16 @@ pub async fn add_suggested_folder(core: Core<'_>, index: u32) -> CmdResult<Setti
 }
 
 #[tauri::command]
+pub async fn get_folder_details(core: Core<'_>) -> CmdResult<crate::app_core::FolderDetails> {
+    core.folder_details()
+}
+
+#[tauri::command]
+pub async fn undo_remove_folder(core: Core<'_>) -> CmdResult<Settings> {
+    core.undo_remove_folder()
+}
+
+#[tauri::command]
 pub async fn remove_folder(core: Core<'_>, list: FolderList, index: u32) -> CmdResult<Settings> {
     core.remove_folder(list, index)
 }

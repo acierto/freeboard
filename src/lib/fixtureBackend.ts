@@ -216,6 +216,18 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
     if (!manual) manual = new Set(picks().map((i) => i.id));
   };
 
+  const folderInfo = new Map<string, { repos: number; bytes: number | null }>([
+    ["/Users/you/projects", { repos: 14, bytes: 96 * G }],
+    ["/Users/you/work", { repos: 2, bytes: 41 * G }],
+    ["/Users/you/Downloads", { repos: 0, bytes: 23 * G }],
+    ["/Users/you/Desktop", { repos: 0, bytes: 12 * G }],
+  ]);
+  const offers = [
+    { label: "~/ComfyUI-Installs", repos: 1, bytes: 18 * G },
+    { label: "~/material-ui", repos: 1, bytes: 2 * G },
+  ];
+  let removedFolder: { list: "scanFolders" | "exclusions"; at: number; path: string } | null = null;
+
   const settings: Settings = {
     lowThresholdBytes: 20 * G,
     criticalThresholdBytes: 8 * G,
@@ -660,14 +672,38 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
       changed();
       return it;
     },
-    folder_suggestions: () => [],
+    folder_suggestions: () => offers.map((o) => ({ label: o.label, repos: o.repos })),
+    // The prototype's Settings sheet: four scanned folders, two offered.
+    get_folder_details: () => ({
+      scan: settings.scanFolders.map((p) => folderInfo.get(p) ?? { repos: 0, bytes: null }),
+      skip: settings.exclusions.map(() => ({ repos: 0, bytes: null })),
+      suggestions: offers.map((o) => ({ label: o.label, repos: o.repos })),
+      suggestionBytes: offers.map((o) => o.bytes),
+      lastScanAt: new Date(Date.now() - 18 * 60000).toISOString(),
+      removed: removedFolder ? { list: removedFolder.list, label: removedFolder.path.replace(/^\/Users\/you/, "~") } : null,
+    }),
     add_folder: () => ({ ...settings }),
     remove_folder: (a) => {
-      const list = a.list === "exclusions" ? settings.exclusions : settings.scanFolders;
-      list.splice(a.index as number, 1);
+      const which = a.list === "exclusions" ? "exclusions" : "scanFolders";
+      const at = a.index as number;
+      removedFolder = { list: which, at, path: settings[which].splice(at, 1)[0] };
       return { ...settings };
     },
-    add_suggested_folder: () => ({ ...settings }),
+    undo_remove_folder: () => {
+      if (removedFolder) settings[removedFolder.list].splice(removedFolder.at, 0, removedFolder.path);
+      removedFolder = null;
+      return { ...settings };
+    },
+    add_suggested_folder: (a) => {
+      const o = offers.splice(a.index as number, 1)[0];
+      if (o) {
+        const p = o.label.replace(/^~/, "/Users/you");
+        settings.scanFolders.push(p);
+        folderInfo.set(p, { repos: o.repos, bytes: o.bytes });
+      }
+      removedFolder = null;
+      return { ...settings };
+    },
     start_scan: () => "scan-1",
     list_logbook: () => ({
       runs: [...sessionRuns.map((s) => summary(runs.get(s.id)!.detail)), ...SAMPLE_RUNS.map(summary)],

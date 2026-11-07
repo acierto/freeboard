@@ -173,6 +173,52 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
 .progress { height: 12px; border-radius: 99px; background: var(--soft); overflow: hidden; }
 .progress i { display: block; height: 100%; background: var(--accent); transition: width .2s; }
 .toggle { display: flex; gap: 8px; align-items: flex-start; }
+/* Settings sheet */
+.sheet.settings { width: min(580px, 100%); padding: 0; gap: 0; }
+.st-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 20px 22px 6px; }
+.st-body { display: flex; flex-direction: column; gap: 14px; padding: 8px 22px 18px; }
+.st-foot { position: sticky; bottom: 0; display: flex; justify-content: flex-end; gap: 8px; padding: 12px 22px; background: var(--card); border-top: 2px solid var(--line); }
+.st-sec { background: var(--soft); border-radius: 18px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.st-sec h3 { font-size: 17px; }
+.st-sec > p { font-size: 13.5px; color: var(--muted); margin-top: -6px; }
+.zone { position: relative; height: 14px; border-radius: 99px; overflow: hidden; display: flex; margin-top: 22px; }
+.zone i { display: block; height: 100%; }
+.zone-wrap { position: relative; }
+.zone-you { position: absolute; top: 0; transform: translateX(-50%); font-size: 12px; font-weight: 800; white-space: nowrap; color: var(--ink); }
+.zone-you::after { content: ""; display: block; width: 2px; height: 26px; margin: 1px auto 0; background: var(--ink); border-radius: 2px; }
+.zone-ticks { position: relative; height: 18px; font: 12px var(--mono); color: var(--muted); }
+.zone-ticks span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+.zone-ticks span:first-child { transform: none; } .zone-ticks span:last-child { transform: translateX(-100%); }
+.limit { display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; gap: 10px; align-items: center; background: var(--card); border-radius: 14px; padding: 8px 10px 8px 12px; }
+.limit .sw { width: 14px; height: 14px; border-radius: 4px; }
+.limit b { display: block; font-size: 14.5px; } .limit small { display: block; font-size: 12.5px; color: var(--muted); font-weight: 600; }
+.stepper { display: inline-flex; align-items: center; border: 2px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--card); }
+.stepper button { border: 0; background: none; width: 34px; height: 32px; font-size: 18px; font-weight: 800; color: var(--accent); }
+.stepper button:disabled { color: var(--muted); opacity: .4; cursor: not-allowed; }
+.stepper output { min-width: 62px; text-align: center; font-weight: 800; font-variant-numeric: tabular-nums; }
+.frow { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 10px; align-items: center; background: var(--card); border-radius: 14px; padding: 8px 8px 8px 10px; }
+.frow.sugg { background: transparent; border: 2px dashed var(--line); }
+.ficon { width: 34px; height: 28px; display: block; }
+.frow .path { font: 500 13.5px var(--mono); overflow-wrap: anywhere; display: block; }
+.frow small { display: block; font-size: 12.5px; color: var(--muted); font-weight: 600; }
+.icon-x { border: 0; background: none; width: 32px; height: 32px; border-radius: 10px; color: var(--muted); font-size: 20px; line-height: 1; }
+.icon-x:hover { background: var(--soft); color: var(--risky); }
+.st-sub { font-size: 12.5px; font-weight: 800; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; margin-top: 4px; }
+.st-list { display: flex; flex-direction: column; gap: 6px; }
+.addline { display: flex; gap: 8px; flex-wrap: wrap; }
+.addline input { flex: 1 1 200px; min-width: 0; font: 500 13.5px var(--mono); border: 2px solid var(--line); border-radius: 12px; padding: 7px 10px; background: var(--card); color: var(--ink); }
+.empty { border: 2px dashed var(--line); border-radius: 14px; padding: 10px 12px; font-size: 13.5px; color: var(--muted); }
+.undo { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13.5px; background: var(--card); border-radius: 12px; padding: 6px 6px 6px 12px; }
+.lockchips { display: flex; flex-wrap: wrap; gap: 6px; }
+.lockchips span { display: inline-flex; align-items: center; gap: 6px; background: var(--card); border-radius: 999px; padding: 3px 11px 3px 9px; font-size: 13px; }
+.lockchips svg { width: 12px; height: 12px; }
+.scanrow { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.scanbtn { text-align: left; border: 2px solid var(--line); background: var(--card); border-radius: 14px; padding: 10px 12px; }
+.scanbtn:hover:not(:disabled) { border-color: var(--accent); }
+.scanbtn:disabled { opacity: .6; cursor: wait; }
+.scanbtn b { display: block; font-family: var(--display); font-weight: 600; font-size: 16px; }
+.scanbtn small { display: block; color: var(--muted); font-size: 12.5px; }
+@media (max-width: 460px) { .scanrow { grid-template-columns: minmax(0, 1fr); } .limit { grid-template-columns: 14px minmax(0, 1fr); } .limit .stepper { grid-column: 2; justify-self: start; } }
 .set label { display: block; }
 .set input[type="range"] { max-width: 100%; width: 100%; }
 
@@ -337,7 +383,7 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
   function partSum(i) { return Math.round(i.parts.reduce(function (t, x) { return t + (x.on ? x.s : 0); }, 0) * 10) / 10; }
   function fresh() {
     ITEMS.forEach(function (i) { if (i.parts) { i.parts.forEach(function (x) { x.on = true; x.done = false; }); i.size = partSum(i); } });
-    return { manual: null, areas: {}, open: {}, target: [], goal: 50, tab: 'tidy', tile: 'ai', drift: 0, tossed: 0, queued: {}, excl: {}, gone: {}, held: {}, kept: {}, later: {}, skipped: {}, acks: {}, spots: {}, freedBy: {}, heldBy: {}, log: SAMPLE_LOG.slice(), low: 20, crit: 8, pile: false, tray: false, sheet: null, run: null, report: false, auto: { caches: false, docker: false } };
+    return { manual: null, areas: {}, open: {}, target: [], goal: 50, tab: 'tidy', tile: 'ai', drift: 0, tossed: 0, queued: {}, excl: {}, gone: {}, held: {}, kept: {}, later: {}, skipped: {}, acks: {}, spots: {}, freedBy: {}, heldBy: {}, log: SAMPLE_LOG.slice(), low: 20, crit: 8, folders: [{ p: '~/projects', m: '14 projects, 96 GB' }, { p: '~/work', m: '2 repositories, 41 GB' }, { p: '~/Downloads', m: '23 GB' }, { p: '~/Desktop', m: '12 GB' }], suggest: [{ p: '~/ComfyUI-Installs', m: '1 repository, 18 GB' }, { p: '~/material-ui', m: '1 repository, 2 GB' }], skip: [], adding: null, removed: null, scanning: null, lastScan: '18 minutes ago', pile: false, tray: false, sheet: null, run: null, report: false, auto: { caches: false, docker: false } };
   }
   var S = fresh();
   var $ = function (id) { return document.getElementById(id); };
@@ -573,8 +619,8 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
 
   /* Sheets */
   function closeSheet() { S.sheet = null; $('sheet-root').innerHTML = ''; }
-  function openSheet(html) {
-    $('sheet-root').innerHTML = '<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" tabindex="-1" id="sheet">' + html + '</div></div>';
+  function openSheet(html, cls) {
+    $('sheet-root').innerHTML = '<div class="scrim" id="scrim"><div class="sheet' + (cls ? ' ' + cls : '') + '" role="dialog" aria-modal="true" aria-labelledby="sheet-title" tabindex="-1" id="sheet">' + html + '</div></div>';
     $('sheet').focus();
   }
   function acksDone(l) { return l.every(function (i) { return !i.ack || S.acks[i.id]; }); }
@@ -623,11 +669,61 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
       '<div class="row"><button class="btn primary" id="go" data-act="close">Done</button></div>');
     renderAll();
   }
+  var FOLDER_SVG = '<svg class="ficon" viewBox="0 0 34 28" aria-hidden="true"><path d="M2 6a3 3 0 0 1 3-3h8l3 3h13a3 3 0 0 1 3 3v14a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3Z" fill="var(--crate)" stroke="var(--crate-edge)" stroke-width="2"/></svg>';
+  var LOCK_SVG = '<svg viewBox="0 0 12 12" aria-hidden="true"><rect x="1.5" y="5" width="9" height="6.5" rx="1.5" fill="var(--muted)"/><path d="M3.5 5V3.6a2.5 2.5 0 0 1 5 0V5" fill="none" stroke="var(--muted)" stroke-width="1.5"/></svg>';
+  function folderRow(f, kind, n) {
+    var act = kind === 'sugg' ? '<button class="mini go" id="sugg-add-' + n + '" data-fadd="' + n + '">Add</button>' :
+      '<button class="icon-x" id="' + kind + '-rm-' + n + '" data-frm="' + kind + ':' + n + '" aria-label="' + (kind === 'scan' ? 'Stop scanning ' : 'Stop skipping ') + esc(f.p) + '" title="Remove">&times;</button>';
+    return '<div class="frow' + (kind === 'sugg' ? ' sugg' : '') + '">' + FOLDER_SVG + '<span><span class="path">' + esc(f.p) + '</span><small>' + esc(f.m || '') + '</small></span>' + act + '</div>';
+  }
+  function addLine(kind, label) {
+    if (S.adding !== kind) return '<div><button class="btn" id="add-' + kind + '" data-fopen="' + kind + '">' + label + '</button></div>';
+    return '<form class="addline" data-fform="' + kind + '"><input id="add-' + kind + '-path" aria-label="Folder path" placeholder="~/folder" autocomplete="off"><button class="btn primary" type="submit">Add</button><button class="btn" type="button" data-fcancel="1">Cancel</button></form>';
+  }
+  function settingsHTML() {
+    var max = 60, pct = function (v) { return Math.min(100, v / max * 100); }, f = free();
+    var zone = '<div class="zone-wrap"><span class="zone-you num" style="left:' + Math.max(6, Math.min(94, pct(f))).toFixed(1) + '%">You: ' + gb(f) + '</span>' +
+      '<div class="zone" aria-hidden="true"><i style="width:' + pct(S.crit) + '%;background:var(--risky)"></i><i style="width:' + (pct(S.low) - pct(S.crit)) + '%;background:var(--review)"></i><i style="flex:1;background:var(--safe)"></i></div></div>' +
+      '<div class="zone-ticks num" aria-hidden="true"><span style="left:0">0</span><span style="left:' + pct(S.crit) + '%">' + S.crit + '</span><span style="left:' + pct(S.low) + '%">' + S.low + '</span><span style="left:100%">60+ GB</span></div>';
+    var step = function (id, val, lo, hi, d) {
+      return '<span class="stepper" role="group" aria-label="' + (id === 'low' ? 'Warning level' : 'Urgent level') + '"><button id="' + id + '-dn" data-step="' + id + ':-' + d + '" aria-label="Lower"' + (val - d < lo ? ' disabled' : '') + '>&minus;</button><output class="num" id="' + id + '-out" aria-live="polite">' + val + ' GB</output><button id="' + id + '-up" data-step="' + id + ':' + d + '" aria-label="Higher"' + (val + d > hi ? ' disabled' : '') + '>+</button></span>';
+    };
+    var und = S.removed ? '<div class="undo"><span>' + (S.removed.kind === 'scan' ? 'No longer scanning ' : 'No longer skipping ') + '<span class="mono">' + esc(S.removed.f.p) + '</span></span><button class="mini" id="undo-rm" data-fundo="1">Undo</button></div>' : '';
+    var scanDesc = S.scanning ? (S.scanning === 'quick' ? 'Quick scan running…' : 'Deep scan running…') : 'Last scan ' + S.lastScan + '. Quick scans run every hour.';
+    return '<div class="st-head"><h2 id="sheet-title">Settings</h2><button class="icon-x" data-act="close" aria-label="Close settings">&times;</button></div>' +
+      '<div class="st-body">' +
+      '<section class="st-sec" aria-labelledby="st-warn"><h3 id="st-warn">When Dinghy warns you</h3><p>Dinghy gets worried in the amber zone and panics in the red one.</p>' + zone +
+        '<div class="limit"><span class="sw" style="background:var(--review)"></span><span><b>Warn me</b><small>Low, Dinghy looks worried</small></span>' + step('low', S.low, S.crit + 5, 60, 5) + '</div>' +
+        '<div class="limit"><span class="sw" style="background:var(--risky)"></span><span><b>Warn me urgently</b><small>Critical, Dinghy panics</small></span>' + step('crit', S.crit, 2, S.low - 2, 1) + '</div></section>' +
+      '<section class="st-sec" aria-labelledby="st-scan"><h3 id="st-scan">Folders I scan</h3><p>Freeboard looks for projects, worktrees and caches here.</p>' +
+        '<div class="st-list">' + (S.folders.length ? S.folders.map(function (x, n) { return folderRow(x, 'scan', n); }).join('') : '<div class="empty">No folders yet. Add one, or Freeboard only checks tool caches.</div>') + '</div>' +
+        (S.removed && S.removed.kind === 'scan' ? und : '') +
+        (S.suggest.length ? '<div class="st-sub">Found outside these folders</div><div class="st-list">' + S.suggest.map(function (x, n) { return folderRow(x, 'sugg', n); }).join('') + '</div>' : '') +
+        addLine('scan', 'Add a folder') + '</section>' +
+      '<section class="st-sec" aria-labelledby="st-skip"><h3 id="st-skip">Folders I skip</h3><p>Freeboard never looks inside these.</p>' +
+        '<div class="st-list">' + (S.skip.length ? S.skip.map(function (x, n) { return folderRow(x, 'skip', n); }).join('') : '<div class="empty">Nothing skipped yet.</div>') + '</div>' +
+        (S.removed && S.removed.kind === 'skip' ? und : '') +
+        addLine('skip', 'Skip a folder') + '</section>' +
+      '<section class="st-sec" aria-labelledby="st-lock"><h3 id="st-lock">Always protected</h3><p>Freeboard never removes these, whatever you choose.</p><div class="lockchips"><span>' + LOCK_SVG + 'System folders</span><span>' + LOCK_SVG + 'Repository roots</span><span>' + LOCK_SVG + '.git folders</span><span>' + LOCK_SVG + 'Folders you skip</span></div></section>' +
+      '<section class="st-sec" aria-labelledby="st-run"><h3 id="st-run">Scanning</h3><p id="scan-status" aria-live="polite">' + scanDesc + '</p><div class="scanrow">' +
+        '<button class="scanbtn" id="scan-quick" data-scan="quick"' + (S.scanning ? ' disabled' : '') + '><b>Quick scan</b><small>Known caches and tools, about 10 seconds</small></button>' +
+        '<button class="scanbtn" id="scan-deep" data-scan="deep"' + (S.scanning ? ' disabled' : '') + '><b>Deep scan</b><small>Every file in your folders, about a minute</small></button></div></section>' +
+      '</div><div class="st-foot"><button class="btn primary" id="settings-done" data-act="close">Done</button></div>';
+  }
+  function renderSettings() {
+    var sh = $('sheet'); if (!sh || S.sheet !== 'settings') return;
+    var top = sh.scrollTop, f = document.activeElement && document.activeElement.id;
+    sh.innerHTML = settingsHTML(); sh.scrollTop = top;
+    if (f && $(f) && !$(f).disabled) $(f).focus({ preventScroll: true }); else if (S.adding && $('add-' + S.adding + '-path')) $('add-' + S.adding + '-path').focus();
+  }
   function settingsSheet() {
-    S.sheet = 'settings';
-    openSheet('<h2 id="sheet-title">Settings</h2><div class="set stack"><div><label for="low-gb">Warn me below <b class="num" id="low-out">' + S.low + ' GB</b></label><input id="low-gb" type="range" min="15" max="60" step="5" value="' + S.low + '"></div>' +
-      '<div><label for="crit-gb">Urgent warning below <b class="num" id="crit-out">' + S.crit + ' GB</b></label><input id="crit-gb" type="range" min="3" max="10" step="1" value="' + S.crit + '"></div>' +
-      '<div><b>Folders I scan</b><p class="mono">~/projects, ~/work, ~/Downloads, ~/Desktop</p></div><div><b>Never touched</b><p class="muted">System folders, repository roots, .git and paths you exclude.</p></div></div><div class="row"><button class="btn primary" data-act="close">Done</button></div>');
+    S.sheet = 'settings'; S.adding = null; S.removed = null;
+    openSheet(settingsHTML(), 'settings');
+  }
+  async function runScan(kind) {
+    S.scanning = kind; renderSettings();
+    await sleep(reduced ? 100 : kind === 'quick' ? 1200 : 2400);
+    S.scanning = null; S.lastScan = 'just now'; renderSettings();
   }
 
   function renderAll() {
@@ -659,6 +755,13 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
       renderAll(); return;
     }
     if (b.dataset.spot) { S.spots[b.dataset.spot] = true; renderAll(); return; }
+    if (b.dataset.step) { var st = b.dataset.step.split(':'); S[st[0]] += +st[1]; renderSettings(); renderHero(); return; }
+    if (b.dataset.frm) { var fr = b.dataset.frm.split(':'), list = fr[0] === 'scan' ? S.folders : S.skip; S.removed = { kind: fr[0], f: list.splice(+fr[1], 1)[0], at: +fr[1] }; renderSettings(); return; }
+    if (b.dataset.fundo) { var rm = S.removed; (rm.kind === 'scan' ? S.folders : S.skip).splice(rm.at, 0, rm.f); S.removed = null; renderSettings(); return; }
+    if (b.dataset.fadd) { S.folders.push(S.suggest.splice(+b.dataset.fadd, 1)[0]); S.removed = null; renderSettings(); return; }
+    if (b.dataset.fopen) { S.adding = b.dataset.fopen; renderSettings(); return; }
+    if (b.dataset.fcancel) { var was = S.adding; S.adding = null; renderSettings(); if ($('add-' + was)) $('add-' + was).focus(); return; }
+    if (b.dataset.scan) { runScan(b.dataset.scan); return; }
     var a = b.dataset.act;
     if (a === 'close-tray') { S.tray = false; renderHero(); $('tray-btn').focus(); }
     else if (a === 'confirm') { S.tray = false; renderHero(); confirmSheet(picks()); }
@@ -677,6 +780,14 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
       if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { show('Copied. Paste it into your agent.'); }, function () { box.innerHTML = '<textarea id="report-text" aria-label="Disk report" readonly>' + esc(text) + '</textarea>'; $('report-text').select(); });
       else { box.innerHTML = '<textarea id="report-text" aria-label="Disk report" readonly>' + esc(text) + '</textarea>'; $('report-text').select(); }
     }
+  });
+  document.addEventListener('submit', function (e) {
+    var fm = e.target.closest('[data-fform]'); if (!fm) return;
+    e.preventDefault();
+    var kind = fm.dataset.fform, v = fm.querySelector('input').value.trim();
+    if (!v) { fm.querySelector('input').focus(); return; }
+    (kind === 'scan' ? S.folders : S.skip).push({ p: v, m: kind === 'scan' ? 'Not scanned yet' : 'Skipped from now on' });
+    S.adding = null; S.removed = null; renderSettings(); if ($('add-' + kind)) $('add-' + kind).focus();
   });
   document.addEventListener('change', function (e) {
     var t = e.target;

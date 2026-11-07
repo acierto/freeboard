@@ -151,6 +151,23 @@ function runDetailsSheet(open) {
       '<div class="row"><button class="btn primary" id="go" data-act="close">Done</button></div>',
   );
 }
+// ---- settings ------------------------------------------------------------------
+
+function settingsWording() {
+  // Folder rows count Git repositories, which is what the scan finds; the
+  // prototype calls the first row's "projects". A deep scan also measures the
+  // disk map, which takes a few minutes on a full disk.
+  for (const e of document.querySelectorAll("#sheet .frow small")) e.textContent = e.textContent.replace(/^(\d+) projects,/, "$1 repositories,");
+  const deep = document.querySelector("#scan-deep small");
+  if (deep) deep.textContent = "Every file in your folders and the disk map, a few minutes";
+}
+const SETTINGS_NOTE =
+  "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.";
+const settingsEntry = (id, state, steps) => ({
+  id, surface: "Settings", state, sizes: [DESKTOP, PHONE], query: "",
+  ref: [act("settings"), ...steps, evalRef(settingsWording)], impl: [act("settings"), ...steps], clip: SHEET, supplemental: true, note: SETTINGS_NOTE,
+});
+
 // Reference edits run in the page, so they get openSheet as source text.
 const OPEN_SHEET = openSheet.toString();
 
@@ -174,6 +191,11 @@ export const ENTRIES = [
     ref: [{ click: "#tray-btn" }, evalRef(trayWindow)], impl: [], clip: [".tray-window"], supplemental: true,
     note: "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
   },
+
+  // Settings (prototype revision of 2026-11-07).
+  settingsEntry("settings-sheet", "Settings: warning zones, folders, always protected, scanning", []),
+  settingsEntry("settings-undo", "Settings: a scanned folder removed, with Undo", [{ click: "#scan-rm-1" }]),
+  settingsEntry("settings-suggested-added", "Settings: a folder found outside the scanned ones added", [{ click: "#sugg-add-0" }]),
 
   // Slice 2: cleanup sheets and the Logbook (task 4.7). Sheets at desktop and phone widths.
   {
