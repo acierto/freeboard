@@ -80,7 +80,11 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .hero-copy { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
 .cta { display: flex; flex-wrap: wrap; gap: 12px; }
 .platforms { display: flex; flex-wrap: wrap; gap: 8px 18px; color: var(--dim); font-size: 14px; }
-.platforms span::before { content: "●"; color: var(--safe); margin-right: 6px; font-size: 9px; vertical-align: 2px; }
+.platforms span::before, .platforms a::before { content: "●"; color: var(--safe); margin-right: 6px; font-size: 9px; vertical-align: 2px; }
+.platforms a { color: var(--dim); text-decoration: none; border-bottom: 1px dotted currentColor; }
+.platforms a:hover, .platforms a:focus-visible { color: var(--ink); }
+.release-line { font-size: 13px; color: var(--muted); margin-top: -12px; }
+.release-line a { color: inherit; }
 
 /* 3D rig */
 .scene { perspective: 1600px; perspective-origin: 50% 40%; height: 560px; position: relative; min-width: 0; }
@@ -328,7 +332,8 @@ footer a { color: #fff; }
         <a class="btn primary" href="#download" data-release-link><svg><use href="#dl"/></svg><span data-os-label>Download Freeboard</span></a>
         <a class="btn" href="https://github.com/" data-repo-link><svg><use href="#gh"/></svg>Star on GitHub</a>
       </div>
-      <div class="platforms"><span>macOS</span><span>Linux</span><span>Windows</span><span>Built with Tauri 2</span></div>
+      <div class="platforms"><a href="https://github.com/acierto/freeboard/releases/latest/download/Freeboard-macOS-universal.dmg" download data-asset="macOS">macOS</a><a href="https://github.com/acierto/freeboard/releases/latest/download/Freeboard-linux-x86_64.deb" download data-asset="Linux">Linux</a><a href="https://github.com/acierto/freeboard/releases/latest/download/Freeboard-windows-x64-setup.exe" download data-asset="Windows">Windows</a><span>Built with Tauri 2</span></div>
+      <div class="release-line"><span data-version>Latest release</span> · <a href="https://github.com/acierto/freeboard/releases">All releases and older versions</a></div>
     </div>
 
     <div class="scene" id="scene" aria-hidden="true">
@@ -507,7 +512,8 @@ footer a { color: #fff; }
       <a class="btn primary" href="https://github.com/" data-release-link><svg><use href="#dl"/></svg><span data-os-label>Download the latest release</span></a>
       <a class="btn" href="https://github.com/" data-repo-link><svg><use href="#gh"/></svg>View the source</a>
     </div>
-    <p class="reveal" style="margin-top:18px;font-size:15px;color:var(--muted)">Other downloads: <a href="https://github.com/acierto/freeboard/releases/latest/download/Freeboard-macOS-universal.dmg">macOS (.dmg)</a> · <a href="https://github.com/acierto/freeboard/releases/latest/download/Freeboard-linux-x86_64.deb">Linux x86_64 (.deb)</a> · <a href="https://github.com/acierto/freeboard/releases/latest/download/Freeboard-linux-x86_64.AppImage">AppImage</a> · <a href="https://github.com/acierto/freeboard/releases/latest/download/Freeboard-linux-arm64.deb">Linux arm64 (.deb)</a> · <a href="https://github.com/acierto/freeboard/releases/latest">all releases</a></p>
+    <p class="reveal" style="margin-top:18px;font-size:15px;color:var(--muted)">Other downloads: <a href="https://github.com/acierto/freeboard/releases/latest/download/Freeboard-macOS-universal.dmg">macOS (.dmg)</a> · <a href="https://github.com/acierto/freeboard/releases/latest/download/Freeboard-windows-x64-setup.exe">Windows x64 (.exe)</a> · <a href="https://github.com/acierto/freeboard/releases/latest/download/Freeboard-windows-arm64-setup.exe">Windows Arm (.exe)</a> · <a href="https://github.com/acierto/freeboard/releases/latest/download/Freeboard-linux-x86_64.deb">Linux x86_64 (.deb)</a> · <a href="https://github.com/acierto/freeboard/releases/latest/download/Freeboard-linux-x86_64.AppImage">AppImage</a> · <a href="https://github.com/acierto/freeboard/releases/latest/download/Freeboard-linux-arm64.deb">Linux arm64 (.deb)</a></p>
+    <p class="reveal" style="margin-top:6px;font-size:15px;color:var(--muted)"><span data-version>Latest release</span> · <a href="https://github.com/acierto/freeboard/releases">All releases and older versions</a></p>
     <div class="install reveal"><code id="installCmd">git clone https://github.com/your-name/freeboard &amp;&amp; cd freeboard &amp;&amp; pnpm tauri build</code><button class="btn sm" id="copyBtn">Copy</button></div>
   </div>
   <div class="ocean" aria-hidden="true">
@@ -525,12 +531,17 @@ footer a { color: #fff; }
   var REPO = 'acierto/freeboard';
   document.querySelectorAll('[data-repo-link]').forEach(function (a) { a.href = 'https://github.com/' + REPO; });
   var REL = 'https://github.com/' + REPO + '/releases/latest', DL = REL + '/download/';
-  var ASSETS = { macOS: 'Freeboard-macOS-universal.dmg', Linux: 'Freeboard-linux-x86_64.deb' };
+  var ASSETS = { macOS: 'Freeboard-macOS-universal.dmg', Linux: 'Freeboard-linux-x86_64.deb', Windows: 'Freeboard-windows-x64-setup.exe' };
+  // Show which version "latest" is (public API, no token; the page works without it).
+  fetch('https://api.github.com/repos/' + REPO + '/releases/latest').then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+    if (!j || !j.tag_name) return;
+    document.querySelectorAll('[data-version]').forEach(function (e) { e.textContent = 'Latest: ' + j.tag_name + (j.published_at ? ', ' + new Date(j.published_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : ''); });
+  }).catch(function () {});
   document.querySelectorAll('[data-release-link]').forEach(function (a) { a.href = REL; });
   document.getElementById('installCmd').textContent = 'git clone https://github.com/' + REPO + ' && cd freeboard && pnpm tauri build';
   var ua = navigator.userAgent, os = /Mac/.test(ua) ? 'macOS' : /Win/.test(ua) ? 'Windows' : /Linux/.test(ua) ? 'Linux' : '';
-  if (os && os !== 'Windows') document.querySelectorAll('[data-os-label]').forEach(function (l) { l.textContent = 'Download for ' + os; });
-  // macOS and Linux get the file itself, so the download starts at once. Windows has no installer in the release yet.
+  if (os) document.querySelectorAll('[data-os-label]').forEach(function (l) { l.textContent = 'Download for ' + os; });
+  // Each system gets the file itself, so the download starts at once.
   if (ASSETS[os]) document.querySelectorAll('[data-release-link]').forEach(function (a) { a.href = DL + ASSETS[os]; a.setAttribute('download', ''); });
   var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
