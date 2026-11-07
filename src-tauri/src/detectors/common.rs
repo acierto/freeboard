@@ -210,13 +210,25 @@ pub fn path_state(p: &Path, exclusions: &[PathBuf]) -> Option<PathState> {
 }
 
 pub fn fingerprint_paths(states: &[PathState]) -> String {
+    fingerprint_paths_with(states, |m| m.content_bytes)
+}
+
+/// The fingerprint as versions before 2026-11-07 computed it (allocated
+/// bytes). Items scanned by such a version are still checked against it, so
+/// updating Freeboard never makes every unchanged folder look changed (found
+/// on a real Mac, 2026-11-07: 81 items skipped right after the update).
+pub fn fingerprint_paths_legacy(states: &[PathState]) -> String {
+    fingerprint_paths_with(states, |m| m.bytes)
+}
+
+fn fingerprint_paths_with(states: &[PathState], size: impl Fn(&crate::scan::size::Measured) -> u64) -> String {
     let mut loc = String::new();
     let mut con = String::new();
     for s in states {
         loc.push_str(&format!("{}|{}|{}\n", s.canonical.display(), s.identity, s.is_link));
         // Content only: file sizes, not the space the file system allocates
         // (see Measured::content_bytes).
-        con.push_str(&format!("{:?}|{}|{}\n", s.m.newest_mtime, s.m.files, s.m.content_bytes));
+        con.push_str(&format!("{:?}|{}|{}\n", s.m.newest_mtime, s.m.files, size(&s.m)));
     }
     format!("p:{};c:{}", &hash_hex(&loc)[..16], &hash_hex(&con)[..16])
 }

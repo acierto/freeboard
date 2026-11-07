@@ -189,7 +189,7 @@ pub fn probe_paths(f: &Finding, ctx: &ScanContext, guard: &Guard) -> Probe {
     if now_loc != exp_loc {
         return Probe::Changed("Its location or identity changed after the scan (for example, a folder was swapped for a link).".into());
     }
-    if now != expected {
+    if now != expected && fingerprint_paths_legacy(&states) != expected {
         return Probe::Changed("Files inside it changed after the scan.".into());
     }
     if f.suggestion.detector == INSTALLERS {

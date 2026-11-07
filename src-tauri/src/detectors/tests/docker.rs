@@ -235,3 +235,31 @@ fn unused_images_are_one_item_with_a_part_per_image() {
         assert!(merge_unused(ctx, vec![one.clone()])[0].suggestion.parts.is_empty());
     });
 }
+
+#[test]
+fn containers_hidden_from_docker_ps_still_keep_their_images_and_volumes() {
+    // Docker Desktop leaves its own containers (Kubernetes pods) out of
+    // `docker ps -a`; `docker system df -v` still lists them. Found on a real
+    // Mac, 2026-11-07: images those pods used were suggested as unused.
+    let hide = |listed: bool| {
+        reset_snapshot_cache();
+        let fx = Fx::new();
+        let s = fx.docker(true);
+        std::fs::write(s.join("ps.jsonl"), "").unwrap();
+        if listed {
+            let df = std::fs::read_to_string(s.join("df_v.json")).unwrap().replace(
+                "\"Containers\": []",
+                "\"Containers\": [{\"ID\": \"c1aaaaaaaaaa\"}, {\"ID\": \"c2bbbbbbbbbb\"}, {\"ID\": \"c3cccccccccc\"}]",
+            );
+            std::fs::write(s.join("df_v.json"), df).unwrap();
+        }
+        let o = fx.scan(ScanKind::Quick, &docker_dets());
+        assert!(o.errors.is_empty(), "{:?}", o.errors);
+        by_detector(&o, VOLUMES).iter().map(|v| v.title.clone()).collect::<Vec<_>>()
+    };
+    // Without the second list every container is invisible, so volumes they
+    // use look unattached: the test can tell the difference.
+    assert!(hide(false).iter().any(|t| t == "Volume web_data"));
+    let vols = hide(true);
+    assert!(!vols.iter().any(|t| t == "Volume web_data" || t == "Volume cache_vol"), "{vols:?}");
+}

@@ -159,12 +159,27 @@ pub fn load(ctx: &ScanContext, det: &str) -> Result<Snapshot, DetectorError> {
         (j(ps), j(im), j(da), j(vo), j(df), j(dv))
     });
 
-    // Containers, including stopped ones.
-    let ids: Vec<String> = json_lines(det, &ps_out?)?
+    // Containers, including stopped ones. Docker Desktop leaves its own
+    // containers (Kubernetes pods, `kube-system`) out of `docker ps -a`, but
+    // they still use images and volumes; `docker system df -v` lists them.
+    // Without them, images those pods use looked unused and were suggested
+    // (found on a real Mac, 2026-11-07: Docker refused 5 removals because "a
+    // container is using its referenced image").
+    let mut ids: Vec<String> = json_lines(det, &ps_out?)?
         .iter()
         .map(|v| s(v, "ID"))
         .filter(|i| !i.is_empty())
         .collect();
+    if let Ok(out) = &dfv_out {
+        if let Ok(v) = serde_json::from_str::<Value>(out.trim()) {
+            for c in v.get("Containers").and_then(|x| x.as_array()).cloned().unwrap_or_default() {
+                let id = s(&c, "ID");
+                if !id.is_empty() && safe_arg(&id) && !ids.iter().any(|f| f.starts_with(&id) || id.starts_with(f.as_str())) {
+                    ids.push(id);
+                }
+            }
+        }
+    }
     if !ids.is_empty() {
         let mut args = vec!["container", "inspect", "--size"];
         args.extend(ids.iter().map(|s| s.as_str()));
@@ -287,6 +302,13 @@ type Slot = Mutex<Option<(usize, i64, Result<Arc<Snapshot>, DetectorError>)>>;
 fn cache() -> &'static Slot {
     static C: OnceLock<Slot> = OnceLock::new();
     C.get_or_init(|| Mutex::new(None))
+}
+
+/// Forget the cached snapshot. Tests that scan twice at the same fixed time
+/// would otherwise get the first scan's Docker state back.
+#[cfg(test)]
+pub fn reset_snapshot_cache() {
+    *cache().lock().unwrap_or_else(|e| e.into_inner()) = None;
 }
 
 /// One snapshot per scan, shared by the five Docker detectors. The lock is

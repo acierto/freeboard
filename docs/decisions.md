@@ -267,3 +267,8 @@ The user's prototype Version 15 (`freeboard-prototype-3.html`) now defines the "
 ## 2026-11-07 — The Linux package is called freeboard-disk
 
 Ubuntu's archive has an unrelated `freeboard` package (an IoT dashboard, 1.1.0). Its higher version made `apt upgrade` replace Freeboard with it in the Linux test VM. The user chose the apt name `freeboard-disk`. Tauri names the .deb after the app and has no setting for it, so `scripts/linux/rename-deb.sh` repacks the .deb in the release and verify builds: `Package: freeboard-disk`, with `Conflicts` and `Replaces: freeboard` so an install under the old name is removed. The conflict has no version bound: with `<< 1.0`, apt satisfied it by upgrading the old package to the IoT dashboard. The app, its binary (`/usr/bin/freeboard`) and its menu entry keep the name Freeboard. Tested in the Linux VM: the old package is replaced, the dashboard is not installed, and `apt upgrade` leaves Freeboard alone.
+
+## 2026-11-07 — Hidden Docker containers, and fingerprints across updates
+
+- Docker Desktop leaves its own containers (Kubernetes pods in `kube-system`) out of `docker ps -a`, but `docker system df -v` lists them. Images those pods used were suggested as unused, and Docker refused 5 removals on a real Mac. Container IDs now come from both lists.
+- The content fingerprint changed to file sizes (decision above, "Fingerprint file sizes"). Items scanned by the previous version were then all skipped as changed (81 on a real Mac, right after the update). The pre-cleanup check now accepts the previous version's fingerprint as well.
