@@ -276,7 +276,11 @@ export function FirstRun({ settings, status, onSettings, onDone }: { settings: S
         : `With ${free.toFixed(1)} GB free I’m floating fine.`,
     "Let me look around. Where do you keep your code?",
     "Here’s my promise. Read it, then we’re off.",
-    done ? `Found ${gb(found.reduce((t, s) => t + s.sizeBytes, 0))} I could toss. Nothing moved yet.` : `Looking around… ${scan.done} of ${scan.total || "…"} places.`,
+    done
+      ? found.length
+        ? `Found ${gb(found.reduce((t, s) => t + s.sizeBytes, 0))} I could toss. Nothing moved yet.`
+        : "All tidy! Nothing to toss right now."
+      : `Looking around… ${scan.done} of ${scan.total || "…"} places.`,
   ][step];
 
   const label = step === 0 ? "Let’s set sail" : step === 3 ? "Start first look" : step === 4 ? (done ? "Show me" : "Looking…") : "Next";
