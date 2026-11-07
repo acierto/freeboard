@@ -25,6 +25,7 @@ const STATES = [
   { id: "cleanup-confirm", query: "", click: ["#cta"], wait: "#go" },
   { id: "cleanup-confirm-ack", query: "", click: ['details[data-open="grp-Docker"] > summary', "#l-x-d-vol", '[data-now="d-vol"]'], wait: "#sheet-ack-d-vol" },
   { id: "rows-open", query: "", click: ['details[data-open="grp-Projects"] > summary', "#l-x-b-node", "#l-x-wt-pay"] },
+  { id: "risk-box-open", query: "", click: ['details[data-open="grp-Docker"] > summary', "#l-x-d-vol"] },
   { id: "cleanup-progress", query: "hold=1", click: ["#cta", "#go"], wait: "#run-bar" },
   { id: "cleanup-result", query: "skip=wt-exp&trash=1&fail=d-cache", click: ["#cta", "#go"], wait: '#go[data-act="close"]' },
   { id: "trash-confirm", query: "trash=2.4", click: ['[data-act="empty"]'], wait: "#go" },

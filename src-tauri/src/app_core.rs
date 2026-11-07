@@ -851,6 +851,7 @@ impl AppCore {
     /// decisions and part choices applied.
     fn decided_suggestions(&self) -> CmdResult<Vec<Suggestion>> {
         let mut items: Vec<Suggestion> = self.store.findings()?.into_iter().map(|f| f.suggestion).collect();
+        items.iter_mut().for_each(crate::risk_notes::annotate);
         selection::apply_decisions(&mut items, &self.store.load_decisions()?);
         Ok(items)
     }

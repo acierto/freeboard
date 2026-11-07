@@ -34,6 +34,8 @@ function item(id: string, over: Partial<Suggestion> = {}): Suggestion {
     skipReason: null,
     decision: null,
     ackName: null,
+    riskWhy: [],
+    safer: [],
     ...over,
   };
 }

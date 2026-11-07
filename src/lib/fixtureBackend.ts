@@ -143,6 +143,34 @@ const GROWING: [string, string, number][] = [
 ];
 const EXTRA_PLACES = ["npm cache", "Yarn cache", "Bun cache", "Maven repository", "Gradle caches", "Go module cache", "CocoaPods", "Conda environments", "pyenv versions", "Cargo registry", "Turbo and Nx caches", "VS Code old extensions", "Browser caches", "LM Studio models", "Trash", "Log files", "iOS device support", "Mail attachments"];
 
+// "What Risky means here" for the prototype's items, as risk_notes.rs words
+// them: the two the user's description names, and a fallback for the rest.
+function riskNotes(id: string, risk: string, back: string): Pick<Suggestion, "riskWhy" | "safer"> {
+  if (risk === "Safe") return { riskWhy: [], safer: [] };
+  if (id === "d-vol")
+    return {
+      riskWhy: [
+        "Docker deletes it outright. It does not go to the Trash and cannot be undone.",
+        "Freeboard can\u2019t see inside a volume, so it can\u2019t tell whether the data matters.",
+        "The name suggests it holds a database.",
+      ],
+      safer: [
+        { label: "Look inside it", command: "docker run --rm -v billing_pgdata:/data alpine ls -la /data" },
+        { label: "Save a copy to ~/Backups first", command: "mkdir -p ~/Backups && docker run --rm -v billing_pgdata:/data -v ~/Backups:/backup alpine tar czf /backup/billing_pgdata.tgz -C /data ." },
+      ],
+    };
+  if (id === "wt-pay")
+    return {
+      riskWhy: ["3 uncommitted files and 2 unpushed commits. Your work may exist only here.", "Freeboard will not remove it until that is no longer true."],
+      safer: [
+        { label: "See what is only here", command: 'git -C "$HOME/work/web-app/.worktrees/payments-v2" status' },
+        { label: "Push the branch", command: 'git -C "$HOME/work/web-app/.worktrees/payments-v2" push -u origin HEAD' },
+      ],
+    };
+  if (risk === "Risky") return { riskWhy: ["Freeboard can\u2019t prove it is safe to remove.", "It can\u2019t be undone."], safer: [] };
+  return { riskWhy: ["It comes back, but with some effort: " + back.charAt(0).toLowerCase() + back.slice(1)], safer: [] };
+}
+
 const bytes = (gb: number) => Math.round(gb * G);
 const round1 = (n: number) => Math.round(n * 10) / 10;
 
@@ -190,6 +218,7 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
       skipReason: null,
       decision: null,
       ackName: extra?.ack ? name.replace(/^Volume /, "") + " volume" : null,
+      ...riskNotes(id, risk, back),
       need: extra?.need,
     };
   });

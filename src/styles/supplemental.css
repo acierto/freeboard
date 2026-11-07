@@ -27,3 +27,24 @@ html.tray-native, html.tray-native body { background: transparent; }
    its inline-flex summary gets no line-box strut; the app (standards mode)
    lays it out as a block of its own width to keep the same height. */
 .fixed-list > summary.fx { display: flex; width: max-content; }
+/* "What Risky means here" (RiskBox.tsx): the scale, why this item sits
+   where it does, and what to do first. Built from the prototype's tokens,
+   status colours (.safe/.review/.risky set --st) and .mini buttons. */
+.riskx { border: 2px solid var(--line); border-radius: 14px; padding: 8px 12px; font-size: 13.5px; background: var(--card); }
+.riskx.risky { border-color: var(--risky); }
+.riskx > summary { cursor: pointer; font-weight: 800; color: var(--st, var(--ink)); }
+.riskx[open] > summary { margin-bottom: 8px; }
+.rx-scale { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+.rx-lvl { border-radius: 10px; padding: 5px 8px; background: var(--soft); color: var(--muted); border: 2px solid transparent; }
+.rx-lvl b { display: block; font-size: 13px; }
+.rx-lvl small { display: block; font-size: 12px; font-weight: 600; }
+.rx-lvl.on { border-color: var(--st); color: var(--ink); }
+.rx-lvl.on b { color: var(--st); }
+.rx-def { margin: 8px 0 0; color: var(--muted); }
+.rx-h { display: block; margin-top: 10px; font-size: 13.5px; }
+.rx-why, .rx-safer { margin: 4px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+.rx-safer li { display: flex; flex-direction: column; gap: 3px; }
+.rx-cmd { display: flex; gap: 6px; align-items: flex-start; }
+.rx-cmd code { flex: 1; min-width: 0; overflow-wrap: anywhere; background: var(--soft); border-radius: 8px; padding: 4px 8px; font-size: 12.5px; }
+.rx-note { margin: 6px 0 0; font-size: 12.5px; color: var(--muted); }
+@media (max-width: 460px) { .rx-scale { grid-template-columns: minmax(0, 1fr); } }

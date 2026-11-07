@@ -7,6 +7,7 @@ import type { ItemDecision, PileState, Suggestion } from "../../lib/types";
 import { questionDeck } from "../home/homeModel";
 import { age, cmdFor } from "../cleanup/cleanupModel";
 import { Parts } from "./Parts";
+import { RiskBox } from "./RiskBox";
 
 export interface Choices {
   add(ids: string[]): void;
@@ -57,6 +58,7 @@ function Question({ items, pile, act }: { items: Suggestion[]; pile: PileState; 
         <dt>To get it back</dt>
         <dd>{q.recovery}</dd>
       </dl>
+      <RiskBox s={q} />
       {q.needsConfirmation && (
         <label className="ack">
           <input type="checkbox" id={`ack-${q.id}`} data-ack={q.id} checked={!!acks[q.id]} onChange={(e) => setAcks((a) => ({ ...a, [q.id]: e.target.checked }))} />
@@ -153,6 +155,7 @@ export function Row({ s, ctx, chosen, act, max }: { s: Suggestion; ctx: string; 
             <dt>To get it back</dt>
             <dd>{s.recovery}</dd>
           </dl>
+          <RiskBox s={s} />
           {can && !kept && <Parts item={s} ctx={ctx} onChange={(ids) => act.parts(s.id, ids)} />}
           {s.blockedReason ? (
             <p className="note">{s.blockedReason}</p>

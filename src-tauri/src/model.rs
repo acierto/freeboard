@@ -151,6 +151,20 @@ pub struct Suggestion {
     /// Name shown in the per-item acknowledgment ("billing_pgdata volume").
     #[serde(default)]
     pub ack_name: Option<String>,
+    /// Why this item is Review or Risky (risk_notes.rs). Empty for Safe.
+    #[serde(default)]
+    pub risk_why: Vec<String>,
+    /// Commands the user can run first to make removing it safer. Only shown;
+    /// Freeboard never runs them.
+    #[serde(default)]
+    pub safer: Vec<SaferStep>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SaferStep {
+    pub label: String,
+    pub command: String,
 }
 
 impl Suggestion {

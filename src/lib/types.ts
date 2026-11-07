@@ -54,6 +54,15 @@ export interface Suggestion {
   decision: ItemDecision;
   /** Name shown in the per-item acknowledgment ("billing_pgdata volume"). */
   ackName: string | null;
+  /** Why this item is Review or Risky. Empty for Safe. */
+  riskWhy: string[];
+  /** Commands the user can run first to make removing it safer (only shown). */
+  safer: SaferStep[];
+}
+
+export interface SaferStep {
+  label: string;
+  command: string;
 }
 
 export type Goal = number | "all";

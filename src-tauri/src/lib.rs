@@ -10,6 +10,7 @@ pub mod detectors;
 pub mod diskmap;
 pub mod guard;
 pub mod model;
+pub mod risk_notes;
 pub mod monitor;
 pub mod platform;
 pub mod runner;

@@ -173,6 +173,8 @@ pub fn base(detector: &str, group: Group, identity: &str) -> Suggestion {
         decision: None,
         size_is_estimate: false,
         skip_reason: None,
+        risk_why: Vec::new(),
+        safer: Vec::new(),
         ack_name: None,
     }
 }

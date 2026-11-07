@@ -579,6 +579,8 @@ mod tests {
                 size_is_estimate: false,
                 skip_reason: None,
                 ack_name: None,
+                risk_why: vec![],
+                safer: vec![],
             },
             target: Target::Paths { paths: vec!["/x".into()] },
         }

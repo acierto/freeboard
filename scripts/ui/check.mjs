@@ -142,10 +142,26 @@ async function tabStaysInside(p, n = 10) {
 // Remove now on a volume: its own acknowledgment gates the confirm button.
 {
   const { p, ctx } = await page();
+  // What Risky means: folded on a Review question, open on a Risky item.
+  const qBox = await p.$eval("#v-tidy .q", (q) => {
+    const b = q.querySelector(".riskx");
+    return b ? { open: b.open, title: b.querySelector("summary").textContent } : null;
+  });
+  check("risk: a Review question explains Review, folded", qBox?.title === "What \u201cReview\u201d means here" && qBox.open === false, JSON.stringify(qBox));
   await p.click('details[data-open="grp-Docker"] > summary');
   check("rows: details are folded until a row is opened", !(await p.$('[data-now="d-vol"]')));
   await p.click("#l-x-d-vol");
   check("rows: opening a row shows its details and actions", (await p.getAttribute("#l-x-d-vol", "aria-expanded")) === "true" && !!(await p.$('[data-now="d-vol"]')));
+  const box = await p.$eval('[data-risk-box="d-vol"]', (b) => ({
+    open: b.open,
+    on: b.querySelector(".rx-lvl.on b")?.textContent,
+    why: b.querySelectorAll(".rx-why li").length,
+    safer: [...b.querySelectorAll(".rx-safer code")].map((c) => c.textContent),
+  }));
+  check("risk: a Risky item explains itself, open, with its place on the scale", box.open && box.on === "Risky" && box.why === 3, JSON.stringify(box));
+  check("risk: it says how to keep a copy first", box.safer.length === 2 && box.safer[1].includes("tar czf /backup/billing_pgdata.tgz"), JSON.stringify(box.safer));
+  await p.click("#l-x-d-cache");
+  check("risk: Safe items have no explanation box", !(await p.$('[data-risk-box="d-cache"]')));
   await p.click('[data-now="d-vol"]');
   await p.waitForSelector("#sheet");
   await idle(p);
