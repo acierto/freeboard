@@ -33,7 +33,8 @@ step desktop-tests bash -c "cd src-tauri && cargo test --locked"
 # /root is a protected location by design, so use an ordinary home folder.
 step native-trash bash -c "mkdir -p /home/tester && cd src-tauri && HOME=/home/tester XDG_DATA_HOME=/home/tester/.local/share RUSTUP_HOME=/root/.rustup CARGO_HOME=/root/.cargo cargo test --no-default-features --locked -- --ignored native_trash"
 step bundles npx tauri build --bundles deb,appimage
-find src-tauri/target/release/bundle \( -name "*.deb" -o -name "*.AppImage" \) -exec cp {} /out/ \; 2>/dev/null
+find src-tauri/target/release/bundle -name "*.AppImage" -exec cp {} /out/ \; 2>/dev/null
+for d in src-tauri/target/release/bundle/deb/*.deb; do scripts/linux/rename-deb.sh "$d" "/out/$(basename "$d")" || status=1; done
 node scripts/perf/installer-size.mjs /out >> /out/summary.txt || true
 exit $status
 '

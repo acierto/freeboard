@@ -36,6 +36,8 @@ chmod +x Freeboard-linux-x86_64.AppImage
 
 Tested on GNOME (with the AppIndicator extension that Ubuntu includes) and KDE Plasma.
 
+In apt the package is called `freeboard-disk` (`sudo apt remove freeboard-disk` uninstalls it). Ubuntu's own `freeboard` package is an unrelated IoT dashboard.
+
 ## First run
 
 The first-run setup explains what Freeboard reads and asks which folders to scan for projects and worktrees. Freeboard asks the operating system for a permission only when a feature needs it. On macOS, for example, Full Disk Access is needed only if you want protected locations scanned.

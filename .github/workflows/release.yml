@@ -87,7 +87,8 @@ jobs:
               cp "$(ls $b/universal-apple-darwin/release/bundle/dmg/*.dmg | head -1)" out/Freeboard-macOS-universal.dmg ;;
             linux-*)
               arch="${{ matrix.name }}"; arch="${arch#linux-}"
-              cp "$(ls $b/release/bundle/deb/*.deb | head -1)" "out/Freeboard-linux-$arch.deb"
+              # apt package name freeboard-disk (scripts/linux/rename-deb.sh).
+              scripts/linux/rename-deb.sh "$(ls $b/release/bundle/deb/*.deb | head -1)" "out/Freeboard-linux-$arch.deb"
               cp "$(ls $b/release/bundle/appimage/*.AppImage | head -1)" "out/Freeboard-linux-$arch.AppImage" ;;
             windows-*)
               arch="${{ matrix.name }}"; arch="${arch#windows-}"
