@@ -122,7 +122,9 @@ export type Outcome = "waiting" | "active" | "tossed" | "stayed" | "failed" | "n
 export function outcomeOf(run: RunDetail | null, itemId: string): Outcome {
   const steps = stepsOf(run, itemId);
   if (!steps.length) return "waiting";
-  if (!steps.every((x) => isFinal(x.state))) return steps.some((x) => x.state === "checking" || x.state === "running") ? "active" : "waiting";
+  // Started once any step runs or ends: an item with hundreds of parts is
+  // active between two of them, not waiting (found on a real Mac, 2026-11-07).
+  if (!steps.every((x) => isFinal(x.state))) return steps.some((x) => x.state === "checking" || x.state === "running" || isFinal(x.state)) ? "active" : "waiting";
   if (steps.some((x) => removed(x.state))) return "tossed";
   if (steps.some((x) => x.state === "failed" || x.state === "interrupted")) return "failed";
   if (steps.some((x) => x.state === "skipped")) return "stayed";
@@ -137,7 +139,17 @@ export function runFigures(plan: CleanupPlan, run: RunDetail | null) {
   const handled = out.filter((o) => o !== "waiting" && o !== "active").length;
   // Space freed so far: removed steps that did not go to the Trash.
   const freed = (run?.items ?? []).filter((i) => i.state === "done").reduce((t, i) => t + i.expectedBytes, 0);
-  return { outcomes: out, tossed: count("tossed"), stayed: count("stayed"), failed: count("failed"), handled, at: active >= 0 ? active + 1 : Math.min(Math.max(handled, 1), plan.items.length), freed };
+  // The bar moves one item's width per item, as the prototype's, and inside
+  // an item with many parts it moves part by part.
+  const share = (id: string) => {
+    const st = stepsOf(run, id);
+    return st.length ? st.filter((x) => isFinal(x.state)).length / st.length : 0;
+  };
+  const fraction = plan.items.length ? plan.items.reduce((t, s) => t + share(s.id), 0) / plan.items.length : 0;
+  // Inside the item being handled: "37 of 244".
+  const cur = active >= 0 ? stepsOf(run, plan.items[active].id) : [];
+  const within = cur.length > 1 ? { done: cur.filter((x) => isFinal(x.state)).length, of: cur.length } : null;
+  return { outcomes: out, tossed: count("tossed"), stayed: count("stayed"), failed: count("failed"), handled, at: active >= 0 ? active + 1 : Math.min(Math.max(handled, 1), plan.items.length), freed, fraction, within };
 }
 
 /** The 3D deck shows up to nine crates; crate k stands for items k, k+9, ...

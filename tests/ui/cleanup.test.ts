@@ -142,6 +142,12 @@ test("the run scene follows each crate: lifted, gone, stayed, stuck", () => {
   assert.deepEqual([f.tossed, f.stayed, f.failed, f.handled, f.at], [1, 1, 0, 2, 3]);
   assert.equal(f.freed, GB);
   assert.deepEqual(cubeLooks(f.outcomes), ["gone", "stay", "lift", ""]);
+  // An item with many parts: active between two parts, and the bar moves.
+  const big = plan([item("imgs"), item("z")]);
+  const parts = run([row("p1", "done", "imgs"), row("p2", "done", "imgs"), row("p3", "waiting", "imgs"), row("p4", "waiting", "imgs"), row("z", "waiting")]);
+  const g = runFigures(big, parts);
+  assert.deepEqual([g.outcomes[0], g.at, g.fraction, g.within], ["active", 1, 0.25, { done: 2, of: 4 }]);
+  assert.deepEqual(cubeLooks(g.outcomes), ["lift", ""]);
   // Crate k stands for items k, k+9, ...: once item k is handled and a later
   // one waits, the crate is back on deck for it.
   const many = plan(Array.from({ length: 11 }, (_, i) => item("i" + i)));

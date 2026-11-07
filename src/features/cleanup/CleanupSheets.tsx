@@ -172,11 +172,11 @@ function Running({ c, flow }: { c: Cleanup; flow: Extract<Flow, { kind: "run" }>
       <div className="st-body">
         <Voyage plan={flow.plan} freed={f.freed} looks={cubeLooks(f.outcomes)} splashes={f.tossed} />
         <div className="now-doing">
-          <span id="run-now" aria-live="polite">{`Checking ${current}`}</span>
+          <span id="run-now" aria-live="polite">{`Checking ${current}` + (f.within ? ` \u00b7 ${f.within.done} of ${f.within.of}` : "")}</span>
           <span className="num muted" id="run-of">{`${f.at} of ${total}`}</span>
         </div>
-        <div className="progress" role="progressbar" aria-label="Cleanup progress" aria-valuemin={0} aria-valuemax={total} aria-valuenow={f.handled}>
-          <i id="run-bar" style={{ width: (f.handled / total) * 100 + "%" }}></i>
+        <div className="progress" role="progressbar" aria-label="Cleanup progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(f.fraction * 100)}>
+          <i id="run-bar" style={{ width: f.fraction * 100 + "%" }}></i>
         </div>
         <div className="tally" id="run-tally">
           <span className="safe">

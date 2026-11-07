@@ -1007,7 +1007,15 @@ impl AppCore {
     pub fn get_run(&self, run_id: &str) -> CmdResult<RunDetail> {
         validate_id(run_id)?;
         let mut r = self.cleanup.get_run(run_id)?;
-        r.free_bytes_now = Some((self.cleanup.free_space)());
+        let free = (self.cleanup.free_space)();
+        r.free_bytes_now = Some(free);
+        // The menu bar shows the same number as the window while a run
+        // frees space (it lagged until the next five-minute sample; found on
+        // a real Mac, 2026-11-07). Status changes still go through the monitor.
+        if r.state == "running" {
+            let status = self.monitor.lock().unwrap().overall();
+            self.shell().update_tray(status, free);
+        }
         Ok(r)
     }
 
