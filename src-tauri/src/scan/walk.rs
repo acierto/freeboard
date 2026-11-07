@@ -70,7 +70,7 @@ pub fn exclusions(ctx: &ScanContext) -> Vec<PathBuf> {
     v
 }
 
-type CacheSlot = Mutex<Option<(usize, i64, Arc<Discovery>)>>;
+type CacheSlot = Mutex<Option<(usize, i64, Vec<PathBuf>, Arc<Discovery>)>>;
 fn cache() -> &'static CacheSlot {
     static C: OnceLock<CacheSlot> = OnceLock::new();
     C.get_or_init(|| Mutex::new(None))
@@ -79,16 +79,20 @@ fn cache() -> &'static CacheSlot {
 /// Discovery for this scan, computed once and shared by the deep detectors.
 pub fn discover(ctx: &ScanContext) -> Arc<Discovery> {
     let key = ctx.cancel as *const _ as usize;
+    // The folders walked are part of the key: an address and a time alone
+    // can repeat for another scan (tests share a fixed clock and reuse
+    // addresses; CI got another test's discovery, 2026-11-07).
+    let walked = roots(ctx);
     {
         let c = cache().lock().unwrap_or_else(|e| e.into_inner());
-        if let Some((k, now, d)) = c.as_ref() {
-            if *k == key && *now == ctx.now {
+        if let Some((k, now, r, d)) = c.as_ref() {
+            if *k == key && *now == ctx.now && *r == walked {
                 return d.clone();
             }
         }
     }
     let d = Arc::new(walk(ctx));
-    *cache().lock().unwrap_or_else(|e| e.into_inner()) = Some((key, ctx.now, d.clone()));
+    *cache().lock().unwrap_or_else(|e| e.into_inner()) = Some((key, ctx.now, walked, d.clone()));
     d
 }
 
