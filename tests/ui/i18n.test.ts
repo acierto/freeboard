@@ -5,7 +5,8 @@ import nl from "../../src/i18n/nl.json" with { type: "json" };
 import de from "../../src/i18n/de.json" with { type: "json" };
 import fr from "../../src/i18n/fr.json" with { type: "json" };
 import es from "../../src/i18n/es.json" with { type: "json" };
-import { ago, firstSupported, fx, itemName, resolveLang, setLang, t, tf, unitGB } from "../../src/i18n/index.ts";
+import { ago, firstSupported, fx, resolveLang, setLang, t, tf, unitGB } from "../../src/i18n/index.ts";
+import { itemName } from "../../src/i18n/backend.ts";
 
 test("every language has every English key (spec: CI fails otherwise)", () => {
   for (const [l, m] of Object.entries({ nl, de, fr, es })) assert.deepEqual(Object.keys(en).filter((k) => !(k in m)), [], l);

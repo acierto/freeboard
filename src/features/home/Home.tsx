@@ -2,7 +2,8 @@
 // the helm (free space, status, forecast, goal, Where from, Toss, the pile,
 // Trash), and the section tabs. Markup and class names follow the prototype
 // so the visual verifier can drive both with the same steps.
-import { fx, itemName, lang, t, tn, unitGB } from "../../i18n";
+import { fx, lang, t, tn, unitGB } from "../../i18n";
+import { itemName, tb } from "../../i18n/backend";
 import { useEffect, useState } from "react";
 import { Dinghy } from "../../components/Dinghy";
 import { GB, GROUPS, STATUS, gb, groupLabel, trashWord } from "../../lib/format";
@@ -66,7 +67,7 @@ export function Home({ navigate }: { navigate: View | null }) {
     if (navigate) window.scrollTo({ top: 0 });
   }, [navigate]);
 
-  if (!h.data) return h.error ? <p className="page muted">{`Freeboard could not reach its background service. ${h.error}`}</p> : null;
+  if (!h.data) return h.error ? <p className="page muted">{t("h.noservice", { e: tb(h.error) })}</p> : null;
   const { status, settings, suggestions, pile, map } = h.data;
   // First run is on its own: before setup there is nothing behind it to show.
   if (!settings.onboardingComplete) return <FirstRun settings={settings} status={status} onSettings={h.setSettings} onDone={() => void h.reload()} />;
@@ -186,7 +187,7 @@ export function Home({ navigate }: { navigate: View | null }) {
                   <span className="num">{withBold("h.ready", gb(meter.total))}</span>
                   <span className="num muted">{meter.right}</span>
                 </div>
-                <div className="meter" role="img" aria-label={`${gb(meter.total)} of ${gb(meter.target)} ready`}>
+                <div className="meter" role="img" aria-label={t("a.meter", { a: gb(meter.total), b: gb(meter.target) })}>
                   <i className={meter.manual ? "picked" : ""} style={{ width: meter.fill.toFixed(1) + "%" }} />
                 </div>
                 {meter.short > 0 && (
@@ -252,10 +253,10 @@ export function Home({ navigate }: { navigate: View | null }) {
                 <div className="pile-row" key={s.id}>
                   <span>
                     {itemName(s)}
-                    <span className="sub">{s.recovery}</span>
+                    <span className="sub">{tb(s.recovery)}</span>
                   </span>
                   <span className="num">{gb(s.sizeBytes)}</span>
-                  <button className="x" data-out={s.id} aria-label={`Take ${s.title} out of the pile`} title="Take out of the pile" onClick={() => h.takeOut(s.id)}>
+                  <button className="x" data-out={s.id} aria-label={t("h.takeout1", { x: itemName(s) })} title={t("h.takeout")} onClick={() => h.takeOut(s.id)}>
                     {"×"}
                   </button>
                 </div>
@@ -274,7 +275,7 @@ export function Home({ navigate }: { navigate: View | null }) {
           </div>
         </section>
 
-        <div className="tabs" role="tablist" aria-label="Freeboard sections">
+        <div className="tabs" role="tablist" aria-label={t("a.tabs")}>
           <button className="tab" role="tab" data-tab="tidy" id="tab-tidy" aria-selected={tab === "tidy"} onClick={() => setTab("tidy")}>
             {t("tab.q")}
             {deck > 0 && <span className="dot num">{deck}</span>}

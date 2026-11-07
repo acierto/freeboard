@@ -2,6 +2,8 @@
 // classes and the coverage figures are ported from the prototype's
 // `renderMap()`, `squarify()` and `explained()`, so the same numbers give the
 // same tiles.
+import { fx, t, unitGB } from "../../i18n/index.ts";
+import { tb } from "../../i18n/backend.ts";
 import type { BlindSpot, BlindSpotKind, DiskMap, Platform } from "../../lib/types.ts";
 
 export const GB = 1e9;
@@ -40,8 +42,8 @@ const round1 = (n: number) => Math.round(n * 10) / 10;
 
 /** The map's tiles in prototype TILES order, Not explained last. */
 export function tilesOf(map: DiskMap): Tile[] {
-  const out = map.areas.map((a) => ({ id: a.id, name: a.label, c: TILE_COLOR[a.id] ?? "var(--t-a)", v: Math.max(0, round1(a.bytes / GB)) }));
-  out.push({ id: "unknown", name: "Not explained", c: "", v: Math.max(0, round1(map.notExplainedBytes / GB)) });
+  const out = map.areas.map((a) => ({ id: a.id, name: tb(a.label), c: TILE_COLOR[a.id] ?? "var(--t-a)", v: Math.max(0, round1(a.bytes / GB)) }));
+  out.push({ id: "unknown", name: t("m.notexplained"), c: "", v: Math.max(0, round1(map.notExplainedBytes / GB)) });
   return out;
 }
 
@@ -118,7 +120,7 @@ export function coverage(map: DiskMap) {
 
 export function coverText(map: DiskMap): { pct: string; line: string } {
   const ex = coverage(map);
-  return { pct: ex.pct.toFixed(1) + "% explained", line: "I can account for " + (ex.used - ex.un).toFixed(1) + " of the " + ex.used.toFixed(1) + " GB in use." };
+  return { pct: t("m.explained", { x: fx(ex.pct) }), line: t("m.account", { a: fx(ex.used - ex.un), b: fx(ex.used), u: unitGB() }) };
 }
 
 /** The tab badge: shown only while some space is unexplained. */
@@ -210,7 +212,8 @@ function causeText(id: Cause["id"], platform: Platform, systemMeasured = false):
 export function causesOf(map: DiskMap, spots: BlindSpot[], platform: Platform = "macos"): { causes: Cause[]; left: number } {
   const order: Cause["id"][] = ["outside", "locked", "untraced", "strange", "tools"];
   const causes = order.map((id): Cause => {
-    const [title, why, c, est] = causeText(id, platform, map.systemMeasured);
+    const [en, enWhy, c, est] = causeText(id, platform, map.systemMeasured);
+    const [title, why] = [tb(en), tb(enWhy)];
     const mine = spots.filter((s) => CAUSE_OF[s.kind] === id);
     const open = mine.filter((s) => s.state === "open").sort((a, b) => sizeOf(b) - sizeOf(a));
     return { id, title, why, c, est, open, fixed: mine.filter((s) => s.state !== "open"), bytes: open.reduce((t, s) => t + sizeOf(s), 0) };

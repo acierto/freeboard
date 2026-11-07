@@ -1,14 +1,17 @@
 // What the cleanup sheets say, as pure functions over backend data. Ported
 // from the prototype's `confirmSheet()`, `cmdFor()` and `run()`.
-import { GB, gb, plural } from "../../lib/format.ts";
+import { lang, t } from "../../i18n/index.ts";
+import { itemName, tb } from "../../i18n/backend.ts";
+import { GB, gb } from "../../lib/format.ts";
 import type { CleanupPlan, ItemState, Platform, RunDetail, RunItem, Suggestion } from "../../lib/types.ts";
 
 /** The action line of a plan row (prototype `cmdFor`): the item's action,
  * plus the chosen parts when only some of them go. */
 export function cmdFor(s: Suggestion): string {
-  if (!s.parts.length) return s.actionLabel;
+  const action = tb(s.actionLabel);
+  if (!s.parts.length) return action;
   const on = s.parts.filter((p) => p.selected);
-  return on.length === s.parts.length ? s.actionLabel : s.actionLabel + ": " + on.map((p) => p.label).join(", ");
+  return on.length === s.parts.length ? action : action + ": " + on.map((p) => tb(p.label)).join(", ");
 }
 
 /** Only commands use the code font in plan rows (decision 2026-11-05). */
@@ -17,7 +20,7 @@ export const isCommand = (s: Pick<Suggestion, "action">) => s.action === "native
 
 
 /** The acknowledgment next to an item that needs its own confirmation. */
-export const ackText = (s: Suggestion) => (s.recoverable ? "I understand what this removes." : "I understand this cannot be recovered.");
+export const ackText = (s: Suggestion) => (s.recoverable ? t("ack.what") : t("ack.lost"));
 
 const FINAL: ItemState[] = ["done", "moved_to_trash", "skipped", "failed", "canceled", "interrupted"];
 export const isFinal = (s: ItemState) => FINAL.includes(s);
@@ -48,13 +51,13 @@ export function progressOf(plan: CleanupPlan, run: RunDetail | null): Progress {
     const steps = stepsOf(run, s.id);
     if (steps.length && steps.every((x) => isFinal(x.state))) {
       done++;
-      current = s.title;
+      current = itemName(s);
       if (steps.some((x) => removed(x.state))) gone.add(s.id);
     }
   }
   const active = plan.items.find((s) => stepsOf(run, s.id).some((x) => x.state === "checking" || x.state === "running"));
-  if (active) current = active.title;
-  if (!current && plan.items[0]) current = plan.items[0].title;
+  if (active) current = itemName(active);
+  if (!current && plan.items[0]) current = itemName(plan.items[0]);
   return { current, done, total, gone };
 }
 
@@ -70,50 +73,52 @@ export const trashUnavailable =(i: RunItem) => i.state === "failed" && !!i.reaso
 /** The Logbook's one-line note (prototype SAMPLE_LOG wording). */
 export function logNote(r: { trashBytes: number; skipped: number }, platform: Platform, trash: (p: Platform) => string): string {
   const parts: string[] = [];
-  if (r.trashBytes > 0) parts.push(`Kept ${gb(r.trashBytes)} in the ${trash(platform)}`);
-  if (r.skipped > 0) parts.push(`${r.skipped} skipped because ${r.skipped === 1 ? "it" : "they"} changed`);
-  return parts.length ? parts.join(". ") : "Nothing skipped";
+  if (r.trashBytes > 0) parts.push(t("log.kept", { x: gb(r.trashBytes), t: trash(platform) }));
+  if (r.skipped > 0) parts.push(r.skipped === 1 ? t("log.skipped1") : t("log.skippedN", { n: r.skipped }));
+  return parts.length ? parts.join(". ") : t("log.none");
 }
 
 /** What happened to one item or part, for run details. */
 export function resultWord(i: RunItem, platform: Platform, trash: (p: Platform) => string): string {
-  const why = i.reason ? `: ${i.reason}` : "";
+  const why = i.reason ? `: ${tb(i.reason)}` : "";
   switch (i.state) {
     case "done":
-      return "Removed";
+      return t("c.removed");
     case "moved_to_trash":
-      return `Moved to the ${trash(platform)}`;
+      return t("c.movedto", { t: trash(platform) });
     case "skipped":
-      return "Skipped" + why;
+      return t("c.skipped") + why;
     case "failed":
-      return "Not removed" + why;
+      return t("c.notremoved") + why;
     case "canceled":
-      return "Not started, the cleanup was stopped";
+      return t("c.notstarted");
     case "interrupted":
-      return "Interrupted" + why;
+      return t("c.interrupted") + why;
     default:
-      return "Waiting";
+      return t("c.waiting");
   }
 }
 
-/** "592+ days" reads as "1+ year" (prototype `age()`). */
-export function age(t: string): string {
-  return t.replace(/(\d+)\+ days/, (m, d: string) => {
+/** "592+ days" reads as "1+ year" (prototype `age()`). Other languages
+ * show the backend's text translated, with the days as they are. */
+export function age(text: string): string {
+  if (lang() !== "en") return tb(text);
+  return text.replace(/(\d+)\+ days/, (m, d: string) => {
     const n = +d;
     return n >= 730 ? Math.floor(n / 365) + "+ years" : n >= 365 ? "1+ year" : n >= 60 ? Math.floor(n / 30) + "+ months" : m;
   });
 }
 
 /** The verb for one item (prototype `verbFor`). */
-export const verbFor = (s: Pick<Suggestion, "action">) => (s.action === "trash" ? "Move to Trash" : s.action === "delete" ? "Delete" : "Remove");
+export const verbFor = (s: Pick<Suggestion, "action">) => (s.action === "trash" ? t("v.trash") : s.action === "delete" ? t("v.delete") : t("v.remove"));
 
 /** The confirmation's title and button (prototype `confirmSheet()`). */
 export function confirmHead(plan: CleanupPlan, permanent: boolean): { title: string; go: string } {
   const n = plan.items.length;
   const total = plan.items.reduce((t, s) => t + s.sizeBytes, 0);
-  if (permanent) return { title: `Delete ${plural(n, "item")} permanently?`, go: "Delete permanently" };
-  if (n === 1) return { title: `${verbFor(plan.items[0])} ${plan.items[0].title}?`, go: `${verbFor(plan.items[0])} ${gb(total)}` };
-  return { title: `Toss ${n} items?`, go: `Toss ${gb(total)}` };
+  if (permanent) return { title: n === 1 ? t("c.del1") : t("c.delN", { n }), go: t("c.delgo") };
+  if (n === 1) return { title: t("c.one", { v: verbFor(plan.items[0]), x: itemName(plan.items[0]) }), go: t("c.onego", { v: verbFor(plan.items[0]), x: gb(total) }) };
+  return { title: t("c.tossN", { n }), go: t("c.tossgo", { x: gb(total) }) };
 }
 
 /** What happened to one plan item, from its steps (a split item has one
@@ -200,18 +205,18 @@ export function resultSections(plan: CleanupPlan, run: RunDetail) {
     const steps = stepsOf(run, s.id);
     const o = outcomeOf(run, s.id);
     if (o === "waiting" || o === "not_started" || !steps.length) {
-      sec.not_started.push({ id: s.id, title: s.title, bytes: s.sizeBytes, inTrash: false, why: "" });
+      sec.not_started.push({ id: s.id, title: itemName(s), bytes: s.sizeBytes, inTrash: false, why: "" });
       retry.add(s.id);
       continue;
     }
     const gone = steps.filter((x) => removed(x.state));
-    if (gone.length) sec.tossed.push({ id: s.id, title: s.title, bytes: gone.reduce((t, x) => t + x.expectedBytes, 0), inTrash: gone.every((x) => x.state === "moved_to_trash"), why: "" });
+    if (gone.length) sec.tossed.push({ id: s.id, title: itemName(s), bytes: gone.reduce((t, x) => t + x.expectedBytes, 0), inTrash: gone.every((x) => x.state === "moved_to_trash"), why: "" });
     // Steps that did not go: by part when only some did, else the item.
     const whole = !gone.length && steps.length === 1;
     for (const x of steps) {
       if (removed(x.state)) continue;
-      const line = (why: string): ResultLine => ({ id: whole ? s.id : x.itemId, title: whole || !x.parentId ? s.title : x.title, bytes: whole ? s.sizeBytes : x.expectedBytes, inTrash: false, why });
-      if (x.state === "skipped") sec.stayed.push(line(x.reason ?? "It changed after the scan."));
+      const line = (why: string): ResultLine => ({ id: whole ? s.id : x.itemId, title: whole || !x.parentId ? itemName(s) : tb(x.title), bytes: whole ? s.sizeBytes : x.expectedBytes, inTrash: false, why });
+      if (x.state === "skipped") sec.stayed.push(line(x.reason ?? t("c.changed")));
       else if (x.state === "failed" || x.state === "interrupted") {
         sec.failed.push(line(x.reason ?? ""));
         retry.add(s.id);

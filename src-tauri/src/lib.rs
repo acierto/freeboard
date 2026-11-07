@@ -88,7 +88,7 @@ mod shell {
                     .summary(title)
                     .body(body)
                     .icon("freeboard")
-                    .action("default", "Open Suggestions")
+                    .action("default", &crate::i18n::tr(crate::i18n::system_language(), "menu.open"))
                     .show();
                 if let Ok(handle) = shown {
                     let app = self.0.clone();
@@ -339,9 +339,11 @@ mod shell {
                     // on a real Mac, 2026-11-07: an old copy in Applications).
                     Err(crate::store::StoreError::TooNew(_)) => {
                         use tauri_plugin_dialog::{DialogExt, MessageDialogKind};
+                        // The settings are unreadable here, so the system's language.
+                        let lang = crate::i18n::system_language();
                         app.dialog()
-                            .message("A newer version of Freeboard has used this computer, and this older copy can't read its data. Install the latest Freeboard from the website.")
-                            .title("Freeboard is out of date")
+                            .message(crate::i18n::tr(lang, "nat.old.p"))
+                            .title(crate::i18n::tr(lang, "nat.old.t"))
                             .kind(MessageDialogKind::Warning)
                             .blocking_show();
                         std::process::exit(0);

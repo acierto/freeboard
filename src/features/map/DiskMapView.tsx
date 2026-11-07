@@ -3,10 +3,12 @@
 // space, blind spots with working actions, growth, places checked and the
 // disk report. Markup, classes and copy follow the prototype; the numbers come
 // from the backend's accounting (design D4, D5).
+import { areaName, t as tx } from "../../i18n";
+import { itemName, tb } from "../../i18n/backend";
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { api } from "../../lib/api";
 import { track } from "../../lib/useBusy";
-import { GROUPS, gb, plural } from "../../lib/format";
+import { GROUPS, gb } from "../../lib/format";
 import { Sheet } from "../../components/Sheet";
 import type { AreaGrowth, BlindSpot, BlindSpotAction, DiskMap, PileState, PlaceChecked, Platform, Suggestion } from "../../lib/types";
 import { GroupActions, Row, type Choices } from "../questions/Questions";
@@ -31,11 +33,11 @@ function CoverNotes({ map, platform }: { map: DiskMap; platform: Platform }) {
   const notes: string[] = [];
   if (map.incomplete)
     notes.push(
-      `These areas add up to ${gb(map.overBytes)} more than the disk says is in use, so this map is incomplete. ${platform === "macos" ? "APFS clones and snapshots can be counted twice." : "Some files may be counted twice."}`,
+      `${tx("m.incomplete", { x: gb(map.overBytes) })} ${platform === "macos" ? tx("m.twice.mac") : tx("m.twice")}`,
     );
-  if (!map.measuredAt) notes.push("I measure folders during a deep scan. Until one runs, most of this space is not explained.");
-  if (map.purgeableBytes && map.purgeableBytes >= 0.05 * GB) notes.push(`macOS can free ${gb(map.purgeableBytes)} of purgeable space on its own. Finder counts it as free, so its totals differ from these.`);
-  if (map.snapshotCount) notes.push(`macOS keeps ${plural(map.snapshotCount, "local snapshot")} of this disk.`);
+  if (!map.measuredAt) notes.push(tx("m.nodeep"));
+  if (map.purgeableBytes && map.purgeableBytes >= 0.05 * GB) notes.push(tx("m.purge", { x: gb(map.purgeableBytes) }));
+  if (map.snapshotCount) notes.push(map.snapshotCount === 1 ? tx("m.snap1") : tx("m.snapN", { n: map.snapshotCount }));
   if (!notes.length) return null;
   return (
     <div className="stack" id="map-notes" style={{ gap: 4 }}>
@@ -96,7 +98,7 @@ function Treemap({ map, selected, onSelect }: { map: DiskMap; selected: string; 
             aria-pressed={selected === b.t.id}
             // The name contains the visible label word for word (WCAG 2.5.3),
             // and still names tiles whose label is hidden.
-            aria-label={`${b.t.name} ${b.t.v.toFixed(1)} GB`}
+            aria-label={`${b.t.name} ${gb(b.t.v * GB)}`}
             style={{ left: b.x.toFixed(2) + "%", top: b.y.toFixed(2) + "%", width: b.w.toFixed(2) + "%", height: b.h.toFixed(2) + "%", "--c": b.t.c } as CSSProperties}
             onClick={() => onSelect(b.t.id)}
           >
@@ -110,7 +112,7 @@ function Treemap({ map, selected, onSelect }: { map: DiskMap; selected: string; 
       </div>
       {areas.small.length > 0 && (
         <div className="small-areas">
-          <span>Under 3%, not drawn:</span>
+          <span>{tx("m.small")}</span>
           {areas.small.map((x) => (
             <button key={x.id} className="tile-chip" data-tile={x.id} aria-pressed={selected === x.id} onClick={() => onSelect(x.id)}>
               <i style={{ ["--c" as string]: x.c }}></i>
@@ -137,15 +139,24 @@ function Detail({ map, tile, items, spots, chosen, act, focus, platform }: { map
         {shown.map((c) => (
           <div className="detail-row" key={c.id}>
             <span>{c.title}</span>
-            <span className="num">{(c.est ? "about " : "") + gb(c.bytes)}</span>
+            <span className="num">{c.est ? tx("m.about", { x: gb(c.bytes) }) : gb(c.bytes)}</span>
           </div>
         ))}
         <p className="note" style={{ marginTop: 8 }}>
-          See <b>{`Why ${gb(left)} isn\u2019t explained`}</b> for the fixes.
+          {(() => {
+            const [a, b = ""] = tx("m.seewhy").split("{x}");
+            return (
+              <>
+                {a}
+                <b>{tx("m.why", { x: gb(left) })}</b>
+                {b}
+              </>
+            );
+          })()}
         </p>
       </>
     ) : (
-      <p className="muted">Nothing is left unexplained.</p>
+      <p className="muted">{tx("m.nothingleft")}</p>
     );
   } else {
     const area = map.areas.find((a) => a.id === t.id);
@@ -165,10 +176,10 @@ function Detail({ map, tile, items, spots, chosen, act, focus, platform }: { map
             Quick questions (a real disk had 139; found by the user). */}
         {blocked.length > 1 && (
           <details className="parts" data-open={"m-protected-" + t.id}>
-            <summary>{`${blocked.length} things I will not touch · ${gb(blocked.reduce((n, s) => n + s.sizeBytes, 0))}`}</summary>
+            <summary>{tx("m.notouch", { n: blocked.length, x: gb(blocked.reduce((n, s) => n + s.sizeBytes, 0)) })}</summary>
             {blocked.map((s) => (
               <div className="detail-row" key={s.id}>
-                <span>{s.title}</span>
+                <span>{itemName(s)}</span>
                 <span className="num">{gb(s.sizeBytes)}</span>
               </div>
             ))}
@@ -176,7 +187,7 @@ function Detail({ map, tile, items, spots, chosen, act, focus, platform }: { map
         )}
         {rest > 0.05 * GB && (
           <div className="detail-row">
-            <span className="muted">{`${area?.leaveAloneLabel || "Other"} (leave these)`}</span>
+            <span className="muted">{tx("m.leave", { x: area?.leaveAloneLabel ? tb(area.leaveAloneLabel) : tx("m.other") })}</span>
             <span className="num muted">{gb(rest)}</span>
           </div>
         )}
@@ -206,8 +217,11 @@ type Resolve = (ids: string[], action: BlindSpotAction) => void;
 /** The short line under a fix's place: where the button leads, or what the
  * files are ("~/x has 4.2 GB of .dat files from an unknown tool."). */
 function noteOf(s: BlindSpot): string | null {
-  if (s.kind === "needs_permission") return s.action === "open_settings" ? "Opens System Settings, Privacy & Security" : null;
-  if (s.kind === "unknown_files") return /of (\.?\S* ?files from an unknown tool)\.$/.exec(s.text)?.[1] ?? null;
+  if (s.kind === "needs_permission") return s.action === "open_settings" ? tx("m.opens") : null;
+  if (s.kind === "unknown_files") {
+    const m = /of (\.\S+ )?files from an unknown tool\.$/.exec(s.text);
+    return m ? (m[1] ? tx("m.unk.ext", { e: m[1].trim() }) : tx("m.unk")) : null;
+  }
   return null;
 }
 
@@ -216,21 +230,21 @@ function FixRow({ s, cause, onResolve }: { s: BlindSpot; cause: Cause; onResolve
   const path = cause.id === "outside" || cause.id === "strange";
   // "Skip" counts a folder outside the scan list as the user's own files.
   const mine = cause.id === "outside";
-  const size = s.sizeBytes === null ? "size unknown" : (cause.est ? "about " : "") + gb(s.sizeBytes);
+  const size = s.sizeBytes === null ? tx("m.unknownsize") : cause.est ? tx("m.about", { x: gb(s.sizeBytes) }) : gb(s.sizeBytes);
   return (
     <div className={path ? "fix" : "fix wide"}>
       <span className={path ? "lbl mono" : "lbl"}>
-        {s.location || s.title}
+        {tb(s.location || s.title)}
         {noteOf(s) && <small>{noteOf(s)}</small>}
       </span>
       <span className="num sz">{size}</span>
       <span className="acts">
         <button className="mini go" id={`spot-${s.id}`} data-spot={s.id} onClick={() => onResolve([s.id], s.action)}>
-          {s.action === "scan_folder" ? "Scan" : s.action === "open_settings" ? "Allow Full Disk Access" : s.action === "mark_mine" ? "They\u2019re mine" : s.actionLabel}
+          {s.action === "scan_folder" ? tx("m.scan") : s.action === "open_settings" ? tx("m.allow") : s.action === "mark_mine" ? tx("m.mine") : tb(s.actionLabel)}
         </button>
         {mine && (
-          <button className="mini" id={`mine-${s.id}`} data-spot-mine={s.id} title="Count it as yours and stop asking" onClick={() => onResolve([s.id], "mark_mine")}>
-            Skip
+          <button className="mini" id={`mine-${s.id}`} data-spot-mine={s.id} title={tx("m.skip.t")} onClick={() => onResolve([s.id], "mark_mine")}>
+            {tx("m.skip")}
           </button>
         )}
       </span>
@@ -261,11 +275,11 @@ function CauseBlock({ c, onResolve }: { c: Cause; onResolve: Resolve }) {
             </>
           )}
         </b>
-        <span className="num">{!left ? "Done" : c.bytes > 0 ? (c.est ? "about " : "") + gb(c.bytes) : "size unknown"}</span>
+        <span className="num">{!left ? tx("m.done") : c.bytes > 0 ? (c.est ? tx("m.about", { x: gb(c.bytes) }) : gb(c.bytes)) : tx("m.unknownsize")}</span>
         {left && <p>{c.why}</p>}
         {bulk && (
           <button className="btn primary bulk" id={`all-${c.id}`} data-spot-all={c.id} onClick={() => onResolve(c.open.map((s) => s.id), "scan_folder")}>
-            {`Scan all ${c.open.length}`}
+            {tx("m.scanall", { n: c.open.length })}
           </button>
         )}
       </div>
@@ -276,7 +290,7 @@ function CauseBlock({ c, onResolve }: { c: Cause; onResolve: Resolve }) {
           ))}
           {rest.length > 0 && (
             <button className="link small fix-more" data-why-more={c.id} onClick={() => setMore((v) => !v)}>
-              {more ? "Show fewer" : `Show ${rest.length} more, ${gb(rest.reduce((t, s) => t + (s.sizeBytes ?? 0), 0))}`}
+              {more ? tx("m.fewer") : tx("m.more", { n: rest.length, x: gb(rest.reduce((n, s) => n + (s.sizeBytes ?? 0), 0)) })}
             </button>
           )}
         </div>
@@ -285,12 +299,12 @@ function CauseBlock({ c, onResolve }: { c: Cause; onResolve: Resolve }) {
         <details className="fixed-list">
           <summary className="fx">
             {TICK}
-            {`${c.fixed.length} fixed`}
+            {tx("m.fixed", { n: c.fixed.length })}
           </summary>
           {c.fixed.map((s) => (
             <p key={s.id}>
-              <span className={c.id === "outside" || c.id === "strange" ? "mono" : undefined}>{s.location || s.title}</span>
-              {`: ${s.state === "working" ? "scanning now\u2026" : (s.doneText ?? "")}`}
+              <span className={c.id === "outside" || c.id === "strange" ? "mono" : undefined}>{tb(s.location || s.title)}</span>
+              {`: ${s.state === "working" ? tx("m.scanning") : tb(s.doneText ?? "")}`}
             </p>
           ))}
         </details>
@@ -309,17 +323,17 @@ function WhyCard({ map, spots, onResolve, platform }: { map: DiskMap; spots: Bli
   if (left < 0.05 * GB && !causes.some((c) => c.open.length))
     return (
       <div className="card stack why" id="why">
-        <h3>Everything is explained</h3>
+        <h3>{tx("m.allclear")}</h3>
         <p className="allclear">
           {TICK}
-          Every GB in use now belongs to a named area.
+          {tx("m.allclear.p")}
         </p>
       </div>
     );
   return (
     <div className="card stack why" id="why">
-      <h3>{`Why ${gb(left)} isn\u2019t explained`}</h3>
-      <p className="lede">{untraced ? "None of it is lost. I just can\u2019t see inside it yet." + (fixable ? " The parts with a button below have a fix." : "") : "None of it is lost. I just can\u2019t see inside it yet. Each part below has a fix."}</p>
+      <h3>{tx("m.why", { x: gb(left) })}</h3>
+      <p className="lede">{untraced ? tx("m.lede") + (fixable ? " " + tx("m.lede.fix") : "") : tx("m.lede.all")}</p>
       <div className="wbar" aria-hidden="true">
         {causes
           .filter((c) => c.bytes > 0)
@@ -330,7 +344,7 @@ function WhyCard({ map, spots, onResolve, platform }: { map: DiskMap; spots: Bli
       {causes.map((c) => (
         <CauseBlock key={c.id} c={c} onResolve={onResolve} />
       ))}
-      <p className="why-foot">{untraced ? (fixable ? "Fixing them brings the map closer to 100%. " : "") + "Nothing here is removed, it only gets measured." : "Fix them all and the map reaches 100%. Nothing here is removed, it only gets measured."}</p>
+      <p className="why-foot">{untraced ? (fixable ? tx("m.foot.closer") + " " : "") + tx("m.foot") : tx("m.foot.all")}</p>
     </div>
   );
 }
@@ -340,17 +354,17 @@ function Growing({ growth }: { growth: AreaGrowth[] }) {
   const mx = top[0]?.bytes ?? 1;
   return (
     <section>
-      <div className="sc-label">Growing fastest this week</div>
+      <div className="sc-label">{tx("m.grow")}</div>
       {top.length ? (
         top.map((g) => (
           <div className="grow" key={g.id}>
-            <span>{g.label}</span>
+            <span>{areaName(g.label)}</span>
             <span className="num">{"+" + (g.bytes / GB).toFixed(1) + " GB"}</span>
             <i style={{ width: ((g.bytes / mx) * 100).toFixed(0) + "%" }}></i>
           </div>
         ))
       ) : (
-        <p className="muted">I need a few days of scans to see what is growing.</p>
+        <p className="muted">{tx("m.grow.none")}</p>
       )}
     </section>
   );
@@ -365,13 +379,13 @@ function Coverage({ places, spots, onOpen }: { places: PlaceChecked[]; spots: Bl
   const off = places.filter((p) => p.state === "unavailable").length;
   const clean = places.length - hit - off;
   const notYet = notYetOf(spots).length;
-  const parts = [`${hit} had something`, `${clean} clean`];
-  if (off) parts.push(`${off} could not check`);
-  if (notYet) parts.push(`${notYet} folders not yet`);
+  const parts = [tx("m.hit", { n: hit }), tx("m.clean", { n: clean })];
+  if (off) parts.push(tx("m.off", { n: off }));
+  if (notYet) parts.push(tx("m.notyet", { n: notYet }));
   return (
     <section className="sc-row cov">
       <div>
-        <b className="num">{`${places.length} places checked`}</b>
+        <b className="num">{tx("m.places", { n: places.length })}</b>
         <span className="note num">{parts.join(" \u00b7 ")}</span>
         <span className="dots" aria-hidden="true">
           {places.map((p) => (
@@ -383,7 +397,7 @@ function Coverage({ places, spots, onOpen }: { places: PlaceChecked[]; spots: Bl
         </span>
       </div>
       <button className="btn" id="places-btn" data-act="places" onClick={onOpen}>
-        See all
+        {tx("m.seeall")}
       </button>
     </section>
   );
@@ -392,46 +406,49 @@ function Coverage({ places, spots, onOpen }: { places: PlaceChecked[]; spots: Bl
 /** Every place checked (prototype `placesSheet()`): what had something,
  * grouped by area, what was clean, and the folders not looked in yet. */
 function PlacesSheet({ places, items, spots, onGo, onClose }: { places: PlaceChecked[]; items: Suggestion[]; spots: BlindSpot[]; onGo: (s: Suggestion) => void; onClose: () => void }) {
-  const clean = places.filter((p) => p.state === "clean").map((p) => p.label);
-  const off = places.filter((p) => p.state === "unavailable").map((p) => p.label);
+  const clean = places.filter((p) => p.state === "clean").map((p) => tb(p.label));
+  const off = places.filter((p) => p.state === "unavailable").map((p) => tb(p.label));
   const notYet = notYetOf(spots);
   const total = items.length + clean.length;
   const sum = (l: Suggestion[]) => l.reduce((t, s) => t + s.sizeBytes, 0);
   return (
-    <Sheet title={`${total} places I checked`} onClose={onClose} className="framed" closeLabel="Close">
+    <Sheet title={tx("pl.title", { n: total })} onClose={onClose} className="framed" closeLabel={tx("cs.close")}>
       <div className="st-body pl">
         <div className="pl-sum">
           <span>
-            <b className="num">{items.length}</b> had something to remove
+            <b className="num">{items.length}</b>
+            {" " + tx("pl.hit")}
           </span>
           <span>
-            <b className="num">{clean.length}</b> were clean
+            <b className="num">{clean.length}</b>
+            {" " + tx("pl.clean")}
           </span>
           {notYet.length > 0 && (
             <span>
-              <b className="num">{notYet.length}</b> folders not looked in yet
+              <b className="num">{notYet.length}</b>
+              {" " + tx("pl.notyet")}
             </span>
           )}
         </div>
         <section>
           <h3 className="pl-h">
-            {"Found something "}
+            {tx("pl.found") + " "}
             <span className="muted num">{gb(sum(items))}</span>
           </h3>
-          <p className="note">Tap one to open it on the map.</p>
+          <p className="note">{tx("pl.tap")}</p>
           {GROUPS.map(({ id, label }) => {
             const l = items.filter((s) => s.group === id).sort((a, b) => b.sizeBytes - a.sizeBytes);
             if (!l.length) return null;
             return (
               <div className="pl-group" key={id}>
                 <div className="pl-gh">
-                  <span>{label}</span>
+                  <span>{areaName(label)}</span>
                   <span className="num">{gb(sum(l))}</span>
                 </div>
                 {l.map((s) => (
                   <button className="pl-row" data-place={s.id} key={s.id} onClick={() => onGo(s)}>
                     <span className={`rdot ${s.risk}`}></span>
-                    <span className="pl-n">{s.title}</span>
+                    <span className="pl-n">{itemName(s)}</span>
                     <span className="num">{gb(s.sizeBytes)}</span>
                     <span className="pl-go" aria-hidden="true">
                       ›
@@ -443,7 +460,7 @@ function PlacesSheet({ places, items, spots, onGo, onClose }: { places: PlaceChe
           })}
         </section>
         <section>
-          <h3 className="pl-h">Looked, nothing to remove</h3>
+          <h3 className="pl-h">{tx("pl.nothing")}</h3>
           <ul className="pl-clean">
             {clean.map((n) => (
               <li key={n}>{n}</li>
@@ -452,17 +469,17 @@ function PlacesSheet({ places, items, spots, onGo, onClose }: { places: PlaceChe
         </section>
         {off.length > 0 && (
           <section>
-            <h3 className="pl-h">Could not check</h3>
-            <p className="note">{`${off.join(", ")}. The tool did not answer; I will try again on the next scan.`}</p>
+            <h3 className="pl-h">{tx("pl.off")}</h3>
+            <p className="note">{tx("pl.off.p", { list: off.join(", ") })}</p>
           </section>
         )}
         {notYet.length > 0 && (
           <section>
-            <h3 className="pl-h">Not looked in yet</h3>
+            <h3 className="pl-h">{tx("pl.notyet.h")}</h3>
             <p className="note">
               {`${notYet.map((s) => s.location).join(", ")}. `}
               <button className="link" data-act="close" onClick={onClose}>
-                {"Fix it in \u201cWhy it isn\u2019t explained\u201d"}
+                {tx("pl.fixit")}
               </button>
             </p>
           </section>
@@ -492,16 +509,16 @@ function SecondOpinion() {
     <>
       <section className="sc-row">
         <div>
-          <b>Second opinion</b>
-          <span className="note">Copy sizes and folder names for your AI agent. No file contents.</span>
+          <b>{tx("so.title")}</b>
+          <span className="note">{tx("so.p")}</span>
         </div>
         <button className="btn" data-act="report" onClick={() => void copy()}>
-          Copy report
+          {tx("so.copy")}
         </button>
       </section>
       <div id="report-box">
-        {box && "copied" in box && <p className="note">Copied. Paste it into your agent.</p>}
-        {box && "text" in box && <textarea id="report-text" className="report-text" aria-label="Disk report" readOnly value={box.text} ref={area} />}
+        {box && "copied" in box && <p className="note">{tx("so.copied")}</p>}
+        {box && "text" in box && <textarea id="report-text" className="report-text" aria-label={tx("so.box")} readOnly value={box.text} ref={area} />}
       </div>
     </>
   );

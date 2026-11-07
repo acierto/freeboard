@@ -2,13 +2,14 @@
 // `outcomeSheet()`), plus the Trash confirmation the prototype does not have
 // (spec "Required behavior missing from the prototype"). One sheet stays open
 // from confirmation to result, so focus returns to the control that opened it.
+import { t } from "../../i18n";
+import { itemName, tb } from "../../i18n/backend";
 import { Sheet } from "../../components/Sheet";
 import { gb, trashWord } from "../../lib/format";
 import type { CleanupPlan } from "../../lib/types";
 import { ackText, age, confirmHead, cubeLooks, expectedFreed, freeBar, isCommand, resultSections, runFigures, trashUnavailable } from "./cleanupModel";
 import type { Cleanup, Flow } from "./useCleanup";
 
-const DOCKER_NOTE = "Docker Desktop can take a while to hand space back. The Logbook shows the measured change.";
 
 const SHIELD = (
   <svg viewBox="0 0 16 16" aria-hidden="true">
@@ -31,46 +32,50 @@ function Confirm({ c, flow }: { c: Cleanup; flow: Extract<Flow, { kind: "confirm
         <div className="cf-sum">
           <div className="cf-big num">
             {`${gb(plan.bytesFreedNow)} `}
-            <small>free right away</small>
+            <small>{t("cs.freenow")}</small>
           </div>
           <div className="cf-flags">
-            {plan.bytesHeldInTrash > 0 && <span className="cf-flag num">{`${gb(plan.bytesHeldInTrash)} goes to the ${trashWord(flow.platform)} first`}</span>}
-            <span className="cf-flag">{review ? (one ? "You approved this one" : `${review} you approved`) : "All rebuildable by their tools"}</span>
-            {lost > 0 && <span className="cf-flag bad">{`${lost} cannot be recovered`}</span>}
+            {plan.bytesHeldInTrash > 0 && <span className="cf-flag num">{t("cs.trashfirst", { x: gb(plan.bytesHeldInTrash), t: trashWord(flow.platform) })}</span>}
+            <span className="cf-flag">{review ? (one ? t("cs.approved1") : t("cs.approvedN", { n: review })) : t("cs.allreb")}</span>
+            {lost > 0 && <span className="cf-flag bad">{t("cs.lostN", { n: lost })}</span>}
           </div>
         </div>
         {/* Focusable so the list scrolls by keyboard when it is long. */}
-        <div className="cf-list plan-list" tabIndex={0} role="region" aria-label="Items in this plan">
+        <div className="cf-list plan-list" tabIndex={0} role="region" aria-label={t("cs.items")}>
           {plan.items.map((s) => {
             const parts = s.parts.filter((p) => p.selected);
             return (
               <div className="cf-item" key={s.id}>
                 {!one && (
                   <div className="cf-top">
-                    <b>{s.title}</b>
+                    <b>{itemName(s)}</b>
                     <span className="num">{gb(s.sizeBytes)}</span>
                   </div>
                 )}
                 <dl className="cf-lines">
-                  <dt>Runs</dt>
-                  <dd className={isCommand(s) ? "mono" : undefined}>{s.actionLabel}</dd>
-                  <dt>To get it back</dt>
-                  <dd>{s.recovery}</dd>
-                  <dt>Last used</dt>
+                  <dt>{t("cs.runs")}</dt>
+                  <dd className={isCommand(s) ? "mono" : undefined}>{tb(s.actionLabel)}</dd>
+                  <dt>{t("f.back")}</dt>
+                  <dd>{tb(s.recovery)}</dd>
+                  <dt>{t("f.lastused")}</dt>
                   <dd>{age(s.lastUsedLabel)}</dd>
                 </dl>
                 {parts.length > 0 && (
                   <details className="cf-parts">
                     <summary>
-                      {`Includes ${parts.length}: ${parts
-                        .slice(0, 3)
-                        .map((p) => p.label)
-                        .join(", ")}${parts.length > 3 ? ` and ${parts.length - 3} more` : ""}`}
+                      {t(parts.length > 3 ? "cs.inclmore" : "cs.incl", {
+                        n: parts.length,
+                        list: parts
+                          .slice(0, 3)
+                          .map((p) => tb(p.label))
+                          .join(", "),
+                        m: parts.length - 3,
+                      })}
                     </summary>
                     <ul>
                       {parts.map((p) => (
                         <li key={p.id}>
-                          {`${p.label} `}
+                          {`${tb(p.label)} `}
                           <span className="muted num">{gb(p.sizeBytes)}</span>
                         </li>
                       ))}
@@ -84,8 +89,8 @@ function Confirm({ c, flow }: { c: Cleanup; flow: Extract<Flow, { kind: "confirm
                   </label>
                 )}
                 {!one && (
-                  <button className="link small cf-leave" data-leave={s.id} aria-label={`Leave it out: ${s.title}`} onClick={() => c.leaveOut(s.id)}>
-                    Leave it out
+                  <button className="link small cf-leave" data-leave={s.id} aria-label={t("cs.leave1", { x: itemName(s) })} onClick={() => c.leaveOut(s.id)}>
+                    {t("cs.leave")}
                   </button>
                 )}
               </div>
@@ -94,24 +99,24 @@ function Confirm({ c, flow }: { c: Cleanup; flow: Extract<Flow, { kind: "confirm
         </div>
         <p className="cf-safe">
           {SHIELD}
-          <span>Each item is checked again just before it goes. Anything that changed since the scan stays put.</span>
+          <span>{t("cs.safe")}</span>
         </p>
         {!acked && !one && (
-          <p className="note cf-hint">Tick the box on each item that cannot be recovered, or leave it out and toss the rest.</p>
+          <p className="note cf-hint">{t("cs.hint")}</p>
         )}
         {flow.error && (
           <p className="note" role="alert">
-            {flow.error.message}
+            {tb(flow.error.message)}
           </p>
         )}
       </div>
       <div className="st-foot">
         <button className="btn" data-act="close" onClick={c.close}>
-          Cancel
+          {t("cs.cancel")}
         </button>
         {stale ? (
           <button className="btn primary" id="go" data-act="replan" onClick={c.replan}>
-            Check again
+            {t("cs.again")}
           </button>
         ) : (
           <button className={permanent ? "btn bad" : "btn primary"} id="go" data-act="run" disabled={!acked || flow.busy} onClick={c.run}>
@@ -165,7 +170,8 @@ function Voyage({ plan, freed, looks, splashes }: { plan: CleanupPlan; freed: nu
         <ellipse cx="35" cy="12" rx="20" ry="6" />
       </svg>
       <div className="count num">
-        <b id="run-freed">{gb(freed)}</b>freed so far
+        <b id="run-freed">{gb(freed)}</b>
+        {t("cs.freedsofar")}
       </div>
     </div>
   );
@@ -174,33 +180,34 @@ function Voyage({ plan, freed, looks, splashes }: { plan: CleanupPlan; freed: nu
 function Running({ c, flow }: { c: Cleanup; flow: Extract<Flow, { kind: "run" }> }) {
   const f = runFigures(flow.plan, flow.run);
   const total = flow.plan.items.length;
-  const current = flow.plan.items[f.at - 1]?.title ?? "";
+  const at = flow.plan.items[f.at - 1];
+  const current = at ? itemName(at) : "";
   return (
     <>
       <div className="st-body">
         <Voyage plan={flow.plan} freed={f.freed} looks={cubeLooks(f.outcomes)} splashes={f.tossed} />
         <div className="now-doing">
-          <span id="run-now" aria-live="polite">{`Checking ${current}` + (f.within ? ` \u00b7 ${f.within.done} of ${f.within.of}` : "")}</span>
-          <span className="num muted" id="run-of">{`${f.at} of ${total}`}</span>
+          <span id="run-now" aria-live="polite">{t("cs.checking", { x: current }) + (f.within ? ` \u00b7 ${t("cs.within", { a: f.within.done, b: f.within.of })}` : "")}</span>
+          <span className="num muted" id="run-of">{t("cs.within", { a: f.at, b: total })}</span>
         </div>
-        <div className="progress" role="progressbar" aria-label="Cleanup progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(f.fraction * 100)}>
+        <div className="progress" role="progressbar" aria-label={t("cs.progress")} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(f.fraction * 100)}>
           <i id="run-bar" style={{ width: f.fraction * 100 + "%" }}></i>
         </div>
         <div className="tally" id="run-tally">
           <span className="safe">
             <i></i>
-            {`${f.tossed} tossed`}
+            {t("cs.tossed", { n: f.tossed })}
           </span>
           {f.stayed > 0 && (
             <span className="review">
               <i></i>
-              {`${f.stayed} stayed on board`}
+              {t("cs.stayed", { n: f.stayed })}
             </span>
           )}
           {f.failed > 0 && (
             <span className="risky">
               <i></i>
-              {`${f.failed} could not go`}
+              {t("cs.failed", { n: f.failed })}
             </span>
           )}
         </div>
@@ -208,7 +215,7 @@ function Running({ c, flow }: { c: Cleanup; flow: Extract<Flow, { kind: "run" }>
       <div className="st-foot">
         {/* An item already running is never cut off halfway. */}
         <button className="btn" id="run-cancel" data-act="cancel" disabled={flow.canceling} onClick={c.cancel}>
-          {flow.canceling ? "Stopping…" : "Stop after this one"}
+          {flow.canceling ? t("cs.stopping") : t("cs.stop")}
         </button>
       </div>
     </>
@@ -261,38 +268,38 @@ function Result({ c, flow }: { c: Cleanup; flow: Extract<Flow, { kind: "result" 
         <div className="done-hero">
           {HAPPY}
           <div>
-            {freed > 0 ? <div className="done-big num">{`${gb(freed)} freed`}</div> : <div className="done-big">Nothing freed yet</div>}
+            {freed > 0 ? <div className="done-big num">{t("cs.freed", { x: gb(freed) })}</div> : <div className="done-big">{t("cs.nofreed")}</div>}
             <div className="freebar" aria-hidden="true">
               <i style={{ width: bar.before, background: "var(--accent)" }}></i>
               <i style={{ width: bar.gained, background: "var(--safe)" }}></i>
             </div>
             <div className="freebar-legend num">
-              <span>{`${gb(run.freeBefore)} free before`}</span>
+              <span>{t("cs.before", { x: gb(run.freeBefore) })}</span>
               <span>
-                <b>{`${gb(after)} free now`}</b>
+                <b>{t("cs.now", { x: gb(after) })}</b>
               </span>
             </div>
           </div>
         </div>
-        {run.trashBytes > 0 && <p className="note num">{`${gb(run.trashBytes)} is in the ${word}. It frees up when you empty it.`}</p>}
-        {differs && <p className="note">{`I expected to free ${gb(expected)}. This is the change your disk reports.`}</p>}
-        <Section cls="safe" title="Tossed" sub={`${r.tossed.length} item${r.tossed.length === 1 ? "" : "s"}, ${gb(r.tossedBytes)}`} n={r.tossed.length} open={false}>
+        {run.trashBytes > 0 && <p className="note num">{t("cs.intrash", { x: gb(run.trashBytes), t: word })}</p>}
+        {differs && <p className="note">{t("cs.expected", { x: gb(expected) })}</p>}
+        <Section cls="safe" title={t("cs.s.tossed")} sub={r.tossed.length === 1 ? t("cs.s.tossed1", { x: gb(r.tossedBytes) }) : t("cs.s.tossedN", { n: r.tossed.length, x: gb(r.tossedBytes) })} n={r.tossed.length} open={false}>
           {r.tossed.map((l) => (
             <li key={l.id}>
               {`${l.title} `}
-              <span className="num">{gb(l.bytes) + (l.inTrash ? `, in the ${word}` : "")}</span>
+              <span className="num">{gb(l.bytes) + (l.inTrash ? t("cs.intrash1", { t: word }) : "")}</span>
             </li>
           ))}
         </Section>
-        <Section cls="review" title="Stayed on board" sub="They changed after the scan, so I left them alone" n={r.stayed.length} open>
+        <Section cls="review" title={t("cs.s.stayed")} sub={t("cs.s.stayed.s")} n={r.stayed.length} open>
           {r.stayed.map((l) => (
             <li key={l.id}>
               {`${l.title} `}
-              <span>{l.why}</span>
+              <span>{tb(l.why)}</span>
             </li>
           ))}
         </Section>
-        <Section cls="risky" title="Could not go" sub={r.reasons.join(" · ")} n={r.failed.length} open>
+        <Section cls="risky" title={t("cs.s.failed")} sub={r.reasons.map(tb).join(" · ")} n={r.failed.length} open>
           {r.failed.map((l) => (
             <li key={l.id}>
               {`${l.title} `}
@@ -300,26 +307,26 @@ function Result({ c, flow }: { c: Cleanup; flow: Extract<Flow, { kind: "result" 
             </li>
           ))}
         </Section>
-        <Section cls="" title="Not started" sub="You stopped the run before these" n={r.not_started.length} open={false}>
+        <Section cls="" title={t("cs.s.notstarted")} sub={t("cs.s.notstarted.s")} n={r.not_started.length} open={false}>
           {r.not_started.map((l) => (
             <li key={l.id}>{l.title}</li>
           ))}
         </Section>
-        {r.tossed.some((l) => flow.plan.items.find((s) => s.id === l.id)?.group === "docker") && <p className="note">{DOCKER_NOTE}</p>}
+        {r.tossed.some((l) => flow.plan.items.find((s) => s.id === l.id)?.group === "docker") && <p className="note">{t("cs.docker")}</p>}
       </div>
       <div className="st-foot">
         {permanentIds.length > 0 && (
           <button className="btn bad" data-act="permanent" onClick={() => c.permanent(permanentIds)}>
-            {`Delete ${permanentIds.length === 1 ? "it" : "them"} permanently instead`}
+            {permanentIds.length === 1 ? t("cs.perm1") : t("cs.permN")}
           </button>
         )}
         {r.retryIds.length > 0 && (
           <button className="btn" id="retry" data-act="retry" onClick={() => c.fromItems(r.retryIds)}>
-            {`Try ${r.retryIds.length} again`}
+            {t("cs.retry", { n: r.retryIds.length })}
           </button>
         )}
         <button className="btn primary" id="go" data-act="close" onClick={c.close}>
-          Done
+          {t("cs.done")}
         </button>
       </div>
     </>
@@ -330,19 +337,19 @@ function EmptyTrash({ c, flow }: { c: Cleanup; flow: Extract<Flow, { kind: "tras
   const word = trashWord(flow.platform);
   return (
     <>
-      <p className="muted">{`Only the items I moved there are deleted. Everything else in your ${word} stays where it is.`}</p>
-      <p className="note">This cannot be undone.</p>
+      <p className="muted">{t("cs.empty.p", { t: word })}</p>
+      <p className="note">{t("cs.empty.undo")}</p>
       {flow.error && (
         <p className="note" role="alert">
-          {flow.error}
+          {tb(flow.error)}
         </p>
       )}
       <div className="row">
         <button className="btn primary" id="go" data-act="empty-confirm" disabled={flow.busy || !flow.trash.confirmationToken} onClick={c.emptyTrash}>
-          Empty it
+          {t("cs.empty.go")}
         </button>
         <button className="btn" data-act="close" onClick={c.close}>
-          Not now
+          {t("cs.empty.later")}
         </button>
       </div>
     </>
@@ -354,15 +361,15 @@ function titleOf(flow: Flow): string {
     case "confirm":
       return confirmHead(flow.plan, flow.permanent).title;
     case "run":
-      return "Tossing crates";
+      return t("cs.t.run");
     case "result": {
       const r = resultSections(flow.plan, flow.run);
-      return r.failed.length || r.stayed.length ? "Done, mostly" : "Much better!";
+      return r.failed.length || r.stayed.length ? t("cs.t.mostly") : t("cs.t.better");
     }
     case "trash":
-      return `Empty ${gb(flow.trash.bytes)} from the ${trashWord(flow.platform)}?`;
+      return t("cs.empty.title", { x: gb(flow.trash.bytes), t: trashWord(flow.platform) });
     case "error":
-      return "I can't do that right now";
+      return t("cs.t.error");
   }
 }
 
@@ -370,7 +377,7 @@ export function CleanupSheets({ c }: { c: Cleanup }) {
   const flow = c.flow;
   if (!flow) return null;
   const framed = flow.kind === "confirm" || flow.kind === "run" || flow.kind === "result";
-  const closeLabel = flow.kind === "confirm" ? "Cancel" : flow.kind === "result" ? "Close" : undefined;
+  const closeLabel = flow.kind === "confirm" ? t("cs.cancel") : flow.kind === "result" ? t("cs.close") : undefined;
   return (
     <Sheet
       title={titleOf(flow)}
@@ -388,10 +395,10 @@ export function CleanupSheets({ c }: { c: Cleanup }) {
       {flow.kind === "trash" && <EmptyTrash c={c} flow={flow} />}
       {flow.kind === "error" && (
         <>
-          <p className="muted">{flow.message}</p>
+          <p className="muted">{tb(flow.message)}</p>
           <div className="row">
             <button className="btn primary" id="go" data-act="close" onClick={c.close}>
-              Done
+              {t("cs.done")}
             </button>
           </div>
         </>

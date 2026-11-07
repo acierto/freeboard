@@ -6,7 +6,8 @@
 import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
 import { api, on } from "../../lib/api";
 import { GB, gb } from "../../lib/format";
-import { LANGS, LANG_NAMES, itemName, lang, t, tn, unitGB, type Lang } from "../../i18n";
+import { LANGS, LANG_NAMES, lang, t, tn, unitGB, type Lang } from "../../i18n";
+import { itemName } from "../../i18n/backend";
 import { track } from "../../lib/useBusy";
 import type { AppStatus, FolderSuggestion, Settings, Suggestion, ToolFound } from "../../lib/types";
 import { displayPath } from "../settings/Folders";

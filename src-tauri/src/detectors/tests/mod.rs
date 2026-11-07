@@ -96,7 +96,40 @@ impl Fx {
     }
 
     pub fn scan(&self, kind: ScanKind, detectors: &[Box<dyn Detector>]) -> ScanOutcome {
-        self.with_ctx(kind, |ctx| run_scan(ctx, detectors))
+        let out = self.with_ctx(kind, |ctx| run_scan(ctx, detectors));
+        self.record_text(&out);
+        out
+    }
+
+    /// With FREEBOARD_I18N_SAMPLES=<file>, append every text a person would
+    /// read in this scan's findings (with risk notes) to that file. The
+    /// samples are the corpus for the translation tests
+    /// (src/i18n/catalog/samples.txt, tests/ui/i18n.test.ts). Text holding
+    /// this fixture's temporary paths is left out.
+    fn record_text(&self, out: &ScanOutcome) {
+        let Ok(file) = std::env::var("FREEBOARD_I18N_SAMPLES") else { return };
+        let root = self.root.to_string_lossy().to_string();
+        let mut lines: Vec<String> = Vec::new();
+        for f in &out.findings {
+            let mut s = f.suggestion.clone();
+            crate::risk_notes::annotate(&mut s);
+            let mut texts = vec![s.title, s.location, s.last_used_label, s.action_label, s.reason, s.recovery];
+            texts.extend(s.blocked_reason);
+            texts.extend(s.skip_reason);
+            texts.extend(s.risk_why);
+            texts.extend(s.safer.into_iter().map(|x| x.label));
+            texts.extend(s.parts.into_iter().map(|p| p.label));
+            lines.extend(texts);
+        }
+        lines.extend(out.errors.iter().map(|e| e.message.clone()));
+        let body: String = lines
+            .into_iter()
+            .filter(|t| !t.trim().is_empty() && !t.contains(&root) && !t.contains("/tmp") && !t.contains("/var/folders"))
+            .map(|t| t.replace('\n', " ") + "\n")
+            .collect();
+        use std::io::Write;
+        let mut f = std::fs::OpenOptions::new().create(true).append(true).open(file).unwrap();
+        let _ = f.write_all(body.as_bytes());
     }
 
     pub fn scan_all(&self, kind: ScanKind) -> ScanOutcome {

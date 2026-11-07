@@ -97,11 +97,11 @@ function LanguageSection({ pref, system, onPick }: { pref: LanguagePref; system:
 function Stepper({ id, label, value, lo, hi, d, onStep }: { id: string; label: string; value: number; lo: number; hi: number; d: number; onStep: (v: number) => void }) {
   return (
     <span className="stepper" role="group" aria-label={label}>
-      <button id={`${id}-dn`} aria-label="Lower" disabled={value - d < lo} onClick={() => onStep(value - d)}>
+      <button id={`${id}-dn`} aria-label={t("a.lower")} disabled={value - d < lo} onClick={() => onStep(value - d)}>
         −
       </button>
       <output className="num" id={`${id}-out`} aria-live="polite">{`${value} ${unitGB()}`}</output>
-      <button id={`${id}-up`} aria-label="Higher" disabled={value + d > hi} onClick={() => onStep(value + d)}>
+      <button id={`${id}-up`} aria-label={t("a.higher")} disabled={value + d > hi} onClick={() => onStep(value + d)}>
         +
       </button>
     </span>
@@ -173,8 +173,8 @@ export function SettingsSheet({
         className="icon-x"
         id={`${list === "scanFolders" ? "scan" : "skip"}-rm-${i}`}
         data-remove={`${list}-${i}`}
-        aria-label={`${list === "scanFolders" ? "Stop scanning" : "Stop skipping"} ${displayPath(p, platform)}`}
-        title="Remove"
+        aria-label={t(list === "scanFolders" ? "a.stopscan" : "a.stopskip", { p: displayPath(p, platform) })}
+        title={t("a.remove")}
         onClick={() => run(api.removeFolder(list, i))}
       >
         ×
@@ -213,7 +213,7 @@ export function SettingsSheet({
             </span>
             <Stepper
               id="low"
-              label="Warning level"
+              label={t("a.warnlevel")}
               value={low}
               lo={crit + 5}
               hi={MAX}
@@ -232,7 +232,7 @@ export function SettingsSheet({
             </span>
             <Stepper
               id="crit"
-              label="Urgent level"
+              label={t("a.urgentlevel")}
               value={crit}
               lo={2}
               hi={low - 2}
@@ -263,7 +263,7 @@ export function SettingsSheet({
                       <span className="path">{o.label}</span>
                       <small>{folderMeta({ repos: o.repos, bytes: details?.suggestionBytes[i] ?? null })}</small>
                     </span>
-                    <button className="mini go" id={`sugg-add-${i}`} data-offer={i} aria-label={`Add ${o.label}`} onClick={() => run(api.addSuggestedFolder(i))}>
+                    <button className="mini go" id={`sugg-add-${i}`} data-offer={i} aria-label={t("a.add", { p: o.label })} onClick={() => run(api.addSuggestedFolder(i))}>
                       {t("ob.addb")}
                     </button>
                   </div>

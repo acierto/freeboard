@@ -4,7 +4,8 @@
 // outside (the window losing focus, handled by the shell).
 import { useEffect } from "react";
 import { STATUS, gb } from "../../lib/format";
-import { ago, areaName, fx, itemName, t, tn, unitGB } from "../../i18n";
+import { ago, areaName, fx, t, tn, unitGB } from "../../i18n";
+import { itemName } from "../../i18n/backend";
 import { api } from "../../lib/api";
 import { track } from "../../lib/useBusy";
 import type { DiskStatus } from "../../lib/types";

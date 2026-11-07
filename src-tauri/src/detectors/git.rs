@@ -378,7 +378,7 @@ pub fn merge_removable(_ctx: &ScanContext, found: Vec<Finding>) -> Vec<Finding> 
     let repos: std::collections::BTreeSet<&str> = ok.iter().filter_map(|f| f.suggestion.title.split(": ").next()).collect();
     let mut s = base(ID, Group::Projects, "removable-worktrees");
     s.title = "Git worktrees with no local changes".into();
-    s.location = format!("{n} worktrees in {} {}", repos.len(), if repos.len() == 1 { "repository" } else { "repositories" });
+    s.location = if repos.len() == 1 { format!("{n} worktrees in 1 repository") } else { format!("{n} worktrees in {} repositories", repos.len()) };
     s.size_bytes = total;
     s.full_size_bytes = total;
     let newest = ok.iter().filter(|f| f.suggestion.last_used_at.is_some()).max_by(|a, b| a.suggestion.last_used_at.cmp(&b.suggestion.last_used_at));

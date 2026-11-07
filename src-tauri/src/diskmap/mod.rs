@@ -553,13 +553,22 @@ pub fn blind_spots(i: &SpotInput) -> Vec<BlindSpot> {
             let id = spot_id(BlindSpotKind::NeedsPermission, "privacy");
             let loc = show(&private[0].path);
             let more = private.len() - 1;
-            let places = if more == 0 { loc.clone() } else { format!("{loc} and {more} more {}", if more == 1 { "place" } else { "places" }) };
+            // Whole sentences per count, so each language can translate them.
+            let places = match more {
+                0 => loc.clone(),
+                1 => format!("{loc} and 1 more place"),
+                _ => format!("{loc} and {more} more places"),
+            };
             let granted = i.full_disk_access == Some(true) && m.full_disk_access != Some(true);
             let asked = decision(&id).is_some_and(|d| d.decision == "asked");
             let (text, label, action) = if granted {
                 (format!("I can read {places} now. Scan again to see what is inside."), "Scan again", BlindSpotAction::ScanAgain)
             } else if i.platform == "macos" {
-                let base = format!("{places} {} Full Disk Access, so I do not know how much space they use.", if more == 0 { "needs" } else { "need" });
+                let base = if more == 0 {
+                    format!("{places} needs Full Disk Access, so I do not know how much space they use.")
+                } else {
+                    format!("{places} need Full Disk Access, so I do not know how much space they use.")
+                };
                 let extra = if asked { " I opened System Settings. Turn on Freeboard under Full Disk Access, then reopen Freeboard." } else { "" };
                 (base + extra, "Allow access", BlindSpotAction::OpenSettings)
             } else {
@@ -584,12 +593,20 @@ pub fn blind_spots(i: &SpotInput) -> Vec<BlindSpot> {
             let id = spot_id(BlindSpotKind::NeedsPermission, "access");
             let loc = show(&access[0].path);
             let more = access.len() - 1;
-            let places = if more == 0 { loc.clone() } else { format!("{loc} and {more} more {}", if more == 1 { "folder" } else { "folders" }) };
+            let places = match more {
+                0 => loc.clone(),
+                1 => format!("{loc} and 1 more folder"),
+                _ => format!("{loc} and {more} more folders"),
+            };
             open.push(BlindSpot {
                 id,
                 kind: BlindSpotKind::NeedsPermission,
                 title: "A place I am not allowed to read".into(),
-                text: format!("The permissions on {places} do not let your account read {}, so the size is unknown. Change them, then scan again.", if more == 0 { "it" } else { "them" }),
+                text: if more == 0 {
+                    format!("The permissions on {places} do not let your account read it, so the size is unknown. Change them, then scan again.")
+                } else {
+                    format!("The permissions on {places} do not let your account read them, so the size is unknown. Change them, then scan again.")
+                },
                 location: loc,
                 size_bytes: None,
                 action_label: "Scan again".into(),

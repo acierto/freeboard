@@ -1,6 +1,7 @@
 // Dinghy and the harbor scene (prototype `.stage`): sky, stars at night, sun or
 // moon, clouds, two waves, and the boat with its face and crates. Geometry is
 // the prototype's; motion is CSS and respects reduced motion (harbor.css).
+import { t } from "../i18n";
 import { boatTransform, CRATE_SLOTS, crateLabels, wavePath, type Mood } from "./dinghyGeometry";
 
 const INK = "var(--boat-ink)";
@@ -56,7 +57,7 @@ export function Dinghy({ mood, freeGb, crates, bubble, eager = false }: { mood: 
       <p className="bubble" id="bubble" aria-live="polite">
         {bubble}
       </p>
-      <svg viewBox="110 40 400 290" preserveAspectRatio="xMidYMax meet" role="img" aria-label="Dinghy the boat. It sits lower in the water as the disk fills.">
+      <svg viewBox="110 40 400 290" preserveAspectRatio="xMidYMax meet" role="img" aria-label={t("a.dinghy")}>
         <g style={{ opacity: "var(--star)" }} fill="#FFF3C4">
           <circle cx="60" cy="130" r="2" />
           <circle cx="210" cy="104" r="1.6" />

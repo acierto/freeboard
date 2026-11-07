@@ -24,7 +24,11 @@ export const GROUPS: { id: Group; label: string }[] = [
 ];
 export const groupLabel = (g: Group) => areaName(GROUPS.find((x) => x.id === g)?.label ?? g);
 
-export const RISK_LABEL: Record<Risk, string> = { safe: "Safe", review: "Review", risky: "Risky" };
+export const RISK_LABEL: Record<Risk, string> = {
+  get safe() { return t("risk.safe"); },
+  get review() { return t("risk.review"); },
+  get risky() { return t("risk.risky"); },
+};
 
 /** Status pill classes and labels (prototype `status()`). */
 export const STATUS: Record<DiskStatus, { key: "good" | "warn" | "crit"; readonly label: string }> = {
@@ -33,7 +37,7 @@ export const STATUS: Record<DiskStatus, { key: "good" | "warn" | "crit"; readonl
   critical: { key: "crit", get label() { return t("st.crit"); } },
 };
 
-export const trashWord = (p: Platform) => (p === "windows" ? "Recycle Bin" : "Trash");
+export const trashWord = (p: Platform) => (p === "windows" ? t("trash.win") : t("trash.word"));
 
 /** What the tray view calls the place it lives in. */
 export const trayWord = (p: Platform) => (p === "macos" ? "menu bar" : p === "windows" ? "notification area" : "tray");

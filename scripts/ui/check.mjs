@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 // Interface behaviour checks against the fixture build (dist-visual):
 // keyboard order and focus, sheets (focus trap, Esc, focus return), the tray
 // view's close paths, and the pile responding to the helm's controls.
@@ -76,6 +77,63 @@ const idle = (p) => p.waitForFunction(() => document.documentElement.dataset.bus
   await p.click("#ob-next");
   check("language: the picker is on step 1 only", !(await p.$("#ob-lang-sel")));
   await ctx.close();
+}
+
+// Languages, the whole app: no visible text or accessible name is still an
+// English interface string, on every screen (found by the user on 1.2.0).
+{
+  const en = JSON.parse(readFileSync(new URL("../../src/i18n/en.json", import.meta.url), "utf8"));
+  for (const [l, locale] of [["de", "de-DE"], ["fr", "fr-FR"]]) {
+    const other = JSON.parse(readFileSync(new URL(`../../src/i18n/${l}.json`, import.meta.url), "utf8"));
+    // English strings without placeholders whose translation differs.
+    const english = new Set(Object.entries(en).filter(([k, v]) => !/\{/.test(v) && /[A-Za-z]{4}/.test(v) && other[k] !== v).map(([, v]) => v.trim()));
+    const leftovers = new Map();
+    const sweep = async (p, where) => {
+      const found = await p.evaluate((list) => {
+        const set = new Set(list);
+        const out = [];
+        const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+        for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+          const el = n.parentElement;
+          if (!el || el.closest("[hidden], script, style") || !el.getClientRects().length) continue;
+          const v = n.textContent.trim();
+          if (set.has(v)) out.push(v);
+        }
+        for (const el of document.querySelectorAll("[aria-label], [title]")) for (const a of ["aria-label", "title"]) if (set.has((el.getAttribute(a) ?? "").trim())) out.push(`${a}="${el.getAttribute(a)}"`);
+        return out;
+      }, [...english]);
+      for (const f of found) leftovers.set(f, where);
+    };
+    const visit = async (query, where, steps = []) => {
+      const { p, ctx } = await page(query, undefined, locale);
+      for (const st of steps) {
+        if (typeof st === "string") await p.click(st);
+        else await st(p);
+        await idle(p);
+      }
+      await sweep(p, where);
+      await ctx.close();
+    };
+    await visit(`lang=${l}`, "home");
+    await visit(`lang=${l}`, "home pile", ["#pile-btn"]);
+    await visit(`lang=${l}`, "quick questions rows", ['details[data-open="grp-Docker"] > summary', "#l-x-d-vol", '[data-risk-box="d-vol"] > summary', 'details[data-open="grp-Projects"] > summary', "#l-x-b-node"]);
+    await visit(`lang=${l}`, "disk map", ["#tab-map"]);
+    await visit(`lang=${l}`, "not explained", ["#tab-map", '[data-tile="unknown"]']);
+    await visit(`lang=${l}`, "places", ["#tab-map", "#places-btn"]);
+    await visit(`lang=${l}`, "report", ["#tab-map", '[data-act="report"]']);
+    await visit(`lang=${l}`, "logbook", ["#tab-log"]);
+    await visit(`lang=${l}`, "run details", ["#tab-log", '[data-run="run-2"]']);
+    await visit(`lang=${l}`, "settings", ['[data-act="settings"]']);
+    await visit(`lang=${l}`, "confirm", ["#cta", async (p) => p.waitForSelector("#go")]);
+    await visit(`lang=${l}&hold=1`, "running", ["#cta", async (p) => p.waitForSelector("#go"), "#go", async (p) => p.waitForSelector("#run-bar")]);
+    await visit(`lang=${l}&skip=wt-exp&trash=1&fail=d-cache`, "result", ["#cta", async (p) => p.waitForSelector("#go"), "#go", async (p) => p.waitForSelector('#go[data-act="close"]'), "details.res.safe > summary"]);
+    await visit(`lang=${l}&trash=2.4`, "empty trash", ['[data-act="empty"]', async (p) => p.waitForSelector("#go")]);
+    await visit(`view=tray&lang=${l}`, "menu bar window");
+    await visit(`firstrun=1&lang=${l}`, "setup 1");
+    await visit(`firstrun=1&lang=${l}`, "setup 3", ["#ob-next", "#ob-next"]);
+    await visit(`firstrun=1&lang=${l}`, "setup 4", ["#ob-next", "#ob-next", "#ob-next"]);
+    check(`language (${l}): no English interface text left on any screen`, leftovers.size === 0, [...leftovers].map(([t, w]) => `${w}: ${t}`).join(" | "));
+  }
 }
 
 // First run: five steps; choices are saved when the first look starts.

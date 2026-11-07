@@ -30,6 +30,16 @@
       "threshold": 0,
       "maxDiffPixels": 60,
       "rationale": "The same bottom-corner artifact as first-run-promises--light--1120x900: one colour level (max difference 1) along the dialog's bottom edge, light theme only."
+    },
+    "settings-sheet-de--light--1120x900": {
+      "threshold": 0,
+      "maxDiffPixels": 14,
+      "rationale": "The page behind the sheet shows through its blurred bottom-right corner. The app translates Quick questions into German; the prototype leaves them in English (it translates only the main card, the menu bar window, setup and Settings). The sheet itself is identical. 2026-11-07."
+    },
+    "settings-sheet-de--dark--1120x900": {
+      "threshold": 0,
+      "maxDiffPixels": 14,
+      "rationale": "The page behind the sheet shows through its blurred bottom-right corner. The app translates Quick questions into German; the prototype leaves them in English (it translates only the main card, the menu bar window, setup and Settings). The sheet itself is identical. 2026-11-07."
     }
   }
 }

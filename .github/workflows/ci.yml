@@ -113,6 +113,8 @@ jobs:
       - run: npx playwright install chromium
       - name: App stylesheet is the prototype's, byte for byte
         run: npm run verify:styles
+      - name: Translations are complete and the backend text catalog is current
+        run: npm run verify:i18n
       - name: Interface unit tests (Dinghy geometry and mood)
         run: npm run test:ui
       - name: Interface behaviour (keyboard, sheets, tray view, pile)

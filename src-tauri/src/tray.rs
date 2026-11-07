@@ -136,7 +136,7 @@ pub fn build(app: &AppHandle, paused: bool) -> tauri::Result<()> {
             }
         })
         .build(app)?;
-    let labels = vec![(open.clone(), "m.open"), (summary.clone(), "m.summary"), (scan.clone(), "m.scan"), (quit.clone(), "m.quit")];
+    let labels = vec![(open.clone(), "menu.open"), (summary.clone(), "menu.summary"), (scan.clone(), "menu.scan"), (quit.clone(), "menu.quit")];
     app.manage(TrayItems { status, pause, labels });
     Ok(())
 }
@@ -151,7 +151,7 @@ pub fn update(app: &AppHandle, status: DiskStatus, free_bytes: u64, show_free: b
     }
     if let Some(items) = app.try_state::<TrayItems>() {
         let _ = items.status.set_text(text);
-        let _ = items.pause.set_text(crate::i18n::tr(lang, "m.pause"));
+        let _ = items.pause.set_text(crate::i18n::tr(lang, "menu.pause"));
         for (item, key) in &items.labels {
             let _ = item.set_text(crate::i18n::tr(lang, key));
         }

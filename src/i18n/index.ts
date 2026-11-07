@@ -66,28 +66,6 @@ export function tf(key: string, fallback: string, vars?: Record<string, string |
   return key in STRINGS.en || key in STRINGS[current] ? t(key, vars) : fallback;
 }
 
-/** The detectors' fixed, descriptive item titles and their keys. Titles
- * that name a product, a path or a repository ("node_modules", "Volume
- * pgdata", "billing: feature-x") are never translated. */
-const TITLE_KEYS: Record<string, string> = {
-  "Docker build cache": "n.d-cache",
-  "Untagged Docker images": "n.d-dangling",
-  "Unused Docker images": "n.unused-images",
-  "Stopped containers": "n.d-stop",
-  "Installers in Downloads": "n.f-dl",
-  "Old Homebrew downloads": "n.c-brew",
-  "pip download cache": "n.c-pip",
-  "Unavailable iOS simulators": "n.m-sim",
-  "Unreferenced pnpm packages": "n.pnpm-unref",
-  "Old temporary files": "n.old-temp",
-  "Git worktrees with no local changes": "n.wt-clean",
-};
-
-/** A descriptive item name in the current language: `n.<item id>` (the
- * prototype's items), else the detector's fixed title; anything else stays
- * as the detector wrote it. */
-export const itemName = (s: { id: string; title: string }) => tf("n." + s.id, TITLE_KEYS[s.title] ? t(TITLE_KEYS[s.title]) : s.title);
-
 /** An area or group name by its English label ("AI models"). */
 export const areaName = (label: string) => tf("g." + label, label);
 

@@ -1,8 +1,10 @@
 // The Quick questions tab (prototype `renderTidy()`): one question card, the
 // protected list, and Everything I found. Every choice goes to the backend,
 // which owns the pile and the decisions.
+import { areaName, t } from "../../i18n";
+import { itemName, tb } from "../../i18n/backend";
 import { useState } from "react";
-import { GROUPS, RISK_LABEL, gb, plural } from "../../lib/format";
+import { GROUPS, RISK_LABEL, gb } from "../../lib/format";
 import type { ItemDecision, PileState, Suggestion } from "../../lib/types";
 import { questionDeck } from "../home/homeModel";
 import { age, cmdFor } from "../cleanup/cleanupModel";
@@ -28,11 +30,11 @@ function Question({ items, pile, act }: { items: Suggestion[]; pile: PileState; 
     const laters = items.filter((s) => s.decision === "later");
     return (
       <div className="card stack">
-        <h2>All answered</h2>
-        <p className="muted">You have no questions left. Your answers are in the crate pile above.</p>
+        <h2>{t("q.all")}</h2>
+        <p className="muted">{t("q.none")}</p>
         {laters.length > 0 && (
           <button className="btn" data-act="bring-back" onClick={() => laters.forEach((s) => act.decide(s.id, null))}>
-            {`Ask me about ${laters.length} I skipped`}
+            {t("q.bringback", { n: laters.length })}
           </button>
         )}
       </div>
@@ -42,46 +44,46 @@ function Question({ items, pile, act }: { items: Suggestion[]; pile: PileState; 
   return (
     <div className="card q">
       <div className="row between">
-        <span className="note">{`${deck.length} left, biggest first`}</span>
+        <span className="note">{t("q.left", { n: deck.length })}</span>
         <span className={"pill " + q.risk}>{RISK_LABEL[q.risk]}</span>
       </div>
-      <h2>{q.title}</h2>
+      <h2>{itemName(q)}</h2>
       <div className="q-size num">{gb(q.sizeBytes)}</div>
-      <p>{q.reason}</p>
+      <p>{tb(q.reason)}</p>
       <RiskBox s={q} open={q.risk === "risky"} />
       <dl className="facts">
-        <dt>Where</dt>
-        <dd className="mono">{q.location}</dd>
-        <dt>Last used</dt>
-        <dd>{q.lastUsedLabel}</dd>
-        <dt>Would run</dt>
-        <dd className="mono">{q.actionLabel}</dd>
-        <dt>To get it back</dt>
-        <dd>{q.recovery}</dd>
+        <dt>{t("f.where")}</dt>
+        <dd className="mono">{tb(q.location)}</dd>
+        <dt>{t("f.lastused")}</dt>
+        <dd>{tb(q.lastUsedLabel)}</dd>
+        <dt>{t("f.run")}</dt>
+        <dd className="mono">{tb(q.actionLabel)}</dd>
+        <dt>{t("f.back")}</dt>
+        <dd>{tb(q.recovery)}</dd>
       </dl>
       {q.needsConfirmation && (
         <label className="ack">
           <input type="checkbox" id={`ack-${q.id}`} data-ack={q.id} checked={!!acks[q.id]} onChange={(e) => setAcks((a) => ({ ...a, [q.id]: e.target.checked }))} />
-          I understand this cannot be recovered.
+          {t("ack.lost")}
         </label>
       )}
       <Parts item={q} ctx="q" onChange={(ids) => act.parts(q.id, ids)} />
       <div className="q-actions">
         <button className="btn primary" id="q-toss" data-q="toss" disabled={!acked} onClick={() => act.add([q.id])}>
-          Add to pile
+          {t("q.add")}
         </button>
         <button className="btn" data-q="keep" onClick={() => act.decide(q.id, "keep")}>
-          {"Keep, don\u2019t ask again"}
+          {t("q.keep")}
         </button>
         <button className="btn" data-q="later" onClick={() => act.decide(q.id, "later")}>
-          Ask me later
+          {t("q.later")}
         </button>
       </div>
     </div>
   );
 }
 
-const tagFor = (s: Suggestion) => (s.blockedReason ? "Protected" : s.decision === "keep" ? "Kept" : s.skipReason ? "Changed, scan again" : RISK_LABEL[s.risk]);
+const tagFor = (s: Suggestion) => (s.blockedReason ? t("tag.protected") : s.decision === "keep" ? t("tag.kept") : s.skipReason ? t("tag.changed") : RISK_LABEL[s.risk]);
 
 /** Items a whole-group action may include: not blocked, kept, changed, or
  * needing their own confirmation (spec "Item-level controls"). */
@@ -112,7 +114,7 @@ export function Row({ s, ctx, chosen, act, max, startOpen = false }: { s: Sugges
           type="checkbox"
           id={`${ctx}-pile-${s.id}`}
           data-pile={s.id}
-          aria-label={`Add ${s.title} to the pile`}
+          aria-label={t("r.pileadd", { x: itemName(s) })}
           checked={chosen.has(s.id)}
           disabled={s.sizeBytes <= 0}
           onChange={(e) => (e.target.checked ? act.add([s.id]) : act.takeOut(s.id))}
@@ -123,7 +125,7 @@ export function Row({ s, ctx, chosen, act, max, startOpen = false }: { s: Sugges
         <span></span>
       )}
       <button className="irow-main" id={`${ctx}-x-${s.id}`} data-expand={key} aria-expanded={open} onClick={() => setOpen((v) => !v)}>
-        <span className="iname">{s.title}</span>
+        <span className="iname">{itemName(s)}</span>
         <span className="imeta">
           <span className={`rdot ${RCLS[s.risk]}`}></span>
           <span>{tagFor(s)}</span>
@@ -132,7 +134,7 @@ export function Row({ s, ctx, chosen, act, max, startOpen = false }: { s: Sugges
           {s.parts.length > 0 && on < s.parts.length && (
             <>
               <span>·</span>
-              <span>{`${on} of ${s.parts.length} chosen`}</span>
+              <span>{t("r.chosen", { on, n: s.parts.length })}</span>
             </>
           )}
         </span>
@@ -146,35 +148,35 @@ export function Row({ s, ctx, chosen, act, max, startOpen = false }: { s: Sugges
       {open && (
         <div className="idetail">
           <dl className="facts">
-            <dt>Why</dt>
-            <dd>{s.reason}</dd>
-            <dt>Where</dt>
-            <dd className="mono">{s.location}</dd>
-            <dt>Would run</dt>
+            <dt>{t("f.why")}</dt>
+            <dd>{tb(s.reason)}</dd>
+            <dt>{t("f.where")}</dt>
+            <dd className="mono">{tb(s.location)}</dd>
+            <dt>{t("f.run")}</dt>
             <dd className="mono">{cmdFor(s)}</dd>
-            <dt>To get it back</dt>
-            <dd>{s.recovery}</dd>
+            <dt>{t("f.back")}</dt>
+            <dd>{tb(s.recovery)}</dd>
           </dl>
           <RiskBox s={s} open={false} />
           {can && !kept && <Parts item={s} ctx={ctx} onChange={(ids) => act.parts(s.id, ids)} />}
           {s.blockedReason ? (
-            <p className="note">{s.blockedReason}</p>
+            <p className="note">{tb(s.blockedReason)}</p>
           ) : kept ? (
             <div className="iactions">
               <button className="btn" id={`${ctx}-keep-${s.id}`} data-keep={s.id} onClick={() => act.decide(s.id, null)}>
-                Stop keeping
+                {t("r.stopkeep")}
               </button>
             </div>
           ) : s.skipReason ? (
-            <p className="note">It changed after the scan. Scan again to remove it.</p>
+            <p className="note">{t("r.changed")}</p>
           ) : (
             can && (
               <div className="iactions">
                 <button className="btn primary" id={`${ctx}-now-${s.id}`} data-now={s.id} disabled={s.sizeBytes <= 0} onClick={() => act.remove([s.id])}>
-                  {`Remove ${gb(s.sizeBytes)} now`}
+                  {t("r.now", { x: gb(s.sizeBytes) })}
                 </button>
                 <button className="btn" id={`${ctx}-keep-${s.id}`} data-keep={s.id} onClick={() => act.decide(s.id, "keep")}>
-                  {"Keep, don\u2019t suggest"}
+                  {t("r.keep")}
                 </button>
               </div>
             )
@@ -192,10 +194,10 @@ export function GroupActions({ items, slug, act }: { items: Suggestion[]; slug: 
   return (
     <div className="grp-tools">
       <button className="link small" id={`add-${slug}`} data-add={slug} onClick={() => act.add(l.map((s) => s.id))}>
-        {`Add all ${l.length} to the pile (${gb(l.reduce((t, s) => t + s.sizeBytes, 0))})`}
+        {t("g.addall", { n: l.length, x: gb(l.reduce((n, s) => n + s.sizeBytes, 0)) })}
       </button>
       <button className="link small" id={`clean-${slug}`} data-clean={slug} onClick={() => act.remove(l.map((s) => s.id))}>
-        {`Remove all ${l.length}…`}
+        {t("g.removeall", { n: l.length })}
       </button>
     </div>
   );
@@ -207,11 +209,11 @@ function PileBar({ pile, act }: { pile: PileState; act: Choices }) {
   return (
     <div className="pilebar">
       <span className="num">
-        <b>{`${pile.itemIds.length} in the pile`}</b>
+        <b>{t("pb.inpile", { n: pile.itemIds.length })}</b>
         {` · ${gb(pile.totalBytes)}`}
       </span>
       <button className="btn primary" id="pilebar-go" data-act="confirm" onClick={act.toss}>
-        Review and toss
+        {t("pb.go")}
       </button>
     </div>
   );
@@ -227,10 +229,11 @@ function Protected({ items }: { items: Suggestion[] }) {
     return (
       <div className="protect">
         <b>
-          {s.title} <span className="num">{gb(s.sizeBytes)}</span>
+          {itemName(s) + " "}
+          <span className="num">{gb(s.sizeBytes)}</span>
         </b>
-        <span>{`${s.reason} I will not touch it.`}</span>
-        <span className="muted">{s.blockedReason}</span>
+        <span>{`${tb(s.reason)} ${t("p.notouch")}`}</span>
+        <span className="muted">{tb(s.blockedReason)}</span>
       </div>
     );
   }
@@ -239,17 +242,18 @@ function Protected({ items }: { items: Suggestion[] }) {
   return (
     <div className="protect" id="protected">
       <b>
-        {`${items.length} things I will not touch`} <span className="num">{gb(total)}</span>
+        {t("p.notouchN", { n: items.length }) + " "}
+        <span className="num">{gb(total)}</span>
       </b>
-      <span className="muted">They may hold work that exists only here, such as uncommitted or unpushed changes. Commit and push them, and I can clean them next time.</span>
+      <span className="muted">{t("p.why")}</span>
       <details className="parts" data-open="protected">
-        <summary>Show them</summary>
+        <summary>{t("p.show")}</summary>
         {sorted.map((s) => (
           <div className="detail-row" key={s.id}>
             <span>
-              {s.title}
+              {itemName(s)}
               <span className="sub muted" style={{ display: "block", fontSize: 12.5 }}>
-                {s.reason}
+                {tb(s.reason)}
               </span>
             </span>
             <span className="num">{gb(s.sizeBytes)}</span>
@@ -267,9 +271,9 @@ function Everything({ items, pile, chosen, act }: { items: Suggestion[]; pile: P
     <div className="stack">
       <Protected items={blocked} />
       <div className="card">
-        <h3>Everything I found</h3>
+        <h3>{t("e.title")}</h3>
         <p className="note" style={{ marginBottom: 6 }}>
-          {items.length ? `${plural(items.length, "item")}, ${gb(total)} in total. Tick to add to the pile. Open a row for details.` : "Nothing yet. Run a scan from Settings, or wait for the next one."}
+          {items.length ? (items.length === 1 ? t("e.sum1", { x: gb(total) }) : t("e.sumN", { n: items.length, x: gb(total) })) : t("e.none")}
         </p>
         {GROUPS.map(({ id, label }) => {
           const l = items.filter((s) => s.group === id).sort((a, b) => b.sizeBytes - a.sizeBytes);
@@ -284,7 +288,7 @@ function Everything({ items, pile, chosen, act }: { items: Suggestion[]; pile: P
             <details className="grp" data-open={key} key={id}>
               <summary>
                 <span>
-                  {label}{" "}
+                  {areaName(label) + " "}
                   <span className="muted" style={{ fontWeight: 600 }}>
                     {l.length}
                   </span>
