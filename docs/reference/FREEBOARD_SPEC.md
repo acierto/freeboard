@@ -712,6 +712,20 @@ Build the read-only product first, because cleanup should arrive only after its 
 | Docker Desktop | Pruned space may stay inside its virtual disk, so show the measured change instead of promising the expected amount. Compact only through a supported method, after warning that Docker will stop briefly. |
 | WSL | Don't scan WSL filesystems in the first version. Show virtual disk files in the map when found. |
 
+### First launch on protected computers
+
+Until builds are signed and notarized, macOS blocks Freeboard on first launch ("Apple could not verify Freeboard is free of malware"), and Windows SmartScreen shows "Windows protected your PC". The app cannot explain this itself because it never starts, so the explanation lives on the download page, in the release notes and in the README.
+
+| System | What the user does |
+| --- | --- |
+| macOS 15 and later | Open Freeboard once and click **Done** on the alert. Open System Settings → Privacy & Security, scroll to Security, click **Open Anyway** next to "Freeboard was blocked", then **Open**, and enter the Mac password if asked. Control-click → Open no longer bypasses this on macOS 15. |
+| Windows | On "Windows protected your PC", click **More info**, then **Run anyway**. |
+| Linux (AppImage) | `chmod +x Freeboard*.AppImage`, or tick "Allow executing file as program" in Properties. The .deb and .rpm need nothing extra. |
+
+On company-managed computers the **Open Anyway** button may be missing or the installer blocked by policy; the page tells the user to ask IT to allow Freeboard.
+
+Release requirement: sign the macOS build with a Developer ID certificate and notarize it (Tauri's bundler does both when the Apple signing variables are set), and sign the Windows installer. Once releases are signed and notarized, the macOS steps disappear for users and the page can drop them. Never tell users to turn Gatekeeper off or to run `spctl --master-disable`.
+
 ### Milestones
 
 1. **Foundation:** create the Tauri app, permissions, SQLite storage, tray, settings, bundled fonts, design tokens and CI builds on all three platforms.
@@ -768,6 +782,7 @@ Build the read-only product first, because cleanup should arrive only after its 
 - [ ] Every safety invariant has an automated test.
 - [ ] The app makes no network calls of its own.
 - [ ] Performance results are reported against the targets in the overview.
+- [ ] The download page, release notes and README explain the first-launch steps for macOS (Privacy & Security → Open Anyway), Windows (More info → Run anyway) and Linux, until builds are signed and notarized.
 
 ### Open questions
 

@@ -11,11 +11,12 @@ Preview builds are not yet signed with an Apple Developer ID or a Windows code-s
 ### macOS (11 or later, Apple silicon and Intel)
 
 1. Open `Freeboard-<version>-macOS-universal.dmg`, accept the MIT license, and drag Freeboard to Applications.
-2. Open Freeboard. macOS says it can't check the app for malware.
-3. Go to **System Settings → Privacy & Security**, scroll down and click **Open Anyway**. Or run:
-   ```bash
-   xattr -dr com.apple.quarantine /Applications/Freeboard.app
-   ```
+2. Open Freeboard once. macOS says it can't verify the app and won't open it. Click **Done**.
+3. Open **System Settings → Privacy & Security**.
+4. Scroll down to **Security** and click **Open Anyway** next to "Freeboard was blocked to protect your Mac". The button shows for a while after your first try.
+5. Click **Open**, and enter your Mac password if asked. From then on Freeboard opens normally.
+
+On macOS 15 and later, Control-click → Open no longer gets around this block. On a Mac managed by your company, **Open Anyway** may be missing; ask IT to allow Freeboard. Never turn Gatekeeper off to get around this.
 
 ### Windows (10 or 11, x64 or Arm)
 

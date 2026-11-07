@@ -241,6 +241,38 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .teaser { position: relative; max-width: 980px; margin: 0 auto 64px; border-radius: 28px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 50px 90px -40px #000, 0 0 80px -20px #2FA9C566; aspect-ratio: 16 / 9; }
 .teaser video { width: 100%; height: 100%; object-fit: cover; display: block; }
 .teaser .snd { position: absolute; right: 14px; bottom: 14px; background: #081428cc; }
+.first-open { max-width: 860px; margin: 56px auto 0; text-align: left; background: var(--panel); border: 1px solid var(--line); border-radius: 26px; padding: 28px; display: flex; flex-direction: column; gap: 16px; }
+.first-open h3 { font-size: 28px; }
+.fo-lede { color: var(--muted); }
+.fo-tabs { display: flex; gap: 6px; padding: 4px; background: var(--deep); border-radius: 14px; align-self: flex-start; max-width: 100%; }
+.fo-tabs button { border: 0; background: none; color: var(--muted); font: 800 15px var(--body); padding: 8px 16px; border-radius: 10px; cursor: pointer; }
+.fo-tabs button[aria-selected="true"] { background: var(--sea-hi); color: #062634; }
+.fo-panel { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px; align-items: start; }
+.fo-panel[hidden] { display: none; }
+.fo-panel:not(:has(.fo-mock)) { grid-template-columns: minmax(0, 1fr); }
+.fo-panel .fo-note { grid-column: 1 / -1; }
+.fo-steps { margin: 0; padding: 0; list-style: none; counter-reset: s; display: flex; flex-direction: column; gap: 14px; }
+.fo-steps li { counter-increment: s; display: grid; grid-template-columns: 34px minmax(0, 1fr); column-gap: 12px; }
+.fo-steps li::before { content: counter(s); grid-row: span 2; width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; background: var(--panel-2); border: 1px solid var(--line); font-family: var(--display); font-weight: 700; color: var(--sea-hi); }
+.fo-steps b { color: var(--ink); } .fo-steps span { color: var(--muted); font-size: 15px; }
+.fo-steps em { font-style: normal; color: var(--ink); }
+.fo-steps code { font-family: var(--mono); font-size: 13px; background: #050C1A; padding: 1px 6px; border-radius: 6px; color: #BFE9F2; overflow-wrap: anywhere; }
+.fo-note { font-size: 14px; color: var(--dim); }
+.fo-mock { border-radius: 14px; overflow: hidden; background: #ECEEF2; color: #1D2330; font: 600 12.5px/1.35 -apple-system, "Segoe UI", system-ui, sans-serif; box-shadow: 0 30px 50px -24px #000c; transform: perspective(900px) rotateY(-8deg) rotateX(4deg); }
+.fo-mock-bar { display: flex; align-items: center; gap: 6px; padding: 8px 10px; background: #DCDFE5; }
+.fo-mock-bar i { width: 10px; height: 10px; border-radius: 50%; background: #FF6B5E; } .fo-mock-bar i:nth-child(2) { background: #FFC25A; } .fo-mock-bar i:nth-child(3) { background: #43C76A; }
+.fo-mock-bar span { margin-left: 8px; font-weight: 700; }
+.fo-mock-body { display: grid; grid-template-columns: 38% 62%; min-height: 170px; }
+.fo-side { background: #E3E6EB; padding: 10px 8px; display: flex; flex-direction: column; gap: 4px; }
+.fo-side span { padding: 4px 8px; border-radius: 6px; color: #4A5265; }
+.fo-side span.on { background: #2F7CF6; color: #fff; }
+.fo-main { padding: 12px; display: flex; flex-direction: column; gap: 8px; background: #F6F7F9; }
+.fo-h { font-weight: 800; font-size: 13px; }
+.fo-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: #fff; border-radius: 8px; padding: 9px 10px; }
+.fo-row.dim { color: #6A7385; }
+.fo-btn { flex: none; background: #fff; border: 1px solid #C9CED8; border-radius: 6px; padding: 3px 9px; box-shadow: 0 0 0 3px #FFC86799, 0 0 18px #FFC867; animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 5px #FFC86744, 0 0 26px #FFC867aa; } }
+@media (max-width: 760px) { .fo-mock-body { grid-template-columns: minmax(0, 1fr); } .fo-side { display: none; } .fo-panel { grid-template-columns: minmax(0, 1fr); } .first-open { padding: 20px; } .fo-mock { transform: none; } }
 .ocean { position: relative; height: 260px; margin-top: 80px; }
 .ocean svg { position: absolute; left: 0; bottom: 0; width: 200%; max-width: none; height: 100%; }
 .ocean .w1 { animation: drift 16s linear infinite; } .ocean .w2 { animation: drift 10s linear infinite reverse; opacity: .8; }
@@ -334,6 +366,7 @@ footer a { color: #fff; }
       </div>
       <div class="platforms"><a href="https://github.com/acierto/freeboard/releases/latest" data-file="macOS-universal.dmg" data-asset="macOS">macOS</a><a href="https://github.com/acierto/freeboard/releases/latest" data-file="linux-x86_64.deb" data-asset="Linux">Linux</a><a href="https://github.com/acierto/freeboard/releases/latest" data-file="windows-x64-setup.exe" data-asset="Windows">Windows</a><span>Built with Tauri 2</span></div>
       <div class="release-line"><span data-version>Latest release</span> · <a href="https://github.com/acierto/freeboard/releases">All releases and older versions</a></div>
+      <div class="release-line" style="margin-top:-18px">Blocked on first launch? <a href="#first-open">Here's how to open it</a>.</div>
     </div>
 
     <div class="scene" id="scene" aria-hidden="true">
@@ -515,6 +548,46 @@ footer a { color: #fff; }
     <p class="reveal" style="margin-top:18px;font-size:15px;color:var(--muted)">Other downloads: <a href="https://github.com/acierto/freeboard/releases/latest" data-file="macOS-universal.dmg">macOS (.dmg)</a> · <a href="https://github.com/acierto/freeboard/releases/latest" data-file="windows-x64-setup.exe">Windows x64 (.exe)</a> · <a href="https://github.com/acierto/freeboard/releases/latest" data-file="windows-arm64-setup.exe">Windows Arm (.exe)</a> · <a href="https://github.com/acierto/freeboard/releases/latest" data-file="linux-x86_64.deb">Linux x86_64 (.deb)</a> · <a href="https://github.com/acierto/freeboard/releases/latest" data-file="linux-x86_64.AppImage">AppImage</a> · <a href="https://github.com/acierto/freeboard/releases/latest" data-file="linux-arm64.deb">Linux arm64 (.deb)</a></p>
     <p class="reveal" style="margin-top:6px;font-size:15px;color:var(--muted)"><span data-version>Latest release</span> · <a href="https://github.com/acierto/freeboard/releases">All releases and older versions</a></p>
     <div class="install reveal"><code id="installCmd">git clone https://github.com/your-name/freeboard &amp;&amp; cd freeboard &amp;&amp; pnpm tauri build</code><button class="btn sm" id="copyBtn">Copy</button></div>
+    <p class="reveal" style="margin-top:6px;font-size:15px;color:var(--muted)">macOS or Windows says it can't open it? <a href="#first-open">First time opening it?</a></p>
+    <div class="first-open reveal" id="first-open">
+      <h3>First time opening it?</h3>
+      <p class="fo-lede">Your computer may stop Freeboard the first time, because it was downloaded from the internet. That’s normal for new apps. Here’s how to let it through once.</p>
+      <div class="fo-tabs" role="tablist" aria-label="Your system">
+        <button role="tab" id="fo-t-mac" aria-controls="fo-mac" aria-selected="true" data-fo="mac">macOS</button>
+        <button role="tab" id="fo-t-win" aria-controls="fo-win" aria-selected="false" data-fo="win" tabindex="-1">Windows</button>
+        <button role="tab" id="fo-t-linux" aria-controls="fo-linux" aria-selected="false" data-fo="linux" tabindex="-1">Linux</button>
+      </div>
+      <div class="fo-panel" role="tabpanel" id="fo-mac" aria-labelledby="fo-t-mac">
+        <ol class="fo-steps">
+          <li><b>Open Freeboard once.</b><span>macOS says it can’t verify the app and won’t open it. Click <em>Done</em>.</span></li>
+          <li><b>Open System Settings → Privacy &amp; Security.</b><span>Apple menu → System Settings → Privacy &amp; Security in the sidebar.</span></li>
+          <li><b>Scroll down to Security and click Open Anyway.</b><span>It says “Freeboard was blocked to protect your Mac”. The button shows for a while after your first try.</span></li>
+          <li><b>Confirm with Open.</b><span>Enter your Mac password if asked. From now on Freeboard opens normally.</span></li>
+        </ol>
+        <div class="fo-mock" aria-hidden="true">
+          <div class="fo-mock-bar"><i></i><i></i><i></i><span>Privacy &amp; Security</span></div>
+          <div class="fo-mock-body">
+            <div class="fo-side"><span>Wi‑Fi</span><span>General</span><span>Desktop &amp; Dock</span><span class="on">Privacy &amp; Security</span><span>Lock Screen</span></div>
+            <div class="fo-main"><div class="fo-h">Security</div><div class="fo-row"><span>“Freeboard” was blocked to protect your Mac.</span><span class="fo-btn">Open Anyway</span></div><div class="fo-row dim"><span>Allow applications from</span><span>App Store &amp; Known Developers</span></div></div>
+          </div>
+        </div>
+        <p class="fo-note">On a work Mac managed by your company, the button may be missing. Ask IT to allow Freeboard.</p>
+      </div>
+      <div class="fo-panel" role="tabpanel" id="fo-win" aria-labelledby="fo-t-win" hidden>
+        <ol class="fo-steps">
+          <li><b>Run the installer.</b><span>If a blue “Windows protected your PC” box appears, don’t close it.</span></li>
+          <li><b>Click More info.</b><span>The publisher and app name appear.</span></li>
+          <li><b>Click Run anyway.</b><span>Windows remembers your choice for this installer.</span></li>
+        </ol>
+        <p class="fo-note">On a work PC, IT may block unknown installers. Ask them to allow Freeboard.</p>
+      </div>
+      <div class="fo-panel" role="tabpanel" id="fo-linux" aria-labelledby="fo-t-linux" hidden>
+        <ol class="fo-steps">
+          <li><b>Make the AppImage runnable.</b><span><code>chmod +x Freeboard*.AppImage</code>, or tick “Allow executing file as program” in its Properties.</span></li>
+          <li><b>Double-click it,</b><span>or install the .deb or .rpm with your package manager instead.</span></li>
+        </ol>
+      </div>
+    </div>
   </div>
   <div class="ocean" aria-hidden="true">
     <svg class="boat"><use href="#dinghy"/></svg>
@@ -674,6 +747,14 @@ footer a { color: #fff; }
     var done = function () { b.textContent = 'Copied'; setTimeout(function () { b.textContent = 'Copy'; }, 1500); };
     if (navigator.clipboard) navigator.clipboard.writeText(txt).then(done, function () { getSelection().selectAllChildren(document.getElementById('installCmd')); });
   });
+
+  var foTabs = [].slice.call(document.querySelectorAll('[data-fo]'));
+  function foPick(btn) { foTabs.forEach(function (t) { var on = t === btn; t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1; document.getElementById('fo-' + t.dataset.fo).hidden = !on; }); }
+  foTabs.forEach(function (t, i) {
+    t.addEventListener('click', function () { foPick(t); });
+    t.addEventListener('keydown', function (e) { var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0; if (d) { var n = foTabs[(i + d + foTabs.length) % foTabs.length]; foPick(n); n.focus(); } });
+  });
+  if (os === 'Windows') foPick(foTabs[1]); else if (os === 'Linux') foPick(foTabs[2]);
 
   // Reveal on scroll
   var io = 'IntersectionObserver' in window ? new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }); }, { threshold: 0, rootMargin: '0px 0px -8% 0px' }) : null;

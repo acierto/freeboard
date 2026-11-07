@@ -24,6 +24,25 @@ Every item carries a risk label:
 
 Download the installer for your system from the [latest release](https://github.com/acierto/freeboard/releases/latest) (`.dmg`, `.exe`/`.msi`, `.deb` or `.AppImage`), and verify it against `SHA256SUMS.txt`. Preview builds are not yet signed or notarized, so macOS and Windows will ask you to confirm the first launch. Step-by-step instructions are in the [user guide](docs/user-guide.md#install).
 
+## Opening Freeboard the first time
+
+Until releases are signed and notarized, your system may block the first launch. This is normal for a new app downloaded from the internet.
+
+**macOS**
+
+1. Open Freeboard once. macOS says it can't verify the app and won't open it. Click **Done**.
+2. Open **System Settings → Privacy & Security**.
+3. Scroll down to **Security** and click **Open Anyway** next to "Freeboard was blocked to protect your Mac". The button shows for a while after your first try.
+4. Click **Open**, and enter your Mac password if asked. From then on Freeboard opens normally.
+
+On macOS 15 and later, Control-click → Open no longer gets around this block. On a Mac managed by your company, **Open Anyway** may be missing; ask IT to allow Freeboard. Never turn Gatekeeper off to get around this.
+
+**Windows:** on "Windows protected your PC", click **More info**, then **Run anyway**.
+
+**Linux (AppImage):** `chmod +x Freeboard*.AppImage`, then double-click it. The `.deb` needs nothing extra.
+
+On a company-managed computer these options may be blocked; ask IT to allow Freeboard.
+
 ## Build from source
 
 Freeboard is a [Tauri 2](https://tauri.app/) app: a Rust core does all monitoring, scanning and cleanup, and a React interface displays results.

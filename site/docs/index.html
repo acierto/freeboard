@@ -155,6 +155,17 @@ footer a { color: #fff; }
         <tr><td><b>Linux</b><br>Ubuntu 22.04+, Debian 12<br>x86_64, arm64</td><td><code>sudo apt install ./Freeboard-&lt;version&gt;-linux-x86_64.deb</code>, or <code>chmod +x</code> the AppImage and run it.</td><td>Tested on GNOME (with AppIndicator) and KDE Plasma.</td></tr>
       </tbody>
     </table>
+    <h3 id="first-open">First time opening it on a protected computer</h3>
+    <p>Until releases are signed and notarized, your system may block the first launch. The app can't explain this itself, because it never starts.</p>
+    <p><b>macOS</b></p>
+    <ol>
+      <li>Open Freeboard once. macOS says it can't verify the app. Click <b>Done</b>.</li>
+      <li>Open <b>System Settings → Privacy &amp; Security</b>.</li>
+      <li>Scroll to <b>Security</b> and click <b>Open Anyway</b> next to "Freeboard was blocked to protect your Mac". The button shows for a while after your first try.</li>
+      <li>Click <b>Open</b>, and enter your Mac password if asked.</li>
+    </ol>
+    <p>On macOS 15 and later, Control-click → Open no longer gets around this block. On a company-managed Mac the button may be missing; ask IT to allow Freeboard. Never turn Gatekeeper off to get around it.</p>
+    <p><b>Windows:</b> on "Windows protected your PC", click <b>More info</b>, then <b>Run anyway</b>. <b>Linux (AppImage):</b> <code>chmod +x Freeboard*.AppImage</code>, then double-click it.</p>
     <p>On first run Freeboard explains what it reads and asks which folders to scan for projects and worktrees. It asks the operating system for a permission only when a feature needs it.</p>
 
     <h2 id="watch">How it watches your disk</h2>
