@@ -852,39 +852,44 @@ pub fn platform_volume_bytes(platform: &str) -> u64 {
 
 #[cfg(target_os = "macos")]
 mod macos_volumes {
-    fn statvfs(p: &str) -> Option<libc::statvfs> {
+    /// One volume's own size figures from `statfs`. (`statvfs` on APFS
+    /// reports the whole container's blocks and free space for every volume,
+    /// so its "used" is the container's: found on a real Mac, 2026-11-07,
+    /// where four system volumes were each counted as 921 GB.)
+    fn statfs(p: &str) -> Option<libc::statfs> {
         let c = std::ffi::CString::new(p).ok()?;
         // SAFETY: valid NUL-terminated path and a zeroed out-parameter.
         unsafe {
-            let mut st: libc::statvfs = std::mem::zeroed();
-            (libc::statvfs(c.as_ptr(), &mut st) == 0).then_some(st)
+            let mut st: libc::statfs = std::mem::zeroed();
+            (libc::statfs(c.as_ptr(), &mut st) == 0).then_some(st)
         }
     }
 
     const DATA: &str = "/System/Volumes/Data";
-    const OTHERS: &[&str] = &["/", "/System/Volumes/Preboot", "/System/Volumes/VM", "/System/Volumes/Update", "/System/Volumes/xarts", "/System/Volumes/iSCPreboot", "/System/Volumes/Hardware"];
 
+    /// Space the APFS container uses for everything but the Data volume
+    /// (System, Preboot, VM, Update, Recovery and other volumes): the
+    /// container's used space minus the Data volume's own used space.
     pub fn other_volume_bytes() -> u64 {
-        let Some(data) = statvfs(DATA) else { return 0 };
-        let frs = data.f_frsize;
-        let total = data.f_blocks as u64 * frs;
-        let free = data.f_bavail as u64 * frs;
-        let container_used = total.saturating_sub(free);
-        let used_of = |st: &libc::statvfs| (st.f_blocks as u64).saturating_sub(st.f_bfree as u64) * st.f_frsize;
-        let same = |st: &libc::statvfs| st.f_blocks as u64 * st.f_frsize == total && st.f_bavail as u64 * st.f_frsize == free;
-        let data_used = used_of(&data);
-        let mut seen = std::collections::HashSet::new();
-        let mut others = 0u64;
-        for p in OTHERS {
-            if let Some(st) = statvfs(p) {
-                // Mount points of one volume can repeat (firmlinks); count each once.
-                if same(&st) && seen.insert(st.f_fsid) {
-                    others += used_of(&st);
-                }
-            }
+        let Some(data) = statfs(DATA) else { return 0 };
+        let bsize = data.f_bsize as u64;
+        let total = data.f_blocks * bsize;
+        // Free space is shared by every volume in the container.
+        let container_free = data.f_bavail * bsize;
+        let container_used = total.saturating_sub(container_free);
+        let data_used = (data.f_blocks.saturating_sub(data.f_bfree)) * bsize;
+        container_used.saturating_sub(data_used)
+    }
+
+    #[cfg(test)]
+    mod tests {
+        #[test]
+        fn other_volumes_are_less_than_the_container() {
+            // On a real Mac: never more than the container uses in all.
+            let Some(d) = super::statfs(super::DATA) else { return };
+            let total = d.f_blocks * d.f_bsize as u64;
+            let others = super::other_volume_bytes();
+            assert!(others < total, "{others} >= container {total}");
         }
-        // Volumes that are not mounted (Recovery) still use container space.
-        let unmounted = container_used.saturating_sub(data_used + others);
-        others + unmounted
     }
 }

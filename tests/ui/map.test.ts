@@ -2,7 +2,7 @@
 // Run with `npm run test:ui` (Node's built-in test runner).
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { coverText, coverageBadge, defaultTile, explained, squarify, tileClass, tilesOf } from "../../src/features/map/mapModel.ts";
+import { coverText, coverage, coverageBadge, defaultTile, explained, squarify, tileClass, tilesOf } from "../../src/features/map/mapModel.ts";
 import type { DiskMap } from "../../src/lib/types.ts";
 
 const GB = 1e9;
@@ -59,8 +59,9 @@ test("small tiles hide their labels and short wide tiles lay them flat", () => {
 
 test("coverage reads as the prototype's", () => {
   const tiles = tilesOf(map());
-  assert.equal(coverText(tiles).pct, "95.8% explained");
-  assert.equal(coverText(tiles).line, "I can account for 478.8 of the 499.6 GB in use.");
+  assert.equal(coverText(map()).pct, "95.8% explained");
+  assert.equal(coverText(map()).line, "I can account for 478.8 of the 499.6 GB in use.");
+  assert.equal(Math.round(coverage(map()).pct), Math.round(explained(tiles).pct), "same as the prototype on a complete map");
   assert.equal(Math.round(explained(tiles).pct), 96);
   assert.equal(coverageBadge(map()), 96);
   assert.equal(coverageBadge(map(0)), null, "no badge once everything is explained");
@@ -73,4 +74,11 @@ test("the area with the most to remove opens first", () => {
     { mapArea: "docker", sizeBytes: 52.1 * GB },
   ];
   assert.equal(defaultTile(map(), items), "ai");
+});
+
+test("an over-counted map never claims more in use than the disk", () => {
+  // Areas add up to far more than used (APFS clones and snapshots counted twice).
+  const m = { ...map(), usedBytes: 921 * GB, notExplainedBytes: 0, explainedBytes: 921 * GB };
+  m.areas = m.areas.map((a) => ({ ...a, bytes: a.bytes * 10 }));
+  assert.equal(coverText(m).line, "I can account for 921.0 of the 921.0 GB in use.");
 });

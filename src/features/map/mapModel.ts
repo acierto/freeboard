@@ -103,15 +103,26 @@ export function explained(tiles: Tile[]) {
   return { used, un, pct: used ? ((used - un) / used) * 100 : 100 };
 }
 
-export function coverText(tiles: Tile[]): { pct: string; line: string } {
-  const ex = explained(tiles);
+/** Coverage from the disk's real used space and what is explained. On a
+ * complete map this equals the tile sum the prototype uses; on a map whose
+ * areas add up to more than the disk uses (APFS clones, snapshots), the tile
+ * sum would claim an impossible "in use" figure and 100% (found on a real
+ * Mac, 2026-11-07), so the backend's figures are used. */
+export function coverage(map: DiskMap) {
+  const used = map.usedBytes / 1e9;
+  const un = map.notExplainedBytes / 1e9;
+  return { used, un, pct: used ? ((used - un) / used) * 100 : 100 };
+}
+
+export function coverText(map: DiskMap): { pct: string; line: string } {
+  const ex = coverage(map);
   return { pct: ex.pct.toFixed(1) + "% explained", line: "I can account for " + (ex.used - ex.un).toFixed(1) + " of the " + ex.used.toFixed(1) + " GB in use." };
 }
 
 /** The tab badge: shown only while some space is unexplained. */
 export function coverageBadge(map: DiskMap | null): number | null {
   if (!map) return null;
-  const ex = explained(tilesOf(map));
+  const ex = coverage(map);
   return ex.un > 0 ? Math.round(ex.pct) : null;
 }
 

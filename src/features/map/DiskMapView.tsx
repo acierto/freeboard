@@ -9,7 +9,7 @@ import { track } from "../../lib/useBusy";
 import { gb, plural } from "../../lib/format";
 import type { AreaGrowth, BlindSpot, BlindSpotAction, DiskMap, PileState, PlaceChecked, Platform, Suggestion } from "../../lib/types";
 import { GroupActions, Row, type Choices } from "../questions/Questions";
-import { GB, coverText, defaultTile, explained, ringDash, squarify, tileClass, tilesOf } from "./mapModel";
+import { GB, coverText, coverage, defaultTile, ringDash, squarify, tileClass, tilesOf } from "./mapModel";
 
 function Ring({ pct }: { pct: number }) {
   const { dash, done } = ringDash(pct);
@@ -128,15 +128,29 @@ function Detail({ map, tile, items, spots, chosen, act }: { map: DiskMap; tile: 
   } else {
     const area = map.areas.find((a) => a.id === t.id);
     const inside = items.filter((s) => s.mapArea === t.id).sort((a, b) => b.sizeBytes - a.sizeBytes);
+    const blocked = inside.filter((s) => s.blockedReason);
     // As the prototype: what is not listed above (including parts left
     // unselected) is the space to leave alone.
     const rest = Math.max(0, size - inside.reduce((n, s) => n + s.sizeBytes, 0));
     rows = (
       <>
         <GroupActions items={inside} slug={"map-" + t.id} act={act} />
-        {inside.map((s) => (
+        {(blocked.length > 1 ? inside.filter((s) => !s.blockedReason) : inside).map((s) => (
           <Row key={s.id} s={s} ctx="m" chosen={chosen} act={act} />
         ))}
+        {/* More than one protected item share one folded row, as under
+            Quick questions (a real disk had 139; found by the user). */}
+        {blocked.length > 1 && (
+          <details className="parts" data-open={"m-protected-" + t.id}>
+            <summary>{`${blocked.length} things I will not touch · ${gb(blocked.reduce((n, s) => n + s.sizeBytes, 0))}`}</summary>
+            {blocked.map((s) => (
+              <div className="detail-row" key={s.id}>
+                <span>{s.title}</span>
+                <span className="num">{gb(s.sizeBytes)}</span>
+              </div>
+            ))}
+          </details>
+        )}
         {rest > 0.05 * GB && (
           <div className="detail-row">
             <span className="muted">{`${area?.leaveAloneLabel || "Other"} (leave these)`}</span>
@@ -277,8 +291,7 @@ export function DiskMapView({ map, spots, places, growth, items, pile, platform,
   const [tile, setTile] = useState<string | null>(null);
   const selected = tile ?? defaultTile(map, items);
   const chosen = new Set(pile.itemIds);
-  const tiles = tilesOf(map);
-  const cover = coverText(tiles);
+  const cover = coverText(map);
   const select = (id: string) => {
     setTile(id);
     const d = document.getElementById("tile-detail");
@@ -289,7 +302,7 @@ export function DiskMapView({ map, spots, places, growth, items, pile, platform,
       <div className="stack">
         <div className="card stack">
           <div className="cover">
-            <Ring pct={explained(tiles).pct} />
+            <Ring pct={coverage(map).pct} />
             <div>
               <b className="num">{cover.pct}</b>
               <span className="muted num">{cover.line}</span>
