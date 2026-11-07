@@ -102,6 +102,8 @@ export interface WorktreesView {
   repos: WorktreeRepo[];
   /** Every linked worktree, as a suggestion with `worktree` set. */
   items: Suggestion[];
+  /** Worktrees found by an older version: a deep scan sorts them. */
+  stale: number;
 }
 
 export interface SaferStep {

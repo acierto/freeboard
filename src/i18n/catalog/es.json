@@ -430,7 +430,6 @@
   "Branch kept: Git would not delete it.": "Rama conservada: Git no quiso borrarla.",
   "Branch kept.": "Rama conservada.",
   "Commit it on the branch, then the worktree can go": "Haz commit en la rama y el worktree podrá irse",
-  "Commit or stash these files first, then scan again.": "Haz commit o stash de estos archivos primero y luego escanea de nuevo.",
   "Create a branch for them first, then scan again.": "Crea una rama para ellos primero y luego escanea de nuevo.",
   "Everything is already in main.": "Todo ya está en main.",
   "Idle {d} days, already in main (squash-merged).": "Sin usar desde hace {d} días, ya está en main (squash merge).",
@@ -444,5 +443,11 @@
   "The branch stays. Reopen it with {r}.": "La rama se queda. Vuelve a abrirla con {r}.",
   "Used {d} days ago": "Usado hace {d} días",
   "Used today": "Usado hoy",
-  "Used yesterday": "Usado ayer"
+  "Used yesterday": "Usado ayer",
+  "1 uncommitted file": "1 archivo sin confirmar",
+  "{0} uncommitted files": "{0} archivos sin confirmar",
+  "If you remove it anyway, they are deleted for good. The branch and its commits stay.": "Si lo quitas de todos modos, se pierden para siempre. La rama y sus commits se quedan.",
+  "Not recoverable: the uncommitted files are deleted. The branch and its commits stay.": "No se puede recuperar: los archivos sin confirmar se borran. La rama y sus commits se quedan.",
+  "Refused: its uncommitted files were not acknowledged.": "Rechazado: no se confirmaron sus archivos sin confirmar.",
+  "{0} is not an allowed acknowledged removal": "{0} no es una eliminación confirmada permitida"
 }

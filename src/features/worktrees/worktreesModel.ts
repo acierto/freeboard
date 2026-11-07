@@ -5,6 +5,11 @@
 import type { Suggestion, WorktreeInfo, WorktreesView } from "../../lib/types.ts";
 import { t } from "../../i18n/index.ts";
 
+/** A worktree item, also one stored by a version before the Worktrees view
+ * (no `worktree` facts yet): it belongs in the Worktrees tab, not in Quick
+ * questions or the Disk map lists (found on a real Mac, 2026-11-07). */
+export const isWorktree = (s: Suggestion) => !!s.worktree || s.detector === "git.worktrees";
+
 export type WtKey = "ready" | "look" | "work" | "main";
 export const WT_KEYS: WtKey[] = ["ready", "look", "work", "main"];
 export type WtFilter = "all" | "agent" | WtKey;
@@ -83,8 +88,13 @@ export function checksOf(w: WorktreeInfo): [ok: boolean, text: string][] {
 /** Does removal delete the branch too? */
 export const branchGoes = (w: WorktreeInfo) => w.commands.some((c) => / branch -[dD] /.test(c));
 
-/** Can it be selected? Ready and Needs a look can; Has your work and main can't. */
-export const selectable = (r: WtRow) => r.key === "ready" || r.key === "look";
+/** Uncommitted files only (nothing held): removable after the user's
+ * acknowledgment in the row. */
+export const acknowledgeable = (r: WtRow) => r.key === "work" && !!r.item?.needsConfirmation;
+
+/** Can it be selected? Ready and Needs a look can; Has your work only once
+ * acknowledged; held work and main checkouts never. */
+export const selectable = (r: WtRow, acked = false) => r.key === "ready" || r.key === "look" || (acked && acknowledgeable(r));
 
 /** Steps that make a worktree with uncommitted files removable (prototype `wtFix`). */
 export function fixesOf(r: WtRow): [label: string, cmd: string][] {

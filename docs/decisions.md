@@ -348,3 +348,21 @@ Found by the user: 140 worktrees were listed as "things I will not touch". The r
 - **Supplemental CSS:** three quirks-mode line-height rules (repository heading, repository path, reopen command), and the agent badges darkened for WCAG AA contrast.
 - **On the user's Mac** (read-only run of the detector over ~/proj and ~/soft): 151 worktrees, 92 Ready (13.1 GB), 21 Needs a look (used 6 days ago), 38 Has your work (21.6 GB). Several of those 38 hold only an untracked `node_modules` link, `__pycache__` or Xcode's package cache.
 - **Translations:** the tab's strings and the new sentences from the core were drafted in all four languages by the agent; have a native speaker review them.
+- 2026-11-07: Baselines regenerated from `docs/reference/freeboard-prototype.html` (SHA-256 `e4e14a41ea9d…`, chromium 156.0.8078.4, 308 captures). Rationale: Worktrees: rows with uncommitted files have the prototype's acknowledgment, and their command shows --force
+
+## 2026-11-07: Removing a worktree with uncommitted files, after the user's OK
+
+The user agreed: a worktree whose only work is uncommitted files may be removed once the user ticks "I understand these N files will be gone for good" in its row, as the prototype shows.
+
+- **Narrow exception to invariant 7:** `git worktree remove --force` stays banned in the runner's normal checks. Only `Runner::run_acknowledged_removal` accepts it, in exactly `git worktree remove --force <path>`, with an `Acknowledged` token. The cleanup engine creates that token only for an item the confirmed plan recorded as acknowledged (`plan_acks`).
+- **Classification:** a merge in progress, a program using the worktree, commits on no branch, or an unreadable state are checked first. Those are never removed, not even with the acknowledgment. Only uncommitted files make an item acknowledgeable (`needs_confirmation`). The branch and its commits stay unless already in main.
+- **Pre-cleanup check:** the fingerprint includes the `git status` output, so a file added or changed after the scan skips the worktree ("A new commit or change appeared after the scan.").
+- **Interface:** the row's checkbox stays disabled until the acknowledgment is ticked; the plan records each acknowledgment before it runs. The row's "Would run" shows `--force`.
+
+## 2026-11-07: Worktrees found by an older version
+
+Found on a real Mac after installing the Worktrees build: the tab showed "0 in 0 repositories" while Quick questions still listed 141 worktrees as "things I will not touch". Results stored by 1.2 have no worktree facts, and only a deep scan replaces them (quick scans keep deep-only results).
+
+- The scheduler runs one deep scan when stored worktrees lack facts (at most once a day, not on battery when deep scans pause on battery).
+- The tab names them ("I found 141 worktrees with an older version of Freeboard…") with **Sort them now** (a deep scan), instead of "No worktrees found".
+- Quick questions and the Disk map recognise worktrees by their detector too, so older results leave those lists at once.

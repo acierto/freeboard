@@ -562,5 +562,11 @@
   "wt.removeN": "{n} Worktrees entfernen",
   "q.wtlink1": "1 Worktree findest du im Tab Worktrees.",
   "q.wtlinkN": "{n} Worktrees findest du im Tab Worktrees.",
-  "q.wtgo": "Worktrees öffnen"
+  "q.wtgo": "Worktrees öffnen",
+  "wt.stale1": "Ich habe 1 Worktree mit einer älteren Version von Freeboard gefunden. Ein Tiefen-Scan ordnet ihn danach, was beim Entfernen verloren ginge.",
+  "wt.staleN": "Ich habe {n} Worktrees mit einer älteren Version von Freeboard gefunden. Ein Tiefen-Scan ordnet sie danach, was beim Entfernen verloren ginge.",
+  "wt.sort": "Jetzt ordnen",
+  "wt.sorting": "Scan läuft…",
+  "wt.ack1": "Mir ist klar, dass diese 1 Datei endgültig weg ist. Lass ihn mich auswählen.",
+  "wt.ackN": "Mir ist klar, dass diese {n} Dateien endgültig weg sind. Lass ihn mich auswählen."
 }

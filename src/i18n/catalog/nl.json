@@ -433,7 +433,6 @@
   "Branch kept: Git would not delete it.": "Branch behouden: Git wilde hem niet verwijderen.",
   "Branch kept.": "Branch behouden.",
   "Commit it on the branch, then the worktree can go": "Commit het op de branch, dan kan de worktree weg",
-  "Commit or stash these files first, then scan again.": "Commit of stash deze bestanden eerst en scan dan opnieuw.",
   "Create a branch for them first, then scan again.": "Maak er eerst een branch voor en scan dan opnieuw.",
   "Everything is already in main.": "Alles staat al in main.",
   "Idle {d} days, already in main (squash-merged).": "{d} dagen niet gebruikt, al in main (squash-merge).",
@@ -447,5 +446,11 @@
   "The branch stays. Reopen it with {r}.": "De branch blijft. Open hem weer met {r}.",
   "Used {d} days ago": "{d} dagen geleden gebruikt",
   "Used today": "Vandaag gebruikt",
-  "Used yesterday": "Gisteren gebruikt"
+  "Used yesterday": "Gisteren gebruikt",
+  "1 uncommitted file": "1 niet-gecommit bestand",
+  "{0} uncommitted files": "{0} niet-gecommitte bestanden",
+  "If you remove it anyway, they are deleted for good. The branch and its commits stay.": "Haal je hem toch weg, dan zijn ze voorgoed weg. De branch en zijn commits blijven.",
+  "Not recoverable: the uncommitted files are deleted. The branch and its commits stay.": "Niet terug te halen: de niet-gecommitte bestanden worden verwijderd. De branch en zijn commits blijven.",
+  "Refused: its uncommitted files were not acknowledged.": "Geweigerd: de niet-gecommitte bestanden zijn niet bevestigd.",
+  "{0} is not an allowed acknowledged removal": "{0} is geen toegestane bevestigde verwijdering"
 }

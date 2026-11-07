@@ -430,7 +430,6 @@
   "Branch kept: Git would not delete it.": "Branche gardée : Git a refusé de la supprimer.",
   "Branch kept.": "Branche gardée.",
   "Commit it on the branch, then the worktree can go": "Commitez-le sur la branche, puis le worktree pourra partir",
-  "Commit or stash these files first, then scan again.": "Commitez ou mettez ces fichiers dans un stash d’abord, puis relancez l’analyse.",
   "Create a branch for them first, then scan again.": "Créez d’abord une branche pour eux, puis relancez l’analyse.",
   "Everything is already in main.": "Tout est déjà dans main.",
   "Idle {d} days, already in main (squash-merged).": "Inactif depuis {d} jours, déjà dans main (squash merge).",
@@ -444,5 +443,11 @@
   "The branch stays. Reopen it with {r}.": "La branche reste. Rouvrez-la avec {r}.",
   "Used {d} days ago": "Utilisé il y a {d} jours",
   "Used today": "Utilisé aujourd’hui",
-  "Used yesterday": "Utilisé hier"
+  "Used yesterday": "Utilisé hier",
+  "1 uncommitted file": "1 fichier non commité",
+  "{0} uncommitted files": "{0} fichiers non commités",
+  "If you remove it anyway, they are deleted for good. The branch and its commits stay.": "Si vous le supprimez quand même, ils sont perdus pour de bon. La branche et ses commits restent.",
+  "Not recoverable: the uncommitted files are deleted. The branch and its commits stay.": "Irrécupérable : les fichiers non commités sont supprimés. La branche et ses commits restent.",
+  "Refused: its uncommitted files were not acknowledged.": "Refusé : ses fichiers non commités n’ont pas été confirmés.",
+  "{0} is not an allowed acknowledged removal": "{0} n’est pas une suppression confirmée autorisée"
 }

@@ -1,6 +1,7 @@
 // The Quick questions tab (prototype `renderTidy()`): one question card, the
 // protected list, and Everything I found. Every choice goes to the backend,
 // which owns the pile and the decisions.
+import { isWorktree } from "../worktrees/worktreesModel";
 import { areaName, t } from "../../i18n";
 import { itemName, tb } from "../../i18n/backend";
 import { useState } from "react";
@@ -322,7 +323,7 @@ export function QuickQuestions({ items: all, pile, act }: { items: Suggestion[];
   const chosen = new Set(pile.itemIds);
   // Worktrees have their own tab (spec "Worktrees view"): there can be
   // hundreds, each with its own reason.
-  const items = all.filter((s) => !s.worktree);
+  const items = all.filter((s) => !isWorktree(s));
   const worktrees = all.length - items.length;
   return (
     <>

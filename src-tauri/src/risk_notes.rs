@@ -94,7 +94,11 @@ fn notes(s: &Suggestion) -> (Vec<String>, Vec<SaferStep>) {
             // uncommitted work (spec "Git worktrees").
             let loc = sh(&s.location);
             let mut why = vec![format!("{} Your work may exist only here.", s.reason)];
-            why.push("Freeboard will not remove it until that is no longer true.".into());
+            why.push(if s.needs_confirmation {
+                "If you remove it anyway, they are deleted for good. The branch and its commits stay.".into()
+            } else {
+                "Freeboard will not remove it until that is no longer true.".into()
+            });
             let mut safer = vec![step("See what would be lost", format!("git -C {loc} status --short"))];
             let r = s.reason.to_ascii_lowercase();
             if r.contains("uncommitted") || r.contains("untracked") {

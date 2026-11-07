@@ -562,5 +562,11 @@
   "wt.removeN": "Supprimer {n} worktrees",
   "q.wtlink1": "1 worktree se trouve dans l’onglet Worktrees.",
   "q.wtlinkN": "{n} worktrees se trouvent dans l’onglet Worktrees.",
-  "q.wtgo": "Ouvrir Worktrees"
+  "q.wtgo": "Ouvrir Worktrees",
+  "wt.stale1": "J’ai trouvé 1 worktree avec une version plus ancienne de Freeboard. Une analyse complète le classe selon ce que sa suppression ferait perdre.",
+  "wt.staleN": "J’ai trouvé {n} worktrees avec une version plus ancienne de Freeboard. Une analyse complète les classe selon ce que leur suppression ferait perdre.",
+  "wt.sort": "Les classer maintenant",
+  "wt.sorting": "Analyse…",
+  "wt.ack1": "Je comprends que ce fichier sera perdu pour de bon. Laissez-moi le sélectionner.",
+  "wt.ackN": "Je comprends que ces {n} fichiers seront perdus pour de bon. Laissez-moi le sélectionner."
 }

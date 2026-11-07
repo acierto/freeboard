@@ -562,5 +562,11 @@
   "wt.removeN": "{n} worktrees weghalen",
   "q.wtlink1": "1 worktree staat in het tabblad Worktrees.",
   "q.wtlinkN": "{n} worktrees staan in het tabblad Worktrees.",
-  "q.wtgo": "Worktrees openen"
+  "q.wtgo": "Worktrees openen",
+  "wt.stale1": "Ik vond 1 worktree met een oudere versie van Freeboard. Een diepe scan sorteert hem op wat weghalen zou kosten.",
+  "wt.staleN": "Ik vond {n} worktrees met een oudere versie van Freeboard. Een diepe scan sorteert ze op wat weghalen zou kosten.",
+  "wt.sort": "Nu sorteren",
+  "wt.sorting": "Scannen…",
+  "wt.ack1": "Ik begrijp dat dit ene bestand voorgoed weg is. Laat me hem selecteren.",
+  "wt.ackN": "Ik begrijp dat deze {n} bestanden voorgoed weg zijn. Laat me hem selecteren."
 }

@@ -727,7 +727,20 @@ impl CleanupEngine {
                 Err(e) => return (ItemState::Failed, Some(action_error(&e, &runner))),
             }
         }
-        match run(&["worktree", "remove", &path]) {
+        // Uncommitted files go only for an item the user acknowledged in this
+        // plan (the probe already confirmed they are the scanned ones).
+        let forced = f.suggestion.needs_confirmation && wt.is_some_and(|w| w.dirty > 0 && w.hold.is_none());
+        let removed = if forced {
+            let acks = persist::acks(&self.store.conn(), &job.plan_id).unwrap_or_default();
+            if !acks.iter().any(|a| a == &f.suggestion.id) {
+                return (ItemState::Failed, Some("Refused: its uncommitted files were not acknowledged.".into()));
+            }
+            let cmd = Cmd::new("git", ["worktree", "remove", "--force", &path]).in_dir(Path::new(main));
+            runner.run_acknowledged_removal(&cmd, &job.confirmed, &crate::runner::Acknowledged::new(&f.suggestion.id))
+        } else {
+            run(&["worktree", "remove", &path])
+        };
+        match removed {
             Ok(out) if out.success() => {}
             Ok(out) => return (ItemState::Failed, Some(failed(out, "git worktree remove failed."))),
             Err(e) => return (ItemState::Failed, Some(action_error(&e, &runner))),

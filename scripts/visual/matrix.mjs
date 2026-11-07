@@ -403,11 +403,11 @@ export const ENTRIES = [
 // Worktrees (prototype Version 19): its own tab.
 const WT_CLIP = [".tabs", "#v-wt"];
 const WT_TAB = { click: "#tab-wt" };
-function noAckForWork() {
-  // Worktrees with uncommitted files stay unremovable in the app: removing
-  // them needs `git worktree remove --force`, which invariant 7 bans (decision
-  // 2026-11-07). The prototype's in-row acknowledgment is not offered.
-  document.querySelectorAll("#v-wt [data-wt-ack]").forEach((i) => i.closest("label")?.remove());
+function forceForWork() {
+  // Removing a worktree with uncommitted files runs \`git worktree remove
+  // --force\` (after the acknowledgment, decision 2026-11-07); the row shows
+  // the exact command, which the prototype leaves without --force.
+  for (const c of document.querySelectorAll("#v-wt .wt-row.work .wt-cmd")) c.textContent = c.textContent.replace(" worktree remove ", " worktree remove --force ");
 }
 function noGitHubCheck() {
   // Freeboard does not ask GitHub whether a pull request merged (invariant
@@ -428,10 +428,10 @@ function noRefocus() {
   // same button, so a mouse click shows no ring (as everywhere else).
   if (document.activeElement?.closest?.("#v-wt")) document.activeElement.blur();
 }
-const WT_NOTE = "Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff, and rows with uncommitted files have no acknowledgment to remove them (invariant 7).";
+const WT_NOTE = "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.";
 const wtEntry = (id, state, steps, sizes = [DESKTOP, MID, PHONE], refOnly = []) => ({
   id, surface: "Worktrees", state, sizes, query: "",
-  ref: [WT_TAB, ...steps, evalRef(noAckForWork), evalRef(noGitHubCheck), ...refOnly], impl: [WT_TAB, ...steps], clip: WT_CLIP, supplemental: true, note: WT_NOTE,
+  ref: [WT_TAB, ...steps, evalRef(noGitHubCheck), evalRef(forceForWork), ...refOnly], impl: [WT_TAB, ...steps], clip: WT_CLIP, supplemental: true, note: WT_NOTE,
 });
 ENTRIES.push(
   wtEntry("wt-default", "Worktrees: 20 in 6 repositories, 15 ready, by repository", []),
@@ -440,6 +440,7 @@ ENTRIES.push(
   wtEntry("wt-open-ready", "Worktrees: a squash-merged agent worktree opened (checks, after removal, commands)", [{ click: '[data-wt-open="w1"]' }], [DESKTOP, PHONE], [evalRef(noRefocus)]),
   wtEntry("wt-open-kept", "Worktrees: an unmerged one opened (the branch stays, how to reopen it)", [{ click: '[data-wt-open="w5"]' }], [DESKTOP], [evalRef(noRefocus)]),
   wtEntry("wt-open-work", "Worktrees: one with uncommitted files opened (what would be lost, how to save it)", [{ click: '[data-wt-open="w3"]' }], [DESKTOP], [evalRef(noRefocus)]),
+  wtEntry("wt-ack-work", "Worktrees: its files acknowledged, so it can be selected", [{ click: '[data-wt-open="w3"]' }, { click: '[data-wt-ack="w3"]' }, { click: '[data-wt-sel="w3"]' }], [DESKTOP], [evalRef(noRefocus)]),
   wtEntry("wt-selected", "Worktrees: Select 8 ready in sheltersync, with the dock", [{ click: '[data-wt-selrepo="sheltersync"]' }], [DESKTOP, PHONE]),
 );
 

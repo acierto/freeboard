@@ -562,5 +562,11 @@
   "wt.removeN": "Quitar {n} worktrees",
   "q.wtlink1": "Hay 1 worktree en la pestaña Worktrees.",
   "q.wtlinkN": "Hay {n} worktrees en la pestaña Worktrees.",
-  "q.wtgo": "Abrir Worktrees"
+  "q.wtgo": "Abrir Worktrees",
+  "wt.stale1": "Encontré 1 worktree con una versión anterior de Freeboard. Un escaneo a fondo lo ordena según lo que se perdería al quitarlo.",
+  "wt.staleN": "Encontré {n} worktrees con una versión anterior de Freeboard. Un escaneo a fondo los ordena según lo que se perdería al quitarlos.",
+  "wt.sort": "Ordenarlos ahora",
+  "wt.sorting": "Escaneando…",
+  "wt.ack1": "Entiendo que este archivo se perderá para siempre. Déjame seleccionarlo.",
+  "wt.ackN": "Entiendo que estos {n} archivos se perderán para siempre. Déjame seleccionarlo."
 }

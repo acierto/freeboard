@@ -98,6 +98,17 @@ const idle = (p) => p.waitForFunction(() => document.documentElement.dataset.bus
   check("worktrees: Made by agents shows the agent branches", (await p.$$(".wt-row")).length === 12);
   await p.click('[data-wt-filter="all"]');
   check("worktrees: Has your work and main can't be selected", (await p.isDisabled('[data-wt-sel="w3"]')) && (await p.isDisabled('[data-wt-sel="w7"]')) && !(await p.$('[data-wt-sel^="main:"]')));
+  await p.click('[data-wt-open="w7"]');
+  check("worktrees: uncommitted files: the exact command has --force", (await p.textContent(".wt-row.open .wt-cmd")) === "git -C ~/proj/knowback worktree remove --force .worktrees/admin-users-data");
+  await p.click('[data-wt-ack="w7"]');
+  check("worktrees: acknowledging the files makes it selectable", !(await p.isDisabled('[data-wt-sel="w7"]')));
+  await p.click('[data-wt-sel="w7"]');
+  await p.evaluate(() => (window.__FIXTURE_CALLS__ = []));
+  await p.click('[data-wt-act="remove"]');
+  await p.waitForFunction(() => /^Done: 1 removed/.test(document.querySelector(".wt-run b")?.textContent ?? ""));
+  const acked = (await p.evaluate(() => window.__FIXTURE_CALLS__)).filter((c) => c.cmd === "acknowledge_item");
+  check("worktrees: the plan records the acknowledgment before it runs", acked.length === 1 && acked[0].args.itemId === "w7", JSON.stringify(acked));
+  await p.click('[data-wt-act="dismiss"]');
   check("worktrees: Needs a look can be selected by hand", !(await p.isDisabled('[data-wt-sel="w6"]')) && !(await p.isDisabled('[data-wt-sel="w19"]')));
   await p.click('[data-wt-open="w5"]');
   const after = await p.textContent(".wt-row.open .wt-after");
@@ -118,6 +129,21 @@ const idle = (p) => p.waitForFunction(() => document.documentElement.dataset.bus
   await p.click('[data-wt-act="retry"]');
   await p.waitForFunction(() => document.querySelector(".wt-run b")?.textContent === "Done: 1 removed");
   check("worktrees: Try again removes the one that timed out", !(await p.$('[data-wt-open="w18"]')));
+  await ctx.close();
+}
+
+// Worktrees found by an older version: the tab says so and offers a deep scan.
+{
+  const { p, ctx } = await page("wtstale=141");
+  check("worktrees: an older-version worktree is not listed in Quick questions", !(await p.textContent("#v-tidy")).includes("docs/old-format") && (await p.textContent("#wt-link")).startsWith("1 worktree is in the Worktrees tab."), await p.textContent("#wt-link"));
+  await p.click("#tab-wt");
+  await idle(p);
+  const txt = await p.textContent("#wt-stale");
+  check("worktrees: older results are named, not shown as none", txt.includes("I found 141 worktrees with an older version") && !(await p.$("text=No worktrees found")), txt);
+  await p.evaluate(() => (window.__FIXTURE_CALLS__ = []));
+  await p.click('[data-act="wt-sort"]');
+  await idle(p);
+  check("worktrees: Sort them now starts a deep scan", JSON.stringify((await p.evaluate(() => window.__FIXTURE_CALLS__)).find((c) => c.cmd === "start_scan")?.args) === '{"kind":"deep"}');
   await ctx.close();
 }
 

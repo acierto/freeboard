@@ -209,7 +209,7 @@ function worktreeItem(w: WtRow): Suggestion {
   const merged = w.merged ?? "no";
   const status: WtStatus = dirty ? "work" : w.locked || w.idle < 7 ? "look" : "ready";
   const goes = merged !== "no";
-  const commands = [...(w.locked ? [`git -C ${root} worktree unlock ${w.path}`] : []), `git -C ${root} worktree remove ${w.path}`, ...(goes ? [`git -C ${root} branch ${merged === "yes" ? "-d" : "-D"} ${w.b}`] : [])];
+  const commands = [...(w.locked ? [`git -C ${root} worktree unlock ${w.path}`] : []), `git -C ${root} worktree remove ${dirty ? "--force " : ""}${w.path}`, ...(goes ? [`git -C ${root} branch ${merged === "yes" ? "-d" : "-D"} ${w.b}`] : [])];
   const reason = dirty ? `${dirty} uncommitted file${dirty === 1 ? "" : "s"} would be deleted.` : "";
   return {
     id: w.id,
@@ -223,19 +223,20 @@ function worktreeItem(w: WtRow): Suggestion {
     lastUsedAt: null,
     lastUsedLabel: `Last commit ${w.idle} days ago`,
     risk: status === "work" ? "risky" : "review",
-    action: status === "work" ? "none" : "native_command",
-    actionLabel: status === "work" ? "None" : `git worktree remove ${root}/${w.path}`,
+    action: "native_command",
+    actionLabel: `git worktree remove ${dirty ? "--force " : ""}${root}/${w.path}`,
     reason,
     recovery: goes ? "Everything is already in main." : `The branch stays. Reopen it with git worktree add ${w.path} ${w.b}.`,
     recoverable: status !== "work",
-    blockedReason: status === "work" ? "Commit or stash these files first, then scan again." : null,
-    needsConfirmation: false,
+    // Uncommitted files: removable after the user acknowledges them.
+    blockedReason: null,
+    needsConfirmation: status === "work",
     parts: [],
     fingerprint: "fixture",
     sizeIsEstimate: false,
     skipReason: null,
     decision: null,
-    ackName: null,
+    ackName: dirty ? `${dirty} uncommitted file${dirty === 1 ? "" : "s"}` : null,
     riskWhy: [],
     safer: [],
     worktree: {
@@ -311,6 +312,8 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
   // The Worktrees view's worktrees (prototype Version 19 `WT`), served by
   // get_worktrees and removable through the normal plan and run.
   items.push(...WT.filter((w) => !w.main).map(worktreeItem));
+  // wtstale: also one worktree as an older version stored it (no facts).
+  if (params.has("wtstale")) items.push({ ...worktreeItem(WT[1]), id: "w-old", title: "backstage: docs/old-format", worktree: null, blockedReason: "Blocked in v1. Push this branch first.", risk: "risky", action: "none" });
   const gone = new Set<string>();
   const active = () => items.filter((i) => !gone.has(i.id) && (!i.need || resolvedSpots.get(i.need) === "scan"));
   // Other views get the prototype's own items; worktrees have their tab.
@@ -790,7 +793,9 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
         const main = WT.find((w) => w.main && w.repo === name);
         return { name, root, mainBytes: main ? bytes(main.gb) : null };
       }),
-      items: active().filter((i) => i.worktree).map(({ need: _need, ...s }) => ({ ...s, parts: [] })),
+      items: params.has("wtstale") ? [] : active().filter((i) => i.worktree).map(({ need: _need, ...s }) => ({ ...s, parts: [] })),
+      // wtstale=<n>: worktrees found by an older version.
+      stale: params.has("wtstale") ? parseInt(params.get("wtstale")!, 10) : 0,
     }),
     get_disk_map: () => diskMap(),
     get_blind_spots: () => blindSpots(),

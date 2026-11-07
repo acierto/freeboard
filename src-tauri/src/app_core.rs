@@ -866,6 +866,14 @@ impl AppCore {
     /// The Worktrees view (spec "Worktrees view"): every linked worktree as an
     /// item, and each repository with its main checkout's size (the folder's
     /// size at the last measurement, less its worktrees), never removable.
+    /// Stored worktrees found by a version before the Worktrees view.
+    pub fn stale_worktrees(&self) -> u32 {
+        self.store
+            .findings()
+            .map(|f| f.iter().filter(|f| f.suggestion.detector == crate::detectors::git::ID && f.suggestion.worktree.is_none()).count() as u32)
+            .unwrap_or(0)
+    }
+
     pub fn get_worktrees(&self) -> CmdResult<WorktreesView> {
         let findings = self.store.findings()?;
         let decided = self.decided_suggestions()?;
@@ -886,7 +894,8 @@ impl AppCore {
             let main_bytes = m.as_ref().and_then(|m| diskmap::roots::folder_bytes(m, main)).map(|b| b.saturating_sub(inside));
             repos.push(WorktreeRepo { name: w.repo.clone(), root: w.root.clone(), main_bytes });
         }
-        Ok(WorktreesView { repos, items })
+        let stale = findings.iter().filter(|f| f.suggestion.detector == crate::detectors::git::ID && f.suggestion.worktree.is_none()).count() as u32;
+        Ok(WorktreesView { repos, items, stale })
     }
 
     fn decided_suggestions(&self) -> CmdResult<Vec<Suggestion>> {
@@ -1301,6 +1310,16 @@ impl AppCore {
         if r.running.is_some() {
             return None;
         }
+        // Worktrees found by an older version lack what the Worktrees view
+        // needs (found on a real Mac, 2026-11-07: 141 stored, the tab showed
+        // none). One deep scan sorts them; at most once a day.
+        if self.stale_worktrees() > 0 && !(s.pause_deep_scans_on_battery && crate::platform::on_battery() == Some(true)) {
+            let last: Option<i64> = self.store.meta_get("worktree_upgrade_scan_at").and_then(|v| v.parse().ok());
+            if last.map(|t| now - t >= 86_400).unwrap_or(true) {
+                let _ = self.store.meta_set("worktree_upgrade_scan_at", &now.to_string());
+                return Some(ScanKind::Deep);
+            }
+        }
         if s.deep_scan == DeepScanSchedule::Daily && r.last_deep_at.map(|t| now - t >= 86_400).unwrap_or(true) {
             if !(s.pause_deep_scans_on_battery && crate::platform::on_battery() == Some(true)) {
                 return Some(ScanKind::Deep);
@@ -1377,6 +1396,8 @@ pub struct WorktreeRepo {
 pub struct WorktreesView {
     pub repos: Vec<WorktreeRepo>,
     pub items: Vec<Suggestion>,
+    /// Worktrees found by an older version: a deep scan sorts them.
+    pub stale: u32,
 }
 
 #[cfg(test)]

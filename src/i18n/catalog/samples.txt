@@ -29,7 +29,6 @@ Builds that must work offline need it until then.
 Cargo download caches
 Check for ignored files you want to keep
 Commit it on the branch, then the worktree can go
-Commit or stash these files first, then scan again.
 Compose project billing, not attached to a container
 Create the simulator again in Xcode.
 Create them again. Files written inside them are lost.
@@ -71,6 +70,7 @@ Homebrew downloads them when needed.
 Idle 30 days, already in main (squash-merged).
 Idle 30 days, merged into main.
 Idle 30 days, nothing uncommitted. The branch stays, so you can reopen it anytime.
+If you remove it anyway, they are deleted for good. The branch and its commits stay.
 Installers in Downloads
 It belongs to the Compose project billing, which may expect to find it again.
 Last changed 120 days ago
@@ -99,6 +99,7 @@ Not opened in 120+ days
 Not opened in 200+ days
 Not opened in 40+ days
 Not recoverable.
+Not recoverable: the uncommitted files are deleted. The branch and its commits stay.
 Not used by any container
 Not used by any current build
 Old Homebrew downloads

@@ -3,6 +3,7 @@
 // space, blind spots with working actions, growth, places checked and the
 // disk report. Markup, classes and copy follow the prototype; the numbers come
 // from the backend's accounting (design D4, D5).
+import { isWorktree } from "../worktrees/worktreesModel";
 import { areaName, t as tx } from "../../i18n";
 import { itemName, tb } from "../../i18n/backend";
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
@@ -161,7 +162,7 @@ function Detail({ map, tile, items, spots, chosen, act, focus, platform }: { map
   } else {
     const area = map.areas.find((a) => a.id === t.id);
     // Worktrees are listed in their own tab, not here.
-    const inside = items.filter((s) => s.mapArea === t.id && !s.worktree).sort((a, b) => b.sizeBytes - a.sizeBytes);
+    const inside = items.filter((s) => s.mapArea === t.id && !isWorktree(s)).sort((a, b) => b.sizeBytes - a.sizeBytes);
     const blocked = inside.filter((s) => s.blockedReason);
     // As the prototype: what is not listed above (including parts left
     // unselected) is the space to leave alone.
@@ -408,7 +409,7 @@ function Coverage({ places, spots, onOpen }: { places: PlaceChecked[]; spots: Bl
  * grouped by area, what was clean, and the folders not looked in yet. */
 function PlacesSheet({ places, items: all, spots, onGo, onClose }: { places: PlaceChecked[]; items: Suggestion[]; spots: BlindSpot[]; onGo: (s: Suggestion) => void; onClose: () => void }) {
   // Worktrees are counted in their own tab.
-  const items = all.filter((s) => !s.worktree);
+  const items = all.filter((s) => !isWorktree(s));
   const clean = places.filter((p) => p.state === "clean").map((p) => tb(p.label));
   const off = places.filter((p) => p.state === "unavailable").map((p) => tb(p.label));
   const notYet = notYetOf(spots);

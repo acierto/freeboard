@@ -285,12 +285,9 @@ pub fn classify(ctx: &ScanContext, main: &Path, wt: &WtEntry, default: Option<&s
     };
     let work = |reason: String, block: &str, hold: Option<&'static str>| Classified { status: WtStatus::Work, reason, blocked: Some(block.to_string()), hold, ..base.clone() };
     let _ = main;
+    // Held: never removed, not even after the user's acknowledgment.
     if in_progress {
         return work("A merge, rebase or cherry-pick is in progress.".into(), "Blocked until the merge or rebase is finished.", Some("merging"));
-    }
-    if dirty > 0 {
-        let reason = if dirty == 1 { "1 uncommitted file would be deleted.".to_string() } else { format!("{dirty} uncommitted files would be deleted.") };
-        return work(reason, "Commit or stash these files first, then scan again.", None);
     }
     match procs {
         None => return work("Freeboard couldn't check whether a program has this worktree open.".into(), "Blocked because its status can't be determined.", Some("unknown")),
@@ -300,6 +297,12 @@ pub fn classify(ctx: &ScanContext, main: &Path, wt: &WtEntry, default: Option<&s
     // Commits on no branch would be lost with the folder.
     if wt.branch.is_none() && ahead > 0 {
         return work("Its commits are on no branch, so they would be lost.".into(), "Create a branch for them first, then scan again.", Some("no_branch"));
+    }
+    // Uncommitted files: removable only after the user acknowledges that
+    // these files go (spec "Git worktrees", decision 2026-11-07).
+    if dirty > 0 {
+        let reason = if dirty == 1 { "1 uncommitted file would be deleted.".to_string() } else { format!("{dirty} uncommitted files would be deleted.") };
+        return Classified { status: WtStatus::Work, reason, ..base };
     }
     if wt.locked {
         return Classified { status: WtStatus::Look, reason: format!("Locked, maybe by an agent that is still running. {}.", used(ctx.now, last_used)), ..base };
@@ -363,7 +366,8 @@ fn finding(ctx: &ScanContext, main: &Path, wt: &WtEntry, c: Classified, default:
     if wt.locked {
         commands.push(format!("git -C {root} worktree unlock {rel}"));
     }
-    commands.push(format!("git -C {root} worktree remove {rel}"));
+    let forced = c.status == WtStatus::Work && c.hold.is_none() && c.dirty > 0;
+    commands.push(format!("git -C {root} worktree remove {}{rel}", if forced { "--force " } else { "" }));
     if goes {
         let flag = if c.merged == WtMerged::Yes { "-d" } else { "-D" };
         commands.push(format!("git -C {root} branch {flag} {}", wt.branch.as_deref().unwrap_or("")));
@@ -372,7 +376,17 @@ fn finding(ctx: &ScanContext, main: &Path, wt: &WtEntry, c: Classified, default:
         (Some(b), false) => Some(format!("git worktree add {rel} {b}")),
         _ => None,
     };
-    if c.status == WtStatus::Work {
+    if forced {
+        // Uncommitted files: the user may remove it after acknowledging that
+        // these files are deleted for good. The branch and its commits stay.
+        s.risk = Risk::Risky;
+        s.action_label = format!("git worktree remove --force {}", wt.path.display());
+        s.recovery = "Not recoverable: the uncommitted files are deleted. The branch and its commits stay.".into();
+        s.recoverable = false;
+        s.blocked_reason = None;
+        s.needs_confirmation = true;
+        s.ack_name = Some(if c.dirty == 1 { "1 uncommitted file".into() } else { format!("{} uncommitted files", c.dirty) });
+    } else if c.status == WtStatus::Work {
         s.risk = Risk::Risky;
         s.action_label = "None".into();
         s.recovery = "Your work exists only here.".into();
@@ -515,7 +529,11 @@ pub fn probe(f: &Finding, ctx: &ScanContext) -> Probe {
         return Probe::Changed("The worktree no longer exists.".into());
     };
     let c = classify(ctx, &main, &wt, default_branch(ctx, &main).as_deref());
-    if c.status == WtStatus::Work {
+    // Held work never goes. Uncommitted files go only for an item that asked
+    // for the user's acknowledgment (the plan requires it), and only while
+    // they are exactly the ones found at the scan (the fingerprint).
+    let acknowledged = f.suggestion.needs_confirmation && c.hold.is_none() && c.dirty > 0;
+    if c.status == WtStatus::Work && !acknowledged {
         return Probe::Changed(c.reason);
     }
     if c.fingerprint != f.suggestion.fingerprint {

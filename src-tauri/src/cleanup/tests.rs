@@ -79,6 +79,9 @@ fn world() -> Fx {
     // "wip" has an uncommitted file: Has your work, never removed.
     let wip = app.join(".worktrees/wip");
     git(&app, &["worktree", "add", "-q", "-b", "wip", &wip.to_string_lossy()]);
+    std::fs::write(wip.join("w.txt"), "w").unwrap();
+    git(&wip, &["add", "."]);
+    git(&wip, &["commit", "-q", "-m", "w"]);
     std::fs::write(wip.join("draft.txt"), "draft").unwrap();
     // "held" is locked: Needs a look; removing it unlocks it first.
     let held = app.join(".worktrees/held");
@@ -196,11 +199,41 @@ fn inv03_unknown_ids_and_paths_are_rejected() {
 }
 
 #[test]
-fn inv09_worktree_with_uncommitted_files_cannot_be_planned() {
+fn inv09_worktree_with_uncommitted_files_needs_the_acknowledgment() {
     let e = Env::new();
     e.scan();
     let wt = e.id("git.worktrees", "wip");
-    assert!(matches!(e.engine.create_plan(&[wt], NOW), Err(CleanupError::Blocked(_))));
+    let p = e.plan(&[wt.clone()]);
+    assert_eq!(p.needs_ack_ids, vec![wt.clone()]);
+    assert!(!p.ready);
+    assert!(e.engine.run_plan(&p.id, NOW).is_err(), "no run without the acknowledgment");
+    assert!(repo_path(&e).join(".worktrees/wip/draft.txt").exists());
+}
+
+#[test]
+fn acknowledged_worktree_goes_with_its_files_and_keeps_its_branch() {
+    let e = Env::new();
+    e.scan();
+    let wt = e.id("git.worktrees", "wip");
+    let p = e.plan(&[wt.clone()]);
+    e.engine.acknowledge_item(&p.id, &wt, NOW).unwrap();
+    let r = e.run(&p);
+    assert_eq!(e.item(&r, &wt).state, ItemState::Done, "{:?}", e.item(&r, &wt).reason);
+    assert!(!repo_path(&e).join(".worktrees/wip").exists());
+    assert!(branches(&e).contains("wip"), "the branch stays with its commit");
+}
+
+#[test]
+fn acknowledged_worktree_with_new_files_after_the_scan_stays() {
+    let e = Env::new();
+    e.scan();
+    let wt = e.id("git.worktrees", "wip");
+    let p = e.plan(&[wt.clone()]);
+    e.engine.acknowledge_item(&p.id, &wt, NOW).unwrap();
+    std::fs::write(repo_path(&e).join(".worktrees/wip/later.txt"), "new work").unwrap();
+    let r = e.run(&p);
+    assert_eq!(e.item(&r, &wt).state, ItemState::Skipped);
+    assert!(repo_path(&e).join(".worktrees/wip/later.txt").exists());
 }
 
 /// Branches that exist in the repository.

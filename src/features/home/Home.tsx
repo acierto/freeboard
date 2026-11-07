@@ -315,7 +315,7 @@ export function Home({ navigate }: { navigate: View | null }) {
           )}
         </section>
         <section id="v-wt" className="wt-view" hidden={tab !== "wt"}>
-          <WorktreesView view={h.data.worktrees} onChanged={() => void h.reload()} />
+          <WorktreesView view={h.data.worktrees} onChanged={() => void h.reload()} scanning={scanning} />
         </section>
         <section id="v-log" className="card" hidden={tab !== "log"}>
           {tab === "log" && <Logbook platform={status.platform} refresh={`${status.trashBytes}|${status.volumes[0]?.freeBytes ?? 0}`} />}

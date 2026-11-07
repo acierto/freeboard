@@ -139,14 +139,22 @@ fn worktree_state_matrix() {
     assert!(l.locked && l.commands[0].contains("worktree unlock"));
     assert!(by_branch(&o, "locked").blocked_reason.is_none());
 
-    // Has your work: never removed.
-    for (b, needle, files) in [("dirty", "1 uncommitted file would be deleted", 1), ("untracked", "1 uncommitted file would be deleted", 1), ("merging", "merge", 0), ("broken", "couldn't determine", 0)] {
+    // Has your work. Uncommitted files: removable only after the user's
+    // acknowledgment, with --force. Held states: never.
+    for (b, needle, files) in [("dirty", "1 uncommitted file would be deleted", 1), ("untracked", "1 uncommitted file would be deleted", 1)] {
         let s = by_branch(&o, b);
         assert_eq!(s.worktree.as_ref().unwrap().status, WtStatus::Work, "{b}");
         assert_eq!(s.risk, Risk::Risky, "{b}");
         assert!(s.reason.contains(needle), "{b}: {}", s.reason);
-        assert!(s.blocked_reason.is_some() && !s.recoverable, "{b}");
+        assert!(s.blocked_reason.is_none() && s.needs_confirmation && !s.recoverable, "{b}");
         assert_eq!(s.worktree.as_ref().unwrap().dirty, files, "{b}");
+        assert!(s.worktree.as_ref().unwrap().commands.iter().any(|c| c.contains("worktree remove --force")), "{b}");
+    }
+    for (b, needle) in [("merging", "merge"), ("broken", "couldn't determine")] {
+        let s = by_branch(&o, b);
+        assert_eq!(s.worktree.as_ref().unwrap().status, WtStatus::Work, "{b}");
+        assert!(s.reason.contains(needle), "{b}: {}", s.reason);
+        assert!(s.blocked_reason.is_some() && !s.needs_confirmation && !s.recoverable, "{b}");
     }
     assert_eq!(info(&o, "untracked").dirty_files, vec!["new.txt".to_string()]);
     assert_eq!(info(&o, "dirty").dirty_files, vec!["d.txt".to_string()]);
@@ -159,13 +167,16 @@ fn inv09_git_work_never_preselected_only_ready_and_look_selectable() {
     let o = fx.scan(ScanKind::Deep, &[Box::new(Worktrees)]);
     for f in &o.findings {
         let s = &f.suggestion;
+        let w = s.worktree.as_ref().unwrap();
         assert!(!s.preselected(), "{}", s.title);
-        let removable = s.worktree.as_ref().unwrap().status != WtStatus::Work;
-        assert_eq!(s.selectable(), removable, "{}", s.title);
-        if removable {
-            assert!(s.action_label.starts_with("git worktree remove "), "{}", s.title);
-            assert!(!s.action_label.contains("--force") && !s.action_label.contains(" -f"));
-            assert!(s.worktree.as_ref().unwrap().commands.iter().all(|c| !c.contains("--force")));
+        let clean = w.status != WtStatus::Work;
+        let acknowledgeable = w.status == WtStatus::Work && w.hold.is_none() && w.dirty > 0;
+        assert_eq!(s.selectable(), clean || acknowledgeable, "{}", s.title);
+        // --force only where the user must acknowledge the files first.
+        assert_eq!(s.needs_confirmation, acknowledgeable, "{}", s.title);
+        assert_eq!(w.commands.iter().any(|c| c.contains("--force")), acknowledgeable, "{}", s.title);
+        if clean {
+            assert!(s.action_label.starts_with("git worktree remove ") && !s.action_label.contains("--force") && !s.action_label.contains(" -f"));
         }
     }
 }

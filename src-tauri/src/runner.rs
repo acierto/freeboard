@@ -116,6 +116,20 @@ impl Confirmed {
     }
 }
 
+/// Proof that the user acknowledged, in a confirmed plan, that one
+/// worktree's uncommitted files are deleted. Only the cleanup engine makes
+/// one, from the plan's recorded acknowledgments.
+pub struct Acknowledged {
+    pub item_id: String,
+    _private: (),
+}
+
+impl Acknowledged {
+    pub(crate) fn new(item_id: &str) -> Acknowledged {
+        Acknowledged { item_id: item_id.to_string(), _private: () }
+    }
+}
+
 const PROGRAMS: &[&str] = &["docker", "git", "pnpm", "pip", "pip3", "brew", "xcrun", "npm", "lsof", "ps", "tmutil"];
 
 fn is_force_flag(a: &str) -> bool {
@@ -391,6 +405,20 @@ impl Runner {
     }
 
     /// Run a cleanup action for a confirmed plan.
+    /// `git worktree remove --force <path>`: the one exception to the ban
+    /// on forced removal (invariant 7, decision 2026-11-07). Exactly that
+    /// form, for an acknowledged item in a confirmed plan; anything else goes
+    /// through the normal checks.
+    pub fn run_acknowledged_removal(&self, cmd: &Cmd, confirmed: &Confirmed, _ack: &Acknowledged) -> Result<CmdOutput, RunError> {
+        let a: Vec<&str> = cmd.args.iter().map(|s| s.as_str()).collect();
+        let exact = cmd.program == "git" && a.len() == 4 && a[..3] == ["worktree", "remove", "--force"] && !a[3].starts_with('-') && !a[3].is_empty();
+        if !exact {
+            return Err(RunError::Forbidden(format!("{} is not an allowed acknowledged removal", cmd.display())));
+        }
+        let _ = confirmed;
+        self.exec_for(cmd, self.action_timeout)
+    }
+
     pub fn run_action(&self, cmd: &Cmd, confirmed: &Confirmed) -> Result<CmdOutput, RunError> {
         check(cmd, Policy::Action, Some(confirmed))?;
         self.exec_for(cmd, self.action_timeout)
@@ -524,6 +552,7 @@ mod tests {
         let ok = Confirmed::new("plan");
         for cmd in [
             c("git", &["clean", "-fdx"]),
+            // Banned here; only run_acknowledged_removal accepts it.
             c("git", &["worktree", "remove", "--force", "/x"]),
             c("git", &["worktree", "remove", "-f", "/x"]),
             c("docker", &["system", "prune", "--all"]),
@@ -533,6 +562,23 @@ mod tests {
         ] {
             assert!(matches!(check(&cmd, Policy::Action, Some(&ok)), Err(RunError::Forbidden(_))), "{cmd:?}");
             assert!(check(&cmd, Policy::ReadOnly, None).is_err());
+        }
+    }
+
+    #[test]
+    fn forced_worktree_removal_only_in_its_exact_form() {
+        let r = Runner::default();
+        let ok = Confirmed::new("plan");
+        let ack = Acknowledged::new("item");
+        for bad in [
+            c("git", &["worktree", "remove", "-f", "/x"]),
+            c("git", &["worktree", "remove", "--force", "--force", "/x"]),
+            c("git", &["worktree", "remove", "--force"]),
+            c("git", &["clean", "-fdx"]),
+            c("git", &["branch", "-D", "x"]),
+            c("rm", &["-rf", "/x"]),
+        ] {
+            assert!(matches!(r.run_acknowledged_removal(&bad, &ok, &ack), Err(RunError::Forbidden(_))), "{bad:?}");
         }
     }
 

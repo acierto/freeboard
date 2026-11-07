@@ -11,7 +11,7 @@ import { track } from "../../lib/useBusy";
 import type { RunDetail, WorktreesView as View } from "../../lib/types";
 import { t } from "../../i18n";
 import { tb } from "../../i18n/backend";
-import { WT_COLOR, WT_KEYS, branchGoes, checksOf, fixesOf, idleShort, reposOf, rowsOf, selectable, shown, statusLabel, tally, whyOf, type WtFilter, type WtRow } from "./worktreesModel";
+import { WT_COLOR, WT_KEYS, acknowledgeable, branchGoes, checksOf, fixesOf, idleShort, reposOf, rowsOf, selectable, shown, statusLabel, tally, whyOf, type WtFilter, type WtRow } from "./worktreesModel";
 
 const BRANCH_ICON = (
   <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
@@ -32,7 +32,7 @@ interface Run {
 
 const FINAL = ["done", "moved_to_trash", "skipped", "failed", "canceled", "interrupted"];
 
-function Detail({ r }: { r: WtRow }) {
+function Detail({ r, acked, onAck }: { r: WtRow; acked: boolean; onAck: (v: boolean) => void }) {
   if (!r.info) {
     return (
       <div className="wt-detail">
@@ -105,11 +105,17 @@ function Detail({ r }: { r: WtRow }) {
           )}
         </div>
       </div>
+      {acknowledgeable(r) && (
+        <label className="ack">
+          <input type="checkbox" data-wt-ack={r.id} checked={acked} onChange={(e) => onAck(e.target.checked)} />
+          {" " + (w.dirty === 1 ? t("wt.ack1") : t("wt.ackN", { n: w.dirty }))}
+        </label>
+      )}
     </div>
   );
 }
 
-function Row({ r, open, onOpen, checked, onCheck, busy, current }: { r: WtRow; open: boolean; onOpen: () => void; checked: boolean; onCheck: (v: boolean) => void; busy: boolean; current: boolean }) {
+function Row({ r, open, onOpen, checked, onCheck, busy, current, acked, onAck }: { r: WtRow; open: boolean; onOpen: () => void; checked: boolean; onCheck: (v: boolean) => void; busy: boolean; current: boolean; acked: boolean; onAck: (v: boolean) => void }) {
   const agent = r.info?.agent;
   return (
     <div className={`wt-row ${r.key}${open ? " open" : ""}${current ? " busy" : ""}`}>
@@ -117,7 +123,7 @@ function Row({ r, open, onOpen, checked, onCheck, busy, current }: { r: WtRow; o
         {r.key === "main" ? (
           <span className="wt-cb" aria-hidden="true"></span>
         ) : (
-          <input type="checkbox" className="wt-cb" data-wt-sel={r.id} aria-label={t("wt.select", { x: r.name })} checked={checked && selectable(r)} disabled={!selectable(r) || busy} onChange={(e) => onCheck(e.target.checked)} />
+          <input type="checkbox" className="wt-cb" data-wt-sel={r.id} aria-label={t("wt.select", { x: r.name })} checked={checked && selectable(r, acked)} disabled={!selectable(r, acked) || busy} onChange={(e) => onCheck(e.target.checked)} />
         )}
         <button className="wt-main" data-wt-open={r.id} aria-expanded={open} onClick={onOpen}>
           <span className="wt-b">
@@ -136,15 +142,17 @@ function Row({ r, open, onOpen, checked, onCheck, busy, current }: { r: WtRow; o
           <small>{r.info ? idleShort(r.info.idleDays) : ""}</small>
         </span>
       </div>
-      {open && <Detail r={r} />}
+      {open && <Detail r={r} acked={acked} onAck={onAck} />}
     </div>
   );
 }
 
-export function WorktreesView({ view, onChanged }: { view: View | null; onChanged: () => void }) {
+export function WorktreesView({ view, onChanged, scanning }: { view: View | null; onChanged: () => void; scanning: boolean }) {
   const [filter, setFilter] = useState<WtFilter>("all");
   const [sel, setSel] = useState<Set<string>>(new Set());
   const [open, setOpen] = useState<Set<string>>(new Set());
+  // Worktrees whose uncommitted files the user agreed to lose (in the row).
+  const [acks, setAcks] = useState<Set<string>>(new Set());
   const [run, setRun] = useState<Run | null>(null);
   const runRef = useRef<Run | null>(null);
   runRef.current = run;
@@ -173,7 +181,7 @@ export function WorktreesView({ view, onChanged }: { view: View | null; onChange
   const repos = reposOf(rows);
   const d = run?.detail ?? null;
   const running = !!run && (!d || d.state === "running");
-  const chosen = rows.filter((r) => sel.has(r.id) && selectable(r));
+  const chosen = rows.filter((r) => sel.has(r.id) && selectable(r, acks.has(r.id)));
   const chosenBytes = chosen.reduce((n, r) => n + r.bytes, 0);
   const toggle = (set: Set<string>, id: string, on: boolean) => {
     const n = new Set(set);
@@ -189,7 +197,11 @@ export function WorktreesView({ view, onChanged }: { view: View | null; onChange
     setRun(start);
     setSel(new Set());
     void track(api.createPlan(ids))
-      .then((plan) => track(api.runPlan(plan.id)))
+      // The plan records each acknowledgment the user gave in a row.
+      .then(async (plan) => {
+        for (const id of plan.needsAckIds) if (acks.has(id)) plan = await track(api.acknowledgeItem(plan.id, id));
+        return track(api.runPlan(plan.id));
+      })
       .then((runId) => {
         setRun({ ...start, runId });
         return track(api.getRun(runId)).then((detail) => {
@@ -282,7 +294,17 @@ export function WorktreesView({ view, onChanged }: { view: View | null; onChange
         </div>
         {runBox}
       </div>
-      {!rows.length && <p className="muted">{t("wt.none")}</p>}
+      {view.stale > 0 && (
+        <div className="card stack" id="wt-stale">
+          <p>{view.stale === 1 ? t("wt.stale1") : t("wt.staleN", { n: view.stale })}</p>
+          <div className="row">
+            <button className="btn primary" data-act="wt-sort" disabled={scanning} onClick={() => void track(api.startScan("deep")).catch(() => undefined)}>
+              {scanning ? t("wt.sorting") : t("wt.sort")}
+            </button>
+          </div>
+        </div>
+      )}
+      {!rows.length && !view.stale && <p className="muted">{t("wt.none")}</p>}
       {repos.map(({ repo, root, rows: all, bytes }) => {
         const list = all.filter((r) => shown(r, filter));
         if (!list.length) return null;
@@ -319,6 +341,11 @@ export function WorktreesView({ view, onChanged }: { view: View | null; onChange
                 onOpen={() => setOpen(toggle(open, r.id, !open.has(r.id)))}
                 checked={sel.has(r.id)}
                 onCheck={(v) => setSel(toggle(sel, r.id, v))}
+                acked={acks.has(r.id)}
+                onAck={(v) => {
+                  setAcks(toggle(acks, r.id, v));
+                  if (!v) setSel(toggle(sel, r.id, false));
+                }}
                 busy={running}
                 current={current === r.id}
               />
