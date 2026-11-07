@@ -114,4 +114,5 @@ test("Not explained splits into causes; what no blind spot accounts for is shown
   assert.equal(Math.round(causes[2].bytes / GB), 16, "100 - 80 - 4");
   assert.equal(Math.round(left / GB), 100);
   assert.deepEqual(causesOf(map(0), []).causes, [], "a fully explained map has no causes");
+  assert.ok(!causesOf(map(10), [], "linux").causes[0].why.includes("Library"), "Library is a macOS folder");
 });

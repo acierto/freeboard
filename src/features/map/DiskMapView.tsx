@@ -124,13 +124,13 @@ function Treemap({ map, selected, onSelect }: { map: DiskMap; selected: string; 
   );
 }
 
-function Detail({ map, tile, items, spots, chosen, act, focus }: { map: DiskMap; tile: string; items: Suggestion[]; spots: BlindSpot[]; chosen: Set<string>; act: Choices; focus: { id: string; n: number } | null }) {
+function Detail({ map, tile, items, spots, chosen, act, focus, platform }: { map: DiskMap; tile: string; items: Suggestion[]; spots: BlindSpot[]; chosen: Set<string>; act: Choices; focus: { id: string; n: number } | null; platform: Platform }) {
   const tiles = tilesOf(map);
   const t = tiles.find((x) => x.id === tile) ?? tiles[0];
   const size = t.v * GB;
   let rows;
   if (t.id === "unknown") {
-    const { causes, left } = causesOf(map, spots);
+    const { causes, left } = causesOf(map, spots, platform);
     const shown = causes.filter((c) => c.bytes > 0);
     rows = shown.length ? (
       <>
@@ -301,8 +301,8 @@ function CauseBlock({ c, onResolve }: { c: Cause; onResolve: Resolve }) {
 
 /** Why space is not explained, by cause, each with its fix (prototype
  * `whyCard`). Replaces one dashed card per blind spot. */
-function WhyCard({ map, spots, onResolve }: { map: DiskMap; spots: BlindSpot[]; onResolve: Resolve }) {
-  const { causes, left } = causesOf(map, spots);
+function WhyCard({ map, spots, onResolve, platform }: { map: DiskMap; spots: BlindSpot[]; onResolve: Resolve; platform: Platform }) {
+  const { causes, left } = causesOf(map, spots, platform);
   if (left < 0.05 * GB && !causes.some((c) => c.open.length))
     return (
       <div className="card stack why" id="why">
@@ -549,10 +549,10 @@ export function DiskMapView({ map, spots, places, growth, items, pile, platform,
           <CoverNotes map={map} platform={platform} />
           <Treemap map={map} selected={selected} onSelect={select} />
         </div>
-        <Detail map={map} tile={selected} items={items} spots={spots} chosen={chosen} act={act} focus={focus} />
+        <Detail map={map} tile={selected} items={items} spots={spots} chosen={chosen} act={act} focus={focus} platform={platform} />
       </div>
       <div className="stack">
-        <WhyCard map={map} spots={spots} onResolve={onResolve} />
+        <WhyCard map={map} spots={spots} onResolve={onResolve} platform={platform} />
         <div className="card scan-card">
           <Growing growth={growth} />
           <Coverage places={places} spots={spots} onOpen={() => setPlacesOpen(true)} />

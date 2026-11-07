@@ -2,7 +2,7 @@
 // classes and the coverage figures are ported from the prototype's
 // `renderMap()`, `squarify()` and `explained()`, so the same numbers give the
 // same tiles.
-import type { BlindSpot, BlindSpotKind, DiskMap } from "../../lib/types.ts";
+import type { BlindSpot, BlindSpotKind, DiskMap, Platform } from "../../lib/types.ts";
 
 export const GB = 1e9;
 
@@ -192,10 +192,20 @@ const sizeOf = (s: BlindSpot) => s.sizeBytes ?? 0;
 
 /** The Why-not-explained card's causes, in the prototype's order. What no
  * blind spot accounts for is shown honestly as "Not traced to a folder". */
-export function causesOf(map: DiskMap, spots: BlindSpot[]): { causes: Cause[]; left: number } {
+/** Platform wording: Library and Full Disk Access are macOS ideas. */
+function causeText(id: Cause["id"], platform: Platform): [title: string, why: string, c: string, est: boolean] {
+  const [title, why, c, est] = CAUSE_TEXT[id];
+  if (platform === "macos") return [title, why, c, est];
+  if (id === "untraced")
+    return [title, platform === "windows" ? "Space in places I do not walk, such as AppData and system folders. I can\u2019t say which folder holds it." : "Space in places I do not walk, such as system folders outside your home. I can\u2019t say which folder holds it.", c, est];
+  if (id === "locked") return ["Folders I may not read", "Freeboard has no permission to read these folders, so this size is an estimate.", c, est];
+  return [title, why, c, est];
+}
+
+export function causesOf(map: DiskMap, spots: BlindSpot[], platform: Platform = "macos"): { causes: Cause[]; left: number } {
   const order: Cause["id"][] = ["outside", "locked", "untraced", "strange", "tools"];
   const causes = order.map((id): Cause => {
-    const [title, why, c, est] = CAUSE_TEXT[id];
+    const [title, why, c, est] = causeText(id, platform);
     const mine = spots.filter((s) => CAUSE_OF[s.kind] === id);
     const open = mine.filter((s) => s.state === "open").sort((a, b) => sizeOf(b) - sizeOf(a));
     return { id, title, why, c, est, open, fixed: mine.filter((s) => s.state !== "open"), bytes: open.reduce((t, s) => t + sizeOf(s), 0) };
