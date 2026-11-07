@@ -23,5 +23,5 @@ Prototype-only parts that must not ship: example data, **Pretend free space**, *
 
 ## Integrity
 
-- `FREEBOARD_SPEC.md` SHA-256: `7ec1e63b5771b407e82cc576b4d96f1cde481e1e67f949187349aca48168a41a` (updated 2026-11-07: added "First launch on protected computers" and its acceptance criterion)
+- `FREEBOARD_SPEC.md` SHA-256: `5cba0b59f37c6ffc0d6511509ebff7aef093418f55f71150f95b5c7ade516384` (updated 2026-11-07: added "First launch on protected computers", "Languages" and their acceptance criteria)
 - `freeboard-prototype.html` SHA-256: `190be983f4d2f504b03d8d1254d7e8a9399f731ce9ceffc2af8f1eed5758bf3c`

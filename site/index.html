@@ -63,6 +63,15 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .nav-links { display: flex; gap: 22px; margin-left: auto; font-size: 15px; }
 .nav-links a { text-decoration: none; color: var(--muted); }
 .nav-links a:hover { color: var(--ink); }
+.lang { position: relative; }
+.lang-btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: color-mix(in srgb, var(--panel) 70%, transparent); color: var(--ink); border-radius: 10px; padding: 6px 10px; font: 800 13px var(--body); cursor: pointer; }
+.lang-btn:hover { border-color: var(--sea-hi); }
+.lang-menu { position: absolute; right: 0; top: calc(100% + 8px); margin: 0; padding: 6px; list-style: none; min-width: 180px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 20px 40px -12px #000c; z-index: 30; }
+.lang-menu li { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 9px; cursor: pointer; font-size: 15px; color: var(--muted); }
+.lang-menu li b { font-size: 11px; letter-spacing: .06em; width: 24px; color: var(--dim); }
+.lang-menu li:hover, .lang-menu li:focus { background: var(--panel-2); color: var(--ink); outline: none; }
+.lang-menu li[aria-selected="true"] { color: var(--ink); }
+.lang-menu li[aria-selected="true"]::after { content: "✓"; margin-left: auto; color: var(--sea-hi); font-weight: 800; }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; border-radius: 16px; padding: 12px 20px; font: 800 16px/1 var(--body); text-decoration: none; border: 2px solid var(--line); background: var(--panel); color: var(--ink); cursor: pointer; transition: transform .2s, border-color .2s, box-shadow .2s; }
 .btn:hover { transform: translateY(-2px); border-color: var(--sea-hi); }
 .btn.primary { background: linear-gradient(180deg, var(--sea-hi), #3CC5DB); color: #062634; border-color: transparent; box-shadow: 0 6px 0 #1B8FA6, 0 16px 40px -10px #3CC5DB99; }
@@ -339,15 +348,25 @@ footer a { color: #fff; }
   </defs>
 </svg>
 
-<nav class="nav" aria-label="Main">
+<nav class="nav" data-i18n-aria="aria.nav" aria-label="Main">
   <div class="wrap">
     <a class="logo" href="#top"><svg aria-hidden="true"><use href="#dinghy"/></svg>Freeboard</a>
     <div class="nav-links">
-      <a href="#how" class="hide-sm">How it works</a>
-      <a href="#finds" class="hide-sm">What it finds</a>
-      <a href="#safety">Safety</a>
-      <a href="docs/">Docs</a>
-      <a class="gh" href="https://github.com/" data-repo-link aria-label="Freeboard on GitHub"><svg width="22" height="22" style="vertical-align:-5px"><use href="#gh"/></svg></a>
+      <a href="#how" class="hide-sm" data-i18n="nav.how">How it works</a>
+      <a href="#finds" class="hide-sm" data-i18n="nav.finds">What it finds</a>
+      <a href="#safety" data-i18n="nav.safety">Safety</a>
+      <a href="docs/" data-i18n="nav.docs">Docs</a>
+      <div class="lang" id="lang">
+        <button class="lang-btn" id="langBtn" aria-haspopup="listbox" aria-expanded="false" aria-controls="langMenu" aria-label="Language"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M2 10h16M10 2c2.6 2.4 2.6 13.6 0 16M10 2c-2.6 2.4-2.6 13.6 0 16" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span id="langCode">EN</span><svg viewBox="0 0 10 6" width="10" height="6" aria-hidden="true"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+        <ul class="lang-menu" id="langMenu" role="listbox" aria-labelledby="langBtn" hidden>
+          <li role="option" data-lang="en" lang="en" tabindex="-1"><b>EN</b>English</li>
+          <li role="option" data-lang="nl" lang="nl" tabindex="-1"><b>NL</b>Nederlands</li>
+          <li role="option" data-lang="de" lang="de" tabindex="-1"><b>DE</b>Deutsch</li>
+          <li role="option" data-lang="fr" lang="fr" tabindex="-1"><b>FR</b>Français</li>
+          <li role="option" data-lang="es" lang="es" tabindex="-1"><b>ES</b>Español</li>
+        </ul>
+      </div>
+      <a class="gh" href="https://github.com/" data-repo-link data-i18n-aria="aria.gh" aria-label="Freeboard on GitHub"><svg width="22" height="22" style="vertical-align:-5px"><use href="#gh"/></svg></a>
     </div>
   </div>
 </nav>
@@ -357,16 +376,16 @@ footer a { color: #fff; }
 <section class="hero">
   <div class="wrap hero-grid">
     <div class="hero-copy">
-      <span class="eyebrow">Know before your disk is full</span>
-      <h1>Keep your disk above the <em>waterline.</em></h1>
-      <p class="lede">Freeboard finds the gigabytes hiding in Docker, git worktrees, node_modules, caches and AI models. It only tosses what can come back, and shows you the exact command first.</p>
+      <span class="eyebrow" data-i18n="hero.eyebrow">Know before your disk is full</span>
+      <h1 data-i18n="hero.h1">Keep your disk above the <em>waterline.</em></h1>
+      <p class="lede" data-i18n="hero.lede">Freeboard finds the gigabytes hiding in Docker, git worktrees, node_modules, caches and AI models. It only tosses what can come back, and shows you the exact command first.</p>
       <div class="cta">
-        <a class="btn primary" href="#download" data-release-link><svg><use href="#dl"/></svg><span data-os-label>Download Freeboard</span></a>
-        <a class="btn" href="https://github.com/" data-repo-link><svg><use href="#gh"/></svg>Star on GitHub</a>
+        <a class="btn primary" href="#download" data-release-link><svg><use href="#dl"/></svg><span data-os-label data-i18n="hero.dl">Download Freeboard</span></a>
+        <a class="btn" href="https://github.com/" data-repo-link><svg><use href="#gh"/></svg><span data-i18n="hero.star">Star on GitHub</span></a>
       </div>
-      <div class="platforms"><a href="https://github.com/acierto/freeboard/releases/latest" data-file="macOS-universal.dmg" data-asset="macOS">macOS</a><a href="https://github.com/acierto/freeboard/releases/latest" data-file="linux-x86_64.deb" data-asset="Linux">Linux</a><a href="https://github.com/acierto/freeboard/releases/latest" data-file="windows-x64-setup.exe" data-asset="Windows">Windows</a><span>Built with Tauri 2</span></div>
-      <div class="release-line"><span data-version>Latest release</span> · <a href="https://github.com/acierto/freeboard/releases">All releases and older versions</a></div>
-      <div class="release-line" style="margin-top:-18px">Blocked on first launch? <a href="#first-open">Here's how to open it</a>.</div>
+      <div class="platforms"><a href="https://github.com/acierto/freeboard/releases/latest" data-file="macOS-universal.dmg" data-asset="macOS">macOS</a><a href="https://github.com/acierto/freeboard/releases/latest" data-file="linux-x86_64.deb" data-asset="Linux">Linux</a><a href="https://github.com/acierto/freeboard/releases/latest" data-file="windows-x64-setup.exe" data-asset="Windows">Windows</a><span data-i18n="hero.built">Built with Tauri 2</span></div>
+      <div class="release-line"><span data-version>Latest release</span> · <a href="https://github.com/acierto/freeboard/releases" data-i18n="rel.all">All releases and older versions</a></div>
+      <div class="release-line" style="margin-top:-18px"><span data-i18n="fo.blocked">Blocked on first launch? <a href="#first-open">Here's how to open it</a>.</span></div>
     </div>
 
     <div class="scene" id="scene" aria-hidden="true">
@@ -375,7 +394,7 @@ footer a { color: #fff; }
           <div class="win-bar"><i></i><i></i><i></i><span>Freeboard</span></div>
           <div class="win-body">
             <div class="pond">
-              <div class="free">12.4<small>GB free</small></div>
+              <div class="free">12.4<small data-i18n="gb.free">GB free</small></div>
               <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMax slice">
                 <circle cx="330" cy="60" r="24" fill="var(--sun)" opacity=".9"/>
                 <path d="M0 210 q25 -10 50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 V300 H0Z" fill="#3B8FB5"/>
@@ -384,23 +403,23 @@ footer a { color: #fff; }
               </svg>
             </div>
             <div class="mini-col">
-              <div class="mini-card"><b>Ready to toss</b>
+              <div class="mini-card"><b data-i18n="mini.ready">Ready to toss</b>
                 <div class="mrow"><span><i class="dot" style="background:var(--safe)"></i>node_modules</span><span>18.7 GB</span></div>
-                <div class="mrow"><span><i class="dot" style="background:var(--safe)"></i>Docker build cache</span><span>14.8 GB</span></div>
+                <div class="mrow"><span data-i18n="mini.docker"><i class="dot" style="background:var(--safe)"></i>Docker build cache</span><span>14.8 GB</span></div>
                 <div class="mrow"><span><i class="dot" style="background:var(--safe)"></i>Xcode DerivedData</span><span>11.3 GB</span></div>
-                <div class="mini-btn">Toss 54.0 GB</div>
+                <div class="mini-btn" data-i18n="mini.toss">Toss 54.0 GB</div>
               </div>
-              <div class="mini-card"><b>Quick question</b>
-                <div class="mrow"><span><i class="dot" style="background:var(--review)"></i>Unused Ollama models</span><span>41.2 GB</span></div>
-                <div class="mrow"><span><i class="dot" style="background:var(--risky)"></i>Volume billing_pgdata</span><span>7.6 GB</span></div>
+              <div class="mini-card"><b data-i18n="mini.q">Quick question</b>
+                <div class="mrow"><span data-i18n="mini.ollama"><i class="dot" style="background:var(--review)"></i>Unused Ollama models</span><span>41.2 GB</span></div>
+                <div class="mrow"><span data-i18n="mini.vol"><i class="dot" style="background:var(--risky)"></i>Volume billing_pgdata</span><span>7.6 GB</span></div>
               </div>
             </div>
           </div>
         </div>
         <div class="layer tray">
-          <div style="display:flex;justify-content:space-between;align-items:center"><span class="big">12.4<small style="font-size:13px;color:var(--muted)"> GB free</small></span><span class="pill" style="color:var(--review)">Low</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center"><span class="big">12.4<small style="font-size:13px;color:var(--muted)" data-i18n="gb.free2"> GB free</small></span><span class="pill" style="color:var(--review)" data-i18n="pill.low">Low</span></div>
           <div class="gauge"><span class="ghost"></span><i></i></div>
-          <p style="color:var(--muted);margin-top:8px">Riding low. Toss 54 GB and I float again.</p>
+          <p style="color:var(--muted);margin-top:8px" data-i18n="tray.line">Riding low. Toss 54 GB and I float again.</p>
         </div>
         <div class="layer cmd">$ docker builder prune <b>✓ 14.8 GB</b></div>
         <div class="layer" style="left:72%;top:66%;transform:translateZ(200px)"><div class="crate float" style="--s:62px;transform:rotateX(-20deg) rotateY(30deg)"><div class="f">15</div><div class="f"></div><div class="f"></div><div class="f"></div><div class="f"></div><div class="f"></div></div></div>
@@ -416,10 +435,10 @@ footer a { color: #fff; }
 <!-- VIDEO -->
 <section class="sec" id="film">
   <div class="wrap">
-    <div class="sec-head reveal"><span class="eyebrow">See it in action</span><h2>From 12.4 GB to 66.4 GB in about a minute.</h2><p class="lede">Freeboard spots the problem, you pick how much room to make, and Dinghy floats again.</p></div>
+    <div class="sec-head reveal"><span class="eyebrow" data-i18n="film.eyebrow">See it in action</span><h2 data-i18n="film.h2">From 12.4 GB to 66.4 GB in about a minute.</h2><p class="lede" data-i18n="film.lede">Freeboard spots the problem, you pick how much room to make, and Dinghy floats again.</p></div>
     <div class="film reveal">
-      <video id="promo" src="assets/freeboard-promo.mp4" poster="assets/freeboard-promo.jpg" playsinline muted preload="none" controls aria-label="Freeboard demo, 67 seconds, with on-screen captions"></video>
-      <button class="poster" id="poster" aria-label="Play the 67 second demo" style="border:0;cursor:pointer;background:center/cover url(assets/freeboard-promo.jpg)">
+      <video id="promo" src="assets/freeboard-promo.mp4" poster="assets/freeboard-promo.jpg" playsinline muted preload="none" controls data-i18n-aria="aria.video" aria-label="Freeboard demo, 67 seconds, with on-screen captions"></video>
+      <button class="poster" id="poster" data-i18n-aria="aria.poster" aria-label="Play the 67 second demo" style="border:0;cursor:pointer;background:center/cover url(assets/freeboard-promo.jpg)">
         <span class="play" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 20 20"><path d="M6 4l10 6-10 6z" fill="currentColor"/></svg></span>
       </button>
     </div>
@@ -430,15 +449,15 @@ footer a { color: #fff; }
 <section class="story" id="how">
   <div class="wrap story-stage">
     <div class="steps">
-      <span class="eyebrow">How it works</span>
-      <h2 style="font-size:clamp(34px,4.6vw,54px)">Three steps. One happy boat.</h2>
-      <div class="step" data-step="0"><div class="n">1</div><div><h3>Scan</h3><p>Freeboard checks 49 known places, read only. Nothing moves until you say so.</p></div></div>
-      <div class="step" data-step="1"><div class="n">2</div><div><h3>Pile up</h3><p>Things that rebuild by themselves go in the pile. Anything that might hold your work waits for a yes.</p></div></div>
-      <div class="step" data-step="2"><div class="n">3</div><div><h3>Toss</h3><p>Over they go. Dinghy rises, and the logbook keeps a note of what left and how to get it back.</p></div></div>
+      <span class="eyebrow" data-i18n="nav.how">How it works</span>
+      <h2 style="font-size:clamp(34px,4.6vw,54px)" data-i18n="how.h2">Three steps. One happy boat.</h2>
+      <div class="step" data-step="0"><div class="n">1</div><div><h3 data-i18n="how.s1">Scan</h3><p data-i18n="how.p1">Freeboard checks 49 known places, read only. Nothing moves until you say so.</p></div></div>
+      <div class="step" data-step="1"><div class="n">2</div><div><h3 data-i18n="how.s2">Pile up</h3><p data-i18n="how.p2">Things that rebuild by themselves go in the pile. Anything that might hold your work waits for a yes.</p></div></div>
+      <div class="step" data-step="2"><div class="n">3</div><div><h3 data-i18n="how.s3">Toss</h3><p data-i18n="how.p3">Over they go. Dinghy rises, and the logbook keeps a note of what left and how to get it back.</p></div></div>
     </div>
-    <div class="sea-box" id="seabox" aria-label="Animation: crates are tossed off the boat and the free space rises">
+    <div class="sea-box" id="seabox" data-i18n-aria="aria.sea" aria-label="Animation: crates are tossed off the boat and the free space rises">
       <div class="moon"></div>
-      <div class="readout"><div class="gb"><span id="gbnum">12.4</span><small>GB free</small></div><span class="pill" id="gbpill" style="color:var(--review)">Low</span></div>
+      <div class="readout"><div class="gb"><span id="gbnum">12.4</span><small data-i18n="gb.free">GB free</small></div><span class="pill" id="gbpill" style="color:var(--review)">Low</span></div>
       <svg class="waves back" viewBox="0 0 800 200" preserveAspectRatio="none"><path d="M0 70 q40 -18 80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 V200 H0Z" fill="#2FA9C5" opacity=".95"/></svg>
       <div class="toss-crates" id="tossCrates"></div>
       <div class="boat" id="storyBoat"><svg><use href="#dinghy"/></svg></div>
@@ -451,26 +470,26 @@ footer a { color: #fff; }
 <!-- FINDS -->
 <section class="sec" id="finds">
   <div class="wrap">
-    <div class="sec-head reveal"><span class="eyebrow">What it finds</span><h2>The usual stowaways on a developer’s disk.</h2><p class="lede">Each one comes with the command Freeboard would run, and how you get it back.</p></div>
+    <div class="sec-head reveal"><span class="eyebrow" data-i18n="nav.finds">What it finds</span><h2 data-i18n="finds.h2">The usual stowaways on a developer’s disk.</h2><p class="lede" data-i18n="finds.lede">Each one comes with the command Freeboard would run, and how you get it back.</p></div>
     <div class="finds" id="findsGrid"></div>
-    <p class="note-small">Sizes are an example from one 512 GB Mac. Yours will differ.</p>
+    <p class="note-small" data-i18n="finds.note">Sizes are an example from one 512 GB Mac. Yours will differ.</p>
   </div>
 </section>
 
 <!-- SAFETY -->
 <section class="sec" id="safety">
   <div class="wrap">
-    <div class="sec-head reveal"><span class="eyebrow">Safety first</span><h2>Every crate gets a label before it goes overboard.</h2><p class="lede">Freeboard sorts what it finds by one question: if this goes, does it come back?</p></div>
+    <div class="sec-head reveal"><span class="eyebrow" data-i18n="safety.eyebrow">Safety first</span><h2 data-i18n="safety.h2">Every crate gets a label before it goes overboard.</h2><p class="lede" data-i18n="safety.lede">Freeboard sorts what it finds by one question: if this goes, does it come back?</p></div>
     <div class="tiers reveal">
-      <div class="tier" style="--c:var(--safe)"><div class="bar"></div><h3>Safe</h3><div class="what">Comes back by itself</div><p>Build caches, package caches, old toolchains. Freeboard can show they rebuild or download again.</p><ul><li>Goes in the pile automatically</li><li>One click to toss</li></ul></div>
-      <div class="tier" style="--c:var(--review)"><div class="bar"></div><h3>Review</h3><div class="what">Comes back, with effort</div><p>Models you pulled, old backups, merged worktrees. Nothing is lost for good, but you pay a download or a rebuild.</p><ul><li>Asked as a quick question</li><li>Moved to Trash when it can be</li></ul></div>
-      <div class="tier" style="--c:var(--risky)"><div class="bar"></div><h3>Risky</h3><div class="what">May not come back</div><p>Docker volumes, unpushed branches. Freeboard can’t prove they’re safe, so it explains why and how to make them safer.</p><ul><li>Needs a clear “I understand”</li><li>Never in a bulk toss</li></ul></div>
+      <div class="tier" style="--c:var(--safe)"><div class="bar"></div><h3 data-i18n="risk.safe">Safe</h3><div class="what" data-i18n="risk.safe.what">Comes back by itself</div><p data-i18n="risk.safe.p">Build caches, package caches, old toolchains. Freeboard can show they rebuild or download again.</p><ul><li data-i18n="risk.safe.l1">Goes in the pile automatically</li><li data-i18n="risk.safe.l2">One click to toss</li></ul></div>
+      <div class="tier" style="--c:var(--review)"><div class="bar"></div><h3 data-i18n="risk.review">Review</h3><div class="what" data-i18n="risk.review.what">Comes back, with effort</div><p data-i18n="risk.review.p">Models you pulled, old backups, merged worktrees. Nothing is lost for good, but you pay a download or a rebuild.</p><ul><li data-i18n="risk.review.l1">Asked as a quick question</li><li data-i18n="risk.review.l2">Moved to Trash when it can be</li></ul></div>
+      <div class="tier" style="--c:var(--risky)"><div class="bar"></div><h3 data-i18n="risk.risky">Risky</h3><div class="what" data-i18n="risk.risky.what">May not come back</div><p data-i18n="risk.risky.p">Docker volumes, unpushed branches. Freeboard can’t prove they’re safe, so it explains why and how to make them safer.</p><ul><li data-i18n="risk.risky.l1">Needs a clear “I understand”</li><li data-i18n="risk.risky.l2">Never in a bulk toss</li></ul></div>
     </div>
     <div class="never reveal">
-      <div><b>Never touches</b>Uncommitted changes or unpushed commits.</div>
-      <div><b>Never reads</b>What’s inside your files. Only sizes, names and dates.</div>
-      <div><b>Never surprises</b>The exact command is shown before anything runs.</div>
-      <div><b>Never forgets</b>The logbook keeps what went and how to restore it.</div>
+      <div data-i18n="never.1"><b>Never touches</b>Uncommitted changes or unpushed commits.</div>
+      <div data-i18n="never.2"><b>Never reads</b>What’s inside your files. Only sizes, names and dates.</div>
+      <div data-i18n="never.3"><b>Never surprises</b>The exact command is shown before anything runs.</div>
+      <div data-i18n="never.4"><b>Never forgets</b>The logbook keeps what went and how to restore it.</div>
     </div>
   </div>
 </section>
@@ -480,14 +499,14 @@ footer a { color: #fff; }
   <div class="wrap explain">
     <div class="tm-wrap reveal"><div class="tm" id="tm"></div></div>
     <div class="explain-ctrl reveal">
-      <span class="eyebrow">The whole disk, explained</span>
-      <h2 style="font-size:clamp(34px,4.6vw,54px)">Where did a third of my disk go?</h2>
-      <p class="lede">Most cleaners stay quiet about the space they can’t see. Freeboard tells you why it’s hidden, and how to measure it.</p>
-      <div class="pct"><span id="pct">68</span>%<span style="font-size:.3em;color:var(--muted);margin-left:10px">explained</span></div>
+      <span class="eyebrow" data-i18n="ex.eyebrow">The whole disk, explained</span>
+      <h2 style="font-size:clamp(34px,4.6vw,54px)" data-i18n="ex.h2">Where did a third of my disk go?</h2>
+      <p class="lede" data-i18n="ex.lede">Most cleaners stay quiet about the space they can’t see. Freeboard tells you why it’s hidden, and how to measure it.</p>
+      <div class="pct"><span id="pct">68</span>%<span style="font-size:.3em;color:var(--muted);margin-left:10px" data-i18n="ex.explained">explained</span></div>
       <div class="causes" id="causes">
-        <div class="cause" style="--c:#FFC867"><i></i><span>Folders outside the scan list</span><span class="mono">107 GB</span></div>
-        <div class="cause" style="--c:#C9B6FF"><i></i><span>Locked by macOS until you allow access</span><span class="mono">34 GB</span></div>
-        <div class="cause" style="--c:#B9C8E6"><i></i><span>Kept by the system for itself</span><span class="mono">15 GB</span></div>
+        <div class="cause" style="--c:#FFC867"><i></i><span data-i18n="ex.c1">Folders outside the scan list</span><span class="mono">107 GB</span></div>
+        <div class="cause" style="--c:#C9B6FF"><i></i><span data-i18n="ex.c2">Locked by macOS until you allow access</span><span class="mono">34 GB</span></div>
+        <div class="cause" style="--c:#B9C8E6"><i></i><span data-i18n="ex.c3">Kept by the system for itself</span><span class="mono">15 GB</span></div>
       </div>
       <div><button class="btn" id="explainBtn">Fix them all</button></div>
     </div>
@@ -501,22 +520,22 @@ footer a { color: #fff; }
       <div class="bar"><span>◐</span><span class="me">⛵ 12.4 GB</span><span>Wi-Fi</span><span>10:52</span></div>
       <div class="tray">
         <div style="display:flex;justify-content:space-between;align-items:center"><b style="font-family:var(--display);font-size:16px">⛵ Freeboard</b><span style="color:var(--dim)">⚙ ✕</span></div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px"><span class="big">12.4<small style="font-size:13px;color:var(--muted)"> GB free</small></span><span class="pill" style="color:var(--review)">Low</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px"><span class="big">12.4<small style="font-size:13px;color:var(--muted)" data-i18n="gb.free2"> GB free</small></span><span class="pill" style="color:var(--review)" data-i18n="pill.low">Low</span></div>
         <div class="gauge"><span class="ghost"></span><i></i></div>
-        <p style="color:var(--muted);margin:8px 0">Riding low. Toss 54 GB and I float again.</p>
-        <div class="mrow"><span>node_modules in quiet projects</span><span>18.7 GB</span></div>
-        <div class="mrow"><span>Docker build cache</span><span>14.8 GB</span></div>
+        <p style="color:var(--muted);margin:8px 0" data-i18n="tray.line">Riding low. Toss 54 GB and I float again.</p>
+        <div class="mrow"><span data-i18n="mb.row1">node_modules in quiet projects</span><span>18.7 GB</span></div>
+        <div class="mrow"><span data-i18n="mb.docker">Docker build cache</span><span>14.8 GB</span></div>
         <div class="mrow"><span>Xcode DerivedData</span><span>11.3 GB</span></div>
-        <div class="mini-btn">Toss 54.0 GB</div>
+        <div class="mini-btn" data-i18n="mini.toss">Toss 54.0 GB</div>
       </div>
     </div>
     <div class="feat reveal">
-      <span class="eyebrow">Lives in your menu bar</span>
-      <h2 style="font-size:clamp(34px,4.6vw,54px)">Most days, a glance is enough.</h2>
+      <span class="eyebrow" data-i18n="mb.eyebrow">Lives in your menu bar</span>
+      <h2 style="font-size:clamp(34px,4.6vw,54px)" data-i18n="mb.h2">Most days, a glance is enough.</h2>
       <ul>
-        <li><span class="tick">✓</span><span><b>A warning before it’s urgent</b>Pick your own Low and Critical lines. Dinghy tells you how many days you have left.</span></li>
-        <li><span class="tick">✓</span><span><b>Calm when you’re fine</b>When you’re healthy, tossing is optional and the button says so.</span></li>
-        <li><span class="tick">✓</span><span><b>Hourly quick scans</b>Light, read-only checks. A deep scan runs only when you ask.</span></li>
+        <li><span class="tick">✓</span><span data-i18n="mb.f1"><b>A warning before it’s urgent</b>Pick your own Low and Critical lines. Dinghy tells you how many days you have left.</span></li>
+        <li><span class="tick">✓</span><span data-i18n="mb.f2"><b>Calm when you’re fine</b>When you’re healthy, tossing is optional and the button says so.</span></li>
+        <li><span class="tick">✓</span><span data-i18n="mb.f3"><b>Hourly quick scans</b>Light, read-only checks. A deep scan runs only when you ask.</span></li>
       </ul>
     </div>
   </div>
@@ -525,12 +544,12 @@ footer a { color: #fff; }
 <!-- BUILT -->
 <section class="sec" style="padding-top:0">
   <div class="wrap">
-    <div class="sec-head reveal"><span class="eyebrow">Under the hood</span><h2>Small, native, and open.</h2></div>
+    <div class="sec-head reveal"><span class="eyebrow" data-i18n="built.eyebrow">Under the hood</span><h2 data-i18n="built.h2">Small, native, and open.</h2></div>
     <div class="built reveal">
-      <div><b>Tauri 2</b><span>A native window on each OS instead of a bundled browser.</span></div>
-      <div><b>Rust core</b><span>Scanning, size checks and every cleanup command live in Rust.</span></div>
-      <div><b>Your tools</b><span>Uses docker, git, pnpm, brew and friends the way you would.</span></div>
-      <div><b>Open source</b><span>Read every rule that decides Safe, Review or Risky.</span></div>
+      <div><b>Tauri 2</b><span data-i18n="built.1">A native window on each OS instead of a bundled browser.</span></div>
+      <div><b data-i18n="built.2t">Rust core</b><span data-i18n="built.2">Scanning, size checks and every cleanup command live in Rust.</span></div>
+      <div><b data-i18n="built.3t">Your tools</b><span data-i18n="built.3">Uses docker, git, pnpm, brew and friends the way you would.</span></div>
+      <div><b data-i18n="built.4t">Open source</b><span data-i18n="built.4">Read every rule that decides Safe, Review or Risky.</span></div>
     </div>
   </div>
 </section>
@@ -538,53 +557,53 @@ footer a { color: #fff; }
 <!-- FINAL -->
 <section class="final" id="download">
   <div class="wrap">
-    <div class="teaser reveal" id="teaserBox" hidden><video id="teaser" src="assets/freeboard-teaser.mp4" playsinline muted loop autoplay preload="auto" aria-label="Short animation: Dinghy tosses its crates and floats again"></video><button class="btn sm snd" id="snd" aria-pressed="false">Sound on</button></div>
-    <h2 class="reveal">Give Dinghy some freeboard.</h2>
-    <p class="lede reveal" style="margin:16px auto 0">Free and open source for macOS, Linux and Windows.</p>
+    <div class="teaser reveal" id="teaserBox" hidden><video id="teaser" src="assets/freeboard-teaser.mp4" playsinline muted loop autoplay preload="auto" data-i18n-aria="aria.teaser" aria-label="Short animation: Dinghy tosses its crates and floats again"></video><button class="btn sm snd" id="snd" aria-pressed="false">Sound on</button></div>
+    <h2 class="reveal" data-i18n="final.h2">Give Dinghy some freeboard.</h2>
+    <p class="lede reveal" style="margin:16px auto 0" data-i18n="final.lede">Free and open source for macOS, Linux and Windows.</p>
     <div class="cta reveal">
-      <a class="btn primary" href="https://github.com/" data-release-link><svg><use href="#dl"/></svg><span data-os-label>Download the latest release</span></a>
-      <a class="btn" href="https://github.com/" data-repo-link><svg><use href="#gh"/></svg>View the source</a>
+      <a class="btn primary" href="https://github.com/" data-release-link><svg><use href="#dl"/></svg><span data-i18n="final.dl">Download the latest release</span></a>
+      <a class="btn" href="https://github.com/" data-repo-link><svg><use href="#gh"/></svg><span data-i18n="final.src">View the source</span></a>
     </div>
-    <p class="reveal" style="margin-top:18px;font-size:15px;color:var(--muted)">Other downloads: <a href="https://github.com/acierto/freeboard/releases/latest" data-file="macOS-universal.dmg">macOS (.dmg)</a> · <a href="https://github.com/acierto/freeboard/releases/latest" data-file="windows-x64-setup.exe">Windows x64 (.exe)</a> · <a href="https://github.com/acierto/freeboard/releases/latest" data-file="windows-arm64-setup.exe">Windows Arm (.exe)</a> · <a href="https://github.com/acierto/freeboard/releases/latest" data-file="linux-x86_64.deb">Linux x86_64 (.deb)</a> · <a href="https://github.com/acierto/freeboard/releases/latest" data-file="linux-x86_64.AppImage">AppImage</a> · <a href="https://github.com/acierto/freeboard/releases/latest" data-file="linux-arm64.deb">Linux arm64 (.deb)</a></p>
-    <p class="reveal" style="margin-top:6px;font-size:15px;color:var(--muted)"><span data-version>Latest release</span> · <a href="https://github.com/acierto/freeboard/releases">All releases and older versions</a></p>
+    <p class="reveal" style="margin-top:18px;font-size:15px;color:var(--muted)"><span data-i18n="dl.other">Other downloads:</span> <a href="https://github.com/acierto/freeboard/releases/latest" data-file="macOS-universal.dmg">macOS (.dmg)</a> · <a href="https://github.com/acierto/freeboard/releases/latest" data-file="windows-x64-setup.exe">Windows x64 (.exe)</a> · <a href="https://github.com/acierto/freeboard/releases/latest" data-file="windows-arm64-setup.exe">Windows Arm (.exe)</a> · <a href="https://github.com/acierto/freeboard/releases/latest" data-file="linux-x86_64.deb">Linux x86_64 (.deb)</a> · <a href="https://github.com/acierto/freeboard/releases/latest" data-file="linux-x86_64.AppImage">AppImage</a> · <a href="https://github.com/acierto/freeboard/releases/latest" data-file="linux-arm64.deb">Linux arm64 (.deb)</a></p>
+    <p class="reveal" style="margin-top:6px;font-size:15px;color:var(--muted)"><span data-version>Latest release</span> · <a href="https://github.com/acierto/freeboard/releases" data-i18n="rel.all">All releases and older versions</a></p>
     <div class="install reveal"><code id="installCmd">git clone https://github.com/your-name/freeboard &amp;&amp; cd freeboard &amp;&amp; pnpm tauri build</code><button class="btn sm" id="copyBtn">Copy</button></div>
-    <p class="reveal" style="margin-top:6px;font-size:15px;color:var(--muted)">macOS or Windows says it can't open it? <a href="#first-open">First time opening it?</a></p>
+    <p class="reveal" style="margin-top:6px;font-size:15px;color:var(--muted)"><span data-i18n="fo.pre">macOS or Windows says it can't open it? <a href="#first-open">First time opening it?</a></span></p>
     <div class="first-open reveal" id="first-open">
-      <h3>First time opening it?</h3>
-      <p class="fo-lede">Your computer may stop Freeboard the first time, because it was downloaded from the internet. That’s normal for new apps. Here’s how to let it through once.</p>
-      <div class="fo-tabs" role="tablist" aria-label="Your system">
+      <h3 data-i18n="fo.h3">First time opening it?</h3>
+      <p class="fo-lede" data-i18n="fo.lede">Your computer may stop Freeboard the first time, because it was downloaded from the internet. That’s normal for new apps. Here’s how to let it through once.</p>
+      <div class="fo-tabs" role="tablist" data-i18n-aria="aria.tabs" aria-label="Your system">
         <button role="tab" id="fo-t-mac" aria-controls="fo-mac" aria-selected="true" data-fo="mac">macOS</button>
         <button role="tab" id="fo-t-win" aria-controls="fo-win" aria-selected="false" data-fo="win" tabindex="-1">Windows</button>
         <button role="tab" id="fo-t-linux" aria-controls="fo-linux" aria-selected="false" data-fo="linux" tabindex="-1">Linux</button>
       </div>
       <div class="fo-panel" role="tabpanel" id="fo-mac" aria-labelledby="fo-t-mac">
         <ol class="fo-steps">
-          <li><b>Open Freeboard once.</b><span>macOS says it can’t verify the app and won’t open it. Click <em>Done</em>.</span></li>
-          <li><b>Open System Settings → Privacy &amp; Security.</b><span>Apple menu → System Settings → Privacy &amp; Security in the sidebar.</span></li>
-          <li><b>Scroll down to Security and click Open Anyway.</b><span>It says “Freeboard was blocked to protect your Mac”. The button shows for a while after your first try.</span></li>
-          <li><b>Confirm with Open.</b><span>Enter your Mac password if asked. From now on Freeboard opens normally.</span></li>
+          <li data-i18n="fo.mac1"><b>Open Freeboard once.</b><span>macOS says it can’t verify the app and won’t open it. Click <em>Done</em>.</span></li>
+          <li data-i18n="fo.mac2"><b>Open System Settings → Privacy &amp; Security.</b><span>Apple menu → System Settings → Privacy &amp; Security in the sidebar.</span></li>
+          <li data-i18n="fo.mac3"><b>Scroll down to Security and click Open Anyway.</b><span>It says “Freeboard was blocked to protect your Mac”. The button shows for a while after your first try.</span></li>
+          <li data-i18n="fo.mac4"><b>Confirm with Open.</b><span>Enter your Mac password if asked. From now on Freeboard opens normally.</span></li>
         </ol>
         <div class="fo-mock" aria-hidden="true">
-          <div class="fo-mock-bar"><i></i><i></i><i></i><span>Privacy &amp; Security</span></div>
+          <div class="fo-mock-bar"><i></i><i></i><i></i><span data-i18n="mock.privacy">Privacy &amp; Security</span></div>
           <div class="fo-mock-body">
-            <div class="fo-side"><span>Wi‑Fi</span><span>General</span><span>Desktop &amp; Dock</span><span class="on">Privacy &amp; Security</span><span>Lock Screen</span></div>
-            <div class="fo-main"><div class="fo-h">Security</div><div class="fo-row"><span>“Freeboard” was blocked to protect your Mac.</span><span class="fo-btn">Open Anyway</span></div><div class="fo-row dim"><span>Allow applications from</span><span>App Store &amp; Known Developers</span></div></div>
+            <div class="fo-side"><span>Wi‑Fi</span><span data-i18n="mock.general">General</span><span data-i18n="mock.desktop">Desktop &amp; Dock</span><span class="on" data-i18n="mock.privacy">Privacy &amp; Security</span><span data-i18n="mock.lock">Lock Screen</span></div>
+            <div class="fo-main"><div class="fo-h" data-i18n="mock.security">Security</div><div class="fo-row"><span data-i18n="mock.blocked">“Freeboard” was blocked to protect your Mac.</span><span class="fo-btn" data-i18n="mock.open">Open Anyway</span></div><div class="fo-row dim"><span data-i18n="mock.allow">Allow applications from</span><span data-i18n="mock.known">App Store &amp; Known Developers</span></div></div>
           </div>
         </div>
-        <p class="fo-note">On a work Mac managed by your company, the button may be missing. Ask IT to allow Freeboard.</p>
+        <p class="fo-note" data-i18n="fo.macnote">On a work Mac managed by your company, the button may be missing. Ask IT to allow Freeboard.</p>
       </div>
       <div class="fo-panel" role="tabpanel" id="fo-win" aria-labelledby="fo-t-win" hidden>
         <ol class="fo-steps">
-          <li><b>Run the installer.</b><span>If a blue “Windows protected your PC” box appears, don’t close it.</span></li>
-          <li><b>Click More info.</b><span>The publisher and app name appear.</span></li>
-          <li><b>Click Run anyway.</b><span>Windows remembers your choice for this installer.</span></li>
+          <li data-i18n="fo.win1"><b>Run the installer.</b><span>If a blue “Windows protected your PC” box appears, don’t close it.</span></li>
+          <li data-i18n="fo.win2"><b>Click More info.</b><span>The publisher and app name appear.</span></li>
+          <li data-i18n="fo.win3"><b>Click Run anyway.</b><span>Windows remembers your choice for this installer.</span></li>
         </ol>
-        <p class="fo-note">On a work PC, IT may block unknown installers. Ask them to allow Freeboard.</p>
+        <p class="fo-note" data-i18n="fo.winnote">On a work PC, IT may block unknown installers. Ask them to allow Freeboard.</p>
       </div>
       <div class="fo-panel" role="tabpanel" id="fo-linux" aria-labelledby="fo-t-linux" hidden>
         <ol class="fo-steps">
-          <li><b>Make the AppImage runnable.</b><span><code>chmod +x Freeboard*.AppImage</code>, or tick “Allow executing file as program” in its Properties.</span></li>
-          <li><b>Double-click it,</b><span>or install the .deb or .rpm with your package manager instead.</span></li>
+          <li data-i18n="fo.lin1"><b>Make the AppImage runnable.</b><span><code>chmod +x Freeboard*.AppImage</code>, or tick “Allow executing file as program” in its Properties.</span></li>
+          <li data-i18n="fo.lin2"><b>Double-click it,</b><span>or install the .deb or .rpm with your package manager instead.</span></li>
         </ol>
       </div>
     </div>
@@ -596,8 +615,11 @@ footer a { color: #fff; }
   </div>
 </section>
 </main>
-<footer><div class="wrap"><span>Freeboard · Open source · Made for people with small SSDs and big projects.</span><span><a href="docs/">Docs</a> · <a href="https://github.com/" data-repo-link>GitHub</a></span></div></footer>
+<footer><div class="wrap"><span data-i18n="foot">Freeboard · Open source · Made for people with small SSDs and big projects.</span><span><a href="docs/" data-i18n="nav.docs">Docs</a> · <a href="https://github.com/" data-repo-link>GitHub</a></span></div></footer>
 
+<script>
+var I18N = {"nl":{"nav.how":"Hoe het werkt","nav.finds":"Wat het vindt","nav.safety":"Veiligheid","hero.eyebrow":"Weet het voordat je schijf vol is","hero.h1":"Houd je schijf boven de <em>waterlijn.</em>","hero.lede":"Freeboard vindt de gigabytes die zich verstoppen in Docker, git-worktrees, node_modules, caches en AI-modellen. Het gooit alleen weg wat terug kan komen, en laat eerst precies zien welk commando het uitvoert.","hero.dl":"Freeboard downloaden","hero.star":"Ster op GitHub","hero.built":"Gemaakt met Tauri 2","gb.free":"GB vrij","gb.free2":" GB vrij","mini.ready":"Klaar om overboord te gaan","mini.docker":"<i class=\"dot\" style=\"background:var(--safe)\"></i>Docker-buildcache","mini.toss":"54.0 GB overboord","mini.q":"Korte vraag","mini.ollama":"<i class=\"dot\" style=\"background:var(--review)\"></i>Ongebruikte Ollama-modellen","mini.vol":"<i class=\"dot\" style=\"background:var(--risky)\"></i>Volume billing_pgdata","tray.line":"Ik lig laag. Gooi 54 GB overboord en ik drijf weer.","film.eyebrow":"Zie het in actie","film.h2":"Van 12.4 GB naar 66.4 GB in ongeveer een minuut.","film.lede":"Freeboard ziet het probleem, jij kiest hoeveel ruimte je wilt maken, en Dinghy drijft weer.","how.h2":"Drie stappen. Eén blij bootje.","how.s1":"Scannen","how.p1":"Freeboard bekijkt 49 bekende plekken, alleen lezend. Er verdwijnt niets tot jij het zegt.","how.s2":"Opstapelen","how.p2":"Wat zichzelf opnieuw opbouwt, gaat op de stapel. Alles waar jouw werk in kan zitten, wacht op een ja.","how.s3":"Overboord","how.p3":"Weg ermee. Dinghy komt omhoog, en het logboek houdt bij wat er weg is en hoe je het terugkrijgt.","finds.h2":"De vaste verstekelingen op de schijf van een developer.","finds.lede":"Bij elk item zie je het commando dat Freeboard zou uitvoeren, en hoe je het terugkrijgt.","finds.note":"De groottes zijn een voorbeeld van één Mac met 512 GB. Bij jou zal het anders zijn.","safety.eyebrow":"Veiligheid voorop","safety.h2":"Elke krat krijgt een label voordat hij overboord gaat.","safety.lede":"Freeboard sorteert alles op één vraag: als dit weggaat, komt het dan terug?","risk.safe":"Veilig","risk.safe.what":"Komt vanzelf terug","risk.safe.p":"Buildcaches, pakketcaches, oude toolchains. Freeboard kan laten zien dat ze opnieuw worden opgebouwd of gedownload.","risk.safe.l1":"Gaat automatisch op de stapel","risk.safe.l2":"Eén klik om weg te gooien","risk.review":"Nakijken","risk.review.what":"Komt terug, met wat moeite","risk.review.p":"Modellen die je hebt gedownload, oude back-ups, samengevoegde worktrees. Niets is voorgoed weg, maar het kost een download of een rebuild.","risk.review.l1":"Wordt als korte vraag gesteld","risk.review.l2":"Gaat naar de prullenmand als dat kan","risk.risky":"Riskant","risk.risky.what":"Komt misschien niet terug","risk.risky.p":"Docker-volumes, niet-gepushte branches. Freeboard kan niet bewijzen dat ze veilig zijn, dus legt het uit waarom en hoe je ze veiliger maakt.","risk.risky.l1":"Vraagt een duidelijk „Ik begrijp het”","risk.risky.l2":"Nooit in een bulkactie","never.1":"<b>Raakt nooit aan</b>Niet-gecommitte wijzigingen of niet-gepushte commits.","never.2":"<b>Leest nooit</b>Wat er in je bestanden staat. Alleen groottes, namen en datums.","never.3":"<b>Verrast nooit</b>Je ziet het exacte commando voordat er iets draait.","never.4":"<b>Vergeet nooit</b>Het logboek bewaart wat er weg is en hoe je het terugzet.","ex.eyebrow":"De hele schijf, uitgelegd","ex.h2":"Waar is een derde van mijn schijf gebleven?","ex.lede":"De meeste opruimers zwijgen over de ruimte die ze niet kunnen zien. Freeboard vertelt waarom die verborgen is, en hoe je hem meet.","ex.explained":"verklaard","ex.c1":"Mappen buiten de scanlijst","ex.c2":"Afgeschermd door macOS tot je toegang geeft","ex.c3":"Door het systeem voor zichzelf bewaard","mb.row1":"node_modules in stille projecten","mb.docker":"Docker-buildcache","mb.eyebrow":"Woont in je menubalk","mb.h2":"Meestal is één blik genoeg.","mb.f1":"<b>Een waarschuwing voordat het dringend is</b>Kies je eigen grenzen voor Laag en Kritiek. Dinghy vertelt hoeveel dagen je nog hebt.","mb.f2":"<b>Rustig als alles goed is</b>Als je schijf gezond is, is opruimen optioneel, en de knop zegt dat ook.","mb.f3":"<b>Elk uur een snelle scan</b>Lichte, alleen-lezen checks. Een diepe scan draait alleen als jij erom vraagt.","built.eyebrow":"Onder de motorkap","built.h2":"Klein, native en open.","built.1":"Een native venster op elk besturingssysteem in plaats van een meegeleverde browser.","built.2t":"Rust-kern","built.2":"Scannen, groottes meten en elk opruimcommando gebeuren in Rust.","built.3t":"Jouw tools","built.3":"Gebruikt docker, git, pnpm, brew en co. zoals jij dat zou doen.","built.4t":"Open source","built.4":"Lees elke regel die bepaalt wat Veilig, Nakijken of Riskant is.","final.h2":"Geef Dinghy wat vrijboord.","final.lede":"Gratis en open source voor macOS, Linux en Windows.","final.dl":"Download de nieuwste versie","final.src":"Bekijk de broncode","fo.h3":"Open je het voor het eerst?","fo.lede":"Je computer kan Freeboard de eerste keer tegenhouden, omdat het van internet komt. Dat is normaal bij nieuwe apps. Zo laat je het één keer door.","fo.mac1":"<b>Open Freeboard één keer.</b><span>macOS meldt dat het de app niet kan controleren en opent hem niet. Klik op <em>Gereed</em>.</span>","fo.mac2":"<b>Open Systeeminstellingen → Privacy en beveiliging.</b><span>Apple-menu → Systeeminstellingen → Privacy en beveiliging in de navigatiekolom.</span>","fo.mac3":"<b>Scrol naar Beveiliging en klik op Open toch.</b><span>Er staat dat Freeboard is geblokkeerd om je Mac te beschermen. De knop blijft een tijdje staan na je eerste poging.</span>","fo.mac4":"<b>Bevestig met Open.</b><span>Voer je Mac-wachtwoord in als daarom wordt gevraagd. Daarna opent Freeboard gewoon.</span>","mock.general":"Algemeen","mock.desktop":"Bureaublad en Dock","mock.privacy":"Privacy en beveiliging","mock.lock":"Toegangsscherm","mock.security":"Beveiliging","mock.blocked":"‘Freeboard’ is geblokkeerd om je Mac te beschermen.","mock.open":"Open toch","mock.allow":"Sta apps toe van","mock.known":"App Store en bekende ontwikkelaars","fo.macnote":"Op een werk-Mac die door je bedrijf wordt beheerd, kan de knop ontbreken. Vraag IT om Freeboard toe te staan.","fo.win1":"<b>Start het installatieprogramma.</b><span>Verschijnt er een blauw venster ‘Uw pc is beveiligd door Windows’, sluit het dan niet.</span>","fo.win2":"<b>Klik op Meer informatie.</b><span>De uitgever en de naam van de app verschijnen.</span>","fo.win3":"<b>Klik op Toch uitvoeren.</b><span>Windows onthoudt je keuze voor dit installatieprogramma.</span>","fo.winnote":"Op een werk-pc kan IT onbekende installatieprogramma’s blokkeren. Vraag hen om Freeboard toe te staan.","fo.lin1":"<b>Maak de AppImage uitvoerbaar.</b><span><code>chmod +x Freeboard*.AppImage</code>, of vink ‘Uitvoeren als programma toestaan’ aan bij Eigenschappen.</span>","fo.lin2":"<b>Dubbelklik erop,</b><span>of installeer de .deb of .rpm met je pakketbeheerder.</span>","foot":"Freeboard · Open source · Gemaakt voor mensen met kleine SSD’s en grote projecten.","aria.nav":"Hoofdmenu","aria.gh":"Freeboard op GitHub","aria.video":"Freeboard-demo, 67 seconden, met ondertiteling in beeld (Engels)","aria.poster":"Speel de demo van 67 seconden af","aria.sea":"Animatie: kratten gaan overboord en de vrije ruimte stijgt","aria.teaser":"Korte animatie: Dinghy gooit zijn kratten overboord en drijft weer","aria.tabs":"Jouw systeem","pill.low":"Laag","js.dlfor":"Download voor {os}","js.critical":"Kritiek","js.low":"Laag","js.healthy":"Gezond","js.scroll":"Scrol om overboord te gooien","js.tossing":"Overboord ermee…","js.floating":"Drijft prima","js.fix":"Los ze allemaal op","js.again":"Laat opnieuw zien","js.soundon":"Geluid aan","js.soundoff":"Geluid uit","js.copy":"Kopiëren","js.copied":"Gekopieerd","js.back":"Terug:","tm.unk":"Niet verklaard","tm.ai":"AI-modellen","tm.proj":"Projecten","tm.phones":"Telefoons","tm.caches":"Caches","tm.apps":"Apps","tm.files":"Jouw bestanden","f.git":"Git-worktrees","f.git.d":"samengevoegd en schoon","f.git.b":"git worktree add met de branch.","f.nm.d":"in stille projecten","f.nm.b":"Voer pnpm install uit.","f.dc":"Docker-buildcache","f.dc.d":"142 lagen","f.dc.b":"Wordt bij de volgende build opnieuw opgebouwd.","f.ol":"Ollama-modellen","f.ol.d":"60 dagen niet gebruikt","f.ol.b":"ollama pull downloadt het opnieuw.","f.ip":"iPhone-back-ups","f.ip.d":"uit 2024","f.ip.c":"Naar de prullenmand","f.ip.b":"Terugzetten uit de prullenmand.","f.xc.d":"grotendeels ouder dan 30 dagen","f.xc.b":"Xcode bouwt het opnieuw op.","f.rs.d":"laatste build 45 dagen geleden","f.rs.b":"cargo build.","f.dv":"Docker-volumes","f.dv.d":"niets gekoppeld","f.dv.b":"Niet terug te halen. Maak eerst een back-up.","m.pnpm":"pnpm-store","m.brew":"Homebrew-downloads","m.android":"Android-emulators","m.pip":"pip-cache","m.pw":"Playwright-browsers","m.jb":"JetBrains-caches","nav.docs":"Documentatie","rel.all":"Alle releases en oudere versies","rel.latest":"Nieuwste versie","rel.latest0":"Nieuwste versie","dl.other":"Andere downloads:","fo.blocked":"Geblokkeerd bij de eerste start? <a href=\"#first-open\">Zo open je hem toch</a>.","fo.pre":"Zegt macOS of Windows dat de app niet kan worden geopend? <a href=\"#first-open\">Open je het voor het eerst?</a>"},"de":{"nav.how":"So funktioniert’s","nav.finds":"Was es findet","nav.safety":"Sicherheit","hero.eyebrow":"Wissen, bevor die Platte voll ist","hero.h1":"Halte deine Platte über der <em>Wasserlinie.</em>","hero.lede":"Freeboard findet die Gigabytes, die sich in Docker, Git-Worktrees, node_modules, Caches und KI-Modellen verstecken. Es wirft nur weg, was zurückkommen kann, und zeigt dir vorher den genauen Befehl.","hero.dl":"Freeboard herunterladen","hero.star":"Auf GitHub markieren","hero.built":"Gebaut mit Tauri 2","gb.free":"GB frei","gb.free2":" GB frei","mini.ready":"Bereit für über Bord","mini.docker":"<i class=\"dot\" style=\"background:var(--safe)\"></i>Docker-Build-Cache","mini.toss":"54.0 GB über Bord","mini.q":"Kurze Frage","mini.ollama":"<i class=\"dot\" style=\"background:var(--review)\"></i>Ungenutzte Ollama-Modelle","mini.vol":"<i class=\"dot\" style=\"background:var(--risky)\"></i>Volume billing_pgdata","tray.line":"Ich liege tief. Wirf 54 GB über Bord, dann schwimme ich wieder.","film.eyebrow":"In Aktion sehen","film.h2":"Von 12.4 GB auf 66.4 GB in etwa einer Minute.","film.lede":"Freeboard erkennt das Problem, du wählst, wie viel Platz frei werden soll, und Dinghy schwimmt wieder.","how.h2":"Drei Schritte. Ein glückliches Boot.","how.s1":"Scannen","how.p1":"Freeboard prüft 49 bekannte Orte, nur lesend. Nichts bewegt sich, bis du es sagst.","how.s2":"Stapeln","how.p2":"Was sich von selbst neu aufbaut, kommt auf den Stapel. Alles, worin deine Arbeit stecken könnte, wartet auf ein Ja.","how.s3":"Über Bord","how.p3":"Weg damit. Dinghy steigt, und das Logbuch notiert, was weg ist und wie du es zurückholst.","finds.h2":"Die üblichen blinden Passagiere auf der Platte von Entwicklern.","finds.lede":"Zu jedem gibt es den Befehl, den Freeboard ausführen würde, und wie du es zurückbekommst.","finds.note":"Die Größen sind ein Beispiel von einem Mac mit 512 GB. Bei dir sieht es anders aus.","safety.eyebrow":"Sicherheit zuerst","safety.h2":"Jede Kiste bekommt ein Etikett, bevor sie über Bord geht.","safety.lede":"Freeboard sortiert alles nach einer Frage: Wenn das weg ist, kommt es zurück?","risk.safe":"Sicher","risk.safe.what":"Kommt von selbst zurück","risk.safe.p":"Build-Caches, Paket-Caches, alte Toolchains. Freeboard kann zeigen, dass sie neu gebaut oder erneut geladen werden.","risk.safe.l1":"Kommt automatisch auf den Stapel","risk.safe.l2":"Ein Klick zum Wegwerfen","risk.review":"Prüfen","risk.review.what":"Kommt zurück, mit Aufwand","risk.review.p":"Geladene Modelle, alte Backups, gemergte Worktrees. Nichts ist für immer weg, aber es kostet einen Download oder einen Rebuild.","risk.review.l1":"Wird als kurze Frage gestellt","risk.review.l2":"Landet im Papierkorb, wenn möglich","risk.risky":"Riskant","risk.risky.what":"Kommt vielleicht nicht zurück","risk.risky.p":"Docker-Volumes, nicht gepushte Branches. Freeboard kann nicht beweisen, dass sie sicher sind, und erklärt deshalb, warum und wie du sie sicherer machst.","risk.risky.l1":"Braucht ein klares „Ich verstehe“","risk.risky.l2":"Nie in einer Sammelaktion","never.1":"<b>Fasst nie an</b>Nicht committete Änderungen oder nicht gepushte Commits.","never.2":"<b>Liest nie</b>Was in deinen Dateien steht. Nur Größen, Namen und Daten.","never.3":"<b>Überrascht nie</b>Der genaue Befehl wird gezeigt, bevor etwas läuft.","never.4":"<b>Vergisst nie</b>Das Logbuch hält fest, was weg ist und wie man es wiederherstellt.","ex.eyebrow":"Die ganze Platte, erklärt","ex.h2":"Wo ist ein Drittel meiner Platte hin?","ex.lede":"Die meisten Aufräum-Tools schweigen über den Platz, den sie nicht sehen. Freeboard sagt dir, warum er verborgen ist und wie du ihn misst.","ex.explained":"erklärt","ex.c1":"Ordner außerhalb der Scan-Liste","ex.c2":"Von macOS gesperrt, bis du Zugriff erlaubst","ex.c3":"Vom System für sich selbst reserviert","mb.row1":"node_modules in ruhenden Projekten","mb.docker":"Docker-Build-Cache","mb.eyebrow":"Wohnt in deiner Menüleiste","mb.h2":"Meist reicht ein Blick.","mb.f1":"<b>Eine Warnung, bevor es dringend wird</b>Lege deine eigenen Grenzen für Niedrig und Kritisch fest. Dinghy sagt dir, wie viele Tage dir bleiben.","mb.f2":"<b>Ruhig, wenn alles passt</b>Wenn deine Platte gesund ist, ist Aufräumen optional, und der Button sagt das auch.","mb.f3":"<b>Stündliche Kurz-Scans</b>Leichte, nur lesende Prüfungen. Ein Tiefen-Scan läuft nur, wenn du ihn startest.","built.eyebrow":"Unter der Haube","built.h2":"Klein, nativ und offen.","built.1":"Ein natives Fenster auf jedem Betriebssystem statt eines mitgelieferten Browsers.","built.2t":"Rust-Kern","built.2":"Scannen, Größen messen und jeder Aufräumbefehl laufen in Rust.","built.3t":"Deine Tools","built.3":"Nutzt docker, git, pnpm, brew und Co. so, wie du es tun würdest.","built.4t":"Open Source","built.4":"Lies jede Regel, die über Sicher, Prüfen oder Riskant entscheidet.","final.h2":"Gib Dinghy etwas Freibord.","final.lede":"Kostenlos und Open Source für macOS, Linux und Windows.","final.dl":"Neueste Version herunterladen","final.src":"Quellcode ansehen","fo.h3":"Zum ersten Mal öffnen?","fo.lede":"Dein Computer hält Freeboard beim ersten Start vielleicht auf, weil es aus dem Internet geladen wurde. Das ist bei neuen Apps normal. So lässt du es einmal durch.","fo.mac1":"<b>Öffne Freeboard einmal.</b><span>macOS meldet, dass es die App nicht überprüfen kann, und öffnet sie nicht. Klicke auf <em>Fertig</em>.</span>","fo.mac2":"<b>Öffne Systemeinstellungen → Datenschutz &amp; Sicherheit.</b><span>Apple-Menü → Systemeinstellungen → Datenschutz &amp; Sicherheit in der Seitenleiste.</span>","fo.mac3":"<b>Scrolle zu Sicherheit und klicke auf Dennoch öffnen.</b><span>Dort steht, dass Freeboard blockiert wurde, um deinen Mac zu schützen. Der Button bleibt nach dem ersten Versuch eine Weile sichtbar.</span>","fo.mac4":"<b>Bestätige mit Öffnen.</b><span>Gib dein Mac-Passwort ein, falls danach gefragt wird. Ab jetzt öffnet sich Freeboard ganz normal.</span>","mock.general":"Allgemein","mock.desktop":"Schreibtisch &amp; Dock","mock.privacy":"Datenschutz &amp; Sicherheit","mock.lock":"Sperrbildschirm","mock.security":"Sicherheit","mock.blocked":"„Freeboard“ wurde blockiert, um deinen Mac zu schützen.","mock.open":"Dennoch öffnen","mock.allow":"Apps erlauben von","mock.known":"App Store &amp; verifizierte Entwickler","fo.macnote":"Auf einem Firmen-Mac, der von deiner Firma verwaltet wird, fehlt der Button vielleicht. Bitte die IT, Freeboard freizugeben.","fo.win1":"<b>Starte das Installationsprogramm.</b><span>Wenn ein blaues Fenster „Der Computer wurde durch Windows geschützt“ erscheint, schließe es nicht.</span>","fo.win2":"<b>Klicke auf Weitere Informationen.</b><span>Herausgeber und App-Name werden angezeigt.</span>","fo.win3":"<b>Klicke auf Trotzdem ausführen.</b><span>Windows merkt sich deine Wahl für dieses Installationsprogramm.</span>","fo.winnote":"Auf einem Firmen-PC blockiert die IT vielleicht unbekannte Installationsprogramme. Bitte sie, Freeboard freizugeben.","fo.lin1":"<b>Mach das AppImage ausführbar.</b><span><code>chmod +x Freeboard*.AppImage</code>, oder aktiviere „Datei als Programm ausführen“ in den Eigenschaften.</span>","fo.lin2":"<b>Doppelklicke darauf,</b><span>oder installiere das .deb oder .rpm mit deinem Paketmanager.</span>","foot":"Freeboard · Open Source · Gemacht für Leute mit kleinen SSDs und großen Projekten.","aria.nav":"Hauptmenü","aria.gh":"Freeboard auf GitHub","aria.video":"Freeboard-Demo, 67 Sekunden, mit Untertiteln im Bild (Englisch)","aria.poster":"Die 67-Sekunden-Demo abspielen","aria.sea":"Animation: Kisten gehen über Bord und der freie Platz steigt","aria.teaser":"Kurze Animation: Dinghy wirft seine Kisten über Bord und schwimmt wieder","aria.tabs":"Dein System","pill.low":"Niedrig","js.dlfor":"Für {os} herunterladen","js.critical":"Kritisch","js.low":"Niedrig","js.healthy":"Gesund","js.scroll":"Scrollen zum Über-Bord-Werfen","js.tossing":"Über Bord damit…","js.floating":"Schwimmt bestens","js.fix":"Alle beheben","js.again":"Wieder zeigen","js.soundon":"Ton an","js.soundoff":"Ton aus","js.copy":"Kopieren","js.copied":"Kopiert","js.back":"Zurück:","tm.unk":"Nicht erklärt","tm.ai":"KI-Modelle","tm.proj":"Projekte","tm.phones":"Telefone","tm.caches":"Caches","tm.apps":"Apps","tm.files":"Deine Dateien","f.git":"Git-Worktrees","f.git.d":"gemergt und sauber","f.git.b":"git worktree add mit dem Branch.","f.nm.d":"in ruhenden Projekten","f.nm.b":"pnpm install ausführen.","f.dc":"Docker-Build-Cache","f.dc.d":"142 Layer","f.dc.b":"Wird beim nächsten Build neu erstellt.","f.ol":"Ollama-Modelle","f.ol.d":"seit 60 Tagen nicht genutzt","f.ol.b":"ollama pull lädt es erneut.","f.ip":"iPhone-Backups","f.ip.d":"aus 2024","f.ip.c":"In den Papierkorb","f.ip.b":"Aus dem Papierkorb wiederherstellen.","f.xc.d":"meist älter als 30 Tage","f.xc.b":"Xcode baut es neu.","f.rs.d":"letzter Build vor 45 Tagen","f.rs.b":"cargo build.","f.dv":"Docker-Volumes","f.dv.d":"nirgends eingebunden","f.dv.b":"Nicht wiederherstellbar. Vorher sichern.","m.pnpm":"pnpm-Store","m.brew":"Homebrew-Downloads","m.android":"Android-Emulatoren","m.pip":"pip-Cache","m.pw":"Playwright-Browser","m.jb":"JetBrains-Caches","nav.docs":"Dokumentation","rel.all":"Alle Releases und ältere Versionen","rel.latest":"Neueste Version","rel.latest0":"Neueste Version","dl.other":"Weitere Downloads:","fo.blocked":"Beim ersten Start blockiert? <a href=\"#first-open\">So öffnest du die App trotzdem</a>.","fo.pre":"macOS oder Windows lässt die App nicht öffnen? <a href=\"#first-open\">Zum ersten Mal öffnen?</a>"},"fr":{"nav.how":"Comment ça marche","nav.finds":"Ce qu’il trouve","nav.safety":"Sécurité","hero.eyebrow":"Soyez prévenu avant que le disque soit plein","hero.h1":"Gardez votre disque au-dessus de la <em>ligne de flottaison.</em>","hero.lede":"Freeboard trouve les gigaoctets cachés dans Docker, les worktrees git, node_modules, les caches et les modèles d’IA. Il ne jette que ce qui peut revenir, et vous montre d’abord la commande exacte.","hero.dl":"Télécharger Freeboard","hero.star":"Mettre une étoile sur GitHub","hero.built":"Conçu avec Tauri 2","gb.free":"Go libres","gb.free2":" Go libres","mini.ready":"Prêt à jeter","mini.docker":"<i class=\"dot\" style=\"background:var(--safe)\"></i>Cache de build Docker","mini.toss":"Jeter 54.0 Go","mini.q":"Petite question","mini.ollama":"<i class=\"dot\" style=\"background:var(--review)\"></i>Modèles Ollama inutilisés","mini.vol":"<i class=\"dot\" style=\"background:var(--risky)\"></i>Volume billing_pgdata","tray.line":"Je suis bas sur l’eau. Jetez 54 Go et je flotte à nouveau.","film.eyebrow":"Voir en action","film.h2":"De 12.4 Go à 66.4 Go en une minute environ.","film.lede":"Freeboard repère le problème, vous choisissez combien de place libérer, et Dinghy flotte à nouveau.","how.h2":"Trois étapes. Un bateau heureux.","how.s1":"Analyser","how.p1":"Freeboard vérifie 49 emplacements connus, en lecture seule. Rien ne bouge tant que vous ne l’avez pas décidé.","how.s2":"Empiler","how.p2":"Ce qui se reconstruit tout seul va sur la pile. Tout ce qui pourrait contenir votre travail attend votre accord.","how.s3":"Jeter","how.p3":"Par-dessus bord. Dinghy remonte, et le journal de bord note ce qui est parti et comment le récupérer.","finds.h2":"Les passagers clandestins habituels du disque d’un développeur.","finds.lede":"Chacun s’accompagne de la commande que Freeboard exécuterait, et de la façon de le récupérer.","finds.note":"Les tailles sont un exemple tiré d’un Mac de 512 Go. Les vôtres seront différentes.","safety.eyebrow":"La sécurité d’abord","safety.h2":"Chaque caisse reçoit une étiquette avant de passer par-dessus bord.","safety.lede":"Freeboard trie ce qu’il trouve selon une seule question : si ça part, est-ce que ça revient ?","risk.safe":"Sûr","risk.safe.what":"Revient tout seul","risk.safe.p":"Caches de build, caches de paquets, anciennes toolchains. Freeboard peut montrer qu’ils se reconstruisent ou se retéléchargent.","risk.safe.l1":"Va automatiquement sur la pile","risk.safe.l2":"Un clic pour jeter","risk.review":"À vérifier","risk.review.what":"Revient, avec un effort","risk.review.p":"Modèles téléchargés, anciennes sauvegardes, worktrees fusionnés. Rien n’est perdu pour de bon, mais il faudra un téléchargement ou une reconstruction.","risk.review.l1":"Posé comme une petite question","risk.review.l2":"Mis à la corbeille quand c’est possible","risk.risky":"Risqué","risk.risky.what":"Pourrait ne pas revenir","risk.risky.p":"Volumes Docker, branches non poussées. Freeboard ne peut pas prouver qu’ils sont sans risque, alors il explique pourquoi et comment les sécuriser.","risk.risky.l1":"Demande un « Je comprends » explicite","risk.risky.l2":"Jamais dans une action groupée","never.1":"<b>Ne touche jamais</b>Aux modifications non validées ni aux commits non poussés.","never.2":"<b>Ne lit jamais</b>Le contenu de vos fichiers. Seulement les tailles, les noms et les dates.","never.3":"<b>Ne surprend jamais</b>La commande exacte est affichée avant toute exécution.","never.4":"<b>N’oublie jamais</b>Le journal garde ce qui est parti et comment le restaurer.","ex.eyebrow":"Tout le disque, expliqué","ex.h2":"Où est passé un tiers de mon disque ?","ex.lede":"La plupart des nettoyeurs se taisent sur l’espace qu’ils ne voient pas. Freeboard vous dit pourquoi il est caché, et comment le mesurer.","ex.explained":"expliqués","ex.c1":"Dossiers hors de la liste d’analyse","ex.c2":"Verrouillé par macOS tant que vous n’autorisez pas l’accès","ex.c3":"Gardé par le système pour lui-même","mb.row1":"node_modules dans les projets en sommeil","mb.docker":"Cache de build Docker","mb.eyebrow":"Vit dans votre barre des menus","mb.h2":"La plupart du temps, un coup d’œil suffit.","mb.f1":"<b>Une alerte avant l’urgence</b>Choisissez vos propres seuils Bas et Critique. Dinghy vous dit combien de jours il vous reste.","mb.f2":"<b>Calme quand tout va bien</b>Quand votre disque est sain, jeter est facultatif, et le bouton le dit.","mb.f3":"<b>Analyses rapides toutes les heures</b>Des vérifications légères, en lecture seule. Une analyse complète ne se lance que si vous la demandez.","built.eyebrow":"Sous le capot","built.h2":"Petit, natif et ouvert.","built.1":"Une fenêtre native sur chaque système plutôt qu’un navigateur embarqué.","built.2t":"Cœur en Rust","built.2":"L’analyse, la mesure des tailles et chaque commande de nettoyage vivent en Rust.","built.3t":"Vos outils","built.3":"Utilise docker, git, pnpm, brew et compagnie comme vous le feriez.","built.4t":"Open source","built.4":"Lisez chaque règle qui décide entre Sûr, À vérifier ou Risqué.","final.h2":"Offrez à Dinghy un peu de franc-bord.","final.lede":"Gratuit et open source pour macOS, Linux et Windows.","final.dl":"Télécharger la dernière version","final.src":"Voir le code source","fo.h3":"Première ouverture ?","fo.lede":"Votre ordinateur peut bloquer Freeboard la première fois, parce qu’il a été téléchargé sur Internet. C’est normal pour une nouvelle app. Voici comment le laisser passer une fois.","fo.mac1":"<b>Ouvrez Freeboard une fois.</b><span>macOS indique qu’il ne peut pas vérifier l’app et ne l’ouvre pas. Cliquez sur <em>OK</em>.</span>","fo.mac2":"<b>Ouvrez Réglages Système → Confidentialité et sécurité.</b><span>Menu Pomme → Réglages Système → Confidentialité et sécurité dans la barre latérale.</span>","fo.mac3":"<b>Faites défiler jusqu’à Sécurité et cliquez sur Ouvrir quand même.</b><span>Il est indiqué que Freeboard a été bloqué pour protéger votre Mac. Le bouton reste affiché un moment après votre première tentative.</span>","fo.mac4":"<b>Confirmez avec Ouvrir.</b><span>Saisissez le mot de passe de votre Mac si demandé. Ensuite, Freeboard s’ouvre normalement.</span>","mock.general":"Général","mock.desktop":"Bureau et Dock","mock.privacy":"Confidentialité et sécurité","mock.lock":"Écran verrouillé","mock.security":"Sécurité","mock.blocked":"« Freeboard » a été bloqué afin de protéger votre Mac.","mock.open":"Ouvrir quand même","mock.allow":"Autoriser les apps de","mock.known":"App Store et développeurs identifiés","fo.macnote":"Sur un Mac professionnel géré par votre entreprise, le bouton peut être absent. Demandez au service informatique d’autoriser Freeboard.","fo.win1":"<b>Lancez le programme d’installation.</b><span>Si une fenêtre bleue « Windows a protégé votre ordinateur » apparaît, ne la fermez pas.</span>","fo.win2":"<b>Cliquez sur Informations complémentaires.</b><span>L’éditeur et le nom de l’app s’affichent.</span>","fo.win3":"<b>Cliquez sur Exécuter quand même.</b><span>Windows retient votre choix pour ce programme d’installation.</span>","fo.winnote":"Sur un PC professionnel, le service informatique peut bloquer les installateurs inconnus. Demandez-lui d’autoriser Freeboard.","fo.lin1":"<b>Rendez l’AppImage exécutable.</b><span><code>chmod +x Freeboard*.AppImage</code>, ou cochez « Autoriser l’exécution du fichier comme un programme » dans ses Propriétés.</span>","fo.lin2":"<b>Double-cliquez dessus,</b><span>ou installez le .deb ou le .rpm avec votre gestionnaire de paquets.</span>","foot":"Freeboard · Open source · Pour celles et ceux qui ont de petits SSD et de grands projets.","aria.nav":"Menu principal","aria.gh":"Freeboard sur GitHub","aria.video":"Démo de Freeboard, 67 secondes, sous-titres incrustés (en anglais)","aria.poster":"Lire la démo de 67 secondes","aria.sea":"Animation : des caisses passent par-dessus bord et l’espace libre augmente","aria.teaser":"Courte animation : Dinghy jette ses caisses et flotte à nouveau","aria.tabs":"Votre système","pill.low":"Bas","js.dlfor":"Télécharger pour {os}","js.critical":"Critique","js.low":"Bas","js.healthy":"Sain","js.scroll":"Faites défiler pour jeter","js.tossing":"Par-dessus bord…","js.floating":"Flotte à merveille","js.fix":"Tout corriger","js.again":"Revoir","js.soundon":"Activer le son","js.soundoff":"Couper le son","js.copy":"Copier","js.copied":"Copié","js.back":"Récupération :","tm.unk":"Non expliqué","tm.ai":"Modèles d’IA","tm.proj":"Projets","tm.phones":"Téléphones","tm.caches":"Caches","tm.apps":"Apps","tm.files":"Vos fichiers","f.git":"Worktrees git","f.git.d":"fusionnés et propres","f.git.b":"git worktree add avec la branche.","f.nm.d":"dans les projets en sommeil","f.nm.b":"Lancez pnpm install.","f.dc":"Cache de build Docker","f.dc.d":"142 couches","f.dc.b":"Reconstruit au prochain build.","f.ol":"Modèles Ollama","f.ol.d":"inutilisés depuis 60 jours","f.ol.b":"ollama pull le retélécharge.","f.ip":"Sauvegardes d’iPhone","f.ip.d":"de 2024","f.ip.c":"Mettre à la corbeille","f.ip.b":"Restaurer depuis la corbeille.","f.xc.d":"surtout plus de 30 jours","f.xc.b":"Xcode le reconstruit.","f.rs.d":"dernier build il y a 45 jours","f.rs.b":"cargo build.","f.dv":"Volumes Docker","f.dv.d":"rattachés à rien","f.dv.b":"Irrécupérable. Sauvegardez d’abord.","m.pnpm":"Store pnpm","m.brew":"Téléchargements Homebrew","m.android":"Émulateurs Android","m.pip":"Cache pip","m.pw":"Navigateurs Playwright","m.jb":"Caches JetBrains","nav.docs":"Documentation","rel.all":"Toutes les versions, anciennes comprises","rel.latest":"Dernière version","rel.latest0":"Dernière version","dl.other":"Autres téléchargements :","fo.blocked":"Bloqué au premier lancement ? <a href=\"#first-open\">Voici comment l’ouvrir quand même</a>.","fo.pre":"macOS ou Windows refuse d’ouvrir l’app ? <a href=\"#first-open\">Première ouverture ?</a>"},"es":{"nav.how":"Cómo funciona","nav.finds":"Qué encuentra","nav.safety":"Seguridad","hero.eyebrow":"Entérate antes de que el disco se llene","hero.h1":"Mantén tu disco por encima de la <em>línea de flotación.</em>","hero.lede":"Freeboard encuentra los gigas escondidos en Docker, worktrees de git, node_modules, cachés y modelos de IA. Solo tira lo que puede volver, y antes te enseña el comando exacto.","hero.dl":"Descargar Freeboard","hero.star":"Dar una estrella en GitHub","hero.built":"Hecho con Tauri 2","gb.free":"GB libres","gb.free2":" GB libres","mini.ready":"Listo para tirar","mini.docker":"<i class=\"dot\" style=\"background:var(--safe)\"></i>Caché de compilación de Docker","mini.toss":"Tirar 54.0 GB","mini.q":"Pregunta rápida","mini.ollama":"<i class=\"dot\" style=\"background:var(--review)\"></i>Modelos de Ollama sin usar","mini.vol":"<i class=\"dot\" style=\"background:var(--risky)\"></i>Volumen billing_pgdata","tray.line":"Voy muy hundido. Tira 54 GB y vuelvo a flotar.","film.eyebrow":"Míralo en acción","film.h2":"De 12.4 GB a 66.4 GB en más o menos un minuto.","film.lede":"Freeboard detecta el problema, tú eliges cuánto espacio liberar, y Dinghy vuelve a flotar.","how.h2":"Tres pasos. Un barquito feliz.","how.s1":"Escanear","how.p1":"Freeboard revisa 49 sitios conocidos, solo lectura. Nada se mueve hasta que tú lo digas.","how.s2":"Apilar","how.p2":"Lo que se reconstruye solo va a la pila. Todo lo que pueda contener tu trabajo espera un sí.","how.s3":"Tirar","how.p3":"Al agua. Dinghy sube, y el cuaderno de bitácora anota qué se fue y cómo recuperarlo.","finds.h2":"Los polizones de siempre en el disco de un desarrollador.","finds.lede":"Cada uno incluye el comando que Freeboard ejecutaría y cómo recuperarlo.","finds.note":"Los tamaños son un ejemplo de un Mac de 512 GB. Los tuyos serán distintos.","safety.eyebrow":"Primero, la seguridad","safety.h2":"Cada caja lleva una etiqueta antes de ir por la borda.","safety.lede":"Freeboard clasifica lo que encuentra con una sola pregunta: si esto se va, ¿vuelve?","risk.safe":"Seguro","risk.safe.what":"Vuelve solo","risk.safe.p":"Cachés de compilación, cachés de paquetes, toolchains antiguas. Freeboard puede demostrar que se reconstruyen o se vuelven a descargar.","risk.safe.l1":"Va a la pila automáticamente","risk.safe.l2":"Un clic para tirar","risk.review":"Revisar","risk.review.what":"Vuelve, con esfuerzo","risk.review.p":"Modelos descargados, copias de seguridad antiguas, worktrees fusionados. Nada se pierde para siempre, pero cuesta una descarga o una recompilación.","risk.review.l1":"Se pregunta como pregunta rápida","risk.review.l2":"Va a la papelera cuando se puede","risk.risky":"Arriesgado","risk.risky.what":"Puede que no vuelva","risk.risky.p":"Volúmenes de Docker, ramas sin subir. Freeboard no puede demostrar que sean seguros, así que explica por qué y cómo hacerlos más seguros.","risk.risky.l1":"Necesita un «Lo entiendo» claro","risk.risky.l2":"Nunca en una acción masiva","never.1":"<b>Nunca toca</b>Cambios sin confirmar ni commits sin subir.","never.2":"<b>Nunca lee</b>Lo que hay dentro de tus archivos. Solo tamaños, nombres y fechas.","never.3":"<b>Nunca sorprende</b>Ves el comando exacto antes de que se ejecute nada.","never.4":"<b>Nunca olvida</b>La bitácora guarda qué se fue y cómo restaurarlo.","ex.eyebrow":"Todo el disco, explicado","ex.h2":"¿Dónde ha ido a parar un tercio de mi disco?","ex.lede":"La mayoría de los limpiadores se callan sobre el espacio que no ven. Freeboard te dice por qué está oculto y cómo medirlo.","ex.explained":"explicado","ex.c1":"Carpetas fuera de la lista de escaneo","ex.c2":"Bloqueado por macOS hasta que des acceso","ex.c3":"Reservado por el sistema para sí mismo","mb.row1":"node_modules en proyectos parados","mb.docker":"Caché de compilación de Docker","mb.eyebrow":"Vive en tu barra de menús","mb.h2":"Casi siempre basta con un vistazo.","mb.f1":"<b>Un aviso antes de que sea urgente</b>Elige tus propios límites de Bajo y Crítico. Dinghy te dice cuántos días te quedan.","mb.f2":"<b>Tranquilo cuando todo va bien</b>Si tu disco está sano, tirar es opcional, y el botón lo dice.","mb.f3":"<b>Escaneos rápidos cada hora</b>Comprobaciones ligeras, solo lectura. Un escaneo a fondo solo se ejecuta si lo pides.","built.eyebrow":"Bajo el capó","built.h2":"Pequeño, nativo y abierto.","built.1":"Una ventana nativa en cada sistema en lugar de un navegador empaquetado.","built.2t":"Núcleo en Rust","built.2":"El escaneo, la medición de tamaños y cada comando de limpieza viven en Rust.","built.3t":"Tus herramientas","built.3":"Usa docker, git, pnpm, brew y compañía como lo harías tú.","built.4t":"Código abierto","built.4":"Lee cada regla que decide si algo es Seguro, Revisar o Arriesgado.","final.h2":"Dale a Dinghy un poco de francobordo.","final.lede":"Gratis y de código abierto para macOS, Linux y Windows.","final.dl":"Descargar la última versión","final.src":"Ver el código fuente","fo.h3":"¿Lo abres por primera vez?","fo.lede":"Puede que tu ordenador frene Freeboard la primera vez, porque se ha descargado de internet. Es normal con apps nuevas. Así lo dejas pasar una vez.","fo.mac1":"<b>Abre Freeboard una vez.</b><span>macOS dice que no puede verificar la app y no la abre. Haz clic en <em>OK</em>.</span>","fo.mac2":"<b>Abre Ajustes del Sistema → Privacidad y seguridad.</b><span>Menú Apple → Ajustes del Sistema → Privacidad y seguridad en la barra lateral.</span>","fo.mac3":"<b>Desplázate hasta Seguridad y haz clic en Abrir igualmente.</b><span>Pone que Freeboard se ha bloqueado para proteger tu Mac. El botón se queda un rato tras el primer intento.</span>","fo.mac4":"<b>Confirma con Abrir.</b><span>Introduce la contraseña de tu Mac si te la pide. A partir de ahí, Freeboard se abre con normalidad.</span>","mock.general":"General","mock.desktop":"Escritorio y Dock","mock.privacy":"Privacidad y seguridad","mock.lock":"Pantalla bloqueada","mock.security":"Seguridad","mock.blocked":"Se ha bloqueado «Freeboard» para proteger el Mac.","mock.open":"Abrir igualmente","mock.allow":"Permitir apps de","mock.known":"App Store y desarrolladores conocidos","fo.macnote":"En un Mac de trabajo gestionado por tu empresa, puede que el botón no aparezca. Pide a IT que permita Freeboard.","fo.win1":"<b>Ejecuta el instalador.</b><span>Si aparece un cuadro azul «Windows protegió su PC», no lo cierres.</span>","fo.win2":"<b>Haz clic en Más información.</b><span>Aparecen el editor y el nombre de la app.</span>","fo.win3":"<b>Haz clic en Ejecutar de todas formas.</b><span>Windows recuerda tu elección para este instalador.</span>","fo.winnote":"En un PC de trabajo, IT puede bloquear instaladores desconocidos. Pídeles que permitan Freeboard.","fo.lin1":"<b>Haz ejecutable la AppImage.</b><span><code>chmod +x Freeboard*.AppImage</code>, o marca «Permitir ejecutar el archivo como un programa» en sus Propiedades.</span>","fo.lin2":"<b>Haz doble clic,</b><span>o instala el .deb o el .rpm con tu gestor de paquetes.</span>","foot":"Freeboard · Código abierto · Hecho para gente con SSD pequeños y proyectos grandes.","aria.nav":"Menú principal","aria.gh":"Freeboard en GitHub","aria.video":"Demo de Freeboard, 67 segundos, con subtítulos en pantalla (en inglés)","aria.poster":"Reproducir la demo de 67 segundos","aria.sea":"Animación: las cajas caen por la borda y el espacio libre sube","aria.teaser":"Animación corta: Dinghy tira sus cajas y vuelve a flotar","aria.tabs":"Tu sistema","pill.low":"Bajo","js.dlfor":"Descargar para {os}","js.critical":"Crítico","js.low":"Bajo","js.healthy":"Sano","js.scroll":"Desplázate para tirar","js.tossing":"Al agua…","js.floating":"Flota de maravilla","js.fix":"Arreglarlo todo","js.again":"Volver a mostrar","js.soundon":"Activar sonido","js.soundoff":"Silenciar","js.copy":"Copiar","js.copied":"Copiado","js.back":"Recuperar:","tm.unk":"Sin explicar","tm.ai":"Modelos de IA","tm.proj":"Proyectos","tm.phones":"Teléfonos","tm.caches":"Cachés","tm.apps":"Apps","tm.files":"Tus archivos","f.git":"Worktrees de git","f.git.d":"fusionados y limpios","f.git.b":"git worktree add con la rama.","f.nm.d":"en proyectos parados","f.nm.b":"Ejecuta pnpm install.","f.dc":"Caché de compilación de Docker","f.dc.d":"142 capas","f.dc.b":"Se reconstruye en la próxima compilación.","f.ol":"Modelos de Ollama","f.ol.d":"sin usar en 60 días","f.ol.b":"ollama pull lo vuelve a descargar.","f.ip":"Copias de iPhone","f.ip.d":"de 2024","f.ip.c":"Mover a la papelera","f.ip.b":"Restaurar desde la papelera.","f.xc.d":"casi todo con más de 30 días","f.xc.b":"Xcode lo reconstruye.","f.rs.d":"última compilación hace 45 días","f.rs.b":"cargo build.","f.dv":"Volúmenes de Docker","f.dv.d":"sin nada conectado","f.dv.b":"No se puede recuperar. Haz una copia antes.","m.pnpm":"Store de pnpm","m.brew":"Descargas de Homebrew","m.android":"Emuladores de Android","m.pip":"Caché de pip","m.pw":"Navegadores de Playwright","m.jb":"Cachés de JetBrains","nav.docs":"Documentación","rel.all":"Todas las versiones y las anteriores","rel.latest":"Última versión","rel.latest0":"Última versión","dl.other":"Otras descargas:","fo.blocked":"¿Bloqueada al abrirla por primera vez? <a href=\"#first-open\">Así se abre igualmente</a>.","fo.pre":"¿macOS o Windows no deja abrir la app? <a href=\"#first-open\">¿Lo abres por primera vez?</a>"}};
+</script>
 <script>
 (function () {
   // Set your repository once here.
@@ -609,11 +631,76 @@ footer a { color: #fff; }
   // the release page, where every file is listed.
   var FILES = { macOS: 'macOS-universal.dmg', Linux: 'linux-x86_64.deb', Windows: 'windows-x64-setup.exe' };
   var ua = navigator.userAgent, os = /Mac/.test(ua) ? 'macOS' : /Win/.test(ua) ? 'Windows' : /Linux/.test(ua) ? 'Linux' : '';
-  if (os) document.querySelectorAll('[data-os-label]').forEach(function (l) { l.textContent = 'Download for ' + os; });
+
+  // Language: saved choice, then ?lang=, then the browser's languages, then English.
+  var LANGS = ['en', 'nl', 'de', 'fr', 'es'], LABEL = { en: 'Language', nl: 'Taal', de: 'Sprache', fr: 'Langue', es: 'Idioma' };
+  var lang = 'en';
+  function pickLang() {
+    try { var q = new URLSearchParams(location.search).get('lang'); if (q && LANGS.indexOf(q) > -1) return q; } catch (e) {}
+    try { var saved = localStorage.getItem('fb-lang'); if (saved && LANGS.indexOf(saved) > -1) return saved; } catch (e) {}
+    var list = (navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || 'en']);
+    for (var i = 0; i < list.length; i++) { var c = String(list[i]).toLowerCase().split('-')[0]; if (LANGS.indexOf(c) > -1) return c; }
+    return 'en';
+  }
+  function tr(key, en) { return lang !== 'en' && I18N[lang] && I18N[lang][key] != null ? I18N[lang][key] : en; }
+  function fmt(n) { var s = n.toFixed(1); return lang === 'en' ? s : s.replace('.', ','); }
+  function gbu() { return lang === 'fr' ? 'Go' : 'GB'; }
+  function localizeNumbers(root) {
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function (n) {
+      var el = n.parentElement; if (!el || el.closest('script,style,code,.cmd,.cmdline,#installCmd,[data-version]')) return NodeFilter.FILTER_REJECT;
+      return /\d\.\d|\bGB\b|\bGo\b/.test(n.__en != null ? n.__en : n.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+    var n; while ((n = w.nextNode())) {
+      if (n.__en == null) n.__en = n.nodeValue;
+      var v = n.__en;
+      if (lang !== 'en') v = v.replace(/(\d)\.(\d)/g, '$1,$2');
+      if (lang === 'fr') v = v.replace(/\bGB\b/g, 'Go');
+      if (n.nodeValue !== v) n.nodeValue = v;
+    }
+  }
+  var rerender = [];
+  function setLang(l, save) {
+    lang = l; document.documentElement.lang = l;
+    document.querySelectorAll('[data-i18n]').forEach(function (el) {
+      if (el.__en == null) el.__en = el.innerHTML;
+      var v = tr(el.dataset.i18n, el.__en); if (el.innerHTML !== v) el.innerHTML = v;
+    });
+    document.querySelectorAll('[data-i18n-aria]').forEach(function (el) {
+      if (el.__enA == null) el.__enA = el.getAttribute('aria-label');
+      el.setAttribute('aria-label', tr(el.dataset.i18nAria, el.__enA));
+    });
+    if (os) document.querySelector('[data-os-label]').textContent = tr('js.dlfor', 'Download for {os}').replace('{os}', os);
+    document.getElementById('langCode').textContent = l.toUpperCase();
+    document.getElementById('langBtn').setAttribute('aria-label', LABEL[l] + ': ' + document.querySelector('[data-lang="' + l + '"]').textContent.slice(2));
+    document.querySelectorAll('[data-lang]').forEach(function (li) { li.setAttribute('aria-selected', String(li.dataset.lang === l)); });
+    rerender.forEach(function (f) { f(); });
+    localizeNumbers(document.body);
+    if (save) { try { localStorage.setItem('fb-lang', l); } catch (e) {} }
+  }
+  // Switcher
+  var langBtn = document.getElementById('langBtn'), langMenu = document.getElementById('langMenu'), opts = [].slice.call(langMenu.children);
+  function menu(open) { langMenu.hidden = !open; langBtn.setAttribute('aria-expanded', String(open)); if (open) (langMenu.querySelector('[aria-selected="true"]') || opts[0]).focus(); }
+  langBtn.addEventListener('click', function () { menu(langMenu.hidden); });
+  opts.forEach(function (li, i) {
+    li.addEventListener('click', function () { setLang(li.dataset.lang, true); menu(false); langBtn.focus(); });
+    li.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); opts[(i + (e.key === 'ArrowDown' ? 1 : -1) + opts.length) % opts.length].focus(); }
+      else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); li.click(); }
+      else if (e.key === 'Escape') { menu(false); langBtn.focus(); }
+    });
+  });
+  document.addEventListener('click', function (e) { if (!langMenu.hidden && !e.target.closest('#lang')) menu(false); });
+
+  // Version line: the release is fetched once, the wording follows the language.
+  var rel = null;
+  function renderVersion() {
+    var txt = rel ? tr('rel.latest', 'Latest release') + ': ' + rel.tag_name + (rel.published_at ? ', ' + new Date(rel.published_at).toLocaleDateString(lang, { day: 'numeric', month: 'short', year: 'numeric' }) : '') : tr('rel.latest0', 'Latest release');
+    document.querySelectorAll('[data-version]').forEach(function (e) { e.textContent = txt; });
+  }
+  rerender.push(renderVersion);
   fetch('https://api.github.com/repos/' + REPO + '/releases/latest').then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
     if (!j || !j.tag_name) return;
     var v = j.tag_name.replace(/^v/, '');
-    document.querySelectorAll('[data-version]').forEach(function (e) { e.textContent = 'Latest: ' + j.tag_name + (j.published_at ? ', ' + new Date(j.published_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : ''); });
+    rel = j; renderVersion();
     var url = function (suffix) {
       var a = (j.assets || []).filter(function (x) { return x.name === 'Freeboard-' + v + '-' + suffix || x.name === 'Freeboard-' + suffix; })[0];
       return a ? a.browser_download_url : null;
@@ -636,25 +723,37 @@ footer a { color: #fff; }
   }
 
   // Marquee
+  // [name key, English name, description key, English description, size, risk, command key, English command, way-back key, English way back]
   var FINDS = [
-    ['node_modules', 'in quiet projects', 18.7, 'Safe', 'rm -rf …/node_modules', 'Run pnpm install.'],
-    ['Git worktrees', 'merged and clean', 16.3, 'Review', 'git worktree remove', 'git worktree add with the branch.'],
-    ['Docker build cache', '142 layers', 14.8, 'Safe', 'docker builder prune', 'Rebuilt on the next build.'],
-    ['Ollama models', 'not run for 60 days', 41.2, 'Review', 'ollama rm mixtral', 'ollama pull downloads it again.'],
-    ['iPhone backups', 'from 2024', 22.5, 'Review', 'Move to Trash', 'Restore from the Trash.'],
-    ['Xcode DerivedData', 'mostly 30+ days old', 11.3, 'Safe', 'rm -rf DerivedData', 'Xcode rebuilds it.'],
-    ['Rust target/', 'last built 45 days ago', 9.2, 'Safe', 'cargo clean', 'cargo build.'],
-    ['Docker volumes', 'nothing attached', 7.6, 'Risky', 'docker volume rm …', 'Not recoverable. Back it up first.']
+    [null, 'node_modules', 'f.nm.d', 'in quiet projects', 18.7, 'Safe', null, 'rm -rf …/node_modules', 'f.nm.b', 'Run pnpm install.'],
+    ['f.git', 'Git worktrees', 'f.git.d', 'merged and clean', 16.3, 'Review', null, 'git worktree remove', 'f.git.b', 'git worktree add with the branch.'],
+    ['f.dc', 'Docker build cache', 'f.dc.d', '142 layers', 14.8, 'Safe', null, 'docker builder prune', 'f.dc.b', 'Rebuilt on the next build.'],
+    ['f.ol', 'Ollama models', 'f.ol.d', 'not run for 60 days', 41.2, 'Review', null, 'ollama rm mixtral', 'f.ol.b', 'ollama pull downloads it again.'],
+    ['f.ip', 'iPhone backups', 'f.ip.d', 'from 2024', 22.5, 'Review', 'f.ip.c', 'Move to Trash', 'f.ip.b', 'Restore from the Trash.'],
+    [null, 'Xcode DerivedData', 'f.xc.d', 'mostly 30+ days old', 11.3, 'Safe', null, 'rm -rf DerivedData', 'f.xc.b', 'Xcode rebuilds it.'],
+    [null, 'Rust target/', 'f.rs.d', 'last built 45 days ago', 9.2, 'Safe', null, 'cargo clean', 'f.rs.b', 'cargo build.'],
+    ['f.dv', 'Docker volumes', 'f.dv.d', 'nothing attached', 7.6, 'Risky', null, 'docker volume rm …', 'f.dv.b', 'Not recoverable. Back it up first.']
   ];
+  var RKEY = { Safe: 'risk.safe', Review: 'risk.review', Risky: 'risk.risky' };
+  var L = function (k, en) { return k ? tr(k, en) : en; };
   var RC = { Safe: 'var(--safe)', Review: 'var(--review)', Risky: 'var(--risky)' };
-  var marquee = FINDS.concat([['pnpm store', '', 5.6], ['Homebrew downloads', '', 2.1], ['Android emulators', '', 12.0], ['pip cache', '', 2.6], ['Playwright browsers', '', 3.6], ['JetBrains caches', '', 5.1]]);
-  var t = marquee.map(function (f) { return '<span>' + f[0] + '<b>' + f[2].toFixed(1) + ' GB</b></span>'; }).join('');
-  document.getElementById('track').innerHTML = t + t;
+  var EXTRA = [['m.pnpm', 'pnpm store', 5.6], ['m.brew', 'Homebrew downloads', 2.1], ['m.android', 'Android emulators', 12.0], ['m.pip', 'pip cache', 2.6], ['m.pw', 'Playwright browsers', 3.6], ['m.jb', 'JetBrains caches', 5.1]];
+  function renderMarquee() {
+    var items = FINDS.map(function (f) { return [L(f[0], f[1]), f[4]]; }).concat(EXTRA.map(function (e) { return [L(e[0], e[1]), e[2]]; }));
+    var t = items.map(function (f) { return '<span>' + f[0] + '<b>' + fmt(f[1]) + ' ' + gbu() + '</b></span>'; }).join('');
+    document.getElementById('track').innerHTML = t + t;
+  }
+  rerender.push(renderMarquee);
 
   var cube = function (label, s) { return '<div class="crate"' + (s ? ' style="--s:' + s + 'px"' : '') + '><div class="f">' + label + '</div><div class="f">' + label + '</div><div class="f"></div><div class="f"></div><div class="f"></div><div class="f"></div></div>'; };
-  document.getElementById('findsGrid').innerHTML = FINDS.map(function (f) {
-    return '<article class="find reveal"><div class="cube-slot">' + cube(Math.round(f[2])) + '</div><span class="size">' + f[2].toFixed(1) + ' GB</span><h3>' + f[0] + '</h3><p><span class="dot" style="background:' + RC[f[3]] + '"></span>' + f[3] + ' · ' + f[1] + '</p><p>Back: ' + f[5] + '</p><div class="cmdline">$ ' + f[4] + '</div></article>';
-  }).join('');
+  function renderFinds() {
+    var grid = document.getElementById('findsGrid'), shown = grid.querySelector('.find.in') !== null;
+    grid.innerHTML = FINDS.map(function (f) {
+      return '<article class="find reveal' + (shown ? ' in' : '') + '"><div class="cube-slot">' + cube(Math.round(f[4])) + '</div><span class="size">' + fmt(f[4]) + ' ' + gbu() + '</span><h3>' + L(f[0], f[1]) + '</h3><p><span class="dot" style="background:' + RC[f[5]] + '"></span>' + tr(RKEY[f[5]], f[5]) + ' · ' + L(f[2], f[3]) + '</p><p>' + tr('js.back', 'Back:') + ' ' + L(f[8], f[9]) + '</p><div class="cmdline">' + (f[6] ? L(f[6], f[7]) : '$ ' + f[7]) + '</div></article>';
+    }).join('');
+    if (window.__fbObserve) grid.querySelectorAll('.reveal:not(.in)').forEach(window.__fbObserve);
+  }
+  rerender.push(renderFinds);
 
   // Toss story
   var tc = document.getElementById('tossCrates'), sizes = [19, 15, 11, 9], story = document.querySelector('.story'), boat = document.getElementById('storyBoat');
@@ -676,10 +775,10 @@ footer a { color: #fff; }
       c.style.opacity = k > .92 ? (1 - (k - .92) / .08).toFixed(2) : 1;
     });
     var gone = sizes.reduce(function (t, s, i) { var start = .25 + i * .14; return t + (p > start + .2 ? [18.7, 14.8, 11.3, 9.2][i] : 0); }, 0);
-    var f = 12.4 + gone; num.textContent = f.toFixed(1);
-    var st = f < 8 ? ['Critical', 'var(--risky)'] : f < 20 ? ['Low', 'var(--review)'] : ['Healthy', 'var(--safe)'];
+    var f = 12.4 + gone; num.textContent = fmt(f);
+    var st = f < 8 ? [tr('js.critical', 'Critical'), 'var(--risky)'] : f < 20 ? [tr('js.low', 'Low'), 'var(--review)'] : [tr('js.healthy', 'Healthy'), 'var(--safe)'];
     pill.textContent = st[0]; pill.style.color = st[1];
-    note.textContent = p < .2 ? 'Scroll to toss' : p < .95 ? 'Tossing…' : 'Floating nicely';
+    note.textContent = p < .2 ? tr('js.scroll', 'Scroll to toss') : p < .95 ? tr('js.tossing', 'Tossing…') : tr('js.floating', 'Floating nicely');
     var s = p < .22 ? 0 : p < .55 ? 1 : 2; steps.forEach(function (el, i) { el.classList.toggle('on', i === s); });
   }
   function onScroll() {
@@ -687,7 +786,7 @@ footer a { color: #fff; }
     var p = innerWidth <= 900 ? Math.max(0, Math.min(1, (innerHeight * .8 - r.top) / (innerHeight * 1.2))) : Math.max(0, Math.min(1, -r.top / Math.max(1, total)));
     story3d(reduced ? 1 : p);
   }
-  addEventListener('scroll', onScroll, { passive: true }); addEventListener('resize', onScroll); onScroll();
+  addEventListener('scroll', onScroll, { passive: true }); addEventListener('resize', onScroll); rerender.push(onScroll);
 
   // Treemap
   var A = [
@@ -710,6 +809,7 @@ footer a { color: #fff; }
     })(list, x, y, w, h, total);
     return out;
   }
+  var TMK = { 'Not explained': 'tm.unk', 'AI models': 'tm.ai', 'Projects': 'tm.proj', 'Phones': 'tm.phones', 'Caches': 'tm.caches', 'Apps': 'tm.apps', 'Your files': 'tm.files' };
   var tm = document.getElementById('tm'), names = A.map(function (a) { return a.n; });
   tm.innerHTML = names.map(function (n) { return '<div data-n="' + n + '"></div>'; }).join('');
   function drawTM(data) {
@@ -720,13 +820,13 @@ footer a { color: #fff; }
       el.style.opacity = 1; el.className = d.unk ? 'unk' : '';
       el.style.left = (b.x + .6) + '%'; el.style.top = (b.y + .8) + '%'; el.style.width = (b.w - 1.2) + '%'; el.style.height = (b.h - 1.6) + '%';
       el.style.background = d.unk ? '' : d.c; el.style.setProperty('--z', (8 + d.v / 6) + 'px');
-      el.innerHTML = b.w > 14 && b.h > 12 ? d.n + '<small>' + d.v + ' GB</small>' : '';
+      el.innerHTML = b.w > 14 && b.h > 12 ? tr(TMK[d.n], d.n) + '<small>' + d.v + ' ' + gbu() + '</small>' : '';
     });
   }
-  drawTM(A);
-  var fixed = false, pctEl = document.getElementById('pct');
-  document.getElementById('explainBtn').addEventListener('click', function () {
-    fixed = !fixed; drawTM(fixed ? B : A); this.textContent = fixed ? 'Show it again' : 'Fix them all';
+  var fixed = false, pctEl = document.getElementById('pct'), exBtn = document.getElementById('explainBtn');
+  rerender.push(function () { drawTM(fixed ? B : A); exBtn.textContent = fixed ? tr('js.again', 'Show it again') : tr('js.fix', 'Fix them all'); });
+  exBtn.addEventListener('click', function () {
+    fixed = !fixed; drawTM(fixed ? B : A); this.textContent = fixed ? tr('js.again', 'Show it again') : tr('js.fix', 'Fix them all');
     [].forEach.call(document.querySelectorAll('.cause'), function (c) { c.classList.toggle('done', fixed); });
     var from = fixed ? 68 : 100, to = fixed ? 100 : 68, t0 = performance.now();
     (function tick(now) { var k = Math.min(1, (now - t0) / (reduced ? 1 : 900)); pctEl.textContent = Math.round(from + (to - from) * k); if (k < 1) requestAnimationFrame(tick); })(t0);
@@ -739,14 +839,9 @@ footer a { color: #fff; }
 
   var tz = document.getElementById('teaser'), tb = document.getElementById('teaserBox'), snd = document.getElementById('snd');
   tz.addEventListener('loadeddata', function () { tb.hidden = false; if (reduced) tz.pause(); });
-  snd.addEventListener('click', function () { tz.muted = !tz.muted; if (!tz.muted) tz.play(); snd.textContent = tz.muted ? 'Sound on' : 'Sound off'; snd.setAttribute('aria-pressed', String(!tz.muted)); });
+  rerender.push(function () { snd.textContent = tz.muted ? tr('js.soundon', 'Sound on') : tr('js.soundoff', 'Sound off'); });
+  snd.addEventListener('click', function () { tz.muted = !tz.muted; if (!tz.muted) tz.play(); snd.textContent = tz.muted ? tr('js.soundon', 'Sound on') : tr('js.soundoff', 'Sound off'); snd.setAttribute('aria-pressed', String(!tz.muted)); });
 
-  // Copy
-  document.getElementById('copyBtn').addEventListener('click', function () {
-    var b = this, txt = document.getElementById('installCmd').textContent;
-    var done = function () { b.textContent = 'Copied'; setTimeout(function () { b.textContent = 'Copy'; }, 1500); };
-    if (navigator.clipboard) navigator.clipboard.writeText(txt).then(done, function () { getSelection().selectAllChildren(document.getElementById('installCmd')); });
-  });
 
   var foTabs = [].slice.call(document.querySelectorAll('[data-fo]'));
   function foPick(btn) { foTabs.forEach(function (t) { var on = t === btn; t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1; document.getElementById('fo-' + t.dataset.fo).hidden = !on; }); }
@@ -756,9 +851,20 @@ footer a { color: #fff; }
   });
   if (os === 'Windows') foPick(foTabs[1]); else if (os === 'Linux') foPick(foTabs[2]);
 
+  // Copy
+  document.getElementById('copyBtn').addEventListener('click', function () {
+    var b = this, txt = document.getElementById('installCmd').textContent;
+    var done = function () { b.textContent = tr('js.copied', 'Copied'); setTimeout(function () { b.textContent = tr('js.copy', 'Copy'); }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(txt).then(done, function () { getSelection().selectAllChildren(document.getElementById('installCmd')); });
+  });
+
+  rerender.push(function () { document.getElementById('copyBtn').textContent = tr('js.copy', 'Copy'); });
+  setLang(pickLang(), false);
+
   // Reveal on scroll
   var io = 'IntersectionObserver' in window ? new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }); }, { threshold: 0, rootMargin: '0px 0px -8% 0px' }) : null;
-  document.querySelectorAll('.reveal').forEach(function (el) { if (io && !reduced) io.observe(el); else el.classList.add('in'); });
+  window.__fbObserve = function (el) { if (io && !reduced) io.observe(el); else el.classList.add('in'); };
+  document.querySelectorAll('.reveal').forEach(window.__fbObserve);
 })();
 </script>
 </body>

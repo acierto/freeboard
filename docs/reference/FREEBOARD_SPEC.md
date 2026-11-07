@@ -590,6 +590,23 @@ Dinghy may speak in the first person in the bubble, blind spots and disk map. Co
 - Do not rely on color or animation alone.
 - Re-rendering a list keeps open groups and keyboard focus in place.
 
+### Languages
+
+Freeboard ships in English, Dutch, German, French and Spanish (`en`, `nl`, `de`, `fr`, `es`), in the app and on the website.
+
+| Where | How the language is chosen | Where the user changes it |
+| --- | --- | --- |
+| App | The saved choice; otherwise the first OS preferred language that is supported (read in Rust with the `sys-locale` crate and passed to the UI); otherwise English. | Settings → Language (a row with the five native names) and a small language chip on setup step 1. The change applies at once, including the menu bar window and notifications. |
+| Website | `?lang=xx`, then the saved choice (`localStorage` key `fb-lang`), then the first entry of `navigator.languages` that is supported, then English. | Globe button in the top bar showing the current code (EN, NL…), opening a list of native names. |
+
+Rules:
+
+- All UI strings live in one JSON file per language (`ui/src/i18n/<code>.json`), keyed by stable ids; English is the fallback for any missing key, and CI fails if a key exists in `en` but not in the others.
+- Numbers, sizes and dates use the locale: `12,4 GB` in nl, de and es, `12,4 Go` in French, and `Intl.RelativeTimeFormat` for "used 23 days ago".
+- Never translate commands, paths, tool names or item ids. Item names that are product names (node\_modules, Xcode DerivedData) stay as they are; descriptive names ("Docker build cache") are translated.
+- Risk labels are translated consistently: Safe/Review/Risky = Veilig/Nakijken/Riskant, Sicher/Prüfen/Riskant, Sûr/À vérifier/Risqué, Seguro/Revisar/Arriesgado.
+- Instructions that name OS controls (Open Anyway, Full Disk Access) use the OS's own label in that language. Have a native speaker check those against a real machine before release.
+
 ### First-run setup
 
 First launch opens a five-step setup in a modal window, never a single long form. The left half is Dinghy's sea scene with a speech bubble; the right half holds a buoy progress row, the step content and a footer with **Back** and the main button. **Skip setup** (and Esc) is available on steps 1 to 4 and keeps the defaults. On narrow windows the two halves stack, sea on top.
@@ -783,6 +800,7 @@ Release requirement: sign the macOS build with a Developer ID certificate and no
 - [ ] The app makes no network calls of its own.
 - [ ] Performance results are reported against the targets in the overview.
 - [ ] The download page, release notes and README explain the first-launch steps for macOS (Privacy & Security → Open Anyway), Windows (More info → Run anyway) and Linux, until builds are signed and notarized.
+- [ ] App and website open in the user's language when it is one of en, nl, de, fr, es (else English), remember a manual choice, and format sizes with the locale's decimal separator.
 
 ### Open questions
 
