@@ -251,12 +251,15 @@ pub fn age(p: &Path, days: i64) {
             let _ = file.set_times(std::fs::FileTimes::new().set_modified(t).set_accessed(t));
         }
     };
-    let m = std::fs::symlink_metadata(p).unwrap();
+    // A file can vanish while walking (Git's short-lived lock files under
+    // .git, seen on macOS CI): skip it.
+    let Ok(m) = std::fs::symlink_metadata(p) else { return };
     if m.is_file() {
         set(p);
     } else if m.is_dir() {
-        for e in std::fs::read_dir(p).unwrap().flatten() {
-            let ft = e.file_type().unwrap();
+        let Ok(rd) = std::fs::read_dir(p) else { return };
+        for e in rd.flatten() {
+            let Ok(ft) = e.file_type() else { continue };
             if ft.is_symlink() {
                 continue;
             }
