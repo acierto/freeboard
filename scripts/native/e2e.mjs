@@ -88,21 +88,21 @@ try {
   check("Start opens the home view", true);
 
   // ---- scan --------------------------------------------------------------------
-  await waitFor("the deep scan to find projects", () => js(`return [...document.querySelectorAll('[data-area]')].some(b=>b.textContent==='Projects')`), 180000);
+  await waitFor("the deep scan to find projects", () => js(`return [...document.querySelectorAll('#areas [data-area]')].some(b=>b.dataset.area==='Projects')`), 180000);
   await waitFor("the scan to finish", async () => !(await js(`return document.body.textContent.includes('Scanning your disk')`)), 180000);
   await shot("home-after-scan");
-  const areas = await js(`return [...document.querySelectorAll('[data-area]')].map(b=>b.textContent)`);
-  check("Where from lists the groups the scan found", areas.includes("Projects"), areas.join(", "));
+  const areas = await js(`return [...document.querySelectorAll('#areas [data-area]')].map(b=>b.textContent)`);
+  check("From lists the areas with Safe crates and their sizes", areas.some((a) => /^Projects \d+\.\d GB$/.test(a)), areas.join(", "));
 
   // ---- the pile ------------------------------------------------------------------
-  const cta = () => text("#cta");
+  const cta = () => text("#cta .tmain");
   const before = await cta();
   check("goal fills the pile with Safe items", /^Toss \d+\.\d GB overboard$/.test(before) && !before.startsWith("Toss 0.0"), before);
   const crates = await js(`return document.querySelectorAll('#crates [data-crate]').length`);
   check("Dinghy carries the pile's crates", crates > 0, String(crates));
   await click("#pile-btn");
   const rows = await js(`return [...document.querySelectorAll('#pile [data-out]')].map(b=>b.dataset.out)`);
-  check("See what is inside lists the crates", rows.length === crates, `${rows.length} rows, ${crates} crates`);
+  check("the crates button lists the crates", rows.length === crates, `${rows.length} rows, ${crates} crates`);
   await click(`[data-out="${rows[0]}"]`);
   await waitFor("the pile to change", async () => (await cta()) !== before);
   const note = await text("#cta-note");
@@ -111,11 +111,12 @@ try {
   await click('[data-goal="20"]');
   await waitFor("auto mode", async () => !(await text("#cta-note")).includes("by hand"));
   check("choosing a size again leaves manual mode", true);
+  const allAreas = await cta();
   await click('[data-area="Projects"]');
   await sleep(800);
-  const onlyProjects = await js(`const ids=[...document.querySelectorAll('#pile [data-out]')].map(b=>b.dataset.out);return ids.length>0`);
-  check("Where from limits the pile", onlyProjects);
-  await click('[data-area=""]');
+  const unticked = await js(`return document.querySelector('[data-area="Projects"]').getAttribute('aria-pressed')==='false' && !document.getElementById('areas-all').disabled`);
+  check("unticking an area limits the pile", unticked, `${allAreas} -> ${await cta()}`);
+  await click("#areas-all");
 
   // ---- Everything I found ----------------------------------------------------------
   await click('details[data-open="grp-Projects"] > summary');

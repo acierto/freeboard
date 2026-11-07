@@ -60,8 +60,10 @@ export type Goal = number | "all";
 
 export interface PileState {
   goalBytes: Goal;
-  /** Empty means everywhere. */
+  /** Empty means everywhere, unless `noAreas`. */
   areas: Group[];
+  /** Every area unticked: only added items fill the pile. */
+  noAreas: boolean;
   mode: "auto" | "manual";
   addedIds: string[];
   takenOutIds: string[];

@@ -967,7 +967,7 @@ fn the_pile_resets_after_a_run() {
     let s = split(&e);
     let goal = Goal::Bytes(20 * crate::model::GB);
     e.store
-        .save_pile(&PileStore { goal, areas: vec![Group::Projects], manual: Some(vec![s.item.clone()]), added: vec![e.venv()], taken_out: vec![e.image()] })
+        .save_pile(&PileStore { goal, areas: vec![Group::Projects], manual: Some(vec![s.item.clone()]), added: vec![e.venv()], taken_out: vec![e.image()], no_areas: false })
         .unwrap();
     // Clean one of the two projects: the item stays, cleaned in part.
     deselect(&e, &s.item, &[&s.api]);

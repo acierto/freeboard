@@ -60,6 +60,13 @@ function hideClippedLabels() {
 const NO_REMOVE =
   "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).";
 
+function tossNoteContrast() {
+  // The Toss button's small line at full opacity (supplemental.css
+  // `.tnote`): the prototype's 85% fails WCAG AA contrast in the light theme.
+  for (const e of document.querySelectorAll("#cta .tlabel small")) e.classList.add("tnote");
+}
+const TNOTE = "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.";
+
 /** Disk map entries compare the tab bar (with its coverage badge) and the map. */
 const MAP = [".tabs", "#v-map"];
 const mapEntry = (id, state, steps) => ({ id, surface: "Disk map", state, sizes: [DESKTOP, MID, PHONE], query: "", ref: [tab("map"), ...steps, evalRef(hideClippedLabels)], impl: [tab("map"), ...steps], clip: MAP, supplemental: true, note: NO_REMOVE });
@@ -174,9 +181,9 @@ const OPEN_SHEET = openSheet.toString();
 /** @type {Array<{id:string,surface:string,state:string,sizes:number[][],query?:string,ref:any[],impl:any[],supplemental?:boolean,note?:string,motion?:boolean,themes?:string[]}>} */
 export const ENTRIES = [
   // Milestone 2: home at the three disk states, and the tray view (task 2.6).
-  { id: "home-healthy", surface: "Home", state: "Healthy, 40 GB free", sizes: [DESKTOP, MID, PHONE], query: "free=40", ref: [free(40)], impl: [], clip: HOME },
-  { id: "home-low", surface: "Home", state: "Low, 12.4 GB free (the prototype's starting state)", sizes: [DESKTOP, MID, PHONE], query: "", ref: [], impl: [], clip: HOME },
-  { id: "home-critical", surface: "Home", state: "Critical, 4 GB free", sizes: [DESKTOP, MID, PHONE], query: "free=4", ref: [free(4)], impl: [], clip: HOME },
+  { id: "home-healthy", surface: "Home", state: "Healthy, 40 GB free", sizes: [DESKTOP, MID, PHONE], query: "free=40", ref: [free(40), evalRef(tossNoteContrast)], impl: [], clip: HOME, supplemental: true, note: TNOTE },
+  { id: "home-low", surface: "Home", state: "Low, 12.4 GB free (the prototype's starting state)", sizes: [DESKTOP, MID, PHONE], query: "", ref: [evalRef(tossNoteContrast)], impl: [], clip: HOME, supplemental: true, note: TNOTE },
+  { id: "home-critical", surface: "Home", state: "Critical, 4 GB free", sizes: [DESKTOP, MID, PHONE], query: "free=4", ref: [free(4), evalRef(tossNoteContrast)], impl: [], clip: HOME, supplemental: true, note: TNOTE },
   // Slice 3: the Disk map tab (task 5.12).
   mapEntry("map-default", "Disk map, AI models selected (the prototype's default)", []),
   ...TILES.map((t) => mapEntry(`map-tile-${t}`, `Disk map, ${t === "unknown" ? "Not explained" : t} selected`, [tile(t)])),

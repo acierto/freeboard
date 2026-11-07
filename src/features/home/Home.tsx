@@ -4,7 +4,7 @@
 // so the visual verifier can drive both with the same steps.
 import { useEffect, useState } from "react";
 import { Dinghy } from "../../components/Dinghy";
-import { GB, GROUPS, STATUS, gb, groupLabel, trashWord } from "../../lib/format";
+import { GB, STATUS, gb, groupLabel, trashWord } from "../../lib/format";
 import type { Goal, Group, View } from "../../lib/types";
 import { SettingsSheet } from "../settings/SettingsSheet";
 import { FirstRun } from "../onboarding/FirstRun";
@@ -12,7 +12,7 @@ import { QuickQuestions } from "../questions/Questions";
 import { Logbook } from "../logbook/Logbook";
 import { DiskMapView } from "../map/DiskMapView";
 import { coverageBadge } from "../map/mapModel";
-import { areaChoices, bubbleText, forecastText, moodOf, pileItems, pileNote, questionDeck, scanLabel, tossLabel } from "./homeModel";
+import { areaChoices, areaTicked, bubbleText, forecastText, meterOf, moodOf, pileItems, pileNote, questionDeck, reviewOnlyAreas, safeIn, scanLabel, toggledAreas, tossNote } from "./homeModel";
 import { useHarbor } from "./useHarbor";
 import { CleanupSheets } from "../cleanup/CleanupSheets";
 import { progressOf } from "../cleanup/cleanupModel";
@@ -20,6 +20,8 @@ import { useCleanup } from "../cleanup/useCleanup";
 import type { Crate } from "../../components/Dinghy";
 
 type Tab = "tidy" | "map" | "log";
+// The wave strip along the bottom of the Toss button (prototype `.splash`).
+const SPLASH = "M0 6 q6 -5 12 0" + " t12 0".repeat(33) + " V10 H0Z";
 const GOALS: [Goal, string][] = [
   [20 * GB, "20 GB"],
   [50 * GB, "50 GB"],
@@ -31,6 +33,8 @@ export function Home({ navigate }: { navigate: View | null }) {
   const h = useHarbor();
   const [tab, setTab] = useState<Tab>("tidy");
   const [showPile, setShowPile] = useState(false);
+  // Pointing at Toss makes the crates on deck bounce (prototype `.eager`).
+  const [eager, setEager] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const cleanup = useCleanup(h.data?.status.platform ?? "macos", () => void h.reload());
   // While a cleanup runs, the crates on deck are the ones that were there
@@ -65,14 +69,24 @@ export function Home({ navigate }: { navigate: View | null }) {
   // Prototype: the badge shows while some space is unexplained.
   const coverage = coverageBadge(map);
   const areas = areaChoices(suggestions);
-  const anyArea = pile.areas.length > 0;
+  const others = reviewOnlyAreas(suggestions);
+  const anyArea = pile.areas.length > 0 || pile.noAreas;
+  const meter = meterOf(pile, suggestions);
+  const note = pileNote(pile, suggestions);
 
   const toggleArea = (g: Group | null) => {
     if (!g) return h.setAreas([]);
-    const next = pile.areas.includes(g) ? pile.areas.filter((x) => x !== g) : [...pile.areas, g];
-    // Keep the groups in display order.
-    h.setAreas(GROUPS.map((x) => x.id).filter((x) => next.includes(x)));
+    const next = toggledAreas(pile, g, areas);
+    h.setAreas(next.areas, next.none);
   };
+  const toQuestions = () => {
+    setTab("tidy");
+    const t = document.getElementById("tab-tidy");
+    t?.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    t?.focus({ preventScroll: true });
+  };
+  const canToss = items.length > 0 && !running;
+  const eagerOn = () => canToss && !window.matchMedia("(prefers-reduced-motion: reduce)").matches && setEager(true);
 
   return (
     <>
@@ -89,7 +103,7 @@ export function Home({ navigate }: { navigate: View | null }) {
         </header>
 
         <section className="hero">
-          <Dinghy mood={mood} freeGb={freeGb} crates={crates} bubble={bubbleText(mood, freeBytes, pile.totalBytes)} />
+          <Dinghy mood={mood} freeGb={freeGb} crates={crates} bubble={bubbleText(mood, freeBytes, pile.totalBytes)} eager={eager && canToss} />
 
           <div className="card helm">
             <div className="row between">
@@ -106,44 +120,116 @@ export function Home({ navigate }: { navigate: View | null }) {
             <p className="muted" id="forecast">
               {forecastText(status.forecast)}
             </p>
-            <div className="stack" style={{ gap: 6 }}>
-              <span style={{ fontWeight: 800 }}>How much room do you need?</span>
-              <div className="chips" id="goals">
-                {GOALS.map(([g, label]) => (
-                  <button key={label} className="chip" data-goal={g === "all" ? "all" : g / GB} aria-pressed={pile.goalBytes === g} onClick={() => h.setGoal(g)}>
-                    {label}
+            <div className="make" role="group" aria-labelledby="make-title">
+              <h3 id="make-title">Make room</h3>
+              <div className="field">
+                <span className="flabel" id="goal-label">
+                  How much
+                </span>
+                <div className="seg" id="goals" role="group" aria-labelledby="goal-label">
+                  {GOALS.map(([g, label]) => (
+                    <button key={label} data-goal={g === "all" ? "all" : g / GB} aria-pressed={pile.goalBytes === g && pile.mode !== "manual"} onClick={() => h.setGoal(g)}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="field">
+                <div className="flabel-row">
+                  <span className="flabel" id="area-label">
+                    From
+                  </span>
+                  <button className="link small" id="areas-all" data-area="" disabled={!anyArea} onClick={() => toggleArea(null)}>
+                    {anyArea ? "Use all areas" : "All areas"}
                   </button>
-                ))}
+                </div>
+                <div className="areas" id="areas" role="group" aria-labelledby="area-label">
+                  {areas.map((g) => (
+                    <button key={g} className="area" data-area={groupLabel(g)} aria-pressed={areaTicked(pile, g)} onClick={() => toggleArea(g)}>
+                      <span className="box">
+                        <svg viewBox="0 0 12 12" aria-hidden="true">
+                          <path d="M2 6.5l2.5 2.5L10 3" fill="none" stroke="var(--accent-ink)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </span>
+                      {groupLabel(g)} <small className="num">{gb(safeIn(g, suggestions))}</small>
+                    </button>
+                  ))}
+                  {others.length > 0 && (
+                    <p className="flabel-note" title={others.map(groupLabel).join(", ")}>
+                      {`${others.length === 1 ? `${groupLabel(others[0])} needs` : `${groupLabel(others[0])} and ${others.length - 1} more areas need`} your OK first.`}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="field" id="meter">
+                <div className="meter-top">
+                  <span className="num">
+                    <b>{gb(meter.total)}</b> ready to toss
+                  </span>
+                  <span className="num muted">{meter.right}</span>
+                </div>
+                <div className="meter" role="img" aria-label={`${gb(meter.total)} of ${gb(meter.target)} ready`}>
+                  <i className={meter.manual ? "picked" : ""} style={{ width: meter.fill.toFixed(1) + "%" }} />
+                </div>
+                {meter.short > 0 && (
+                  <div className="gaprow">
+                    <span className="num">{`${gb(meter.short)} more needs your OK`}</span>
+                    <button className="link small" data-act="goto-questions" onClick={toQuestions}>
+                      Review items
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
-            <div className="stack" style={{ gap: 6 }}>
-              <span style={{ fontWeight: 800 }}>Where from?</span>
-              <div className="chips" id="areas">
-                <button className="chip" data-area="" aria-pressed={!anyArea} onClick={() => toggleArea(null)}>
-                  Everywhere
-                </button>
-                {areas.map((g) => (
-                  <button key={g} className="chip" data-area={groupLabel(g)} aria-pressed={pile.areas.includes(g)} onClick={() => toggleArea(g)}>
-                    {groupLabel(g)}
-                  </button>
-                ))}
-              </div>
+            <div className="cta-row">
+              <button
+                className="btn primary big toss"
+                id="cta"
+                data-act="confirm"
+                // Not disabled while a cleanup runs: the run's sheet covers
+                // the page, and the click below is ignored then.
+                disabled={!items.length}
+                onClick={() => !running && cleanup.fromPile()}
+                onPointerOver={eagerOn}
+                onFocus={eagerOn}
+                onPointerOut={() => setEager(false)}
+                onBlur={() => setEager(false)}
+              >
+                {items.length ? (
+                  <>
+                    <svg className="tcrate" viewBox="0 0 30 26" aria-hidden="true">
+                      <rect x="1.5" y="1.5" width="27" height="23" rx="5" fill="var(--crate)" stroke="var(--crate-edge)" strokeWidth="2.5" />
+                      <path d="M1.5 9.5H28.5M1.5 16.5H28.5" stroke="var(--crate-edge)" strokeWidth="1.6" />
+                    </svg>
+                    <span className="tlabel">
+                      <span className="tmain">
+                        {`Toss ${gb(pile.totalBytes)}`}
+                        <span className="tlong"> overboard</span>
+                      </span>{" "}
+                      {/* The visible text is the button's name (WCAG 2.5.3); the space separates its two lines for assistive tools. */}
+                      <small className="tnote">{tossNote(items)}</small>
+                    </span>
+                    <svg className="splash" viewBox="0 0 400 10" preserveAspectRatio="none" aria-hidden="true">
+                      <path d={SPLASH} fill="var(--accent-ink)" />
+                    </svg>
+                  </>
+                ) : (
+                  "Nothing to toss"
+                )}
+              </button>
+              <button className="btn pile-toggle" data-act="toggle-pile" id="pile-btn" aria-controls="pile" aria-expanded={showPile && items.length > 0} disabled={!items.length} onClick={() => setShowPile((v) => !v)}>
+                {`${items.length} crate${items.length === 1 ? "" : "s"}`}
+              </button>
             </div>
-            <button className="btn primary big" id="cta" data-act="confirm" disabled={!items.length || running} onClick={cleanup.fromPile}>
-              {tossLabel(items.length, pile.totalBytes)}
-            </button>
             <p className="note" id="cta-note">
-              {pileNote(pile, suggestions)}
+              {note}
             </p>
             {scanning && (
               <p className="note" id="scan-progress" aria-live="polite">
                 {scanLabel(h.data.progress)}
               </p>
             )}
-            <button className="link" data-act="toggle-pile" id="pile-btn" style={{ alignSelf: "flex-start" }} onClick={() => setShowPile((v) => !v)}>
-              {showPile ? "Hide what is inside" : "See what is inside"}
-            </button>
-            <div id="pile" hidden={!showPile}>
+            <div id="pile" hidden={!showPile || !items.length}>
               {items.map((s) => (
                 <div className="pile-row" key={s.id}>
                   <span>

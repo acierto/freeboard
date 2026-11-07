@@ -861,9 +861,9 @@ impl AppCore {
         self.commit_pile(&p)
     }
 
-    pub fn set_pile_areas(&self, areas: Vec<Group>) -> CmdResult<selection::PileState> {
+    pub fn set_pile_areas(&self, areas: Vec<Group>, none: bool) -> CmdResult<selection::PileState> {
         let mut p = self.pile_store();
-        selection::set_areas(&mut p, areas);
+        selection::set_areas(&mut p, areas, none);
         self.commit_pile(&p)
     }
 

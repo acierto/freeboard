@@ -177,6 +177,7 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
   // ----- the pile (prototype picks / freezePile / addToPile / takeOut) -----
   let goal: Goal = 50 * G;
   let areas: Group[] = [];
+  let noAreas = false;
   let manual: Set<string> | null = null;
   const queued = new Set<string>();
   const excl = new Set<string>();
@@ -184,7 +185,7 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
   const bySize = (a: Item, b: Item) => b.sizeBytes - a.sizeBytes;
   const safeItems = () =>
     active()
-      .filter((i) => i.risk === "safe" && !excl.has(i.id) && !kept(i) && i.sizeBytes > 0 && (!areas.length || areas.includes(i.group)))
+      .filter((i) => i.risk === "safe" && !excl.has(i.id) && !kept(i) && i.sizeBytes > 0 && !noAreas && (!areas.length || areas.includes(i.group)))
       .sort(bySize);
   function picks(): Item[] {
     if (manual) return active().filter((i) => manual!.has(i.id) && !kept(i) && i.sizeBytes > 0).sort(bySize);
@@ -205,6 +206,7 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
     return {
       goalBytes: goal,
       areas: [...areas],
+      noAreas,
       mode: manual ? "manual" : "auto",
       addedIds: [...queued],
       takenOutIds: [...excl],
@@ -633,6 +635,7 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
     },
     set_pile_areas: (a) => {
       areas = [...(a.areas as Group[])];
+      noAreas = !!a.none && areas.length === 0;
       manual = null;
       return changed();
     },

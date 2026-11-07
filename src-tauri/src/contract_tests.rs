@@ -159,7 +159,7 @@ fn inv03_command_arguments_are_ids_enums_numbers_or_bools() {
         "BlindSpotAction", "PlanSource", "TidyRuleId", "VolumeId",
     ];
     const FRAMEWORK: &[&str] = &["Core<'_>", "tauri::AppHandle", "AppHandle"];
-    const SCALARS: &[&str] = &["u32", "u64", "bool", "Option<u32>", "Option<u64>"];
+    const SCALARS: &[&str] = &["u32", "u64", "bool", "Option<u32>", "Option<u64>", "Option<bool>"];
     let mut checked = 0;
     let mut lines = src.lines();
     while let Some(l) = lines.next() {

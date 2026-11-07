@@ -75,7 +75,7 @@ fn all_i_can_adds_every_safe_item_in_the_chosen_areas() {
     let items = harbor();
     let mut p = PileStore::new(Goal::All, vec![]);
     assert_eq!(fill(&p, &items).item_ids.len(), 11);
-    set_areas(&mut p, vec![Group::Caches]);
+    set_areas(&mut p, vec![Group::Caches], false);
     let f = fill(&p, &items);
     assert_eq!(gb(&f), 34.2, "the prototype's Caches total");
     assert!(f.item_ids.iter().all(|i| i.starts_with("c-")));
@@ -86,10 +86,27 @@ fn where_from_limits_automatic_filling_and_everywhere_clears_it() {
     // Row 3.
     let items = harbor();
     let mut p = store(50);
-    set_areas(&mut p, vec![Group::Docker]);
+    set_areas(&mut p, vec![Group::Docker], false);
     assert_eq!(ids(&fill(&p, &items)), ["d-cache", "d-dangling"]);
-    set_areas(&mut p, vec![]);
+    set_areas(&mut p, vec![], false);
     assert_eq!(ids(&fill(&p, &items)), ["b-node", "d-cache", "c-derived", "b-target"]);
+}
+
+#[test]
+fn unticking_every_area_fills_nothing_until_one_is_ticked() {
+    // Prototype `S.areas.__none`: "No areas picked."
+    let items = harbor();
+    let mut p = store(50);
+    add(&mut p, &s("ai-ollama"));
+    set_areas(&mut p, vec![], true);
+    let f = fill(&p, &items);
+    assert!(f.no_areas);
+    assert_eq!(ids(&f), ["ai-ollama"], "only what the user added");
+    // A ticked area, or an empty list without `none`, clears it.
+    set_areas(&mut p, vec![Group::Docker], true);
+    assert!(!p.no_areas);
+    set_areas(&mut p, vec![], false);
+    assert!(!fill(&p, &items).no_areas);
 }
 
 #[test]
@@ -168,7 +185,7 @@ fn changing_where_from_leaves_manual_mode_but_keeps_taken_out_items_out() {
     let items = harbor();
     let mut p = store(50);
     take_out(&mut p, &s("d-cache"), &items);
-    set_areas(&mut p, vec![Group::Docker]);
+    set_areas(&mut p, vec![Group::Docker], false);
     let f = fill(&p, &items);
     assert_eq!(f.mode, Mode::Auto);
     assert_eq!(ids(&f), ["d-dangling"], "the taken-out build cache stays out");

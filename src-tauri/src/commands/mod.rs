@@ -92,8 +92,8 @@ pub async fn set_pile_goal(core: Core<'_>, goal_bytes: Goal) -> CmdResult<crate:
 }
 
 #[tauri::command]
-pub async fn set_pile_areas(core: Core<'_>, areas: Vec<Group>) -> CmdResult<crate::selection::PileState> {
-    core.set_pile_areas(areas)
+pub async fn set_pile_areas(core: Core<'_>, areas: Vec<Group>, none: Option<bool>) -> CmdResult<crate::selection::PileState> {
+    core.set_pile_areas(areas, none.unwrap_or(false))
 }
 
 #[tauri::command]

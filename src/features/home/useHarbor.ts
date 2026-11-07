@@ -80,7 +80,7 @@ export function useHarbor() {
     error,
     reload: load,
     setGoal: (g: Goal) => withPile(api.setPileGoal(g)),
-    setAreas: (a: Group[]) => withPile(api.setPileAreas(a)),
+    setAreas: (a: Group[], none = false) => withPile(api.setPileAreas(a, none)),
     takeOut: (id: string) => withPile(api.takeOutOfPile([id])),
     add: (ids: string[]) => withPile(api.addToPile(ids)),
     // Decisions and parts answer with the item; the backend then emits

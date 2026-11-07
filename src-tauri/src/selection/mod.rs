@@ -34,11 +34,15 @@ pub struct PileStore {
     pub added: Vec<String>,
     /// Crates the user took out; never refilled until a size is chosen again.
     pub taken_out: Vec<String>,
+    /// Every area unticked (prototype `S.areas.__none`): nothing fills
+    /// automatically until an area is ticked again.
+    #[serde(default)]
+    pub no_areas: bool,
 }
 
 impl PileStore {
     pub fn new(goal: Goal, areas: Vec<Group>) -> PileStore {
-        PileStore { goal, areas, manual: None, added: vec![], taken_out: vec![] }
+        PileStore { goal, areas, manual: None, added: vec![], taken_out: vec![], no_areas: false }
     }
 }
 
@@ -48,6 +52,8 @@ impl PileStore {
 pub struct PileState {
     pub goal_bytes: Goal,
     pub areas: Vec<Group>,
+    /// Every area unticked: only added items fill the pile.
+    pub no_areas: bool,
     pub mode: Mode,
     pub added_ids: Vec<String>,
     pub taken_out_ids: Vec<String>,
@@ -98,6 +104,7 @@ fn auto_eligible(s: &Suggestion, p: &PileStore) -> bool {
         && s.risk == Risk::Safe
         && !s.needs_confirmation
         && !p.taken_out.contains(&s.id)
+        && !p.no_areas
         && (p.areas.is_empty() || p.areas.contains(&s.group))
 }
 
@@ -136,6 +143,7 @@ pub fn fill(p: &PileStore, items: &[Suggestion]) -> PileState {
     PileState {
         goal_bytes: p.goal,
         areas: p.areas.clone(),
+        no_areas: p.no_areas,
         mode: if p.manual.is_some() { Mode::Manual } else { Mode::Auto },
         added_ids: p.added.clone(),
         taken_out_ids: p.taken_out.clone(),
@@ -153,9 +161,11 @@ pub fn set_goal(p: &mut PileStore, goal: Goal) {
 }
 
 /// Choose Where from: leave manual mode, but keep taken-out items out.
-pub fn set_areas(p: &mut PileStore, areas: Vec<Group>) {
+/// `none` unticks every area (empty `areas` alone means everywhere).
+pub fn set_areas(p: &mut PileStore, areas: Vec<Group>, none: bool) {
     let mut a: Vec<Group> = Group::ALL.into_iter().filter(|g| areas.contains(g)).collect();
     a.dedup();
+    p.no_areas = none && a.is_empty();
     p.areas = a;
     p.manual = None;
 }

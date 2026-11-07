@@ -42,11 +42,12 @@ const idle = (p) => p.waitForFunction(() => document.documentElement.dataset.bus
 {
   const { p, ctx } = await page();
   const order = [];
-  for (let i = 0; i < 18; i++) {
+  for (let i = 0; i < 13; i++) {
     await p.keyboard.press("Tab");
     order.push(await focused(p));
   }
-  const want = ["settings", "20", "50", "100", "all", "Everywhere", "Docker", "Projects", "Caches", "AI models", "Phones and emulators", "Old tools and apps", "Your files", "System", "cta", "pile-btn", "tab-tidy", "tab-map"];
+  // "All areas" is disabled while every area is ticked, so Tab skips it.
+  const want = ["settings", "20", "50", "100", "all", "Docker", "Projects", "Caches", "cta", "pile-btn", "tab-tidy", "tab-map", "tab-log"];
   check("home: Tab order follows the prototype's reading order", JSON.stringify(order) === JSON.stringify(want), order.join(" | "));
   await p.focus("#cta");
   await p.keyboard.press("Shift+Tab");
@@ -70,19 +71,32 @@ const idle = (p) => p.waitForFunction(() => document.documentElement.dataset.bus
   check("settings: focus returns to the gear", (await focused(p)) === "settings");
 
   // The pile: take a crate out, then choose a size again.
+  const toss = () => p.textContent("#cta .tmain");
   await p.click("#pile-btn");
-  const before = await p.textContent("#cta");
+  check("pile: the crates button opens the list", (await p.getAttribute("#pile-btn", "aria-expanded")) === "true" && !(await p.$eval("#pile", (e) => e.hidden)));
+  const before = await toss();
   await p.click('[data-out="d-cache"]');
   await idle(p);
   const note = await p.textContent("#cta-note");
-  check("pile: taking a crate out lowers the total and does not refill", (await p.textContent("#cta")) === "Toss 39.2 GB overboard" && before === "Toss 54.0 GB overboard", await p.textContent("#cta"));
+  check("pile: taking a crate out lowers the total and does not refill", (await toss()) === "Toss 39.2 GB overboard" && before === "Toss 54.0 GB overboard", await toss());
   check("pile: manual mode says so", note.includes("You chose these by hand. Pick a size again to refill the pile."), note);
+  check("pile: the meter says chosen by hand", (await p.textContent("#meter")).includes("chosen by hand"), await p.textContent("#meter"));
   await p.click('[data-goal="50"]');
   await idle(p);
-  check("pile: choosing a size again refills it", (await p.textContent("#cta")) === "Toss 54.0 GB overboard", await p.textContent("#cta"));
+  check("pile: choosing a size again refills it", (await toss()) === "Toss 54.0 GB overboard", await toss());
+  // From: every area starts ticked; unticking Caches leaves Docker and Projects.
   await p.click('[data-area="Caches"]');
   await idle(p);
-  check("pile: Where from limits filling to that group", (await p.textContent("#cta")) === "Toss 34.2 GB overboard", await p.textContent("#cta-note"));
+  const meter = await p.textContent("#meter");
+  check("pile: unticking an area stops filling from it", (await toss()) === "Toss 48.9 GB overboard", await toss());
+  check("pile: the meter shows the gap to the goal", meter.includes("48.9 GB ready to toss") && meter.includes("goal 50 GB") && meter.includes("1.1 GB more needs your OK"), meter);
+  await p.click('[data-area="Docker"]');
+  await p.click('[data-area="Projects"]');
+  await idle(p);
+  check("pile: unticking every area says so", (await p.textContent("#cta-note")).includes("No areas picked.") && (await p.isDisabled("#cta")), await p.textContent("#cta-note"));
+  await p.click("#areas-all");
+  await idle(p);
+  check("pile: Use all areas ticks them all again", (await toss()) === "Toss 54.0 GB overboard" && (await p.isDisabled("#areas-all")), await toss());
   await ctx.close();
 }
 

@@ -2,7 +2,7 @@
    scripts/visual/sync-styles.mjs. Do not edit: run the script instead. */
 :root {
   --bg: #F1FAFB; --card: #FFFFFF; --soft: #E3F4F6; --ink: #1E3A52; --muted: #526B84; --line: #CDE3E8;
-  --accent: #0C7786; --accent-ink: #FFFFFF;
+  --accent: #0C7786; --accent-ink: #FFFFFF; --toss-edge: #075460;
   --sky-a: #BCE9F7; --sky-b: #E9FAF6; --sun: #FFD76B; --star: 0; --cloud: #FFFFFF;
   --sea-a: #5CCBDD; --sea-b: #2FA9C5; --hull: #FF8B7B; --hull-dark: #E96A5C; --cabin: #FFFFFF; --crate: #FFC867; --crate-edge: #DE9A2C; --boat-ink: #23405A;
   --safe: #17805A; --review: #9A5F07; --risky: #C2334A; --bubble: #FFFFFF;
@@ -13,14 +13,14 @@
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #0F1C31; --card: #172A47; --soft: #1F3558; --ink: #EAF2FF; --muted: #AFC0DA; --line: #2D4468;
-  --accent: #72DCE9; --accent-ink: #082631;
+  --accent: #72DCE9; --accent-ink: #082631; --toss-edge: #2E9BAA;
   --sky-a: #0E1A38; --sky-b: #233B6B; --sun: #F5EBC4; --star: 1; --cloud: #33497A;
   --sea-a: #2B8BAA; --sea-b: #17607F; --bubble: #243C63;
   --safe: #70DDAA; --review: #F3C266; --risky: #FF97A5; color-scheme: dark;
 } }
 :root[data-theme="dark"] {
   --bg: #0F1C31; --card: #172A47; --soft: #1F3558; --ink: #EAF2FF; --muted: #AFC0DA; --line: #2D4468;
-  --accent: #72DCE9; --accent-ink: #082631;
+  --accent: #72DCE9; --accent-ink: #082631; --toss-edge: #2E9BAA;
   --sky-a: #0E1A38; --sky-b: #233B6B; --sun: #F5EBC4; --star: 1; --cloud: #33497A;
   --sea-a: #2B8BAA; --sea-b: #17607F; --bubble: #243C63;
   --safe: #70DDAA; --review: #F3C266; --risky: #FF97A5; color-scheme: dark;

@@ -64,7 +64,7 @@ export const api = {
   getSuggestions: () => call<Suggestion[]>("get_suggestions", { filters: null }),
   getPile: () => call<PileState>("get_pile"),
   setPileGoal: (goalBytes: Goal) => call<PileState>("set_pile_goal", { goalBytes }),
-  setPileAreas: (areas: Group[]) => call<PileState>("set_pile_areas", { areas }),
+  setPileAreas: (areas: Group[], none = false) => call<PileState>("set_pile_areas", { areas, none }),
   addToPile: (itemIds: string[]) => call<PileState>("add_to_pile", { itemIds }),
   takeOutOfPile: (itemIds: string[]) => call<PileState>("take_out_of_pile", { itemIds }),
   setItemDecision: (itemId: string, decision: ItemDecision) => call<Suggestion>("set_item_decision", { itemId, decision }),

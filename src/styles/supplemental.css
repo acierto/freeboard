@@ -19,3 +19,7 @@ html.tray-native, html.tray-native body { background: transparent; }
    textarea gets no baseline gap below it; the app (standards mode) shows it
    as a block to keep the same height. */
 .report-text { display: block; }
+/* The small line in the Toss button at full strength: at the prototype's
+   85% opacity, white on the light theme's teal is 4.1:1, under WCAG AA's
+   4.5:1 for 12 px text (spec "Accessibility"). */
+.toss .tlabel small.tnote { opacity: 1; }

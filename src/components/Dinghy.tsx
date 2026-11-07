@@ -49,7 +49,7 @@ export interface Crate {
   leaving?: boolean;
 }
 
-export function Dinghy({ mood, freeGb, crates, bubble }: { mood: Mood; freeGb: number; crates: Crate[]; bubble: string }) {
+export function Dinghy({ mood, freeGb, crates, bubble, eager = false }: { mood: Mood; freeGb: number; crates: Crate[]; bubble: string; eager?: boolean }) {
   const labels = crateLabels(crates.map((c) => c.sizeGb));
   return (
     <div className="stage" id="stage">
@@ -84,7 +84,7 @@ export function Dinghy({ mood, freeGb, crates, bubble }: { mood: Mood; freeGb: n
             <g id="face">
               <Face mood={mood} />
             </g>
-            <g id="crates">
+            <g id="crates" className={eager ? "eager" : undefined}>
               {crates.slice(0, labels.length).map((c, n) => (
                 <g key={c.id} data-crate={c.id} className={c.leaving ? "crate-fly" : undefined}>
                   <g transform={`translate(${CRATE_SLOTS[n][0]} ${CRATE_SLOTS[n][1]})`}>
