@@ -2,350 +2,658 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Freeboard: disk space warnings for developers</title>
-<meta name="description" content="Freeboard warns you before your disk fills up and shows what you can remove safely: Docker data, caches, dependencies, build output and old worktrees. Free and open source for macOS, Windows and Linux.">
-<meta property="og:title" content="Freeboard">
-<meta property="og:description" content="Disk space warnings and safe cleanup for developers. macOS, Windows and Linux.">
-<meta property="og:image" content="img/overview-light.png">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Freeboard</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Freeboard keeps your disk above the waterline. It finds the space hiding in Docker, git worktrees, node_modules, caches and AI models, and only removes what can come back.">
+<meta property="og:title" content="Freeboard: keep your disk above the waterline">
+<meta property="og:description" content="A small, open-source desktop app for macOS, Linux and Windows that finds what you can safely remove.">
 <link rel="icon" type="image/png" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&display=swap">
 <style>
-@font-face { font-family: "Barlow Condensed"; font-weight: 600; font-display: swap; src: url(fonts/barlow-condensed-latin-600-normal.woff2) format("woff2"); }
-@font-face { font-family: "Barlow Condensed"; font-weight: 700; font-display: swap; src: url(fonts/barlow-condensed-latin-700-normal.woff2) format("woff2"); }
-@font-face { font-family: "IBM Plex Sans"; font-weight: 400; font-display: swap; src: url(fonts/ibm-plex-sans-latin-400-normal.woff2) format("woff2"); }
-@font-face { font-family: "IBM Plex Sans"; font-weight: 500; font-display: swap; src: url(fonts/ibm-plex-sans-latin-500-normal.woff2) format("woff2"); }
-@font-face { font-family: "IBM Plex Mono"; font-weight: 400; font-display: swap; src: url(fonts/ibm-plex-mono-latin-400-normal.woff2) format("woff2"); }
-
 :root {
-  --bg: #E9EEF0; --panel: #F7FAFA; --panel-2: #DDE5E8; --ink: #13262F; --muted: #4F626A; --line: #C4D0D4;
-  --accent: #0B6573; --accent-ink: #FFFFFF; --hull: #22343D; --hull-ink: #EAF1F2; --oxide: #8E3A2B; --water: #2F8FA3;
-  --good: #1F7A50; --warn: #8A5700; --crit: #B02A22;
-  --display: "Barlow Condensed", "Arial Narrow", sans-serif;
-  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
-  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
-  color-scheme: light;
+  --display: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
+  --body: "Nunito", "Segoe UI", system-ui, sans-serif;
+  --mono: "DM Mono", ui-monospace, Menlo, Consolas, monospace;
+  --night: #081428; --deep: #0D1E3A; --panel: #13284A; --panel-2: #1A335C; --line: #27426E;
+  --ink: #EEF5FF; --muted: #A4B7D6; --dim: #6F86AC;
+  --sea: #2FA9C5; --sea-hi: #6FE3F2; --foam: #CFF7FF;
+  --hull: #FF8B7B; --hull-dark: #E96A5C; --cabin: #FFFFFF; --boat-ink: #23405A;
+  --crate: #FFC867; --crate-mid: #F2AF45; --crate-edge: #C98522; --crate-ink: #5B3A06;
+  --safe: #70DDAA; --review: #F3C266; --risky: #FF97A5;
+  --sun: #FFE7A3;
+  color-scheme: dark;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #0F1B21; --panel: #16252C; --panel-2: #203239; --ink: #E4ECEE; --muted: #9DB0B6; --line: #2D4149;
-    --accent: #56BCCB; --accent-ink: #08252B; --hull: #31464F; --water: #3AA0B5;
-    --good: #5CCB96; --warn: #E3AE55; --crit: #F08378; color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #0F1B21; --panel: #16252C; --panel-2: #203239; --ink: #E4ECEE; --muted: #9DB0B6; --line: #2D4149;
-  --accent: #56BCCB; --accent-ink: #08252B; --hull: #31464F; --water: #3AA0B5;
-  --good: #5CCB96; --warn: #E3AE55; --crit: #F08378; color-scheme: dark;
-}
-
 * { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
-body { margin: 0; background: var(--bg); color: var(--ink); font: 400 17px/1.55 var(--body); }
-a { color: var(--accent); }
-img { max-width: 100%; height: auto; display: block; }
-code, kbd, .mono { font-family: var(--mono); font-size: 0.88em; }
-h1, h2, h3 { font-family: var(--display); font-weight: 700; line-height: 1.05; margin: 0; letter-spacing: 0.005em; }
-.wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--night); color: var(--ink); font: 600 17px/1.55 var(--body); overflow-x: hidden; }
+img, svg, video { max-width: 100%; }
+a { color: inherit; }
+h1, h2, h3 { font-family: var(--display); font-weight: 600; line-height: 1.05; margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+p { margin: 0; }
+.wrap { max-width: 1160px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+.eyebrow { font-size: 13px; text-transform: uppercase; letter-spacing: .14em; color: var(--sea-hi); font-weight: 800; }
+.lede { color: var(--muted); font-size: 19px; max-width: 58ch; }
+.mono { font-family: var(--mono); font-size: .86em; }
+section { position: relative; }
+.sec { padding-block: 120px; }
+.sec-head { display: flex; flex-direction: column; gap: 14px; max-width: 760px; margin-bottom: 56px; }
+.sec-head h2 { font-size: clamp(36px, 5.2vw, 60px); }
 
-/* Header */
-.top { display: flex; align-items: center; justify-content: space-between; padding-top: 20px; padding-bottom: 20px; }
-.brand { display: flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font: 700 26px/1 var(--display); }
-.brand img { width: 34px; height: 34px; }
-.top nav { display: flex; gap: 22px; font-weight: 500; font-size: 15px; }
-.top nav a { color: var(--muted); text-decoration: none; }
-.top nav a:hover { color: var(--ink); }
+/* Sky */
+.sky { position: fixed; inset: 0; z-index: -1; background:
+  radial-gradient(1200px 700px at 78% -10%, #24467F 0%, transparent 60%),
+  radial-gradient(900px 600px at 10% 10%, #172F5C 0%, transparent 60%), var(--night); }
+.stars { position: absolute; inset: 0; background-image:
+  radial-gradient(1.5px 1.5px at 12% 18%, #fff8, transparent), radial-gradient(1px 1px at 34% 8%, #fff9, transparent),
+  radial-gradient(1.5px 1.5px at 58% 22%, #fff7, transparent), radial-gradient(1px 1px at 72% 12%, #fffa, transparent),
+  radial-gradient(1px 1px at 88% 30%, #fff8, transparent), radial-gradient(1.5px 1.5px at 22% 36%, #fff6, transparent),
+  radial-gradient(1px 1px at 46% 40%, #fff7, transparent), radial-gradient(1px 1px at 92% 6%, #fff9, transparent);
+  animation: twinkle 6s ease-in-out infinite alternate; }
+@keyframes twinkle { to { opacity: .55; } }
+
+/* Nav */
+.nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); background: color-mix(in srgb, var(--night) 70%, transparent); border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 21; background: var(--night); }
+.nav .wrap { display: flex; align-items: center; gap: 24px; height: 64px; }
+.logo { display: flex; align-items: center; gap: 10px; font-family: var(--display); font-weight: 700; font-size: 22px; text-decoration: none; }
+.logo svg { width: 34px; height: 26px; }
+.nav-links { display: flex; gap: 22px; margin-left: auto; font-size: 15px; }
+.nav-links a { text-decoration: none; color: var(--muted); }
+.nav-links a:hover { color: var(--ink); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; border-radius: 16px; padding: 12px 20px; font: 800 16px/1 var(--body); text-decoration: none; border: 2px solid var(--line); background: var(--panel); color: var(--ink); cursor: pointer; transition: transform .2s, border-color .2s, box-shadow .2s; }
+.btn:hover { transform: translateY(-2px); border-color: var(--sea-hi); }
+.btn.primary { background: linear-gradient(180deg, var(--sea-hi), #3CC5DB); color: #062634; border-color: transparent; box-shadow: 0 6px 0 #1B8FA6, 0 16px 40px -10px #3CC5DB99; }
+.btn.primary:hover { box-shadow: 0 8px 0 #1B8FA6, 0 22px 50px -10px #3CC5DBbb; }
+.btn.primary:active { transform: translateY(4px); box-shadow: 0 2px 0 #1B8FA6; }
+.btn.sm { padding: 9px 14px; font-size: 14px; border-radius: 12px; }
+.btn svg { width: 18px; height: 18px; flex: none; }
+:focus-visible { outline: 3px solid var(--sea-hi); outline-offset: 3px; }
 
 /* Hero */
-.hero { display: grid; grid-template-columns: 1fr; gap: 40px; padding-top: 40px; }
-.hero-text { padding-bottom: 56px; }
-.eyebrow { font: 400 13px/1 var(--mono); color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; margin: 0 0 16px; }
-.hero h1 { font-size: clamp(48px, 7.4vw, 88px); max-width: 13ch; }
-.hero h1 em { font-style: normal; color: var(--accent); }
-.lede { font-size: 20px; color: var(--muted); max-width: 40ch; margin: 22px 0 30px; }
+.hero { padding-top: 72px; padding-bottom: 40px; overflow: hidden; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr); gap: 48px; align-items: center; }
+.hero h1 { font-size: clamp(46px, 7vw, 92px); }
+.hero h1 em { font-style: normal; background: linear-gradient(90deg, var(--sea-hi), #9AF0C9); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero-copy { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+.cta { display: flex; flex-wrap: wrap; gap: 12px; }
+.platforms { display: flex; flex-wrap: wrap; gap: 8px 18px; color: var(--dim); font-size: 14px; }
+.platforms span::before { content: "●"; color: var(--safe); margin-right: 6px; font-size: 9px; vertical-align: 2px; }
 
-.dl { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
-.btn { display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 22px; border-radius: 8px; border: 1px solid var(--line);
-  background: var(--panel); color: var(--ink); font: 500 16px/1 var(--body); text-decoration: none; transition: border-color .15s, transform .15s; }
-.btn:hover { border-color: var(--accent); }
-.btn:active { transform: translateY(1px); }
-.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-.btn.primary:hover { filter: brightness(1.08); }
-.btn svg { width: 20px; height: 20px; flex: none; }
-.btn small { font: 400 13px/1 var(--mono); opacity: .8; }
-.release-line { margin: 14px 0 0; font-size: 14px; color: var(--muted); }
+/* 3D rig */
+.scene { perspective: 1600px; perspective-origin: 50% 40%; height: 560px; position: relative; min-width: 0; }
+.rig { position: absolute; inset: 0; transform-style: preserve-3d; transform: rotateX(var(--rx, 12deg)) rotateY(var(--ry, -20deg)); transition: transform .5s cubic-bezier(.2, .8, .2, 1); }
+.layer { position: absolute; transform-style: preserve-3d; }
+.win { left: 2%; top: 40px; width: 88%; height: 420px; border-radius: 22px; background: var(--deep); border: 1px solid var(--line); box-shadow: 0 60px 100px -30px #000c, 0 0 0 1px #ffffff08 inset; overflow: hidden; transform: translateZ(0); }
+.win-bar { height: 34px; display: flex; align-items: center; gap: 7px; padding: 0 14px; background: var(--panel); border-bottom: 1px solid var(--line); }
+.win-bar i { width: 11px; height: 11px; border-radius: 50%; background: #FF6B5E; } .win-bar i:nth-child(2) { background: #FFC25A; } .win-bar i:nth-child(3) { background: #43C76A; }
+.win-bar span { margin-left: 10px; font-size: 12.5px; color: var(--muted); font-weight: 700; }
+.win-body { display: grid; grid-template-columns: 1.2fr 1fr; gap: 12px; padding: 12px; height: calc(100% - 34px); }
+.pond { position: relative; border-radius: 16px; overflow: hidden; background: linear-gradient(#152C59, #2B4C86); }
+.pond svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.pond .free { position: absolute; left: 14px; top: 12px; font-family: var(--display); font-size: 30px; font-weight: 700; }
+.pond .free small { font-size: 14px; color: var(--muted); font-family: var(--body); margin-left: 4px; }
+.mini-col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.mini-card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 12px; font-size: 13px; }
+.mini-card b { font-family: var(--display); font-weight: 600; font-size: 15px; display: block; margin-bottom: 6px; }
+.mrow { display: flex; justify-content: space-between; gap: 8px; padding: 3px 0; color: var(--muted); }
+.mrow span:last-child { color: var(--ink); font-variant-numeric: tabular-nums; }
+.dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 7px; vertical-align: 1px; }
+.mini-btn { margin-top: 8px; border-radius: 10px; background: var(--sea-hi); color: #062634; text-align: center; font-weight: 800; padding: 8px; }
+.tray { right: -2%; top: -6px; width: 250px; border-radius: 16px; background: #10223F; border: 1px solid var(--line); box-shadow: 0 50px 80px -24px #000d; padding: 14px; transform: translateZ(140px); font-size: 13px; }
+.tray .big { font-family: var(--display); font-size: 30px; font-weight: 700; }
+.pill { display: inline-block; border: 2px solid currentColor; border-radius: 999px; padding: 0 9px; font-size: 12px; font-weight: 800; }
+.gauge { position: relative; height: 9px; border-radius: 9px; margin: 10px 0 4px; background: linear-gradient(90deg, #FF97A566 0 13%, #F3C26666 13% 33%, #70DDAA66 33%); }
+.gauge i { position: absolute; top: 50%; width: 15px; height: 15px; margin: -7.5px 0 0 -7.5px; border-radius: 50%; background: var(--review); border: 3px solid #10223F; left: 23%; }
+.gauge .ghost { left: 23%; right: 0; top: 2px; bottom: 2px; width: auto; height: auto; margin: 0; border: 0; border-radius: 9px; background: repeating-linear-gradient(135deg, var(--sea-hi) 0 4px, transparent 4px 7px); }
+.cmd { left: 6%; bottom: 0; transform: translateZ(90px); background: #050C1A; border: 1px solid var(--line); border-radius: 14px; padding: 12px 16px; font-family: var(--mono); font-size: 13px; color: #BFE9F2; box-shadow: 0 40px 60px -20px #000c; }
+.cmd b { color: var(--safe); font-weight: 500; }
 
-.shot { position: relative; margin-top: 8px; }
-.shot picture img { border-radius: 10px; border: 1px solid var(--line); box-shadow: 0 30px 60px -30px rgba(10, 30, 40, .45); }
+/* CSS crates */
+.crate { position: absolute; width: var(--s, 56px); height: var(--s, 56px); transform-style: preserve-3d; }
+.crate .f { position: absolute; inset: 0; border-radius: 7px; border: 3px solid var(--crate-edge); background:
+  linear-gradient(var(--crate-edge), var(--crate-edge)) 0 33% / 100% 2px no-repeat,
+  linear-gradient(var(--crate-edge), var(--crate-edge)) 0 66% / 100% 2px no-repeat, var(--crate);
+  display: grid; place-items: center; font: 800 calc(var(--s, 56px) * .26)/1 var(--body); color: var(--crate-ink); backface-visibility: hidden; }
+.crate .f:nth-child(1) { transform: translateZ(calc(var(--s, 56px) / 2)); }
+.crate .f:nth-child(2) { transform: rotateY(180deg) translateZ(calc(var(--s, 56px) / 2)); }
+.crate .f:nth-child(3) { transform: rotateY(90deg) translateZ(calc(var(--s, 56px) / 2)); background-color: var(--crate-mid); }
+.crate .f:nth-child(4) { transform: rotateY(-90deg) translateZ(calc(var(--s, 56px) / 2)); background-color: var(--crate-mid); }
+.crate .f:nth-child(5) { transform: rotateX(90deg) translateZ(calc(var(--s, 56px) / 2)); background-color: #FFD88A; }
+.crate .f:nth-child(6) { transform: rotateX(-90deg) translateZ(calc(var(--s, 56px) / 2)); background-color: var(--crate-edge); }
+.float { animation: float 6s ease-in-out infinite; }
+@keyframes float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -14px; } }
+.spin { animation: spin 18s linear infinite; }
+@keyframes spin { to { transform: rotateX(-18deg) rotateY(360deg); } }
 
-/* Waterline band */
-.waterline { margin-top: -48px; height: 140px; background: var(--water); position: relative; z-index: -1;
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 12'%3E%3Cpath d='M0 6 Q15 0 30 6 T60 6 T90 6 T120 6 V12 H0Z'/%3E%3C/svg%3E") top/120px 12px repeat-x,
-                linear-gradient(#000, #000) 0 11px/100% 100% no-repeat;
-          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 12'%3E%3Cpath d='M0 6 Q15 0 30 6 T60 6 T90 6 T120 6 V12 H0Z'/%3E%3C/svg%3E") top/120px 12px repeat-x,
-                linear-gradient(#000, #000) 0 11px/100% 100% no-repeat; }
+/* Marquee of finds */
+.strip { border-block: 1px solid var(--line); background: color-mix(in srgb, var(--deep) 70%, transparent); overflow: hidden; }
+.track { display: flex; gap: 46px; padding: 18px 0; width: max-content; animation: marquee 40s linear infinite; font-family: var(--display); font-size: 22px; color: var(--muted); }
+.track span { white-space: nowrap; } .track b { color: var(--crate); font-weight: 600; margin-left: 8px; }
+@keyframes marquee { to { transform: translateX(-50%); } }
 
-section { padding: 88px 0 0; }
-section > .wrap > h2 { font-size: clamp(34px, 4.6vw, 52px); max-width: 20ch; }
-.sub { color: var(--muted); max-width: 60ch; margin: 14px 0 0; }
+/* Toss story (sticky) */
+.story { height: 280vh; }
+.story-stage { position: sticky; top: 64px; height: calc(100vh - 64px); min-height: 560px; display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 40px; align-items: center; }
+.steps { display: flex; flex-direction: column; gap: 22px; }
+.step { display: grid; grid-template-columns: 46px minmax(0, 1fr); gap: 16px; opacity: .35; transition: opacity .4s, transform .4s; transform: translateX(-6px); }
+.step.on { opacity: 1; transform: none; }
+.step .n { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; font-family: var(--display); font-size: 22px; font-weight: 700; background: var(--panel-2); border: 1px solid var(--line); }
+.step.on .n { background: var(--sea-hi); color: #062634; border-color: transparent; }
+.step h3 { font-size: 26px; margin-bottom: 4px; }
+.step p { color: var(--muted); }
+.sea-box { position: relative; height: min(520px, 70vh); border-radius: 32px; overflow: hidden; background: linear-gradient(#11264D 0%, #284C8C 62%, #2C5E9C 100%); border: 1px solid var(--line); box-shadow: 0 50px 90px -40px #000; perspective: 900px; }
+.sea-box .moon { position: absolute; right: 12%; top: 10%; width: 70px; height: 70px; border-radius: 50%; background: var(--sun); box-shadow: 0 0 60px 10px #FFE7A355; }
+.sea-box svg.waves { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 46%; }
+.sea-box .boat { position: absolute; left: 50%; bottom: 16%; width: 66%; max-width: 400px; transform: translate(-50%, var(--sink, 0px)); transition: transform .3s linear; z-index: 1; }
+.sea-box svg.waves { z-index: 2; } .sea-box svg.waves.back { z-index: 0; height: 52%; }
+.toss-crates { z-index: 1; }
+.sea-box .boat svg { width: 100%; aspect-ratio: 270 / 200; display: block; animation: bob 4s ease-in-out infinite; transform-origin: 50% 80%; }
+@keyframes bob { 0%, 100% { transform: rotate(-1.5deg); } 50% { transform: rotate(1.5deg) translateY(4px); } }
+.toss-crates { position: absolute; inset: 0; transform-style: preserve-3d; pointer-events: none; }
+.toss-crates .crate { left: 50%; bottom: 0; transform-origin: 50% 100%; transition: transform .25s linear, opacity .25s; }
+.readout { position: absolute; left: 22px; top: 20px; display: flex; flex-direction: column; gap: 6px; z-index: 3; }
+.readout .gb { font-family: var(--display); font-size: clamp(40px, 6vw, 64px); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.readout .gb small { font-size: .35em; color: var(--muted); font-family: var(--body); margin-left: 6px; }
+.readout .pill { align-self: flex-start; transition: color .3s; }
+.waterline-note { position: absolute; right: 18px; bottom: 16px; z-index: 3; font-size: 13px; color: var(--foam); opacity: .85; }
 
-/* Features */
-.features { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1px; margin-top: 40px;
-  background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
-.feature { background: var(--panel); padding: 26px 24px 28px; }
-.feature h3 { font-size: 25px; margin-bottom: 8px; }
-.feature p { margin: 0; color: var(--muted); font-size: 16px; }
-.feature .k { font: 400 13px/1 var(--mono); color: var(--accent); margin-bottom: 14px; display: block; }
+/* What it finds */
+.finds { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap: 18px; }
+.find { position: relative; background: linear-gradient(180deg, var(--panel), var(--deep)); border: 1px solid var(--line); border-radius: 22px; padding: 22px; display: flex; flex-direction: column; gap: 8px; min-height: 230px; transform-style: preserve-3d; transition: transform .35s, border-color .35s; overflow: hidden; }
+.find:hover { transform: perspective(800px) rotateX(4deg) rotateY(-6deg) translateY(-4px); border-color: var(--sea-hi); }
+.find .cube-slot { height: 86px; position: relative; perspective: 500px; }
+.find .crate { --s: 54px; left: 6px; top: 12px; transform: rotateX(-18deg) rotateY(-32deg); transition: transform .8s cubic-bezier(.2, .9, .2, 1.2); }
+.find:hover .crate { transform: rotateX(-24deg) rotateY(148deg) translateY(-6px); }
+.find h3 { font-size: 22px; }
+.find p { color: var(--muted); font-size: 15px; }
+.find .size { position: absolute; right: 22px; top: 26px; font-family: var(--display); font-size: 24px; font-weight: 600; color: var(--crate); font-variant-numeric: tabular-nums; }
+.find .cmdline { margin-top: auto; font-family: var(--mono); font-size: 12.5px; color: #9FD9E6; background: #050C1A; border-radius: 10px; padding: 7px 10px; overflow-wrap: anywhere; }
+.note-small { color: var(--dim); font-size: 14px; margin-top: 18px; }
 
-/* Risk legend */
-.risks { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 36px; }
-.risk { border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px; background: var(--panel); }
-.pill { display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid currentColor; border-radius: 999px; padding: 3px 11px; font: 500 14px/1.2 var(--body); }
-.risk p { margin: 12px 0 0; color: var(--muted); font-size: 15.5px; }
-.safe { color: var(--good); } .review { color: var(--warn); } .risky { color: var(--crit); }
+/* Safety */
+.tiers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; perspective: 1200px; }
+.tier { border-radius: 24px; padding: 26px; background: var(--panel); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px; transform: rotateY(var(--t, 0deg)); transition: transform .5s; }
+.tier:nth-child(1) { --t: 8deg; } .tier:nth-child(3) { --t: -8deg; }
+.tiers:hover .tier { --t: 0deg; }
+.tier .bar { height: 6px; border-radius: 6px; background: var(--c); box-shadow: 0 0 22px var(--c); }
+.tier h3 { font-size: 30px; color: var(--c); }
+.tier .what { font-family: var(--display); font-size: 19px; }
+.tier p { color: var(--muted); font-size: 15.5px; }
+.tier ul { margin: 0; padding-left: 18px; color: var(--ink); font-size: 15px; display: flex; flex-direction: column; gap: 3px; }
+.never { margin-top: 26px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 12px; }
+.never div { border: 1px dashed var(--line); border-radius: 16px; padding: 14px 16px; font-size: 15px; color: var(--muted); }
+.never b { display: block; color: var(--ink); font-family: var(--display); font-weight: 600; font-size: 18px; margin-bottom: 2px; }
 
-/* Gallery */
-.gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top: 40px; }
-.gallery figure { margin: 0; }
-.gallery img { border-radius: 8px; border: 1px solid var(--line); aspect-ratio: 1088 / 760; object-fit: cover; object-position: top left; }
-.gallery figcaption { font-size: 15px; color: var(--muted); margin-top: 12px; }
-.gallery figcaption b { color: var(--ink); font-weight: 500; }
+/* Explain */
+.explain { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: center; }
+.tm-wrap { perspective: 1400px; }
+.tm { position: relative; aspect-ratio: 4 / 3; max-width: 100%; border-radius: 22px; transform: rotateX(28deg) rotateZ(-6deg); transform-style: preserve-3d; box-shadow: 0 60px 80px -40px #000; }
+.tm div { position: absolute; border-radius: 10px; padding: 8px 10px; font-size: 13px; font-weight: 800; color: #10223F; transition: all 1s cubic-bezier(.2, .8, .2, 1); transform: translateZ(var(--z, 8px)); box-shadow: 0 10px 0 -2px #0005; overflow: hidden; }
+.tm div small { display: block; font-weight: 700; opacity: .75; }
+.tm .unk { background: repeating-linear-gradient(135deg, #FFD9A0 0 10px, #FFE9C6 10px 20px); border: 2px dashed #B37A2A; }
+.explain-ctrl { display: flex; flex-direction: column; gap: 18px; }
+.pct { font-family: var(--display); font-size: clamp(64px, 9vw, 110px); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.causes { display: flex; flex-direction: column; gap: 8px; }
+.cause { display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 14px; border-radius: 14px; background: var(--panel); border: 1px solid var(--line); font-size: 15px; transition: opacity .5s; }
+.cause i { width: 14px; height: 14px; border-radius: 4px; background: var(--c); }
+.cause.done { opacity: .45; text-decoration: line-through; }
 
-/* Never list */
-.never { margin: 36px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px 40px; }
-.never li { padding-left: 30px; position: relative; }
-.never li::before { content: ""; position: absolute; left: 0; top: 0.62em; width: 16px; height: 2px; background: var(--crit); }
+/* Video */
+.film { border-radius: 30px; overflow: hidden; border: 1px solid var(--line); background: #050C1A; position: relative; aspect-ratio: 16 / 10; max-width: 100%; box-shadow: 0 60px 100px -50px #000; }
+.film video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.film .poster { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; background: radial-gradient(circle at 50% 120%, #2FA9C5 0%, transparent 60%), linear-gradient(#0E1E3E, #0A1630); }
+.film .poster { border-radius: 0; }
+.film .poster .play { width: 84px; height: 84px; border-radius: 50%; display: grid; place-items: center; background: var(--sea-hi); color: #062634; margin: 0 auto 16px; box-shadow: 0 0 0 12px #6FE3F222; }
+.film .poster p { color: var(--muted); }
 
-/* Download section */
-.platforms { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-top: 40px; }
-.platform { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 28px; }
-.platform.current { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
-.platform h3 { font-size: 32px; display: flex; align-items: center; gap: 10px; }
-.platform h3 svg { width: 26px; height: 26px; }
-.platform .req { color: var(--muted); font-size: 15px; margin: 6px 0 20px; }
-.platform .dl { flex-direction: column; align-items: stretch; }
-.platform .btn { justify-content: space-between; }
-.steps { margin: 22px 0 0; padding-left: 20px; font-size: 15.5px; color: var(--muted); }
-.steps li { margin: 6px 0; }
-pre { background: var(--panel-2); border-radius: 6px; padding: 12px 14px; overflow-x: auto; font: 400 13.5px/1.5 var(--mono); color: var(--ink); margin: 10px 0 0; }
-.note { margin-top: 28px; border-left: 3px solid var(--warn); padding: 4px 0 4px 18px; color: var(--muted); max-width: 75ch; font-size: 15.5px; }
-.note b { color: var(--ink); font-weight: 500; }
+/* Menu bar */
+.mb { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 48px; align-items: center; }
+.menubar { border-radius: 20px; overflow: hidden; border: 1px solid var(--line); background: linear-gradient(135deg, #3C5E9C, #7A6BB0 55%, #E39A8A); min-height: 420px; position: relative; }
+.menubar .bar { height: 34px; display: flex; justify-content: flex-end; align-items: center; gap: 18px; padding: 0 16px; background: #0B1730cc; font-size: 13px; font-weight: 700; backdrop-filter: blur(10px); }
+.menubar .bar .me { background: #ffffff22; border-radius: 6px; padding: 2px 8px; }
+.menubar .tray { position: absolute; right: 16px; top: 44px; transform: none; width: min(290px, calc(100% - 32px)); }
+.feat { display: flex; flex-direction: column; gap: 18px; }
+.feat li { list-style: none; display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; color: var(--muted); }
+.feat ul { margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.feat li b { color: var(--ink); display: block; }
+.tick { width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; background: #70DDAA22; color: var(--safe); font-weight: 800; }
 
-footer { margin-top: 100px; border-top: 1px solid var(--line); padding: 30px 0 44px; color: var(--muted); font-size: 14px; }
-footer .wrap { display: flex; flex-wrap: wrap; gap: 12px 28px; justify-content: space-between; }
+/* Built with */
+.built { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.built div { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 20px; }
+.built b { font-family: var(--display); font-size: 22px; font-weight: 600; display: block; }
+.built span { color: var(--muted); font-size: 14.5px; }
 
-@media (min-width: 900px) {
-  .hero { grid-template-columns: 0.85fr 1.15fr; align-items: center; padding-top: 56px; }
-  .shot { margin-top: 0; margin-right: -80px; }
+/* Final */
+.final { padding-block: 120px 0; text-align: center; overflow: hidden; }
+.final h2 { font-size: clamp(42px, 6.5vw, 84px); }
+.final .cta { justify-content: center; margin-top: 28px; }
+.install { margin: 26px auto 0; display: inline-flex; align-items: center; gap: 12px; background: #050C1A; border: 1px solid var(--line); border-radius: 14px; padding: 10px 10px 10px 16px; max-width: 100%; }
+.install code { font-family: var(--mono); font-size: 14px; color: #BFE9F2; overflow-wrap: anywhere; text-align: left; }
+.teaser { position: relative; max-width: 980px; margin: 0 auto 64px; border-radius: 28px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 50px 90px -40px #000, 0 0 80px -20px #2FA9C566; aspect-ratio: 16 / 9; }
+.teaser video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.teaser .snd { position: absolute; right: 14px; bottom: 14px; background: #081428cc; }
+.ocean { position: relative; height: 260px; margin-top: 80px; }
+.ocean svg { position: absolute; left: 0; bottom: 0; width: 200%; max-width: none; height: 100%; }
+.ocean .w1 { animation: drift 16s linear infinite; } .ocean .w2 { animation: drift 10s linear infinite reverse; opacity: .8; }
+@keyframes drift { to { transform: translateX(-50%); } }
+.ocean .boat { position: absolute; left: 50%; bottom: 100px; width: 220px; height: 163px; transform: translateX(-50%); animation: bob 4s ease-in-out infinite; }
+footer { background: #1B5C86; color: #D8F2FF; padding-block: 28px 40px; font-size: 14px; }
+footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+footer a { color: #fff; }
+
+/* Reveal */
+.reveal { opacity: 0; transform: translateY(26px); transition: opacity .8s, transform .8s cubic-bezier(.2, .8, .2, 1); }
+.reveal.in { opacity: 1; transform: none; }
+
+@media (max-width: 900px) {
+  .hero-grid, .story-stage, .explain, .mb { grid-template-columns: minmax(0, 1fr); }
+  .scene { height: 470px; }
+  .win { width: 100%; left: 0; height: 360px; }
+  .tray { right: 0; width: 210px; }
+  .tiers { grid-template-columns: minmax(0, 1fr); }
+  .tier { --t: 0deg !important; }
+  .built { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .story { height: auto; }
+  .story-stage { position: relative; top: 0; height: auto; min-height: 0; }
+  .step { opacity: 1; transform: none; }
+  .nav-links a.hide-sm { display: none; }
+  .sec { padding-block: 84px; }
 }
-@media (max-width: 600px) {
-  body { font-size: 16px; }
-  .wrap { padding: 0 16px; }
-  .top nav a:not(.gh) { display: none; }
-  .btn { width: 100%; justify-content: center; }
-  section { padding-top: 64px; }
-  .platform { padding: 22px 18px; }
-  .hero { padding-top: 28px; gap: 28px; }
-  .hero-text { padding-bottom: 0; }
+@media (max-width: 560px) {
+  .scene { height: 400px; perspective: 1000px; }
+  .win { height: 300px; } .win-body { grid-template-columns: minmax(0, 1fr); }
+  .win-body .mini-col { display: none; }
+  .tray { width: 180px; padding: 10px; font-size: 12px; top: 0; }
+  .tray .big { font-size: 22px; }
+  .cmd { display: none; }
+  .sea-box { height: 400px; }
+  .nav-links { gap: 14px; }
+  .nav-links a:not(.gh) { display: none; }
+  .built { grid-template-columns: minmax(0, 1fr); }
 }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  html { scroll-behavior: auto; }
+  .reveal { opacity: 1; transform: none; }
+}
 </style>
 </head>
 <body>
+<div class="sky" aria-hidden="true"><div class="stars"></div></div>
+
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <symbol id="i-apple" viewBox="0 0 24 24"><path fill="currentColor" d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.8 1.2 1.8 2.6 3.1 2.5 1.3 0 1.7-.8 3.3-.8 1.5 0 1.9.8 3.3.8 1.4 0 2.2-1.2 3-2.5 1-1.4 1.3-2.7 1.4-2.8-.1 0-2.6-1-2.6-3.9zM13.9 5c.7-.8 1.2-2 1-3.1-1 0-2.2.7-2.9 1.5-.6.7-1.2 1.9-1 3 1.1.1 2.2-.6 2.9-1.4z"/></symbol>
-  <symbol id="i-linux" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2c-2.2 0-3.6 1.9-3.6 4.6 0 1.3.2 2.2-.6 3.5-.9 1.4-2.6 3.6-2.6 6 0 .5.1 1 .2 1.4-.7.4-1.6.6-1.8 1.4-.2.9.9 1.4 1.6 1.7 1.1.5 2.1 1.1 3.2 1.1.8 0 1.4-.4 1.8-.9.7.1 1.3.2 1.9.2s1.2-.1 1.9-.2c.4.5 1 .9 1.8.9 1.1 0 2.1-.6 3.2-1.1.7-.3 1.8-.8 1.6-1.7-.2-.8-1.1-1-1.8-1.4.1-.4.2-.9.2-1.4 0-2.4-1.7-4.6-2.6-6-.8-1.3-.6-2.2-.6-3.5C15.6 3.9 14.2 2 12 2zm-1.3 3.6c.4 0 .7.5.7 1.1 0 .3-.1.5-.2.7l-.6-.2c.1-.1.1-.3.1-.5 0-.3-.1-.5-.2-.5s-.2.2-.2.5v.1l-.5-.2c0-.6.4-1 .9-1zm2.6 0c.5 0 .9.5.9 1.1v.2l-.6.2V7c0-.3-.1-.5-.3-.5s-.3.2-.3.5c0 .1 0 .3.1.4l-.5.2c-.1-.2-.2-.4-.2-.7 0-.7.4-1.3.9-1.3zM12 8c.8 0 2 .5 2.3.7.3.2.2.5-.1.7-.6.4-1.4 1-2.2 1s-1.6-.6-2.2-1c-.3-.2-.4-.5-.1-.7.3-.2 1.5-.7 2.3-.7z"/></symbol>
-  <symbol id="i-windows" viewBox="0 0 24 24"><path fill="currentColor" d="M3 5.5 10.5 4.5v7H3zm8.5-1.1L21 3v8.5h-9.5zM3 12.5h7.5v7L3 18.5zm8.5 0H21V21l-9.5-1.3z"/></symbol>
-  <symbol id="i-down" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 4v12m0 0-5-5m5 5 5-5M5 20h14"/></symbol>
+  <defs>
+    <symbol id="dinghy" viewBox="-130 -120 270 200">
+      <path d="M-118 -6H134Q128 58 72 66H-78Q-112 58 -118 -6Z" fill="var(--hull)"/>
+      <path d="M-118 -6H134L131 8H-116Z" fill="var(--hull-dark)"/>
+      <rect x="-104" y="-82" width="94" height="78" rx="20" fill="var(--cabin)" stroke="var(--boat-ink)" stroke-width="3"/>
+      <path d="M-114 -74Q-58 -104 0 -74Z" fill="var(--hull)" stroke="var(--boat-ink)" stroke-width="3" stroke-linejoin="round"/>
+      <rect x="-34" y="-112" width="20" height="30" rx="5" fill="var(--hull-dark)" stroke="var(--boat-ink)" stroke-width="3"/>
+      <circle cx="-82" cy="-30" r="6" fill="#FFB4A8"/><circle cx="-32" cy="-30" r="6" fill="#FFB4A8"/>
+      <path d="M-78 -46q7 -9 14 0M-50 -46q7 -9 14 0" fill="none" stroke="var(--boat-ink)" stroke-width="3.5" stroke-linecap="round"/>
+      <path d="M-68 -30q11 12 22 0" fill="var(--boat-ink)"/>
+    </symbol>
+    <symbol id="gh" viewBox="0 0 16 16"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></symbol>
+    <symbol id="dl" viewBox="0 0 20 20"><path d="M10 3v10m0 0l-4-4m4 4l4-4M4 16h12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </defs>
 </svg>
 
-<header class="wrap top">
-  <a class="brand" href="#"><img src="img/icon.png" alt="" width="34" height="34">Freeboard</a>
-  <nav aria-label="Page">
-    <a href="#how">How it works</a>
-    <a href="#safety">Safety</a>
-    <a href="#download">Download</a>
-    <a href="docs/">Docs</a>
-    <a class="gh" href="https://github.com/acierto/freeboard">GitHub</a>
-  </nav>
-</header>
-
-<main>
-  <div class="wrap hero">
-    <div class="hero-text">
-      <p class="eyebrow">Free and open source · macOS, Windows and Linux</p>
-      <h1>Know before your disk is <em>full</em>.</h1>
-      <p class="lede">Freeboard watches your free space, warns you early, and shows what you can remove safely: Docker data, package caches, old dependencies and build output.</p>
-      <div class="dl" id="hero-dl">
-        <a class="btn primary" id="hero-primary" href="#download">
-          <svg aria-hidden="true"><use href="#i-down"/></svg><span>Download</span>
-        </a>
-        <a class="btn" href="#download" id="hero-other">All downloads</a>
-      </div>
-      <p class="release-line" id="release-line">Preview release · about 3 MB on macOS</p>
-    </div>
-    <div class="shot">
-      <picture>
-        <source srcset="img/overview-dark.png" media="(prefers-color-scheme: dark)">
-        <img src="img/overview-light.png" width="1088" height="674" alt="Freeboard Overview: 12.4 GB free, status Low, a forecast that the disk fills in about 6 days, and 70.5 GB of Safe items to review.">
-      </picture>
+<nav class="nav" aria-label="Main">
+  <div class="wrap">
+    <a class="logo" href="#top"><svg aria-hidden="true"><use href="#dinghy"/></svg>Freeboard</a>
+    <div class="nav-links">
+      <a href="#how" class="hide-sm">How it works</a>
+      <a href="#finds" class="hide-sm">What it finds</a>
+      <a href="#safety">Safety</a>
+      <a href="docs/">Docs</a>
+      <a class="gh" href="https://github.com/" data-repo-link aria-label="Freeboard on GitHub"><svg width="22" height="22" style="vertical-align:-5px"><use href="#gh"/></svg></a>
     </div>
   </div>
-  <div class="waterline" aria-hidden="true"></div>
+</nav>
 
-  <section id="how">
-    <div class="wrap">
-      <h2>A quiet watch on your disk, a clear list when it gets tight.</h2>
-      <p class="sub">Freeboard lives in the menu bar or system tray. It checks free space every five minutes and only speaks up when it matters.</p>
-      <div class="features">
-        <div class="feature"><span class="k">01 · Warn</span><h3>Early warnings</h3><p>One notification when you drop below your Low or Critical level, and a forecast of when the disk will fill at the current rate.</p></div>
-        <div class="feature"><span class="k">02 · Find</span><h3>Developer clutter</h3><p>Docker build cache, images, containers and volumes; npm, pnpm, pip, Cargo, Gradle and Homebrew caches; Xcode data; node_modules and build output in idle projects; old Git worktrees.</p></div>
-        <div class="feature"><span class="k">03 · Explain</span><h3>Every item explained</h3><p>Why it is listed, the exact command or folder action that would run, and how to get it back.</p></div>
-        <div class="feature"><span class="k">04 · Confirm</span><h3>Nothing runs on its own</h3><p>You review a cleanup plan. Each item is checked again just before cleanup, and anything that changed is skipped.</p></div>
+<main id="top">
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow">Know before your disk is full</span>
+      <h1>Keep your disk above the <em>waterline.</em></h1>
+      <p class="lede">Freeboard finds the gigabytes hiding in Docker, git worktrees, node_modules, caches and AI models. It only tosses what can come back, and shows you the exact command first.</p>
+      <div class="cta">
+        <a class="btn primary" href="#download" data-release-link><svg><use href="#dl"/></svg><span data-os-label>Download Freeboard</span></a>
+        <a class="btn" href="https://github.com/" data-repo-link><svg><use href="#gh"/></svg>Star on GitHub</a>
       </div>
+      <div class="platforms"><span>macOS</span><span>Linux</span><span>Windows</span><span>Built with Tauri 2</span></div>
+    </div>
 
-      <div class="risks">
-        <div class="risk"><span class="pill safe">● Safe</span><p>Regenerable data: caches and build output that tools recreate when needed. Preselected.</p></div>
-        <div class="risk"><span class="pill review">◆ Review</span><p>Usually fine to remove, but worth a look: unused images, idle projects' dependencies, merged worktrees.</p></div>
-        <div class="risk"><span class="pill risky">▲ Risky</span><p>Cannot be recovered, such as Docker volumes. Never preselected; you confirm each one by name.</p></div>
-      </div>
-
-      <div class="gallery">
-        <figure>
-          <picture><source srcset="img/suggestions-dark.png" media="(prefers-color-scheme: dark)"><img src="img/suggestions-light.png" width="1088" height="900" loading="lazy" alt="Suggestions grouped by Docker, Git worktrees, dependencies and caches, each with size and a Safe, Review or Risky label."></picture>
-          <figcaption><b>Suggestions.</b> Grouped by source, sized, labeled by risk. Open a row to see what would run.</figcaption>
-        </figure>
-        <figure>
-          <picture><source srcset="img/plan-dark.png" media="(prefers-color-scheme: dark)"><img src="img/plan-light.png" width="1088" height="900" loading="lazy" alt="Cleanup plan: 78.1 GB freed right away, 2.4 GB held in the Trash, one item that cannot be recovered and needs explicit confirmation."></picture>
-          <figcaption><b>Cleanup plan.</b> What is freed now, what goes to the Trash, and what can't be undone, before anything runs.</figcaption>
-        </figure>
+    <div class="scene" id="scene" aria-hidden="true">
+      <div class="rig" id="rig">
+        <div class="layer win">
+          <div class="win-bar"><i></i><i></i><i></i><span>Freeboard</span></div>
+          <div class="win-body">
+            <div class="pond">
+              <div class="free">12.4<small>GB free</small></div>
+              <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMax slice">
+                <circle cx="330" cy="60" r="24" fill="var(--sun)" opacity=".9"/>
+                <path d="M0 210 q25 -10 50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 V300 H0Z" fill="#3B8FB5"/>
+                <use href="#dinghy" x="105" y="105" width="190" height="140"/>
+                <path d="M0 232 q25 -10 50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 V300 H0Z" fill="#2E7FA6" opacity=".95"/>
+              </svg>
+            </div>
+            <div class="mini-col">
+              <div class="mini-card"><b>Ready to toss</b>
+                <div class="mrow"><span><i class="dot" style="background:var(--safe)"></i>node_modules</span><span>18.7 GB</span></div>
+                <div class="mrow"><span><i class="dot" style="background:var(--safe)"></i>Docker build cache</span><span>14.8 GB</span></div>
+                <div class="mrow"><span><i class="dot" style="background:var(--safe)"></i>Xcode DerivedData</span><span>11.3 GB</span></div>
+                <div class="mini-btn">Toss 54.0 GB</div>
+              </div>
+              <div class="mini-card"><b>Quick question</b>
+                <div class="mrow"><span><i class="dot" style="background:var(--review)"></i>Unused Ollama models</span><span>41.2 GB</span></div>
+                <div class="mrow"><span><i class="dot" style="background:var(--risky)"></i>Volume billing_pgdata</span><span>7.6 GB</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="layer tray">
+          <div style="display:flex;justify-content:space-between;align-items:center"><span class="big">12.4<small style="font-size:13px;color:var(--muted)"> GB free</small></span><span class="pill" style="color:var(--review)">Low</span></div>
+          <div class="gauge"><span class="ghost"></span><i></i></div>
+          <p style="color:var(--muted);margin-top:8px">Riding low. Toss 54 GB and I float again.</p>
+        </div>
+        <div class="layer cmd">$ docker builder prune <b>✓ 14.8 GB</b></div>
+        <div class="layer" style="left:72%;top:66%;transform:translateZ(200px)"><div class="crate float" style="--s:62px;transform:rotateX(-20deg) rotateY(30deg)"><div class="f">15</div><div class="f"></div><div class="f"></div><div class="f"></div><div class="f"></div><div class="f"></div></div></div>
+        <div class="layer" style="left:-4%;top:18%;transform:translateZ(170px)"><div class="crate float" style="--s:46px;animation-delay:-2s;transform:rotateX(-14deg) rotateY(-28deg)"><div class="f">19</div><div class="f"></div><div class="f"></div><div class="f"></div><div class="f"></div><div class="f"></div></div></div>
+        <div class="layer" style="left:48%;top:-4%;transform:translateZ(60px)"><div class="crate float" style="--s:36px;animation-delay:-4s;transform:rotateX(-24deg) rotateY(42deg)"><div class="f">11</div><div class="f"></div><div class="f"></div><div class="f"></div><div class="f"></div><div class="f"></div></div></div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <section id="safety">
-    <div class="wrap">
-      <h2>Built so it can't surprise you.</h2>
-      <p class="sub">Safety rules come first, even over convenience. Freeboard never:</p>
-      <ul class="never">
-        <li>Removes anything without a plan you confirmed.</li>
-        <li>Touches system or application folders, your home folder's main folders, or <code>.ssh</code>.</li>
-        <li>Deletes a repository root or anything inside <code>.git</code>.</li>
-        <li>Follows symbolic links out of the folder being cleaned.</li>
-        <li>Uses force flags, except Docker's own prune commands after you confirm.</li>
-        <li>Sends your data anywhere. No account, no telemetry, no network calls.</li>
+<div class="strip" aria-hidden="true"><div class="track" id="track"></div></div>
+
+<!-- VIDEO -->
+<section class="sec" id="film">
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="eyebrow">See it in action</span><h2>From 12.4 GB to 66.4 GB in about a minute.</h2><p class="lede">Freeboard spots the problem, you pick how much room to make, and Dinghy floats again.</p></div>
+    <div class="film reveal">
+      <video id="promo" src="assets/freeboard-promo.mp4" poster="assets/freeboard-promo.jpg" playsinline muted preload="none" controls aria-label="Freeboard demo, 67 seconds, with on-screen captions"></video>
+      <button class="poster" id="poster" aria-label="Play the 67 second demo" style="border:0;cursor:pointer;background:center/cover url(assets/freeboard-promo.jpg)">
+        <span class="play" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 20 20"><path d="M6 4l10 6-10 6z" fill="currentColor"/></svg></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- HOW: sticky toss story -->
+<section class="story" id="how">
+  <div class="wrap story-stage">
+    <div class="steps">
+      <span class="eyebrow">How it works</span>
+      <h2 style="font-size:clamp(34px,4.6vw,54px)">Three steps. One happy boat.</h2>
+      <div class="step" data-step="0"><div class="n">1</div><div><h3>Scan</h3><p>Freeboard checks 49 known places, read only. Nothing moves until you say so.</p></div></div>
+      <div class="step" data-step="1"><div class="n">2</div><div><h3>Pile up</h3><p>Things that rebuild by themselves go in the pile. Anything that might hold your work waits for a yes.</p></div></div>
+      <div class="step" data-step="2"><div class="n">3</div><div><h3>Toss</h3><p>Over they go. Dinghy rises, and the logbook keeps a note of what left and how to get it back.</p></div></div>
+    </div>
+    <div class="sea-box" id="seabox" aria-label="Animation: crates are tossed off the boat and the free space rises">
+      <div class="moon"></div>
+      <div class="readout"><div class="gb"><span id="gbnum">12.4</span><small>GB free</small></div><span class="pill" id="gbpill" style="color:var(--review)">Low</span></div>
+      <svg class="waves back" viewBox="0 0 800 200" preserveAspectRatio="none"><path d="M0 70 q40 -18 80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 V200 H0Z" fill="#2FA9C5" opacity=".95"/></svg>
+      <div class="toss-crates" id="tossCrates"></div>
+      <div class="boat" id="storyBoat"><svg><use href="#dinghy"/></svg></div>
+      <svg class="waves" viewBox="0 0 800 200" preserveAspectRatio="none"><path d="M0 100 q40 -14 80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 V200 H0Z" fill="#1E86A8"/></svg>
+      <span class="waterline-note" id="wlnote">Scroll to toss</span>
+    </div>
+  </div>
+</section>
+
+<!-- FINDS -->
+<section class="sec" id="finds">
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="eyebrow">What it finds</span><h2>The usual stowaways on a developer’s disk.</h2><p class="lede">Each one comes with the command Freeboard would run, and how you get it back.</p></div>
+    <div class="finds" id="findsGrid"></div>
+    <p class="note-small">Sizes are an example from one 512 GB Mac. Yours will differ.</p>
+  </div>
+</section>
+
+<!-- SAFETY -->
+<section class="sec" id="safety">
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="eyebrow">Safety first</span><h2>Every crate gets a label before it goes overboard.</h2><p class="lede">Freeboard sorts what it finds by one question: if this goes, does it come back?</p></div>
+    <div class="tiers reveal">
+      <div class="tier" style="--c:var(--safe)"><div class="bar"></div><h3>Safe</h3><div class="what">Comes back by itself</div><p>Build caches, package caches, old toolchains. Freeboard can show they rebuild or download again.</p><ul><li>Goes in the pile automatically</li><li>One click to toss</li></ul></div>
+      <div class="tier" style="--c:var(--review)"><div class="bar"></div><h3>Review</h3><div class="what">Comes back, with effort</div><p>Models you pulled, old backups, merged worktrees. Nothing is lost for good, but you pay a download or a rebuild.</p><ul><li>Asked as a quick question</li><li>Moved to Trash when it can be</li></ul></div>
+      <div class="tier" style="--c:var(--risky)"><div class="bar"></div><h3>Risky</h3><div class="what">May not come back</div><p>Docker volumes, unpushed branches. Freeboard can’t prove they’re safe, so it explains why and how to make them safer.</p><ul><li>Needs a clear “I understand”</li><li>Never in a bulk toss</li></ul></div>
+    </div>
+    <div class="never reveal">
+      <div><b>Never touches</b>Uncommitted changes or unpushed commits.</div>
+      <div><b>Never reads</b>What’s inside your files. Only sizes, names and dates.</div>
+      <div><b>Never surprises</b>The exact command is shown before anything runs.</div>
+      <div><b>Never forgets</b>The logbook keeps what went and how to restore it.</div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPLAIN -->
+<section class="sec">
+  <div class="wrap explain">
+    <div class="tm-wrap reveal"><div class="tm" id="tm"></div></div>
+    <div class="explain-ctrl reveal">
+      <span class="eyebrow">The whole disk, explained</span>
+      <h2 style="font-size:clamp(34px,4.6vw,54px)">Where did a third of my disk go?</h2>
+      <p class="lede">Most cleaners stay quiet about the space they can’t see. Freeboard tells you why it’s hidden, and how to measure it.</p>
+      <div class="pct"><span id="pct">68</span>%<span style="font-size:.3em;color:var(--muted);margin-left:10px">explained</span></div>
+      <div class="causes" id="causes">
+        <div class="cause" style="--c:#FFC867"><i></i><span>Folders outside the scan list</span><span class="mono">107 GB</span></div>
+        <div class="cause" style="--c:#C9B6FF"><i></i><span>Locked by macOS until you allow access</span><span class="mono">34 GB</span></div>
+        <div class="cause" style="--c:#B9C8E6"><i></i><span>Kept by the system for itself</span><span class="mono">15 GB</span></div>
+      </div>
+      <div><button class="btn" id="explainBtn">Fix them all</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- MENU BAR -->
+<section class="sec">
+  <div class="wrap mb">
+    <div class="menubar reveal" aria-hidden="true">
+      <div class="bar"><span>◐</span><span class="me">⛵ 12.4 GB</span><span>Wi-Fi</span><span>10:52</span></div>
+      <div class="tray">
+        <div style="display:flex;justify-content:space-between;align-items:center"><b style="font-family:var(--display);font-size:16px">⛵ Freeboard</b><span style="color:var(--dim)">⚙ ✕</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px"><span class="big">12.4<small style="font-size:13px;color:var(--muted)"> GB free</small></span><span class="pill" style="color:var(--review)">Low</span></div>
+        <div class="gauge"><span class="ghost"></span><i></i></div>
+        <p style="color:var(--muted);margin:8px 0">Riding low. Toss 54 GB and I float again.</p>
+        <div class="mrow"><span>node_modules in quiet projects</span><span>18.7 GB</span></div>
+        <div class="mrow"><span>Docker build cache</span><span>14.8 GB</span></div>
+        <div class="mrow"><span>Xcode DerivedData</span><span>11.3 GB</span></div>
+        <div class="mini-btn">Toss 54.0 GB</div>
+      </div>
+    </div>
+    <div class="feat reveal">
+      <span class="eyebrow">Lives in your menu bar</span>
+      <h2 style="font-size:clamp(34px,4.6vw,54px)">Most days, a glance is enough.</h2>
+      <ul>
+        <li><span class="tick">✓</span><span><b>A warning before it’s urgent</b>Pick your own Low and Critical lines. Dinghy tells you how many days you have left.</span></li>
+        <li><span class="tick">✓</span><span><b>Calm when you’re fine</b>When you’re healthy, tossing is optional and the button says so.</span></li>
+        <li><span class="tick">✓</span><span><b>Hourly quick scans</b>Light, read-only checks. A deep scan runs only when you ask.</span></li>
       </ul>
     </div>
-  </section>
-
-  <section id="download">
-    <div class="wrap">
-      <h2>Download</h2>
-      <p class="sub" id="dl-sub">Free, MIT licensed. The latest release is listed on <a href="https://github.com/acierto/freeboard/releases/latest">GitHub Releases</a>, with SHA-256 checksums in <a href="https://github.com/acierto/freeboard/releases/latest/download/SHA256SUMS.txt"><code>SHA256SUMS.txt</code></a>.</p>
-
-      <div class="platforms">
-        <div class="platform" id="p-mac">
-          <h3><svg aria-hidden="true"><use href="#i-apple"/></svg>macOS</h3>
-          <p class="req">macOS 11 or later · Apple silicon and Intel</p>
-          <div class="dl">
-            <a class="btn primary" data-asset="Freeboard-macOS-universal.dmg"><span>Freeboard for Mac</span><small>.dmg</small></a>
-          </div>
-          <ol class="steps">
-            <li>Open the <code>.dmg</code>, click <b>Agree</b> on the MIT license, and drag Freeboard to Applications.</li>
-            <li>Open Freeboard. macOS will say it can't check the app for malware, because this preview isn't notarized by Apple yet.</li>
-            <li>Go to System Settings → Privacy &amp; Security, scroll down and click <b>Open Anyway</b>. Or run:
-              <pre>xattr -dr com.apple.quarantine /Applications/Freeboard.app</pre></li>
-          </ol>
-        </div>
-
-        <div class="platform" id="p-win">
-          <h3><svg aria-hidden="true"><use href="#i-windows"/></svg>Windows</h3>
-          <p class="req">Windows 10 or 11 · x64 or Arm</p>
-          <div class="dl">
-            <a class="btn primary" data-asset="Freeboard-windows-x64-setup.exe"><span>Windows installer, x64</span><small>.exe</small></a>
-            <a class="btn" data-asset="Freeboard-windows-x64.msi"><span>MSI package, x64</span><small>.msi</small></a>
-            <a class="btn" data-asset="Freeboard-windows-arm64-setup.exe"><span>Windows installer, Arm</span><small>.exe</small></a>
-          </div>
-          <ol class="steps">
-            <li>Run the installer. It installs for your user only and doesn't need administrator rights.</li>
-            <li>This preview isn't code-signed yet, so SmartScreen may say "Windows protected your PC". Click <b>More info</b>, then <b>Run anyway</b>.</li>
-            <li>Freeboard lives in the notification area. If its icon is hidden, click the <b>^</b> arrow on the taskbar.</li>
-          </ol>
-        </div>
-
-        <div class="platform" id="p-linux">
-          <h3><svg aria-hidden="true"><use href="#i-linux"/></svg>Linux</h3>
-          <p class="req">Ubuntu 22.04 or newer, Debian 12, or similar · x86_64 or arm64</p>
-          <div class="dl">
-            <a class="btn primary" data-asset="Freeboard-linux-x86_64.deb"><span>Debian / Ubuntu, x86_64</span><small>.deb</small></a>
-            <a class="btn" data-asset="Freeboard-linux-x86_64.AppImage"><span>AppImage, x86_64</span><small>.AppImage</small></a>
-            <a class="btn" data-asset="Freeboard-linux-arm64.deb"><span>Debian / Ubuntu, arm64</span><small>.deb</small></a>
-            <a class="btn" data-asset="Freeboard-linux-arm64.AppImage"><span>AppImage, arm64</span><small>.AppImage</small></a>
-          </div>
-          <ol class="steps">
-            <li><code>.deb</code>: <pre>sudo apt install ./Freeboard-linux-x86_64.deb</pre></li>
-            <li>AppImage: <pre>chmod +x Freeboard-linux-x86_64.AppImage
-./Freeboard-linux-x86_64.AppImage</pre></li>
-            <li>Tested on GNOME (with the AppIndicator extension that Ubuntu includes) and KDE Plasma.</li>
-          </ol>
-        </div>
-      </div>
-
-      <p class="note"><b>Preview.</b> Freeboard is new. Builds are not yet signed with an Apple Developer ID or a Windows code-signing certificate. Please report problems on <a href="https://github.com/acierto/freeboard/issues">GitHub Issues</a>.</p>
-    </div>
-  </section>
-</main>
-
-<footer>
-  <div class="wrap">
-    <span>Freeboard · MIT License · Fonts: Barlow Condensed and IBM Plex (SIL Open Font License)</span>
-    <span><a href="docs/">Docs</a> · <a href="https://github.com/acierto/freeboard">Source on GitHub</a> · <a href="https://github.com/acierto/freeboard/releases">All releases</a></span>
   </div>
-</footer>
+</section>
+
+<!-- BUILT -->
+<section class="sec" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="eyebrow">Under the hood</span><h2>Small, native, and open.</h2></div>
+    <div class="built reveal">
+      <div><b>Tauri 2</b><span>A native window on each OS instead of a bundled browser.</span></div>
+      <div><b>Rust core</b><span>Scanning, size checks and every cleanup command live in Rust.</span></div>
+      <div><b>Your tools</b><span>Uses docker, git, pnpm, brew and friends the way you would.</span></div>
+      <div><b>Open source</b><span>Read every rule that decides Safe, Review or Risky.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL -->
+<section class="final" id="download">
+  <div class="wrap">
+    <div class="teaser reveal" id="teaserBox" hidden><video id="teaser" src="assets/freeboard-teaser.mp4" playsinline muted loop autoplay preload="auto" aria-label="Short animation: Dinghy tosses its crates and floats again"></video><button class="btn sm snd" id="snd" aria-pressed="false">Sound on</button></div>
+    <h2 class="reveal">Give Dinghy some freeboard.</h2>
+    <p class="lede reveal" style="margin:16px auto 0">Free and open source for macOS, Linux and Windows.</p>
+    <div class="cta reveal">
+      <a class="btn primary" href="https://github.com/" data-release-link><svg><use href="#dl"/></svg>Download the latest release</a>
+      <a class="btn" href="https://github.com/" data-repo-link><svg><use href="#gh"/></svg>View the source</a>
+    </div>
+    <div class="install reveal"><code id="installCmd">git clone https://github.com/your-name/freeboard &amp;&amp; cd freeboard &amp;&amp; pnpm tauri build</code><button class="btn sm" id="copyBtn">Copy</button></div>
+  </div>
+  <div class="ocean" aria-hidden="true">
+    <svg class="boat"><use href="#dinghy"/></svg>
+    <svg class="w1" viewBox="0 0 1600 260" preserveAspectRatio="none"><path d="M0 120 q50 -26 100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 V260 H0Z" fill="#2FA9C5"/></svg>
+    <svg class="w2" viewBox="0 0 1600 260" preserveAspectRatio="none"><path d="M0 160 q50 -20 100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 V260 H0Z" fill="#1B5C86"/></svg>
+  </div>
+</section>
+</main>
+<footer><div class="wrap"><span>Freeboard · Open source · Made for people with small SSDs and big projects.</span><span><a href="docs/">Docs</a> · <a href="https://github.com/" data-repo-link>GitHub</a></span></div></footer>
 
 <script>
 (function () {
-  var base = "https://github.com/acierto/freeboard/releases/latest/download/";
-  document.querySelectorAll("[data-asset]").forEach(function (a) { a.href = base + a.getAttribute("data-asset"); });
+  // Set your repository once here.
+  var REPO = 'acierto/freeboard';
+  document.querySelectorAll('[data-repo-link]').forEach(function (a) { a.href = 'https://github.com/' + REPO; });
+  document.querySelectorAll('[data-release-link]').forEach(function (a) { a.href = 'https://github.com/' + REPO + '/releases/latest'; });
+  document.getElementById('installCmd').textContent = 'git clone https://github.com/' + REPO + ' && cd freeboard && pnpm tauri build';
+  var ua = navigator.userAgent, os = /Mac/.test(ua) ? 'macOS' : /Win/.test(ua) ? 'Windows' : /Linux/.test(ua) ? 'Linux' : '';
+  if (os) document.querySelector('[data-os-label]').textContent = 'Download for ' + os;
+  var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // Point the hero button at the visitor's platform.
-  var ua = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || navigator.userAgent || "";
-  var os = /mac/i.test(ua) ? "mac" : /win/i.test(ua) ? "win" : /linux|x11/i.test(ua) && !/android/i.test(navigator.userAgent) ? "linux" : null;
-  var primary = document.getElementById("hero-primary");
-  if (os === "mac") {
-    primary.href = base + "Freeboard-macOS-universal.dmg";
-    primary.querySelector("span").textContent = "Download for Mac";
-    document.getElementById("p-mac").classList.add("current");
-  } else if (os === "win") {
-    var warm = /arm/i.test(navigator.userAgent);
-    primary.href = base + (warm ? "Freeboard-windows-arm64-setup.exe" : "Freeboard-windows-x64-setup.exe");
-    primary.querySelector("span").textContent = "Download for Windows";
-    document.getElementById("p-win").classList.add("current");
-    if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
-      navigator.userAgentData.getHighEntropyValues(["architecture"]).then(function (v) {
-        if (v.architecture === "arm") primary.href = base + "Freeboard-windows-arm64-setup.exe";
-      }).catch(function () {});
-    }
-  } else if (os === "linux") {
-    var arm = /aarch64|arm/i.test(navigator.userAgent);
-    primary.href = base + (arm ? "Freeboard-linux-arm64.deb" : "Freeboard-linux-x86_64.deb");
-    primary.querySelector("span").textContent = "Download for Linux (.deb)";
-    document.getElementById("p-linux").classList.add("current");
-  } else {
-    primary.querySelector("span").textContent = "Downloads for macOS, Windows and Linux";
+  // Hero tilt
+  var scene = document.getElementById('scene'), rig = document.getElementById('rig');
+  if (!reduced && matchMedia('(pointer: fine)').matches) {
+    scene.parentElement.addEventListener('pointermove', function (e) {
+      var r = scene.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+      rig.style.setProperty('--ry', (-20 + x * 16).toFixed(2) + 'deg'); rig.style.setProperty('--rx', (12 - y * 10).toFixed(2) + 'deg');
+    });
+    scene.parentElement.addEventListener('pointerleave', function () { rig.style.removeProperty('--ry'); rig.style.removeProperty('--rx'); });
   }
 
-  // Show the latest version; the page works without it.
-  try {
-    fetch("https://api.github.com/repos/acierto/freeboard/releases/latest", { headers: { Accept: "application/vnd.github+json" } })
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (rel) {
-        if (!rel || !rel.tag_name) return;
-        var d = new Date(rel.published_at);
-        var when = isNaN(d) ? "" : " · " + d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
-        document.getElementById("release-line").textContent = "Version " + rel.tag_name.replace(/^v/, "") + when + " · preview";
-      })
-      .catch(function () {});
-  } catch (e) {}
+  // Marquee
+  var FINDS = [
+    ['node_modules', 'in quiet projects', 18.7, 'Safe', 'rm -rf …/node_modules', 'Run pnpm install.'],
+    ['Git worktrees', 'merged and clean', 16.3, 'Review', 'git worktree remove', 'git worktree add with the branch.'],
+    ['Docker build cache', '142 layers', 14.8, 'Safe', 'docker builder prune', 'Rebuilt on the next build.'],
+    ['Ollama models', 'not run for 60 days', 41.2, 'Review', 'ollama rm mixtral', 'ollama pull downloads it again.'],
+    ['iPhone backups', 'from 2024', 22.5, 'Review', 'Move to Trash', 'Restore from the Trash.'],
+    ['Xcode DerivedData', 'mostly 30+ days old', 11.3, 'Safe', 'rm -rf DerivedData', 'Xcode rebuilds it.'],
+    ['Rust target/', 'last built 45 days ago', 9.2, 'Safe', 'cargo clean', 'cargo build.'],
+    ['Docker volumes', 'nothing attached', 7.6, 'Risky', 'docker volume rm …', 'Not recoverable. Back it up first.']
+  ];
+  var RC = { Safe: 'var(--safe)', Review: 'var(--review)', Risky: 'var(--risky)' };
+  var marquee = FINDS.concat([['pnpm store', '', 5.6], ['Homebrew downloads', '', 2.1], ['Android emulators', '', 12.0], ['pip cache', '', 2.6], ['Playwright browsers', '', 3.6], ['JetBrains caches', '', 5.1]]);
+  var t = marquee.map(function (f) { return '<span>' + f[0] + '<b>' + f[2].toFixed(1) + ' GB</b></span>'; }).join('');
+  document.getElementById('track').innerHTML = t + t;
+
+  var cube = function (label, s) { return '<div class="crate"' + (s ? ' style="--s:' + s + 'px"' : '') + '><div class="f">' + label + '</div><div class="f">' + label + '</div><div class="f"></div><div class="f"></div><div class="f"></div><div class="f"></div></div>'; };
+  document.getElementById('findsGrid').innerHTML = FINDS.map(function (f) {
+    return '<article class="find reveal"><div class="cube-slot">' + cube(Math.round(f[2])) + '</div><span class="size">' + f[2].toFixed(1) + ' GB</span><h3>' + f[0] + '</h3><p><span class="dot" style="background:' + RC[f[3]] + '"></span>' + f[3] + ' · ' + f[1] + '</p><p>Back: ' + f[5] + '</p><div class="cmdline">$ ' + f[4] + '</div></article>';
+  }).join('');
+
+  // Toss story
+  var tc = document.getElementById('tossCrates'), sizes = [19, 15, 11, 9], story = document.querySelector('.story'), boat = document.getElementById('storyBoat');
+  tc.innerHTML = sizes.map(function (s, i) { return '<div class="crate" data-i="' + i + '" style="--s:' + (34 + s) + 'px">' + cube(s, 34 + s).replace(/^<div class="crate"[^>]*>/, '').replace(/<\/div>$/, '') + '</div>'; }).join('');
+  var crates = [].slice.call(tc.children), steps = [].slice.call(document.querySelectorAll('.step'));
+  var num = document.getElementById('gbnum'), pill = document.getElementById('gbpill'), note = document.getElementById('wlnote');
+  function story3d(p) {
+    var box = document.getElementById('seabox').getBoundingClientRect(), bw = box.width, bh = box.height;
+    var sinkPx = (1 - Math.min(1, p * 1.25)) * bh * .13;
+    boat.style.setProperty('--sink', sinkPx.toFixed(1) + 'px');
+    var boatW = boat.offsetWidth, boatH = boatW * 200 / 270, boatBottom = bh * .16 - sinkPx;
+    var unit = boatW / 270, deckY = -(boatBottom + boatH * .57);
+    var DECK = [[18, 0], [56, 0], [94, 0], [37, 1]];
+    crates.forEach(function (c, i) {
+      var start = .25 + i * .14, k = Math.max(0, Math.min(1, (p - start) / .2));
+      var cs = c.offsetWidth, x0 = (DECK[i][0] - 5) * unit - cs / 2, y0 = deckY - DECK[i][1] * (cs * .9);
+      var dir = i % 2 ? 1 : -1, x = x0 + dir * k * bw * .55, y = y0 - Math.sin(k * Math.PI) * bh * .35 + k * k * bh * .35;
+      c.style.transform = 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px) rotateX(' + (-18 - k * 300) + 'deg) rotateY(' + (30 + k * 260 * dir) + 'deg)';
+      c.style.opacity = k > .92 ? (1 - (k - .92) / .08).toFixed(2) : 1;
+    });
+    var gone = sizes.reduce(function (t, s, i) { var start = .25 + i * .14; return t + (p > start + .2 ? [18.7, 14.8, 11.3, 9.2][i] : 0); }, 0);
+    var f = 12.4 + gone; num.textContent = f.toFixed(1);
+    var st = f < 8 ? ['Critical', 'var(--risky)'] : f < 20 ? ['Low', 'var(--review)'] : ['Healthy', 'var(--safe)'];
+    pill.textContent = st[0]; pill.style.color = st[1];
+    note.textContent = p < .2 ? 'Scroll to toss' : p < .95 ? 'Tossing…' : 'Floating nicely';
+    var s = p < .22 ? 0 : p < .55 ? 1 : 2; steps.forEach(function (el, i) { el.classList.toggle('on', i === s); });
+  }
+  function onScroll() {
+    var r = story.getBoundingClientRect(), total = story.offsetHeight - innerHeight;
+    var p = innerWidth <= 900 ? Math.max(0, Math.min(1, (innerHeight * .8 - r.top) / (innerHeight * 1.2))) : Math.max(0, Math.min(1, -r.top / Math.max(1, total)));
+    story3d(reduced ? 1 : p);
+  }
+  addEventListener('scroll', onScroll, { passive: true }); addEventListener('resize', onScroll); onScroll();
+
+  // Treemap
+  var A = [
+    { n: 'Not explained', v: 160, c: '', unk: 1 }, { n: 'Docker', v: 60, c: '#9FD8F5' }, { n: 'AI models', v: 55, c: '#C9B6FF' },
+    { n: 'Projects', v: 50, c: '#A8E6CF' }, { n: 'Phones', v: 45, c: '#CDEB9E' }, { n: 'Caches', v: 40, c: '#FFD58A' }, { n: 'Apps', v: 30, c: '#B4E4E4' }, { n: 'Your files', v: 24, c: '#F7B6C8' }, { n: 'macOS', v: 24, c: '#CBD5EA' }
+  ];
+  var B = [
+    { n: 'Docker', v: 60, c: '#9FD8F5' }, { n: 'AI models', v: 102, c: '#C9B6FF' }, { n: 'Projects', v: 50, c: '#A8E6CF' }, { n: 'Phones', v: 45, c: '#CDEB9E' },
+    { n: 'Caches', v: 40, c: '#FFD58A' }, { n: 'Apps', v: 47, c: '#B4E4E4' }, { n: 'Your files', v: 104, c: '#F7B6C8' }, { n: 'macOS', v: 44, c: '#CBD5EA' }, { n: 'Not explained', v: 0, c: '', unk: 1 }
+  ];
+  function squarify(items, x, y, w, h) {
+    var out = [], list = items.filter(function (i) { return i.v > 0; }).slice().sort(function (a, b) { return b.v - a.v; }), total = list.reduce(function (t, i) { return t + i.v; }, 0);
+    (function lay(list, x, y, w, h, total) {
+      if (!list.length) return;
+      if (list.length === 1) { out.push({ i: list[0], x: x, y: y, w: w, h: h }); return; }
+      var half = 0, k = 0; while (k < list.length - 1 && half + list[k].v <= total / 2) { half += list[k].v; k++; } if (!k) { half = list[0].v; k = 1; }
+      var a = list.slice(0, k), b = list.slice(k), f = half / total;
+      if (w >= h) { lay(a, x, y, w * f, h, half); lay(b, x + w * f, y, w * (1 - f), h, total - half); }
+      else { lay(a, x, y, w, h * f, half); lay(b, x, y + h * f, w, h * (1 - f), total - half); }
+    })(list, x, y, w, h, total);
+    return out;
+  }
+  var tm = document.getElementById('tm'), names = A.map(function (a) { return a.n; });
+  tm.innerHTML = names.map(function (n) { return '<div data-n="' + n + '"></div>'; }).join('');
+  function drawTM(data) {
+    var boxes = squarify(data, 0, 0, 100, 100), byN = {}; boxes.forEach(function (b) { byN[b.i.n] = b; });
+    [].forEach.call(tm.children, function (el) {
+      var b = byN[el.dataset.n], d = data.filter(function (x) { return x.n === el.dataset.n; })[0];
+      if (!b) { el.style.opacity = 0; el.style.width = '0'; return; }
+      el.style.opacity = 1; el.className = d.unk ? 'unk' : '';
+      el.style.left = (b.x + .6) + '%'; el.style.top = (b.y + .8) + '%'; el.style.width = (b.w - 1.2) + '%'; el.style.height = (b.h - 1.6) + '%';
+      el.style.background = d.unk ? '' : d.c; el.style.setProperty('--z', (8 + d.v / 6) + 'px');
+      el.innerHTML = b.w > 14 && b.h > 12 ? d.n + '<small>' + d.v + ' GB</small>' : '';
+    });
+  }
+  drawTM(A);
+  var fixed = false, pctEl = document.getElementById('pct');
+  document.getElementById('explainBtn').addEventListener('click', function () {
+    fixed = !fixed; drawTM(fixed ? B : A); this.textContent = fixed ? 'Show it again' : 'Fix them all';
+    [].forEach.call(document.querySelectorAll('.cause'), function (c) { c.classList.toggle('done', fixed); });
+    var from = fixed ? 68 : 100, to = fixed ? 100 : 68, t0 = performance.now();
+    (function tick(now) { var k = Math.min(1, (now - t0) / (reduced ? 1 : 900)); pctEl.textContent = Math.round(from + (to - from) * k); if (k < 1) requestAnimationFrame(tick); })(t0);
+  });
+
+  // Video: show it only once the file exists
+  var v = document.getElementById('promo'), poster = document.getElementById('poster');
+  poster.addEventListener('click', function () { poster.hidden = true; v.play(); });
+  v.addEventListener('play', function () { poster.hidden = true; });
+
+  var tz = document.getElementById('teaser'), tb = document.getElementById('teaserBox'), snd = document.getElementById('snd');
+  tz.addEventListener('loadeddata', function () { tb.hidden = false; if (reduced) tz.pause(); });
+  snd.addEventListener('click', function () { tz.muted = !tz.muted; if (!tz.muted) tz.play(); snd.textContent = tz.muted ? 'Sound on' : 'Sound off'; snd.setAttribute('aria-pressed', String(!tz.muted)); });
+
+  // Copy
+  document.getElementById('copyBtn').addEventListener('click', function () {
+    var b = this, txt = document.getElementById('installCmd').textContent;
+    var done = function () { b.textContent = 'Copied'; setTimeout(function () { b.textContent = 'Copy'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(txt).then(done, function () { getSelection().selectAllChildren(document.getElementById('installCmd')); });
+  });
+
+  // Reveal on scroll
+  var io = 'IntersectionObserver' in window ? new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }); }, { threshold: 0, rootMargin: '0px 0px -8% 0px' }) : null;
+  document.querySelectorAll('.reveal').forEach(function (el) { if (io && !reduced) io.observe(el); else el.classList.add('in'); });
 })();
 </script>
 </body>
