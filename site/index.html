@@ -332,7 +332,7 @@ footer a { color: #fff; }
         <a class="btn primary" href="#download" data-release-link><svg><use href="#dl"/></svg><span data-os-label>Download Freeboard</span></a>
         <a class="btn" href="https://github.com/" data-repo-link><svg><use href="#gh"/></svg>Star on GitHub</a>
       </div>
-      <div class="platforms"><a href="https://github.com/acierto/freeboard/releases/latest/download/Freeboard-macOS-universal.dmg" download data-asset="macOS">macOS</a><a href="https://github.com/acierto/freeboard/releases/latest/download/Freeboard-linux-x86_64.deb" download data-asset="Linux">Linux</a><a href="https://github.com/acierto/freeboard/releases/latest/download/Freeboard-windows-x64-setup.exe" download data-asset="Windows">Windows</a><span>Built with Tauri 2</span></div>
+      <div class="platforms"><a href="https://github.com/acierto/freeboard/releases/latest" data-file="macOS-universal.dmg" data-asset="macOS">macOS</a><a href="https://github.com/acierto/freeboard/releases/latest" data-file="linux-x86_64.deb" data-asset="Linux">Linux</a><a href="https://github.com/acierto/freeboard/releases/latest" data-file="windows-x64-setup.exe" data-asset="Windows">Windows</a><span>Built with Tauri 2</span></div>
       <div class="release-line"><span data-version>Latest release</span> · <a href="https://github.com/acierto/freeboard/releases">All releases and older versions</a></div>
     </div>
 
@@ -512,7 +512,7 @@ footer a { color: #fff; }
       <a class="btn primary" href="https://github.com/" data-release-link><svg><use href="#dl"/></svg><span data-os-label>Download the latest release</span></a>
       <a class="btn" href="https://github.com/" data-repo-link><svg><use href="#gh"/></svg>View the source</a>
     </div>
-    <p class="reveal" style="margin-top:18px;font-size:15px;color:var(--muted)">Other downloads: <a href="https://github.com/acierto/freeboard/releases/latest/download/Freeboard-macOS-universal.dmg">macOS (.dmg)</a> · <a href="https://github.com/acierto/freeboard/releases/latest/download/Freeboard-windows-x64-setup.exe">Windows x64 (.exe)</a> · <a href="https://github.com/acierto/freeboard/releases/latest/download/Freeboard-windows-arm64-setup.exe">Windows Arm (.exe)</a> · <a href="https://github.com/acierto/freeboard/releases/latest/download/Freeboard-linux-x86_64.deb">Linux x86_64 (.deb)</a> · <a href="https://github.com/acierto/freeboard/releases/latest/download/Freeboard-linux-x86_64.AppImage">AppImage</a> · <a href="https://github.com/acierto/freeboard/releases/latest/download/Freeboard-linux-arm64.deb">Linux arm64 (.deb)</a></p>
+    <p class="reveal" style="margin-top:18px;font-size:15px;color:var(--muted)">Other downloads: <a href="https://github.com/acierto/freeboard/releases/latest" data-file="macOS-universal.dmg">macOS (.dmg)</a> · <a href="https://github.com/acierto/freeboard/releases/latest" data-file="windows-x64-setup.exe">Windows x64 (.exe)</a> · <a href="https://github.com/acierto/freeboard/releases/latest" data-file="windows-arm64-setup.exe">Windows Arm (.exe)</a> · <a href="https://github.com/acierto/freeboard/releases/latest" data-file="linux-x86_64.deb">Linux x86_64 (.deb)</a> · <a href="https://github.com/acierto/freeboard/releases/latest" data-file="linux-x86_64.AppImage">AppImage</a> · <a href="https://github.com/acierto/freeboard/releases/latest" data-file="linux-arm64.deb">Linux arm64 (.deb)</a></p>
     <p class="reveal" style="margin-top:6px;font-size:15px;color:var(--muted)"><span data-version>Latest release</span> · <a href="https://github.com/acierto/freeboard/releases">All releases and older versions</a></p>
     <div class="install reveal"><code id="installCmd">git clone https://github.com/your-name/freeboard &amp;&amp; cd freeboard &amp;&amp; pnpm tauri build</code><button class="btn sm" id="copyBtn">Copy</button></div>
   </div>
@@ -531,18 +531,25 @@ footer a { color: #fff; }
   var REPO = 'acierto/freeboard';
   document.querySelectorAll('[data-repo-link]').forEach(function (a) { a.href = 'https://github.com/' + REPO; });
   var REL = 'https://github.com/' + REPO + '/releases/latest', DL = REL + '/download/';
-  var ASSETS = { macOS: 'Freeboard-macOS-universal.dmg', Linux: 'Freeboard-linux-x86_64.deb', Windows: 'Freeboard-windows-x64-setup.exe' };
-  // Show which version "latest" is (public API, no token; the page works without it).
-  fetch('https://api.github.com/repos/' + REPO + '/releases/latest').then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
-    if (!j || !j.tag_name) return;
-    document.querySelectorAll('[data-version]').forEach(function (e) { e.textContent = 'Latest: ' + j.tag_name + (j.published_at ? ', ' + new Date(j.published_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : ''); });
-  }).catch(function () {});
-  document.querySelectorAll('[data-release-link]').forEach(function (a) { a.href = REL; });
-  document.getElementById('installCmd').textContent = 'git clone https://github.com/' + REPO + ' && cd freeboard && pnpm tauri build';
+  // File names carry the version (Freeboard-1.0.0-macOS-universal.dmg), so the
+  // links are filled in from the latest release. Without the API they open
+  // the release page, where every file is listed.
+  var FILES = { macOS: 'macOS-universal.dmg', Linux: 'linux-x86_64.deb', Windows: 'windows-x64-setup.exe' };
   var ua = navigator.userAgent, os = /Mac/.test(ua) ? 'macOS' : /Win/.test(ua) ? 'Windows' : /Linux/.test(ua) ? 'Linux' : '';
   if (os) document.querySelectorAll('[data-os-label]').forEach(function (l) { l.textContent = 'Download for ' + os; });
-  // Each system gets the file itself, so the download starts at once.
-  if (ASSETS[os]) document.querySelectorAll('[data-release-link]').forEach(function (a) { a.href = DL + ASSETS[os]; a.setAttribute('download', ''); });
+  fetch('https://api.github.com/repos/' + REPO + '/releases/latest').then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+    if (!j || !j.tag_name) return;
+    var v = j.tag_name.replace(/^v/, '');
+    document.querySelectorAll('[data-version]').forEach(function (e) { e.textContent = 'Latest: ' + j.tag_name + (j.published_at ? ', ' + new Date(j.published_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : ''); });
+    var url = function (suffix) {
+      var a = (j.assets || []).filter(function (x) { return x.name === 'Freeboard-' + v + '-' + suffix || x.name === 'Freeboard-' + suffix; })[0];
+      return a ? a.browser_download_url : null;
+    };
+    var go = function (el, u) { if (u) { el.href = u; el.setAttribute('download', ''); } };
+    document.querySelectorAll('[data-file]').forEach(function (el) { go(el, url(el.getAttribute('data-file'))); });
+    document.querySelectorAll('[data-asset]').forEach(function (el) { go(el, url(FILES[el.getAttribute('data-asset')])); });
+    if (FILES[os]) document.querySelectorAll('[data-release-link]').forEach(function (el) { go(el, url(FILES[os])); });
+  }).catch(function () {});
   var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // Hero tilt

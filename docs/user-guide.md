@@ -10,7 +10,7 @@ Preview builds are not yet signed with an Apple Developer ID or a Windows code-s
 
 ### macOS (11 or later, Apple silicon and Intel)
 
-1. Open `Freeboard-macOS-universal.dmg`, accept the MIT license, and drag Freeboard to Applications.
+1. Open `Freeboard-<version>-macOS-universal.dmg`, accept the MIT license, and drag Freeboard to Applications.
 2. Open Freeboard. macOS says it can't check the app for malware.
 3. Go to **System Settings → Privacy & Security**, scroll down and click **Open Anyway**. Or run:
    ```bash
@@ -19,7 +19,7 @@ Preview builds are not yet signed with an Apple Developer ID or a Windows code-s
 
 ### Windows (10 or 11, x64 or Arm)
 
-1. Run `Freeboard-windows-x64-setup.exe` (or the Arm installer, or the `.msi`). It installs for your user and needs no administrator rights.
+1. Run `Freeboard-<version>-windows-x64-setup.exe` (or the Arm installer, or the `.msi`). It installs for your user and needs no administrator rights.
 2. If SmartScreen says "Windows protected your PC", click **More info**, then **Run anyway**.
 3. Freeboard lives in the notification area. If its icon is hidden, click the **^** arrow on the taskbar.
 
@@ -27,11 +27,11 @@ Preview builds are not yet signed with an Apple Developer ID or a Windows code-s
 
 ```bash
 # Debian / Ubuntu
-sudo apt install ./Freeboard-linux-x86_64.deb
+sudo apt install ./Freeboard-<version>-linux-x86_64.deb
 
 # AppImage
-chmod +x Freeboard-linux-x86_64.AppImage
-./Freeboard-linux-x86_64.AppImage
+chmod +x Freeboard-<version>-linux-x86_64.AppImage
+./Freeboard-<version>-linux-x86_64.AppImage
 ```
 
 Tested on GNOME (with the AppIndicator extension that Ubuntu includes) and KDE Plasma.

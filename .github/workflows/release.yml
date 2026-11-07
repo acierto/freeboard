@@ -82,19 +82,25 @@ jobs:
           set -euo pipefail
           mkdir -p out
           b=src-tauri/target
+          # Every file name carries the version (Freeboard-1.0.0-macOS-universal.dmg),
+          # so a new download is never mistaken for an older one with the same name.
+          v="$(node -p "require('./src-tauri/tauri.conf.json').version")"
+          # A version tag must match the app's version, or the files would be
+          # named and labelled differently from what the app reports.
+          case "$TAG" in v[0-9]*) [ "$TAG" = "v$v" ] || { echo "Tag $TAG does not match the app version $v" >&2; exit 1; };; esac
           case "${{ matrix.name }}" in
             macOS-universal)
-              cp "$(ls $b/universal-apple-darwin/release/bundle/dmg/*.dmg | head -1)" out/Freeboard-macOS-universal.dmg ;;
+              cp "$(ls $b/universal-apple-darwin/release/bundle/dmg/*.dmg | head -1)" "out/Freeboard-$v-macOS-universal.dmg" ;;
             linux-*)
               arch="${{ matrix.name }}"; arch="${arch#linux-}"
               # apt package name freeboard-disk (scripts/linux/rename-deb.sh).
-              scripts/linux/rename-deb.sh "$(ls $b/release/bundle/deb/*.deb | head -1)" "out/Freeboard-linux-$arch.deb"
-              cp "$(ls $b/release/bundle/appimage/*.AppImage | head -1)" "out/Freeboard-linux-$arch.AppImage" ;;
+              scripts/linux/rename-deb.sh "$(ls $b/release/bundle/deb/*.deb | head -1)" "out/Freeboard-$v-linux-$arch.deb"
+              cp "$(ls $b/release/bundle/appimage/*.AppImage | head -1)" "out/Freeboard-$v-linux-$arch.AppImage" ;;
             windows-*)
               arch="${{ matrix.name }}"; arch="${arch#windows-}"
-              cp "$(ls $b/release/bundle/nsis/*.exe | head -1)" "out/Freeboard-windows-$arch-setup.exe"
+              cp "$(ls $b/release/bundle/nsis/*.exe | head -1)" "out/Freeboard-$v-windows-$arch-setup.exe"
               if ls $b/release/bundle/msi/*.msi >/dev/null 2>&1; then
-                cp "$(ls $b/release/bundle/msi/*.msi | head -1)" "out/Freeboard-windows-$arch.msi"
+                cp "$(ls $b/release/bundle/msi/*.msi | head -1)" "out/Freeboard-$v-windows-$arch.msi"
               fi ;;
           esac
           ls -la out
@@ -122,12 +128,12 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           cat > notes.md <<NOTES
-          Preview release of Freeboard ${TAG#v} for macOS, Windows and Linux.
+          Freeboard ${TAG#v} for macOS, Windows and Linux.
 
           Download page: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
 
-          - **macOS** (11+, Apple silicon and Intel): \`Freeboard-macOS-universal.dmg\`. Not notarized yet: after the first launch is blocked, open System Settings → Privacy & Security → Open Anyway.
-          - **Windows** (10 and 11): \`Freeboard-windows-x64-setup.exe\` (or \`.msi\`), \`Freeboard-windows-arm64-setup.exe\` for Arm PCs. Not code-signed yet: SmartScreen shows "Windows protected your PC"; choose More info → Run anyway.
+          - **macOS** (11+, Apple silicon and Intel): \`Freeboard-${TAG#v}-macOS-universal.dmg\`. Not notarized yet: after the first launch is blocked, open System Settings → Privacy & Security → Open Anyway.
+          - **Windows** (10 and 11): \`Freeboard-${TAG#v}-windows-x64-setup.exe\` (or \`.msi\`), \`Freeboard-${TAG#v}-windows-arm64-setup.exe\` for Arm PCs. Not code-signed yet: SmartScreen shows "Windows protected your PC"; choose More info → Run anyway.
           - **Linux** (Ubuntu 22.04+ or similar): \`.deb\` or AppImage for x86_64 and arm64. In apt the package is \`freeboard-disk\` (Ubuntu's own \`freeboard\` is an unrelated IoT dashboard).
 
           Verify downloads with \`SHA256SUMS.txt\`.
@@ -135,5 +141,5 @@ jobs:
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" dist/* --clobber
           else
-            gh release create "$TAG" dist/* --title "Freeboard ${TAG#v} (preview)" --notes-file notes.md
+            gh release create "$TAG" dist/* --title "Freeboard ${TAG#v}" --notes-file notes.md
           fi
