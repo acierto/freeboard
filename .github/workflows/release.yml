@@ -128,7 +128,7 @@ jobs:
 
           - **macOS** (11+, Apple silicon and Intel): \`Freeboard-macOS-universal.dmg\`. Not notarized yet: after the first launch is blocked, open System Settings → Privacy & Security → Open Anyway.
           - **Windows** (10 and 11): \`Freeboard-windows-x64-setup.exe\` (or \`.msi\`), \`Freeboard-windows-arm64-setup.exe\` for Arm PCs. Not code-signed yet: SmartScreen shows "Windows protected your PC"; choose More info → Run anyway.
-          - **Linux** (Ubuntu 22.04+ or similar): \`.deb\` or AppImage for x86_64 and arm64.
+          - **Linux** (Ubuntu 22.04+ or similar): \`.deb\` or AppImage for x86_64 and arm64. In apt the package is \`freeboard-disk\` (Ubuntu's own \`freeboard\` is an unrelated IoT dashboard).
 
           Verify downloads with \`SHA256SUMS.txt\`.
           NOTES
