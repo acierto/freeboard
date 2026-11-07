@@ -27,6 +27,11 @@ pub struct Measured {
     pub newest_mtime: Option<i64>,
     /// True when parts of the tree could not be read.
     pub incomplete: bool,
+    /// The files' own sizes (st_size), each hard-linked file once. Used to
+    /// tell whether contents changed: allocated bytes also change when the
+    /// file system settles a freshly written file (an ext4 extent block
+    /// appeared between scan and cleanup; Linux VM, 2026-11-07).
+    pub content_bytes: u64,
 }
 
 impl Measured {
@@ -60,12 +65,20 @@ impl Acc {
     fn file(&mut self, path: &Path, meta: &std::fs::Metadata) {
         let size = platform::allocated_size(path, meta);
         let mt = platform::modified_secs(meta);
+        let nlink_early = if meta.is_file() { platform::link_count(path, meta) } else { 1 };
+        // Hard-linked files are added once, in finish(), with their length.
+        if nlink_early <= 1 || platform::file_id(path, meta).is_none() {
+            self.m.content_bytes += meta.len();
+        }
         self.m.newest_mtime = Some(self.m.newest_mtime.map_or(mt, |n| n.max(mt)));
         self.m.files += 1;
         let nlink = if meta.is_file() { platform::link_count(path, meta) } else { 1 };
         if nlink > 1 {
             if let Some(id) = platform::file_id(path, meta) {
                 let e = self.multi.entry(id).or_insert((0, nlink, size));
+                if e.0 == 0 {
+                    self.m.content_bytes += meta.len();
+                }
                 e.0 += 1;
                 return;
             }
@@ -459,6 +472,17 @@ mod tests {
         // Measuring the parent that holds every link: nothing is shared.
         let whole = measure(t.path(), &MeasureOpts::default());
         assert_eq!(whole.shared_bytes, 0);
+        // Content bytes are the files' own sizes, each linked file once.
+        assert_eq!(m.content_bytes, 2 * data.len() as u64);
+    }
+
+    #[test]
+    fn content_bytes_follow_contents_not_allocation() {
+        let t = tempfile::tempdir().unwrap();
+        platform::make_sparse(&t.path().join("sparse"), 256 * 1024 * 1024);
+        fs::write(t.path().join("a"), b"hello").unwrap();
+        let m = measure(t.path(), &MeasureOpts::default());
+        assert_eq!(m.content_bytes, 256 * 1024 * 1024 + 5, "a sparse file's length counts, not its blocks");
     }
 
     #[test]

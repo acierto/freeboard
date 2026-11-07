@@ -178,23 +178,40 @@ export interface ResultLine {
 
 /** The result's sections (prototype `outcomeSheet()`): what was tossed, what
  * stayed on board, what could not go (with its reasons, each once) and what
- * did not start. */
+ * did not start. A split item is listed by part where its parts ended
+ * differently: two of three node_modules folders that stayed must not hide
+ * behind "Tossed" (Linux VM, 2026-11-07). */
 export function resultSections(plan: CleanupPlan, run: RunDetail) {
   const sec: Record<"tossed" | "stayed" | "failed" | "not_started", ResultLine[]> = { tossed: [], stayed: [], failed: [], not_started: [] };
+  const retry = new Set<string>();
   for (const s of plan.items) {
-    const o = outcomeOf(run, s.id);
     const steps = stepsOf(run, s.id);
-    if (o === "tossed") {
-      const gone = steps.filter((x) => removed(x.state));
-      sec.tossed.push({ id: s.id, title: s.title, bytes: gone.reduce((t, x) => t + x.expectedBytes, 0), inTrash: gone.every((x) => x.state === "moved_to_trash"), why: "" });
-    } else if (o === "stayed" || o === "failed") {
-      const bad = steps.find((x) => (o === "failed" ? x.state === "failed" || x.state === "interrupted" : x.state === "skipped"));
-      sec[o].push({ id: s.id, title: s.title, bytes: s.sizeBytes, inTrash: false, why: bad?.reason ?? (o === "stayed" ? "It changed after the scan." : "") });
-    } else if (o === "not_started" || o === "waiting") sec.not_started.push({ id: s.id, title: s.title, bytes: s.sizeBytes, inTrash: false, why: "" });
+    const o = outcomeOf(run, s.id);
+    if (o === "waiting" || o === "not_started" || !steps.length) {
+      sec.not_started.push({ id: s.id, title: s.title, bytes: s.sizeBytes, inTrash: false, why: "" });
+      retry.add(s.id);
+      continue;
+    }
+    const gone = steps.filter((x) => removed(x.state));
+    if (gone.length) sec.tossed.push({ id: s.id, title: s.title, bytes: gone.reduce((t, x) => t + x.expectedBytes, 0), inTrash: gone.every((x) => x.state === "moved_to_trash"), why: "" });
+    // Steps that did not go: by part when only some did, else the item.
+    const whole = !gone.length && steps.length === 1;
+    for (const x of steps) {
+      if (removed(x.state)) continue;
+      const line = (why: string): ResultLine => ({ id: whole ? s.id : x.itemId, title: whole || !x.parentId ? s.title : x.title, bytes: whole ? s.sizeBytes : x.expectedBytes, inTrash: false, why });
+      if (x.state === "skipped") sec.stayed.push(line(x.reason ?? "It changed after the scan."));
+      else if (x.state === "failed" || x.state === "interrupted") {
+        sec.failed.push(line(x.reason ?? ""));
+        retry.add(s.id);
+      } else if (x.state === "canceled") {
+        sec.not_started.push(line(""));
+        retry.add(s.id);
+      }
+    }
   }
   const reasons = [...new Set(sec.failed.map((l) => l.why).filter(Boolean))];
   const tossedBytes = sec.tossed.reduce((t, l) => t + l.bytes, 0);
-  return { ...sec, reasons, tossedBytes, retryIds: [...sec.failed, ...sec.not_started].map((l) => l.id) };
+  return { ...sec, reasons, tossedBytes, retryIds: [...retry] };
 }
 
 /** The free-space bar under the result's headline. */

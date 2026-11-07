@@ -52,6 +52,9 @@ const text = (sel) => js(`const e=document.querySelector(arguments[0]);return e?
 async function click(css) {
   const [id] = await find(css);
   if (!id) throw new Error("no element " + css);
+  // Centre it first: WebDriver scrolls a target only just into view, where
+  // the sticky pile bar at the bottom of the list can cover it.
+  await js(`document.querySelector(arguments[0])?.scrollIntoView({block:"center"})`, [css]);
   await wd("POST", `${S}/element/${id}/click`, {});
   await sleep(700);
 }

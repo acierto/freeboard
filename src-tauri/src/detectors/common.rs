@@ -214,7 +214,9 @@ pub fn fingerprint_paths(states: &[PathState]) -> String {
     let mut con = String::new();
     for s in states {
         loc.push_str(&format!("{}|{}|{}\n", s.canonical.display(), s.identity, s.is_link));
-        con.push_str(&format!("{:?}|{}|{}\n", s.m.newest_mtime, s.m.files, s.m.bytes));
+        // Content only: file sizes, not the space the file system allocates
+        // (see Measured::content_bytes).
+        con.push_str(&format!("{:?}|{}|{}\n", s.m.newest_mtime, s.m.files, s.m.content_bytes));
     }
     format!("p:{};c:{}", &hash_hex(&loc)[..16], &hash_hex(&con)[..16])
 }

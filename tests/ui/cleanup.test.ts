@@ -160,6 +160,13 @@ test("the result groups items and names each reason once", () => {
   assert.ok(r.tossed[0].inTrash);
   assert.deepEqual(r.reasons, [timeout], "identical failures read as one reason");
   assert.deepEqual(r.retryIds, ["c", "d", "e"], "Try again reruns what failed or never started");
+  // A split item whose parts ended differently lists the parts that stayed.
+  const split = plan([item("nm")]);
+  const parts = resultSections(
+    split,
+    run([row("nm-a", "done", "nm", { title: "node_modules in web-app" }), row("nm-b", "skipped", "nm", { title: "node_modules in admin-portal", reason: "Files inside it changed after the scan." })], { state: "finished" }),
+  );
+  assert.deepEqual([parts.tossed.length, parts.stayed.map((l) => l.title)], [1, ["node_modules in admin-portal"]]);
 });
 
 test("Logbook notes use the prototype's wording, with Recycle Bin on Windows", () => {
