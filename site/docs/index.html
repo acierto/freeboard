@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Freeboard documentation</title>
+<meta name="description" content="How to install and use Freeboard, what its risk labels mean, how cleanup stays safe, and how to build and contribute.">
+<meta property="og:title" content="Freeboard documentation">
+<meta property="og:description" content="Install, use, and contribute to Freeboard, the disk space watcher for developers.">
+<meta property="og:image" content="../img/icon.png">
+<link rel="icon" type="image/png" href="../favicon.png">
+<style>
+@font-face { font-family: "Barlow Condensed"; font-weight: 600; font-display: swap; src: url(../fonts/barlow-condensed-latin-600-normal.woff2) format("woff2"); }
+@font-face { font-family: "Barlow Condensed"; font-weight: 700; font-display: swap; src: url(../fonts/barlow-condensed-latin-700-normal.woff2) format("woff2"); }
+@font-face { font-family: "IBM Plex Sans"; font-weight: 400; font-display: swap; src: url(../fonts/ibm-plex-sans-latin-400-normal.woff2) format("woff2"); }
+@font-face { font-family: "IBM Plex Sans"; font-weight: 500; font-display: swap; src: url(../fonts/ibm-plex-sans-latin-500-normal.woff2) format("woff2"); }
+@font-face { font-family: "IBM Plex Mono"; font-weight: 400; font-display: swap; src: url(../fonts/ibm-plex-mono-latin-400-normal.woff2) format("woff2"); }
+
+:root {
+  --bg: #E9EEF0; --panel: #F7FAFA; --panel-2: #DDE5E8; --ink: #13262F; --muted: #4F626A; --line: #C4D0D4;
+  --accent: #0B6573; --accent-ink: #FFFFFF; --hull: #22343D; --hull-ink: #EAF1F2; --oxide: #8E3A2B; --water: #2F8FA3;
+  --good: #1F7A50; --warn: #8A5700; --crit: #B02A22;
+  --display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F1B21; --panel: #16252C; --panel-2: #203239; --ink: #E4ECEE; --muted: #9DB0B6; --line: #2D4149;
+    --accent: #56BCCB; --accent-ink: #08252B; --hull: #31464F; --water: #3AA0B5;
+    --good: #5CCB96; --warn: #E3AE55; --crit: #F08378; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F1B21; --panel: #16252C; --panel-2: #203239; --ink: #E4ECEE; --muted: #9DB0B6; --line: #2D4149;
+  --accent: #56BCCB; --accent-ink: #08252B; --hull: #31464F; --water: #3AA0B5;
+  --good: #5CCB96; --warn: #E3AE55; --crit: #F08378; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 17px/1.55 var(--body); }
+a { color: var(--accent); }
+img { max-width: 100%; height: auto; display: block; }
+code, kbd, .mono { font-family: var(--mono); font-size: 0.88em; }
+h1, h2, h3 { font-family: var(--display); font-weight: 700; line-height: 1.05; margin: 0; letter-spacing: 0.005em; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+/* Header */
+.top { display: flex; align-items: center; justify-content: space-between; padding-top: 20px; padding-bottom: 20px; }
+.brand { display: flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font: 700 26px/1 var(--display); }
+.brand img { width: 34px; height: 34px; }
+.top nav { display: flex; gap: 22px; font-weight: 500; font-size: 15px; }
+.top nav a { color: var(--muted); text-decoration: none; }
+.top nav a:hover { color: var(--ink); }
+
+/* Hero */
+.hero { display: grid; grid-template-columns: 1fr; gap: 40px; padding-top: 40px; }
+.hero-text { padding-bottom: 56px; }
+.eyebrow { font: 400 13px/1 var(--mono); color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; margin: 0 0 16px; }
+.hero h1 { font-size: clamp(48px, 7.4vw, 88px); max-width: 13ch; }
+.hero h1 em { font-style: normal; color: var(--accent); }
+.lede { font-size: 20px; color: var(--muted); max-width: 40ch; margin: 22px 0 30px; }
+
+.dl { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.btn { display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 22px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--panel); color: var(--ink); font: 500 16px/1 var(--body); text-decoration: none; transition: border-color .15s, transform .15s; }
+.btn:hover { border-color: var(--accent); }
+.btn:active { transform: translateY(1px); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn svg { width: 20px; height: 20px; flex: none; }
+.btn small { font: 400 13px/1 var(--mono); opacity: .8; }
+.release-line { margin: 14px 0 0; font-size: 14px; color: var(--muted); }
+
+.shot { position: relative; margin-top: 8px; }
+.shot picture img { border-radius: 10px; border: 1px solid var(--line); box-shadow: 0 30px 60px -30px rgba(10, 30, 40, .45); }
+
+/* Waterline band */
+.waterline { margin-top: -48px; height: 140px; background: var(--water); position: relative; z-index: -1;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 12'%3E%3Cpath d='M0 6 Q15 0 30 6 T60 6 T90 6 T120 6 V12 H0Z'/%3E%3C/svg%3E") top/120px 12px repeat-x,
+                linear-gradient(#000, #000) 0 11px/100% 100% no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 12'%3E%3Cpath d='M0 6 Q15 0 30 6 T60 6 T90 6 T120 6 V12 H0Z'/%3E%3C/svg%3E") top/120px 12px repeat-x,
+                linear-gradient(#000, #000) 0 11px/100% 100% no-repeat; }
+
+section { padding: 88px 0 0; }
+section > .wrap > h2 { font-size: clamp(34px, 4.6vw, 52px); max-width: 20ch; }
+.sub { color: var(--muted); max-width: 60ch; margin: 14px 0 0; }
+
+/* Features */
+.features { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1px; margin-top: 40px;
+  background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.feature { background: var(--panel); padding: 26px 24px 28px; }
+.feature h3 { font-size: 25px; margin-bottom: 8px; }
+.feature p { margin: 0; color: var(--muted); font-size: 16px; }
+.feature .k { font: 400 13px/1 var(--mono); color: var(--accent); margin-bottom: 14px; display: block; }
+
+/* Risk legend */
+.risks { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 36px; }
+.risk { border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px; background: var(--panel); }
+.pill { display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid currentColor; border-radius: 999px; padding: 3px 11px; font: 500 14px/1.2 var(--body); }
+.risk p { margin: 12px 0 0; color: var(--muted); font-size: 15.5px; }
+.safe { color: var(--good); } .review { color: var(--warn); } .risky { color: var(--crit); }
+
+/* Gallery */
+.gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top: 40px; }
+.gallery figure { margin: 0; }
+.gallery img { border-radius: 8px; border: 1px solid var(--line); aspect-ratio: 1088 / 760; object-fit: cover; object-position: top left; }
+.gallery figcaption { font-size: 15px; color: var(--muted); margin-top: 12px; }
+.gallery figcaption b { color: var(--ink); font-weight: 500; }
+
+/* Never list */
+.never { margin: 36px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px 40px; }
+.never li { padding-left: 30px; position: relative; }
+.never li::before { content: ""; position: absolute; left: 0; top: 0.62em; width: 16px; height: 2px; background: var(--crit); }
+
+/* Download section */
+.platforms { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-top: 40px; }
+.platform { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 28px; }
+.platform.current { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.platform h3 { font-size: 32px; display: flex; align-items: center; gap: 10px; }
+.platform h3 svg { width: 26px; height: 26px; }
+.platform .req { color: var(--muted); font-size: 15px; margin: 6px 0 20px; }
+.platform .dl { flex-direction: column; align-items: stretch; }
+.platform .btn { justify-content: space-between; }
+.steps { margin: 22px 0 0; padding-left: 20px; font-size: 15.5px; color: var(--muted); }
+.steps li { margin: 6px 0; }
+pre { background: var(--panel-2); border-radius: 6px; padding: 12px 14px; overflow-x: auto; font: 400 13.5px/1.5 var(--mono); color: var(--ink); margin: 10px 0 0; }
+.note { margin-top: 28px; border-left: 3px solid var(--warn); padding: 4px 0 4px 18px; color: var(--muted); max-width: 75ch; font-size: 15.5px; }
+.note b { color: var(--ink); font-weight: 500; }
+
+footer { margin-top: 100px; border-top: 1px solid var(--line); padding: 30px 0 44px; color: var(--muted); font-size: 14px; }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 12px 28px; justify-content: space-between; }
+
+@media (min-width: 900px) {
+  .hero { grid-template-columns: 0.85fr 1.15fr; align-items: center; padding-top: 56px; }
+  .shot { margin-top: 0; margin-right: -80px; }
+}
+@media (max-width: 600px) {
+  body { font-size: 16px; }
+  .wrap { padding: 0 16px; }
+  .top nav a:not(.gh) { display: none; }
+  .btn { width: 100%; justify-content: center; }
+  section { padding-top: 64px; }
+  .platform { padding: 22px 18px; }
+  .hero { padding-top: 28px; gap: 28px; }
+  .hero-text { padding-bottom: 0; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* Docs layout */
+.docs { display: grid; grid-template-columns: 1fr; gap: 32px; padding-top: 24px; }
+.toc { font-size: 15px; }
+.toc h2 { font: 400 13px/1 var(--mono); letter-spacing: .04em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; }
+.toc ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 18px; }
+.toc a { color: var(--muted); text-decoration: none; }
+.toc a:hover { color: var(--accent); }
+.doc { min-width: 0; max-width: 78ch; }
+.doc h1 { font-size: clamp(42px, 6vw, 68px); margin-bottom: 14px; }
+.doc h2 { font-size: 36px; margin: 64px 0 14px; scroll-margin-top: 20px; }
+.doc h3 { font-size: 24px; margin: 30px 0 8px; }
+.doc p, .doc li { color: var(--ink); }
+.doc .lede { color: var(--muted); max-width: none; margin: 0 0 8px; }
+.doc ul, .doc ol { padding-left: 22px; }
+.doc li { margin: 6px 0; }
+.doc table { width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 15.5px; display: block; overflow-x: auto; }
+.doc th, .doc td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.doc th { font: 400 13px/1.2 var(--mono); text-transform: uppercase; letter-spacing: .03em; color: var(--muted); background: var(--panel); }
+.doc :not(pre) > code { background: var(--panel-2); padding: 1px 6px; border-radius: 4px; }
+.doc img.wide { border-radius: 10px; border: 1px solid var(--line); margin: 22px 0; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 22px 0; }
+.card { display: block; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px; text-decoration: none; color: var(--ink); transition: border-color .15s; }
+.card:hover { border-color: var(--accent); }
+.card b { display: block; font: 700 24px/1.1 var(--display); margin-bottom: 6px; }
+.card span { color: var(--muted); font-size: 15px; }
+@media (min-width: 960px) {
+  .docs { grid-template-columns: 200px 1fr; gap: 56px; }
+  .toc { position: sticky; top: 24px; align-self: start; }
+  .toc ul { flex-direction: column; gap: 8px; }
+}
+@media (max-width: 600px) { .doc h2 { font-size: 30px; margin-top: 48px; } }
+</style>
+</head>
+<body>
+<header class="wrap top">
+  <a class="brand" href="../"><img src="../img/icon.png" alt="" width="34" height="34">Freeboard</a>
+  <nav aria-label="Page">
+    <a href="../#how">How it works</a>
+    <a href="../#download">Download</a>
+    <a href="./" aria-current="page" style="color:var(--ink)">Docs</a>
+    <a class="gh" href="https://github.com/acierto/freeboard">GitHub</a>
+  </nav>
+</header>
+
+<div class="wrap docs">
+  <nav class="toc" aria-label="On this page">
+    <h2>On this page</h2>
+    <ul>
+      <li><a href="#start">Get started</a></li>
+      <li><a href="#watch">How it watches</a></li>
+      <li><a href="#screens">The screens</a></li>
+      <li><a href="#room">Making room</a></li>
+      <li><a href="#risk">Risk levels</a></li>
+      <li><a href="#confirm">Confirming a cleanup</a></li>
+      <li><a href="#never">What it never does</a></li>
+      <li><a href="#settings">Default settings</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="#build">Build from source</a></li>
+      <li><a href="#more">Technical docs</a></li>
+    </ul>
+  </nav>
+
+  <main class="doc">
+    <h1>Documentation</h1>
+    <p class="lede">Freeboard watches the free space on your disk and helps you get it back without breaking anything. Here is how to install it, what each part does, and why cleanup stays safe.</p>
+
+
+    <h2 id="start">Get started</h2>
+    <p>Download the installer for your system from the <a href="../#download">download page</a> or the <a href="https://github.com/acierto/freeboard/releases/latest">latest release</a>, and compare its SHA-256 with <code>SHA256SUMS.txt</code>. Preview builds are not yet signed or notarized, so the first launch needs one confirmation.</p>
+    <table>
+      <thead><tr><th>System</th><th>Install</th><th>First launch</th></tr></thead>
+      <tbody>
+        <tr><td><b>macOS</b> 11+<br>Apple silicon, Intel</td><td>Open the <code>.dmg</code> and drag Freeboard to Applications.</td><td>System Settings → Privacy &amp; Security → <b>Open Anyway</b>, or <code>xattr -dr com.apple.quarantine /Applications/Freeboard.app</code></td></tr>
+        <tr><td><b>Windows</b> 10, 11<br>x64, Arm</td><td>Run the <code>-setup.exe</code> (or the <code>.msi</code>). No administrator rights needed.</td><td>SmartScreen: <b>More info</b> → <b>Run anyway</b>. The icon lives in the notification area.</td></tr>
+        <tr><td><b>Linux</b><br>Ubuntu 22.04+, Debian 12<br>x86_64, arm64</td><td><code>sudo apt install ./Freeboard-linux-x86_64.deb</code>, or <code>chmod +x</code> the AppImage and run it.</td><td>Tested on GNOME (with AppIndicator) and KDE Plasma.</td></tr>
+      </tbody>
+    </table>
+    <p>On first run Freeboard explains what it reads and asks which folders to scan for projects and worktrees. It asks the operating system for a permission only when a feature needs it.</p>
+
+    <h2 id="watch">How it watches your disk</h2>
+    <p>Freeboard monitors your home volume, plus any other fixed volume you add. It samples free space every 5 minutes and keeps one sample per hour.</p>
+    <table>
+      <thead><tr><th>Status</th><th>Default rule</th><th>Tray icon</th><th>Notification</th></tr></thead>
+      <tbody>
+        <tr><td><span class="pill safe">● Healthy</span></td><td>20 GB free or more</td><td>Neutral ring</td><td>None</td></tr>
+        <tr><td><span class="pill review">◆ Low</span></td><td>Below 20 GB</td><td>Amber ring</td><td>Once, on entering Low</td></tr>
+        <tr><td><span class="pill risky">▲ Critical</span></td><td>Below 8 GB</td><td>Red ring</td><td>On entering Critical, then every 6 hours while unchanged</td></tr>
+      </tbody>
+    </table>
+    <p>A status improves only after free space rises 2 GB above its threshold, so you aren't alerted again and again around the limit. The <b>forecast</b> ("About N days left") appears only with at least 3 days of samples and falling free space; earlier cleanups are excluded from the estimate.</p>
+    <p>Closing the window hides Freeboard in the tray. Monitoring and scheduled scans keep running, and the interface is released after 60 seconds hidden. The tray menu offers <b>Open Freeboard</b>, <b>Scan Now</b>, <b>Pause Notifications</b> and <b>Quit</b>.</p>
+
+    <h2 id="screens">The screens</h2>
+    <table>
+      <thead><tr><th>Screen</th><th>What it is for</th></tr></thead>
+      <tbody>
+        <tr><td><b>Home</b></td><td>Dinghy, the boat that rides higher as free space grows; free space and status; the forecast; your goal; <b>Where from</b>; and the pile of crates the main button removes.</td></tr>
+        <tr><td><b>Quick questions</b></td><td>One card at a time, biggest first: what the item is, its size, why it is listed, where it lives, when it was last used, the action and how to recover it.</td></tr>
+        <tr><td><b>Everything I found</b></td><td>All suggestions grouped by source, with a checkbox, <b>Remove now</b> and <b>Keep</b> per item.</td></tr>
+        <tr><td><b>Disk map</b></td><td>Where the space goes; what Freeboard can't explain and why, with a fix for each; what grew fastest; which places were checked.</td></tr>
+        <tr><td><b>Logbook</b></td><td>Every cleanup: date, result, space freed, amount held in the Trash and skipped items.</td></tr>
+        <tr><td><b>Settings</b></td><td>Behind the gear button: warning levels, scan folders, exclusions, schedule, startup, notifications.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="room">Making room</h2>
+    <p>Pick a goal (20 GB, 50 GB, 100 GB or <b>All I can</b>) and optionally <b>Where from</b>. Freeboard fills the pile with <b>Safe</b> items, largest first, until the goal is met. Items you added by hand come first.</p>
+    <ul>
+      <li><b>Review</b> and <b>Risky</b> items are never added automatically.</li>
+      <li>Take a crate out and the pile switches to manual mode and won't refill it. Pick a size again to refill.</li>
+      <li><b>Keep</b> marks an item you never want suggested. <b>Stop keeping</b> brings it back.</li>
+      <li><b>Choose which</b> picks individual projects, models, emulators, apps, backups or versions inside an item.</li>
+      <li>If Safe items fall short of the goal, Freeboard says by how much and points to the items below.</li>
+    </ul>
+
+    <h2 id="risk">Risk levels</h2>
+    <div class="risks" style="margin-top:20px">
+      <div class="risk"><span class="pill safe">● Safe</span><p>Regenerable data: caches and build output that tools recreate. Preselected. Recover by rebuilding with the tool that owns it.</p></div>
+      <div class="risk"><span class="pill review">◆ Review</span><p>Usually fine, worth a look: unused images, idle projects' dependencies, merged worktrees. Moved to the Trash where possible.</p></div>
+      <div class="risk"><span class="pill risky">▲ Risky</span><p>Cannot be recovered, such as Docker volumes. Never preselected; you confirm each one by name.</p></div>
+    </div>
+    <p>Moving something to the Trash doesn't free space until you empty the Trash. The plan shows this up front.</p>
+
+    <h2 id="confirm">Confirming a cleanup</h2>
+    <p>Before anything runs you see a plan with three totals: <b>freed right away</b>, <b>held in the Trash</b>, and <b>cannot be recovered</b>. Each unrecoverable item needs its own confirmation.</p>
+    <p>Then, one item at a time:</p>
+    <ol>
+      <li>Freeboard <b>checks it again</b>. If it changed since the scan (a worktree got a commit, a container started, a folder was modified), it is skipped and the reason is shown.</li>
+      <li>It runs the action.</li>
+      <li>The result is recorded in the Logbook.</li>
+    </ol>
+    <p>You can cancel between items; an item already running is never interrupted. If one fails, the rest continue. Afterwards Freeboard measures free space again and reports the measured change next to the expected one. A plan expires after 30 minutes, or sooner if a new scan runs.</p>
+    <h3>Keep me tidy</h3>
+    <p>Optional rules, <b>off by default</b>: clear package caches over 30 days old when space is Low, and clear unused Docker build cache weekly. They can only touch named Safe detectors.</p>
+
+    <h2 id="never">What Freeboard never does</h2>
+    <ul>
+      <li>Removes anything without a plan you confirmed.</li>
+      <li>Touches system or application folders, your home folder's main folders, or <code>.ssh</code>.</li>
+      <li>Deletes a repository root or anything inside <code>.git</code>.</li>
+      <li>Follows symbolic links out of the folder being cleaned.</li>
+      <li>Uses force flags, except Docker's own prune commands after you confirm.</li>
+      <li>Runs commands through a shell.</li>
+      <li>Sends data anywhere. No account, no telemetry, no network access.</li>
+    </ul>
+    <p>The full rule list and the test that covers each one: <a href="https://github.com/acierto/freeboard/blob/main/docs/safety-traceability.md">Safety traceability</a>.</p>
+
+    <h2 id="settings">Default settings</h2>
+    <table>
+      <thead><tr><th>Setting</th><th>Default</th></tr></thead>
+      <tbody>
+        <tr><td>Low / Critical warning</td><td>20 GB / 8 GB</td></tr>
+        <tr><td>Goal</td><td>50 GB</td></tr>
+        <tr><td>Where from</td><td>Everywhere</td></tr>
+        <tr><td>Quick scan</td><td>Every hour (under 10 seconds)</td></tr>
+        <tr><td>Deep scan</td><td>Only on request; low priority; paused on battery</td></tr>
+        <tr><td>Inactive project</td><td>30 days</td></tr>
+        <tr><td>Old installer</td><td>90 days</td></tr>
+        <tr><td>Keep me tidy rules</td><td>Off</td></tr>
+        <tr><td>Start at login / Notifications</td><td>On / On</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="faq">FAQ</h2>
+    <h3>Why does a size say "about"?</h3>
+    <p>Some data is shared (hard links, as with pnpm) or unreadable. Freeboard reports only the space removal would actually free, and marks the number as an estimate when it can't be exact.</p>
+    <h3>Why was an item skipped?</h3>
+    <p>It changed after the scan, or Freeboard couldn't confirm its state because a tool was missing or timed out. Skipped items stay in Suggestions with the reason.</p>
+    <h3>Why didn't free space grow after a cleanup?</h3>
+    <p>Items moved to the Trash free space only when the Trash is emptied.</p>
+    <h3>Something looks wrong.</h3>
+    <p>Please open an issue on <a href="https://github.com/acierto/freeboard/issues">GitHub</a>.</p>
+
+    <h2 id="build">Build from source</h2>
+    <p>Freeboard is a <a href="https://tauri.app/">Tauri 2</a> app. A Rust core does all monitoring, scanning and cleanup; a React interface displays results and sends IDs back. You need Rust stable, Node 24 and, on Linux, <code>libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf</code>.</p>
+<pre>npm ci
+npx tauri dev                                      # run with hot reload
+npx tauri build                                    # unsigned installers
+cd src-tauri &amp;&amp; cargo test --no-default-features   # core tests</pre>
+    <p>Tests use temporary directories, temporary Git repositories and fake tools, and never run cleanup on your machine.</p>
+
+    <h2 id="more">Technical docs</h2>
+    <p>These live in the repository and render on GitHub.</p>
+    <div class="cards">
+      <a class="card" href="https://github.com/acierto/freeboard/blob/main/docs/development.md"><b>Development guide</b><span>Set up, run, test, add a detector, open a pull request.</span></a>
+      <a class="card" href="https://github.com/acierto/freeboard/blob/main/docs/architecture.md"><b>Architecture</b><span>The Rust core, the UI, and the safety boundary.</span></a>
+      <a class="card" href="https://github.com/acierto/freeboard/blob/main/docs/detectors.md"><b>Detectors</b><span>What is scanned, its risk, action and tests.</span></a>
+      <a class="card" href="https://github.com/acierto/freeboard/blob/main/docs/cleanup.md"><b>Cleanup</b><span>Plans, acknowledgments, rechecks, Trash, history.</span></a>
+      <a class="card" href="https://github.com/acierto/freeboard/blob/main/docs/safety-traceability.md"><b>Safety traceability</b><span>The test behind each safety rule.</span></a>
+      <a class="card" href="https://github.com/acierto/freeboard/blob/main/docs/release.md"><b>Release builds</b><span>Signing, notarization, publishing.</span></a>
+      <a class="card" href="https://github.com/acierto/freeboard/blob/main/docs/reference/FREEBOARD_SPEC.md"><b>Product specification</b><span>The full behavior contract.</span></a>
+      <a class="card" href="https://github.com/acierto/freeboard/blob/main/docs/decisions.md"><b>Decisions</b><span>Why things are the way they are.</span></a>
+    </div>
+  </main>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>Freeboard · MIT License · Fonts: Barlow Condensed and IBM Plex (SIL Open Font License)</span>
+    <span><a href="https://github.com/acierto/freeboard">Source on GitHub</a> · <a href="https://github.com/acierto/freeboard/releases">All releases</a></span>
+  </div>
+</footer>
+</body>
+</html>
