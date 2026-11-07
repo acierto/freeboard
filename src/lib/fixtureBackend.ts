@@ -787,7 +787,8 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
     get_status: () => status(),
     get_settings: () => ({ ...settings }),
     update_settings: (a) => Object.assign(settings, a.patch as Partial<Settings>) && { ...settings },
-    get_suggestions: () => listed().map(({ need: _need, ...s }) => ({ ...s, parts: s.parts.map((p) => ({ ...p })) })),
+    // Like the core: worktrees are suggestions too; the views keep them apart.
+    get_suggestions: () => active().map(({ need: _need, ...s }) => ({ ...s, parts: s.parts.map((p) => ({ ...p })) })),
     get_worktrees: (): WorktreesView => ({
       repos: Object.entries(WT_ROOT).map(([name, root]) => {
         const main = WT.find((w) => w.main && w.repo === name);

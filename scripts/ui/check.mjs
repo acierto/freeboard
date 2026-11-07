@@ -85,6 +85,7 @@ const idle = (p) => p.waitForFunction(() => document.documentElement.dataset.bus
 {
   const { p, ctx } = await page();
   check("worktrees: the tab badge counts the Ready ones", (await p.textContent("#tab-wt")) === "Worktrees15", await p.textContent("#tab-wt"));
+  check("worktrees: they are not counted as quick questions", (await p.textContent("#tab-tidy")) === "Quick questions19", await p.textContent("#tab-tidy"));
   await p.click("#tab-wt");
   await idle(p);
   check("worktrees: one summary line", (await p.textContent(".wt-head .muted")) === "20 in 6 repositories · 23.0 GB", await p.textContent(".wt-head .muted"));
@@ -135,7 +136,7 @@ const idle = (p) => p.waitForFunction(() => document.documentElement.dataset.bus
 // Worktrees found by an older version: the tab says so and offers a deep scan.
 {
   const { p, ctx } = await page("wtstale=141");
-  check("worktrees: an older-version worktree is not listed in Quick questions", !(await p.textContent("#v-tidy")).includes("docs/old-format") && (await p.textContent("#wt-link")).startsWith("1 worktree is in the Worktrees tab."), await p.textContent("#wt-link"));
+  check("worktrees: an older-version worktree is not listed in Quick questions", !(await p.textContent("#v-tidy")).includes("docs/old-format"));
   await p.click("#tab-wt");
   await idle(p);
   const txt = await p.textContent("#wt-stale");

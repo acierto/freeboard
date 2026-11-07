@@ -540,7 +540,9 @@ export interface MapProps {
   onResolve: Resolve;
 }
 
-export function DiskMapView({ map, spots, places, growth, items, pile, platform, act, onResolve }: MapProps) {
+export function DiskMapView({ map, spots, places, growth, items: all, pile, platform, act, onResolve }: MapProps) {
+  // Worktrees have their own tab; the map's lists and its first area leave them out.
+  const items = all.filter((s) => !isWorktree(s));
   const [tile, setTile] = useState<string | null>(null);
   const [placesOpen, setPlacesOpen] = useState(false);
   const [focus, setFocus] = useState<{ id: string; n: number } | null>(null);

@@ -3,6 +3,7 @@
 // (design D3), this only describes it.
 import { GB, GROUPS, gb } from "../../lib/format.ts";
 import { t, unitGB } from "../../i18n/index.ts";
+import { isWorktree } from "../worktrees/worktreesModel.ts";
 import type { DiskStatus, Forecast, Group, PileState, Suggestion } from "../../lib/types.ts";
 import type { Mood } from "../../components/dinghyGeometry.ts";
 
@@ -118,7 +119,8 @@ export function meterOf(pile: PileState, all: Suggestion[]) {
 export function questionDeck(pile: PileState, all: Suggestion[]): Suggestion[] {
   const added = new Set(pile.addedIds);
   return all
-    .filter((s) => s.risk !== "safe" && !s.blockedReason && s.sizeBytes > 0 && !added.has(s.id) && !s.decision && !s.skipReason)
+    // Worktrees are answered in their own tab, not as questions.
+    .filter((s) => s.risk !== "safe" && !s.blockedReason && s.sizeBytes > 0 && !added.has(s.id) && !s.decision && !s.skipReason && !isWorktree(s))
     .sort((a, b) => b.sizeBytes - a.sizeBytes);
 }
 

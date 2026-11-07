@@ -366,3 +366,4 @@ Found on a real Mac after installing the Worktrees build: the tab showed "0 in 0
 - The scheduler runs one deep scan when stored worktrees lack facts (at most once a day, not on battery when deep scans pause on battery).
 - The tab names them ("I found 141 worktrees with an older version of Freeboard…") with **Sort them now** (a deep scan), instead of "No worktrees found".
 - Quick questions and the Disk map recognise worktrees by their detector too, so older results leave those lists at once.
+- Follow-up, same day: worktrees are not counted as quick questions either (the badge read 151 on the user's Mac), and the Disk map's first area leaves them out. The fixture now returns worktrees among the suggestions, as the core does, so the checks see what the real app sees. The "N worktrees are in the Worktrees tab" note was dropped: the prototype has none, and the tab's badge does that job.
