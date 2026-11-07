@@ -297,13 +297,16 @@ fn outside_rules(home: &Path, platform: &str) -> Vec<(PathBuf, &'static str)> {
         "macos" => {
             // Firmlinked locations live on the Data volume; the System volume
             // itself is read with statvfs (diskmap::platform_volumes).
+            //
+            // Only locations that never trigger a privacy prompt are walked.
+            // Walking the rest of the Data volume (/Library, /private, ...)
+            // as an ordinary app runs into macOS privacy guards: found on a
+            // real Mac, 2026-11-06, where it asked for the Apple Music media
+            // library. That space stays in Not explained, said honestly.
             let data = Path::new("/System/Volumes/Data");
-            add_children(data, &|n| match n {
-                "Applications" | "opt" | "usr" => Some("apps"),
-                // Other people's home folders are not Freeboard's to measure.
-                "Users" | "Volumes" | "System" => None,
-                _ => Some("system"),
-            });
+            for (rel, area) in [("Applications", "apps"), ("opt", "apps"), ("usr/local", "apps")] {
+                v.push((data.join(rel), area));
+            }
             v.push((data.join("Users/Shared"), "files"));
             // Simulator runtimes installed by Xcode.
             v.push((data.join("Library/Developer/CoreSimulator"), "mobile"));
