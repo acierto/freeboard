@@ -183,8 +183,21 @@ fn home_rules(platform: &str) -> Vec<(&'static str, &'static str)> {
         ("OneDrive", "files"),
     ];
     match platform {
+        // Without Full Disk Access only these Library folders are walked, not
+        // all of ~/Library: Apple keeps media and personal data there
+        // (AppleMediaServices, com.apple.MediaPlayer, com.apple.iTunesCloud,
+        // ...). Reading those asked for the Apple Music media library on a
+        // real Mac, 2026-11-07. With Full Disk Access all of Library is
+        // measured (see `measure`).
         "macos" => v.extend([
-            ("Library", "apps"),
+            ("Library/Application Support", "apps"),
+            ("Library/Developer", "apps"),
+            ("Library/Logs", "apps"),
+            ("Library/Python", "apps"),
+            ("Library/Jupyter", "apps"),
+            ("Library/Google", "apps"),
+            ("Library/Java", "apps"),
+            ("Library/Fonts", "apps"),
             ("Library/Caches", "caches"),
             ("Library/pnpm", "caches"),
             ("Library/Developer/Xcode/DerivedData", "caches"),
@@ -250,6 +263,13 @@ fn prompting_folders(platform: &str) -> &'static [&'static str] {
     } else {
         &[]
     }
+}
+
+/// Apple's own data folders inside ~/Library/Application Support and
+/// ~/Library/Caches. Some hold media and personal data guarded by macOS.
+fn is_apple_private(name: &str) -> bool {
+    name.starts_with("com.apple.")
+        || matches!(name, "AddressBook" | "CallHistoryDB" | "CallHistoryTransactions" | "Knowledge" | "CloudDocs" | "FileProvider" | "iCloud" | "Apple" | "AppleMediaServices")
 }
 
 /// Docker Desktop's virtual disk, and WSL's, claimed by a single `stat`.
@@ -428,6 +448,27 @@ pub fn measure(env: &MeasureEnv, claims: &[Claim]) -> Measurement {
         skip.insert(p);
     }
 
+    // Apple's own data inside the Library folders that are walked: left alone
+    // without Full Disk Access, since macOS may ask the person about it.
+    if env.platform == "macos" {
+        if fda == Some(true) {
+            let lib = home.join("Library");
+            if exists_dir_or_file(&lib) && !excluded(&lib) {
+                push(&mut rules, lib, "apps", Kind::Fixed);
+            }
+        } else {
+            for parent in ["Library/Application Support", "Library/Caches"] {
+                if let Ok(rd) = std::fs::read_dir(home.join(parent)) {
+                    for e in rd.flatten() {
+                        if is_apple_private(&e.file_name().to_string_lossy()) {
+                            skip.insert(e.path());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     // Well-known locations in the home folder.
     for (rel, area) in home_rules(env.platform) {
         let p = home.join(rel);
@@ -462,6 +503,12 @@ pub fn measure(env: &MeasureEnv, claims: &[Claim]) -> Measurement {
                 push(&mut rules, p, area, Kind::ScanChild { unknown_candidate });
             }
         }
+    }
+
+    // The rest of ~/Library stays unread without Full Disk Access (see
+    // `home_rules`); it is not picked up as an ordinary top-level folder.
+    if env.platform == "macos" && fda != Some(true) {
+        skip.insert(home.join("Library"));
     }
 
     // Everything else at the top of the home folder.

@@ -305,6 +305,19 @@ fn macos_private_places_are_never_read_without_full_disk_access() {
     assert!(!m.roots.iter().any(|r| r.path.ends_with("Documents")));
     // Library/Caches is still measured.
     assert!(m.roots.iter().any(|r| r.path.ends_with("Library/Caches") && r.area == "caches" && r.bytes >= 300 * KB as u64));
+    // Apple's media data in Library is never read: walking all of ~/Library
+    // asked for the Apple Music media library on a real Mac (2026-11-07).
+    // Third-party app data in Application Support still counts.
+    for f in ["Library/AppleMediaServices", "Library/Application Support/com.apple.MediaPlayer", "Library/Caches/com.apple.iTunesCloud"] {
+        write(&fx.home.join(f).join("media.bin"), 700 * KB, b"m");
+    }
+    write(&fx.home.join("Library/Application Support/SomeApp/data.bin"), 200 * KB, b"a");
+    let m = measure(&env(&fx.home, "macos", &cancel, &repos), &[]);
+    assert!(!m.roots.iter().any(|r| r.path.ends_with("/Library")), "all of Library must not be walked without Full Disk Access");
+    let support = m.roots.iter().find(|r| r.path.ends_with("Library/Application Support")).expect("Application Support is measured");
+    assert!(support.bytes >= 200 * KB as u64 && support.bytes < 700 * KB as u64, "{}", support.bytes);
+    let caches = m.roots.iter().find(|r| r.path.ends_with("Library/Caches")).unwrap();
+    assert!(caches.bytes < 700 * KB as u64, "Apple's caches are left alone: {}", caches.bytes);
     let d = HashMap::new();
     let mut i = spot_input(Some(&m), &[], &d, &fx.home);
     i.platform = "macos";
