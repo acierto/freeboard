@@ -68,7 +68,16 @@ function Treemap({ map, selected, onSelect }: { map: DiskMap; selected: string; 
           const lead = r.height / 4;
           return r.bottom > box.bottom - 2 + lead || r.right > box.right - 2 + 1;
         });
-        if (clipped) t.classList.add("tiny-fit");
+        // A name that only fits by breaking inside a word ("Proje / cts",
+        // found on a real Mac) does not fit either.
+        const name = span.querySelector("b");
+        let broken = false;
+        if (name) {
+          name.style.overflowWrap = "normal";
+          broken = name.scrollWidth > name.clientWidth + 1;
+          name.style.overflowWrap = "";
+        }
+        if (clipped || broken) t.classList.add("tiny-fit");
       });
     fit();
     window.addEventListener("resize", fit);

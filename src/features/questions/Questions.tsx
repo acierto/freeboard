@@ -202,13 +202,18 @@ function Everything({ items, chosen, act }: { items: Suggestion[]; chosen: Set<s
         </p>
         {GROUPS.map(({ id, label }) => {
           const l = items.filter((s) => s.group === id).sort((a, b) => b.sizeBytes - a.sizeBytes);
+          return { id, label, l, bytes: l.reduce((t, s) => t + s.sizeBytes, 0) };
+        })
+          // Biggest group first.
+          .sort((a, b) => b.bytes - a.bytes)
+          .map(({ id, label, l, bytes }) => {
           if (!l.length) return null;
           const key = "grp-" + label.replace(/ /g, "-");
           return (
             <details className="grp" data-open={key} key={id}>
               <summary>
                 <span>{label}</span>
-                <span className="num muted">{gb(l.reduce((t, s) => t + s.sizeBytes, 0))}</span>
+                <span className="num muted">{gb(bytes)}</span>
               </summary>
               <GroupActions items={l} slug={key} act={act} />
               {l.map((s) => (
