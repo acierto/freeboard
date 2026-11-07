@@ -71,22 +71,27 @@ pub fn processes_in_dir(dir: &Path, runner: &crate::runner::Runner) -> Option<Ve
 /// `lsof -d cwd -Fpn` call elsewhere. (An earlier `lsof +D <dir>` per folder
 /// walked each folder's whole tree, took 20+ s on large worktrees, timed out
 /// and blocked them as "status unknown"; found on a real Mac, 2026-11-06.)
+///
+/// Freeboard itself and every process it started are left out: the scan
+/// runs `git status` in several worktrees at once, and those children made
+/// clean worktrees look "in use by a program" (found in Linux CI, 2026-11-06).
 pub fn process_cwds(runner: &crate::runner::Runner) -> Option<Vec<(u32, PathBuf)>> {
     #[cfg(target_os = "linux")]
-    {
+    let list = {
         let _ = runner;
         let mut v = Vec::new();
         for e in std::fs::read_dir("/proc").ok()?.flatten() {
             let Some(pid) = e.file_name().to_str().and_then(|s| s.parse::<u32>().ok()) else { continue };
             if let Ok(cwd) = std::fs::read_link(e.path().join("cwd")) {
-                v.push((pid, cwd));
+                let ppid = std::fs::read_to_string(e.path().join("stat")).ok().and_then(|s| parse_stat_ppid(&s)).unwrap_or(0);
+                v.push((pid, ppid, cwd));
             }
         }
-        Some(v)
-    }
+        v
+    };
     #[cfg(not(target_os = "linux"))]
-    {
-        let out = runner.run_read(&crate::runner::Cmd::new("lsof", ["-d", "cwd", "-Fpn"])).ok()?;
+    let list = {
+        let out = runner.run_read(&crate::runner::Cmd::new("lsof", ["-R", "-d", "cwd", "-Fpn"])).ok()?;
         // lsof exits 1 when some processes could not be read; the rest is valid.
         if out.code != Some(0) && out.code != Some(1) {
             return None;
@@ -96,19 +101,50 @@ pub fn process_cwds(runner: &crate::runner::Runner) -> Option<Vec<(u32, PathBuf)
         if list.is_empty() {
             return None;
         }
-        Some(list)
-    }
+        list
+    };
+    Some(without_own(list, std::process::id()))
 }
 
-/// Parse `lsof -Fpn` output: `p<pid>` starts a process, `n<path>` is its cwd.
-pub fn parse_lsof_cwds(out: &str) -> Vec<(u32, PathBuf)> {
+/// Drop `me` and every process descended from it.
+pub fn without_own(list: Vec<(u32, u32, PathBuf)>, me: u32) -> Vec<(u32, PathBuf)> {
+    let parent: std::collections::HashMap<u32, u32> = list.iter().map(|(p, pp, _)| (*p, *pp)).collect();
+    let mine = |mut p: u32| {
+        // Bounded walk up the parent chain (a cycle or a missing parent ends it).
+        for _ in 0..64 {
+            if p == me {
+                return true;
+            }
+            match parent.get(&p) {
+                Some(&pp) if pp != 0 && pp != p => p = pp,
+                _ => return false,
+            }
+        }
+        false
+    };
+    list.into_iter().filter(|(p, _, _)| !mine(*p)).map(|(p, _, c)| (p, c)).collect()
+}
+
+/// The parent pid from `/proc/<pid>/stat` ("pid (comm) state ppid ...";
+/// comm may itself contain spaces and parentheses).
+pub fn parse_stat_ppid(stat: &str) -> Option<u32> {
+    stat.rsplit_once(')')?.1.split_whitespace().nth(1)?.parse().ok()
+}
+
+/// Parse `lsof -R -Fpn` output: `p<pid>` starts a process, `R<ppid>` is its
+/// parent, `n<path>` is its cwd.
+pub fn parse_lsof_cwds(out: &str) -> Vec<(u32, u32, PathBuf)> {
     let mut v = Vec::new();
     let mut pid: Option<u32> = None;
+    let mut ppid = 0;
     for l in out.lines() {
         if let Some(p) = l.strip_prefix('p') {
             pid = p.parse().ok();
+            ppid = 0;
+        } else if let Some(r) = l.strip_prefix('R') {
+            ppid = r.parse().unwrap_or(0);
         } else if let (Some(n), Some(p)) = (l.strip_prefix('n'), pid) {
-            v.push((p, PathBuf::from(n)));
+            v.push((p, ppid, PathBuf::from(n)));
         }
     }
     v
@@ -120,13 +156,30 @@ mod cwd_tests {
 
     #[test]
     fn parses_lsof_cwd_output() {
-        let out = "p423\nfcwd\nn/\np446\nfcwd\nn/Users/me/work/web-app/.worktrees/pay\np9\nfcwd\nn/Users/me/work/web-app-old\n";
+        let out = "p423\nR1\nfcwd\nn/\np446\nR423\nfcwd\nn/Users/me/work/web-app/.worktrees/pay\np9\nR1\nfcwd\nn/Users/me/work/web-app-old\n";
         let v = parse_lsof_cwds(out);
         assert_eq!(v.len(), 3);
-        assert_eq!(v[1], (446, PathBuf::from("/Users/me/work/web-app/.worktrees/pay")));
+        assert_eq!(v[1], (446, 423, PathBuf::from("/Users/me/work/web-app/.worktrees/pay")));
         // Path prefixes match by component: web-app-old is not inside web-app.
-        let inside: Vec<u32> = v.iter().filter(|(_, c)| c.starts_with("/Users/me/work/web-app")).map(|(p, _)| *p).collect();
+        let inside: Vec<u32> = v.iter().filter(|(_, _, c)| c.starts_with("/Users/me/work/web-app")).map(|(p, _, _)| *p).collect();
         assert_eq!(inside, vec![446]);
+    }
+
+    #[test]
+    fn freeboard_and_its_own_children_are_never_counted() {
+        // 423 is Freeboard; 446 (its git) and 447 (git's helper) are its own.
+        let list = vec![(1, 0, PathBuf::from("/")), (423, 1, PathBuf::from("/")), (446, 423, PathBuf::from("/w/a")), (447, 446, PathBuf::from("/w/b")), (500, 1, PathBuf::from("/w/c"))];
+        let kept: Vec<u32> = without_own(list, 423).into_iter().map(|(p, _)| p).collect();
+        assert_eq!(kept, vec![1, 500]);
+        assert_eq!(parse_stat_ppid("446 (git (worker) x) S 423 446 ..."), Some(423));
+    }
+
+    #[test]
+    fn the_running_test_is_left_out_of_the_live_list() {
+        let r = crate::runner::Runner::default();
+        if let Some(l) = process_cwds(&r) {
+            assert!(!l.iter().any(|(p, _)| *p == std::process::id()));
+        }
     }
 }
 

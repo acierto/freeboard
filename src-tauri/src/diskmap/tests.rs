@@ -59,7 +59,9 @@ struct Fixture {
 /// link shared between two places, and loose files.
 fn fixture() -> Fixture {
     let t = tempfile::tempdir().unwrap();
-    let home = fs::canonicalize(t.path()).unwrap().join("home");
+    // Plain form on Windows (C:\..., not \\?\C:\...), as the app's real home
+    // folder and stored settings are; the verbatim form never matched them.
+    let home = crate::platform::plain_path(&fs::canonicalize(t.path()).unwrap()).join("home");
     let proj = home.join("projects");
     fs::create_dir_all(proj.join("app/.git")).unwrap();
     write(&proj.join("app/package.json"), 200, b"{}");
@@ -152,7 +154,7 @@ fn fixture_totals_match_used_bytes_within_one_percent() {
     assert_eq!(m.unscanned.len(), 1);
     assert!(m.unscanned[0].path.ends_with("archive"));
     assert_eq!(m.unknown.len(), 1);
-    assert!(m.unknown[0].path.ends_with("projects/tools"));
+    assert!(Path::new(&m.unknown[0].path).ends_with("projects/tools"), "{}", m.unknown[0].path);
     assert_eq!(m.unknown[0].ext.as_deref(), Some("dat"));
 }
 
