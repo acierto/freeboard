@@ -579,6 +579,7 @@ mod tests {
                 size_is_estimate: false,
                 skip_reason: None,
                 ack_name: None,
+                worktree: None,
                 risk_why: vec![],
                 safer: vec![],
             },

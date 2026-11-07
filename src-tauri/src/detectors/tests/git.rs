@@ -1,100 +1,86 @@
 use super::*;
 use crate::detectors::git::*;
 use crate::detectors::{probe, Probe};
+use crate::model::{WorktreeInfo, WtMerged, WtStatus};
 
 /// Builds `projects/app` with a bare `origin` and one linked worktree per
-/// source state. Returns the app path.
+/// state. Commits are dated 30 days before `NOW` and everything is aged, so
+/// clean worktrees are idle; `fresh` is made last and used today. Returns the
+/// app path.
 fn repo(fx: &Fx) -> PathBuf {
     let origin = fx.root.join("origin.git");
     std::fs::create_dir_all(&origin).unwrap();
     git(&origin, &["init", "--bare", "-q"]);
     let app = fx.mkdir("projects/app");
-    git(&app, &["init", "-q"]);
+    let g = |dir: &Path, args: &[&str]| git_old(dir, args, 30);
+    g(&app, &["init", "-q"]);
     std::fs::write(app.join("README.md"), "hello\n").unwrap();
-    git(&app, &["add", "."]);
-    git(&app, &["commit", "-q", "-m", "init"]);
-    git(&app, &["remote", "add", "origin", &origin.to_string_lossy()]);
-    git(&app, &["push", "-q", "-u", "origin", "main"]);
+    g(&app, &["add", "."]);
+    g(&app, &["commit", "-q", "-m", "init"]);
+    g(&app, &["remote", "add", "origin", &origin.to_string_lossy()]);
+    g(&app, &["push", "-q", "-u", "origin", "main"]);
 
     let wt = |name: &str| {
-        let p = app.join(".worktrees").join(name);
-        git(&app, &["worktree", "add", "-q", "-b", name, &p.to_string_lossy()]);
+        let p = app.join(".worktrees").join(name.replace('/', "-"));
+        g(&app, &["worktree", "add", "-q", "-b", name, &p.to_string_lossy()]);
         p
     };
     let commit = |p: &Path, file: &str| {
         std::fs::write(p.join(file), file).unwrap();
-        git(p, &["add", "."]);
-        git(p, &["commit", "-q", "-m", file]);
+        g(p, &["add", "."]);
+        g(p, &["commit", "-q", "-m", file]);
     };
 
-    // Clean and merged into the default branch.
+    // Merged into the default branch: Ready, the branch goes too (-d).
     let merged = wt("merged");
     commit(&merged, "m.txt");
-    git(&merged, &["push", "-q", "-u", "origin", "merged"]);
-    git(&app, &["merge", "-q", "--no-edit", "merged"]);
-    git(&app, &["push", "-q", "origin", "main"]);
-
-    // Clean, pushed, not merged.
+    g(&app, &["merge", "-q", "--no-edit", "merged"]);
+    // Pushed, not merged: Ready, the branch stays.
     let pushed = wt("pushed");
     commit(&pushed, "p.txt");
-    git(&pushed, &["push", "-q", "-u", "origin", "pushed"]);
-
-    // Squash-merged: content is in main, but Git sees it as not merged.
+    g(&pushed, &["push", "-q", "-u", "origin", "pushed"]);
+    // Squash-merged: content in main, not an ancestor: Ready, branch goes (-D).
     let squash = wt("squash");
     commit(&squash, "s.txt");
-    git(&squash, &["push", "-q", "-u", "origin", "squash"]);
-    git(&app, &["merge", "-q", "--squash", "squash"]);
-    git(&app, &["commit", "-q", "-m", "squash"]);
-    git(&app, &["push", "-q", "origin", "main"]);
-
-    // Uncommitted changes.
-    let dirty = wt("dirty");
-    commit(&dirty, "d.txt");
-    git(&dirty, &["push", "-q", "-u", "origin", "dirty"]);
-    std::fs::write(dirty.join("d.txt"), "changed").unwrap();
-
-    // Untracked file only.
-    let untracked = wt("untracked");
-    commit(&untracked, "u.txt");
-    git(&untracked, &["push", "-q", "-u", "origin", "untracked"]);
-    std::fs::write(untracked.join("new.txt"), "new").unwrap();
-
-    // Unpushed commit.
+    g(&app, &["merge", "-q", "--squash", "squash"]);
+    g(&app, &["commit", "-q", "-m", "squash"]);
+    g(&app, &["push", "-q", "origin", "main"]);
+    // Unpushed commits and no upstream: Ready, the branch keeps them.
     let unpushed = wt("unpushed");
     commit(&unpushed, "a.txt");
-    git(&unpushed, &["push", "-q", "-u", "origin", "unpushed"]);
     commit(&unpushed, "b.txt");
-
-    // No upstream.
-    let noup = wt("noupstream");
-    commit(&noup, "n.txt");
-
-    // Locked.
+    // A coding agent's branch, never pushed: Ready, with its badge.
+    let agent = wt("worktree-agent-a1b2");
+    commit(&agent, "agent.txt");
+    // Uncommitted change and untracked file: Work.
+    let dirty = wt("dirty");
+    commit(&dirty, "d.txt");
+    std::fs::write(dirty.join("d.txt"), "changed").unwrap();
+    let untracked = wt("untracked");
+    std::fs::write(untracked.join("new.txt"), "new").unwrap();
+    // Locked: Needs a look; removal unlocks it first.
     let locked = wt("locked");
     commit(&locked, "l.txt");
-    git(&locked, &["push", "-q", "-u", "origin", "locked"]);
-    git(&app, &["worktree", "lock", &locked.to_string_lossy()]);
-
-    // In the middle of a merge.
+    g(&app, &["worktree", "lock", &locked.to_string_lossy()]);
+    // In the middle of a merge: Work.
     let merging = wt("merging");
     commit(&merging, "g.txt");
-    git(&merging, &["push", "-q", "-u", "origin", "merging"]);
-    let gd = git(&merging, &["rev-parse", "--absolute-git-dir"]);
-    std::fs::write(Path::new(&gd).join("MERGE_HEAD"), git(&merging, &["rev-parse", "HEAD"])).unwrap();
-
-    // Status can't be determined: the worktree's link to its repo is broken.
+    let gd = g(&merging, &["rev-parse", "--absolute-git-dir"]);
+    std::fs::write(Path::new(&gd).join("MERGE_HEAD"), g(&merging, &["rev-parse", "HEAD"])).unwrap();
+    // Status can't be determined: the link to its repository is broken.
     let broken = wt("broken");
     commit(&broken, "x.txt");
-    git(&broken, &["push", "-q", "-u", "origin", "broken"]);
     std::fs::write(broken.join(".git"), "gitdir: /nonexistent/freeboard\n").unwrap();
-
+    age(&app, 30);
+    // Used today: Needs a look.
+    let fresh = app.join(".worktrees/fresh");
+    git(&app, &["worktree", "add", "-q", "-b", "fresh", &fresh.to_string_lossy()]);
     app
 }
 
-/// Every worktree finding, including those inside the merged
-/// "Git worktrees with no local changes" item.
+/// Every worktree finding.
 fn leaves(o: &ScanOutcome) -> Vec<&Finding> {
-    o.findings.iter().flat_map(|f| if f.parts.is_empty() { vec![f] } else { f.parts.iter().collect() }).collect()
+    o.findings.iter().collect()
 }
 
 fn by_branch<'a>(o: &'a ScanOutcome, b: &str) -> &'a Suggestion {
@@ -105,65 +91,82 @@ fn by_branch<'a>(o: &'a ScanOutcome, b: &str) -> &'a Suggestion {
         .unwrap_or_else(|| panic!("no worktree {b}: {:#?}", o.findings.iter().map(|f| &f.suggestion.title).collect::<Vec<_>>()))
 }
 
+fn info<'a>(o: &'a ScanOutcome, b: &str) -> &'a WorktreeInfo {
+    by_branch(o, b).worktree.as_ref().expect("worktree facts")
+}
+
 #[test]
 fn worktree_state_matrix() {
     let fx = Fx::new();
     repo(&fx);
     let o = fx.scan(ScanKind::Deep, &[Box::new(Worktrees)]);
     assert!(o.errors.is_empty(), "{:?}", o.errors);
-    // The main worktree is never suggested.
+    // The main worktree is never an item; every linked worktree is its own.
     assert!(o.findings.iter().all(|f| !f.suggestion.title.ends_with(": main")));
-    assert_eq!(leaves(&o).len(), 10);
-    // Removable worktrees are one item with a part per worktree.
-    let merged: Vec<_> = o.findings.iter().filter(|f| !f.parts.is_empty()).collect();
-    assert_eq!(merged.len(), 1);
-    assert_eq!(merged[0].suggestion.title, "Git worktrees with no local changes");
-    assert_eq!(merged[0].suggestion.parts.len(), merged[0].parts.len());
-    assert!(merged[0].parts.iter().all(|f| f.suggestion.risk == Risk::Review));
-    assert!(o.findings.iter().filter(|f| f.parts.is_empty()).all(|f| f.suggestion.blocked_reason.is_some()), "only blocked worktrees stay separate");
+    assert_eq!(o.findings.len(), 11);
+    assert!(o.findings.iter().all(|f| f.parts.is_empty() && f.suggestion.worktree.is_some()));
 
-    let m = by_branch(&o, "merged");
-    assert_eq!(m.risk, Risk::Review);
-    assert!(m.reason.contains("merged"));
-    let p = by_branch(&o, "pushed");
-    assert_eq!(p.risk, Risk::Review);
-    assert!(p.reason.contains("pushed but not merged"));
-    let s = by_branch(&o, "squash");
-    assert_eq!(s.risk, Risk::Review);
-    assert!(s.reason.contains("pushed but not merged"), "squash merges are reported conservatively");
-
-    for (b, needle) in [
-        ("dirty", "uncommitted"),
-        ("untracked", "untracked"),
-        ("unpushed", "unpushed"),
-        ("noupstream", "no upstream"),
-        ("locked", "locked"),
-        ("merging", "merge"),
-        ("broken", "couldn't determine"),
-    ] {
-        let w = by_branch(&o, b);
-        assert_eq!(w.risk, Risk::Risky, "{b}");
-        assert!(w.reason.contains(needle), "{b}: {}", w.reason);
-        assert!(w.blocked_reason.is_some(), "{b} must be blocked");
-        assert!(!w.recoverable);
+    // Ready: clean and idle, whether merged, pushed or not. Nothing is lost.
+    for b in ["merged", "pushed", "squash", "unpushed", "worktree-agent-a1b2"] {
+        let s = by_branch(&o, b);
+        assert_eq!(s.worktree.as_ref().unwrap().status, WtStatus::Ready, "{b}: {}", s.reason);
+        assert_eq!(s.risk, Risk::Review, "{b}: never automatic");
+        assert!(s.blocked_reason.is_none() && s.recoverable, "{b}");
+        assert!(s.reason.starts_with("Idle 30 days"), "{b}: {}", s.reason);
     }
+    assert_eq!(info(&o, "merged").merged, WtMerged::Yes);
+    assert!(info(&o, "merged").commands.last().unwrap().ends_with("branch -d merged"));
+    assert_eq!(info(&o, "merged").reopen, None);
+    assert_eq!(info(&o, "pushed").merged, WtMerged::No);
+    assert!(info(&o, "pushed").pushed);
+    assert!(info(&o, "pushed").reopen.as_deref().unwrap().starts_with("git worktree add .worktrees/pushed pushed"));
+    assert!(!info(&o, "pushed").commands.iter().any(|c| c.contains(" branch ")), "the branch stays");
+    let un = info(&o, "unpushed");
+    assert_eq!((un.merged, un.ahead, un.pushed), (WtMerged::No, 2, false));
+    assert!(by_branch(&o, "unpushed").reason.contains("The branch stays"));
+    assert_eq!(info(&o, "worktree-agent-a1b2").agent.as_deref(), Some("agent"));
+    // Squash merges need Git 2.38's diff behaviour only; checked read-only.
+    assert_eq!(info(&o, "squash").merged, WtMerged::Squash, "{}", by_branch(&o, "squash").reason);
+    assert!(by_branch(&o, "squash").reason.contains("squash-merged"));
+    assert!(info(&o, "squash").commands.last().unwrap().ends_with("branch -D squash"));
+
+    // Needs a look: used today, or locked. Selectable, never automatic.
+    let f = info(&o, "fresh");
+    assert_eq!((f.status, f.idle_days), (WtStatus::Look, Some(0)));
+    assert!(by_branch(&o, "fresh").reason.starts_with("Used today"));
+    let l = info(&o, "locked");
+    assert_eq!(l.status, WtStatus::Look);
+    assert!(l.locked && l.commands[0].contains("worktree unlock"));
+    assert!(by_branch(&o, "locked").blocked_reason.is_none());
+
+    // Has your work: never removed.
+    for (b, needle, files) in [("dirty", "1 uncommitted file would be deleted", 1), ("untracked", "1 uncommitted file would be deleted", 1), ("merging", "merge", 0), ("broken", "couldn't determine", 0)] {
+        let s = by_branch(&o, b);
+        assert_eq!(s.worktree.as_ref().unwrap().status, WtStatus::Work, "{b}");
+        assert_eq!(s.risk, Risk::Risky, "{b}");
+        assert!(s.reason.contains(needle), "{b}: {}", s.reason);
+        assert!(s.blocked_reason.is_some() && !s.recoverable, "{b}");
+        assert_eq!(s.worktree.as_ref().unwrap().dirty, files, "{b}");
+    }
+    assert_eq!(info(&o, "untracked").dirty_files, vec!["new.txt".to_string()]);
+    assert_eq!(info(&o, "dirty").dirty_files, vec!["d.txt".to_string()]);
 }
 
 #[test]
-fn inv09_git_work_never_preselected_only_clean_review_selectable() {
+fn inv09_git_work_never_preselected_only_ready_and_look_selectable() {
     let fx = Fx::new();
     repo(&fx);
     let o = fx.scan(ScanKind::Deep, &[Box::new(Worktrees)]);
-    for f in o.findings.iter().chain(leaves(&o)) {
-        assert!(!f.suggestion.preselected(), "{}", f.suggestion.title);
-        let clean = f.suggestion.risk == Risk::Review;
-        assert_eq!(f.suggestion.selectable(), clean, "{}", f.suggestion.title);
-    }
-    for b in ["merged", "pushed", "squash"] {
-        let w = by_branch(&o, b);
-        assert_eq!(w.blocked_reason, None, "{b}");
-        assert!(w.action_label.starts_with("git worktree remove "), "{b}");
-        assert!(!w.action_label.contains("--force") && !w.action_label.contains(" -f"));
+    for f in &o.findings {
+        let s = &f.suggestion;
+        assert!(!s.preselected(), "{}", s.title);
+        let removable = s.worktree.as_ref().unwrap().status != WtStatus::Work;
+        assert_eq!(s.selectable(), removable, "{}", s.title);
+        if removable {
+            assert!(s.action_label.starts_with("git worktree remove "), "{}", s.title);
+            assert!(!s.action_label.contains("--force") && !s.action_label.contains(" -f"));
+            assert!(s.worktree.as_ref().unwrap().commands.iter().all(|c| !c.contains("--force")));
+        }
     }
 }
 
@@ -225,4 +228,20 @@ fn quick_scan_skips_deep_only_worktrees() {
     let fx = Fx::new();
     repo(&fx);
     assert!(fx.scan(ScanKind::Quick, &[Box::new(Worktrees)]).findings.is_empty());
+}
+
+#[test]
+fn a_rewritten_reflog_file_is_not_use() {
+    // `git gc` rewrites every worktree's reflog file; its date says nothing
+    // about use, the time in its last entry does (found on a real Mac).
+    let fx = Fx::new();
+    let app = repo(&fx);
+    let wt = app.join(".worktrees/pushed");
+    let gd = git(&wt, &["rev-parse", "--absolute-git-dir"]);
+    let log = Path::new(&gd).join("logs/HEAD");
+    let text = std::fs::read_to_string(&log).unwrap();
+    std::fs::write(&log, text).unwrap(); // now has today's date
+    let o = fx.scan(ScanKind::Deep, &[Box::new(Worktrees)]);
+    assert_eq!(info(&o, "pushed").status, WtStatus::Ready, "{}", by_branch(&o, "pushed").reason);
+    assert_eq!(info(&o, "pushed").idle_days, Some(30));
 }

@@ -158,6 +158,68 @@ pub struct Suggestion {
     /// Freeboard never runs them.
     #[serde(default)]
     pub safer: Vec<SaferStep>,
+    /// Git worktrees: what the Worktrees view shows (spec "Worktrees view").
+    #[serde(default)]
+    pub worktree: Option<WorktreeInfo>,
+}
+
+/// Where a worktree stands (spec "Git worktrees"): removing one deletes its
+/// folder only; the branch and its commits stay, so only uncommitted files
+/// can be lost.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum WtStatus {
+    /// Clean, idle 7+ days, not locked: removable.
+    Ready,
+    /// Used in the last 7 days, or locked: selectable by hand only.
+    Look,
+    /// Uncommitted files, a merge in progress, open in a program, commits on
+    /// no branch, or a state that can't be read: not removed.
+    Work,
+}
+
+/// How the worktree's branch relates to the default branch.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum WtMerged {
+    /// An ancestor of the default branch.
+    Yes,
+    /// Not an ancestor, but merging it changes nothing (`git merge-tree`).
+    Squash,
+    No,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WorktreeInfo {
+    /// The repository's folder name.
+    pub repo: String,
+    /// The main checkout, as shown ("~/proj/app").
+    pub root: String,
+    pub branch: Option<String>,
+    /// The worktree's folder, relative to the main checkout when inside it.
+    pub rel_path: String,
+    pub status: WtStatus,
+    /// "agent", "claude" or "codex" for branches coding agents make.
+    pub agent: Option<String>,
+    pub locked: bool,
+    /// Days since the last commit, checkout or change at its top level.
+    pub idle_days: Option<u32>,
+    /// Uncommitted and untracked files, and up to eight of their names.
+    pub dirty: u32,
+    pub dirty_files: Vec<String>,
+    pub merged: WtMerged,
+    /// Commits on the branch that the default branch does not have.
+    pub ahead: u32,
+    /// The branch has an upstream.
+    pub pushed: bool,
+    /// Why it is Work when not for uncommitted files: "merging", "in_use",
+    /// "no_branch" or "unknown".
+    pub hold: Option<String>,
+    /// The exact commands removal runs, in order.
+    pub commands: Vec<String>,
+    /// How to get the worktree back when the branch stays.
+    pub reopen: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

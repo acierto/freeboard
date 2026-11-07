@@ -68,6 +68,22 @@ fn world() -> Fx {
     git(&done, &["add", "."]);
     git(&done, &["commit", "-q", "-m", "d"]);
     git(&done, &["push", "-q", "-u", "origin", "done"]);
+    // "landed" is merged into main and pushed: its branch goes with it.
+    let landed = app.join(".worktrees/landed");
+    git(&app, &["worktree", "add", "-q", "-b", "landed", &landed.to_string_lossy()]);
+    std::fs::write(landed.join("l.txt"), "l").unwrap();
+    git(&landed, &["add", "."]);
+    git(&landed, &["commit", "-q", "-m", "l"]);
+    git(&app, &["merge", "-q", "--no-edit", "landed"]);
+    git(&app, &["push", "-q", "origin", "HEAD:main"]);
+    // "wip" has an uncommitted file: Has your work, never removed.
+    let wip = app.join(".worktrees/wip");
+    git(&app, &["worktree", "add", "-q", "-b", "wip", &wip.to_string_lossy()]);
+    std::fs::write(wip.join("draft.txt"), "draft").unwrap();
+    // "held" is locked: Needs a look; removing it unlocks it first.
+    let held = app.join(".worktrees/held");
+    git(&app, &["worktree", "add", "-q", "-b", "held", &held.to_string_lossy()]);
+    git(&app, &["worktree", "lock", &held.to_string_lossy()]);
     age(&fx.home.join("projects"), 60);
     fx
 }
@@ -180,12 +196,59 @@ fn inv03_unknown_ids_and_paths_are_rejected() {
 }
 
 #[test]
-fn inv09_unpushed_worktree_cannot_be_planned() {
+fn inv09_worktree_with_uncommitted_files_cannot_be_planned() {
     let e = Env::new();
     e.scan();
-    // "feature" has no upstream: Risky and blocked.
-    let wt = e.id("git.worktrees", "feature");
+    let wt = e.id("git.worktrees", "wip");
     assert!(matches!(e.engine.create_plan(&[wt], NOW), Err(CleanupError::Blocked(_))));
+}
+
+/// Branches that exist in the repository.
+fn branches(e: &Env) -> String {
+    let out = std::process::Command::new("git").args(["branch", "--list"]).current_dir(repo_path(e)).output().unwrap();
+    String::from_utf8_lossy(&out.stdout).to_string()
+}
+
+#[test]
+fn unpushed_worktree_is_removed_and_its_branch_keeps_the_commit() {
+    // Spec "Git worktrees" (Version 19): removing a worktree deletes the
+    // folder only, so a branch with commits nowhere else is safe.
+    let e = Env::new();
+    e.scan();
+    let wt = e.id("git.worktrees", "feature");
+    let p = e.plan(&[wt.clone()]);
+    let r = e.run(&p);
+    assert_eq!(e.item(&r, &wt).state, ItemState::Done, "{:?}", e.item(&r, &wt).reason);
+    assert_eq!(e.item(&r, &wt).reason.as_deref(), Some("Branch kept."));
+    assert!(!repo_path(&e).join(".worktrees/feature").exists());
+    assert!(branches(&e).contains("feature"));
+    let log = std::process::Command::new("git").args(["log", "--format=%s", "feature"]).current_dir(repo_path(&e)).output().unwrap();
+    assert!(String::from_utf8_lossy(&log.stdout).lines().next() == Some("f"), "the commit is still on the branch");
+}
+
+#[test]
+fn merged_worktree_goes_with_its_branch() {
+    let e = Env::new();
+    e.scan();
+    let wt = e.id("git.worktrees", "landed");
+    let r = e.run(&e.plan(&[wt.clone()]));
+    assert_eq!(e.item(&r, &wt).state, ItemState::Done, "{:?}", e.item(&r, &wt).reason);
+    assert_eq!(e.item(&r, &wt).reason.as_deref(), Some("Branch deleted too (already in main)."));
+    assert!(!repo_path(&e).join(".worktrees/landed").exists());
+    assert!(!branches(&e).contains("landed"));
+    assert!(repo_path(&e).join("l.txt").exists(), "its content is in main");
+}
+
+#[test]
+fn locked_worktree_is_unlocked_then_removed() {
+    let e = Env::new();
+    e.scan();
+    let wt = e.id("git.worktrees", "held");
+    let r = e.run(&e.plan(&[wt.clone()]));
+    assert_eq!(e.item(&r, &wt).state, ItemState::Done, "{:?}", e.item(&r, &wt).reason);
+    assert!(!repo_path(&e).join(".worktrees/held").exists());
+    // It has no commits of its own, so its branch is already in main and goes.
+    assert!(!branches(&e).contains("held"));
 }
 
 fn repo_path(e: &Env) -> PathBuf {
@@ -206,6 +269,7 @@ fn clean_pushed_worktree_is_removed_without_force() {
     assert!(repo.join(".git").is_dir());
     assert!(repo.join("a.txt").exists());
     assert!(repo.join(".worktrees/feature").exists());
+    assert!(repo.join(".worktrees/wip/draft.txt").exists());
     let branches = std::process::Command::new("git").args(["branch", "--list", "done"]).current_dir(&repo).output().unwrap();
     assert!(String::from_utf8_lossy(&branches.stdout).contains("done"), "branch kept for recovery");
 }

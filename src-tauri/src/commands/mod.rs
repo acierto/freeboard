@@ -189,6 +189,11 @@ pub async fn add_suggested_folder(core: Core<'_>, index: u32) -> CmdResult<Setti
 }
 
 #[tauri::command]
+pub async fn get_worktrees(core: Core<'_>) -> CmdResult<crate::app_core::WorktreesView> {
+    core.get_worktrees()
+}
+
+#[tauri::command]
 pub async fn get_tools(core: Core<'_>) -> CmdResult<Vec<crate::app_core::ToolFound>> {
     Ok(core.tools())
 }

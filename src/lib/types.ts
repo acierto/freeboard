@@ -59,6 +59,49 @@ export interface Suggestion {
   riskWhy: string[];
   /** Commands the user can run first to make removing it safer (only shown). */
   safer: SaferStep[];
+  /** Git worktrees: what the Worktrees view shows. */
+  worktree: WorktreeInfo | null;
+}
+
+/** Spec "Git worktrees": Ready to remove, Needs a look, Has your work. */
+export type WtStatus = "ready" | "look" | "work";
+export type WtMerged = "yes" | "squash" | "no";
+
+export interface WorktreeInfo {
+  repo: string;
+  /** The main checkout, as shown ("~/proj/app"). */
+  root: string;
+  branch: string | null;
+  /** The worktree's folder, relative to the main checkout when inside it. */
+  relPath: string;
+  status: WtStatus;
+  /** "agent", "claude" or "codex" for branches coding agents make. */
+  agent: string | null;
+  locked: boolean;
+  idleDays: number | null;
+  dirty: number;
+  dirtyFiles: string[];
+  merged: WtMerged;
+  ahead: number;
+  pushed: boolean;
+  /** Why it is "work" when not for uncommitted files. */
+  hold: "merging" | "in_use" | "no_branch" | "unknown" | null;
+  /** The exact commands removal runs. */
+  commands: string[];
+  reopen: string | null;
+}
+
+export interface WorktreeRepo {
+  name: string;
+  root: string;
+  /** The main checkout's own size, when a deep scan measured it. */
+  mainBytes: number | null;
+}
+
+export interface WorktreesView {
+  repos: WorktreeRepo[];
+  /** Every linked worktree, as a suggestion with `worktree` set. */
+  items: Suggestion[];
 }
 
 export interface SaferStep {

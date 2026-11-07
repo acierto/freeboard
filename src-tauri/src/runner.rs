@@ -19,6 +19,9 @@ pub const DEFAULT_TIMEOUT: Duration = Duration::from_secs(20);
 /// detector reads (found on a real Mac, 2026-11-07: many worktree removals
 /// timed out at 20 seconds).
 pub const ACTION_TIMEOUT: Duration = Duration::from_secs(30 * 60);
+/// One worktree removal (spec "Removing many worktrees": 120 s each; a
+/// timeout fails that worktree only and the run goes on).
+pub const WORKTREE_TIMEOUT: Duration = Duration::from_secs(120);
 pub const MAX_OUTPUT: usize = 8 * 1024 * 1024;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -188,6 +191,8 @@ fn read_only_allowed(cmd: &Cmd) -> bool {
                 &["branch"],
                 &["merge-base"],
                 &["rev-list"],
+                &["diff", "--name-only"],
+                &["diff", "--quiet"],
                 &["config", "--get"],
                 &["symbolic-ref"],
                 &["check-ignore"],
@@ -223,7 +228,12 @@ fn action_allowed(cmd: &Cmd) -> bool {
                 || (starts(&a, &["container", "rm"]) && a.len() > 2)
                 || (starts(&a, &["volume", "rm"]) && a.len() > 2)
         }
-        "git" => starts(&a, &["worktree", "remove"]) && a.len() == 3,
+        // A linked worktree's folder, its lock, and a merged branch (spec
+        // "Git worktrees"). Branch names never start with "-".
+        "git" => {
+            ((starts(&a, &["worktree", "remove"]) || starts(&a, &["worktree", "unlock"])) && a.len() == 3)
+                || ((starts(&a, &["branch", "-d"]) || starts(&a, &["branch", "-D"])) && a.len() == 3 && !a[2].starts_with('-'))
+        }
         "pnpm" => a == ["store", "prune"],
         "pip" | "pip3" => a == ["cache", "purge"],
         "brew" => a == ["cleanup"],

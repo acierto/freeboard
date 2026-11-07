@@ -90,31 +90,27 @@ fn notes(s: &Suggestion) -> (Vec<String>, Vec<SaferStep>) {
             ],
         ),
         git::ID if s.risk == Risk::Risky => {
+            // Removing a worktree deletes only its folder: what can be lost is
+            // uncommitted work (spec "Git worktrees").
             let loc = sh(&s.location);
             let mut why = vec![format!("{} Your work may exist only here.", s.reason)];
             why.push("Freeboard will not remove it until that is no longer true.".into());
             let mut safer = vec![step("See what would be lost", format!("git -C {loc} status --short"))];
             let r = s.reason.to_ascii_lowercase();
-            if r.contains("unpushed") || r.contains("no upstream") {
-                safer.push(step("Push the commits", format!("git -C {loc} push -u origin HEAD")));
-            }
             if r.contains("uncommitted") || r.contains("untracked") {
-                safer.push(step("Commit what you want to keep, then push", format!("git -C {loc} add -p && git -C {loc} commit && git -C {loc} push")));
+                safer.push(step("Commit it on the branch, then the worktree can go", format!("git -C {loc} add -A && git -C {loc} commit -m wip")));
             }
             (why, safer)
         }
         git::ID => {
-            let mut why = vec![if s.reason.contains("merged") && !s.reason.contains("not merged") {
-                "The branch is merged, so its commits are safe in the main branch.".to_string()
+            let goes = s.worktree.as_ref().is_some_and(|w| w.merged != crate::model::WtMerged::No);
+            let mut why = vec![if goes {
+                "The branch is already in main, so the branch goes too and nothing is lost.".to_string()
             } else {
-                "Each branch is merged or pushed, so its commits are safe elsewhere.".to_string()
+                "Only the folder goes. The branch stays with all its commits, so nothing is lost.".to_string()
             }];
             why.push("Files Git ignores, such as .env files and local settings, are removed with the worktree.".into());
-            let safer = if s.parts.is_empty() {
-                vec![step("Check for ignored files you want to keep", format!("git -C {} status --ignored", sh(&s.location)))]
-            } else {
-                vec![step("Check one worktree for ignored files (use a path from Choose which)", "git -C WORKTREE_PATH status --ignored")]
-            };
+            let safer = vec![step("Check for ignored files you want to keep", format!("git -C {} status --ignored", sh(&s.location)))];
             (why, safer)
         }
         projects::DEPS => (
@@ -172,18 +168,20 @@ mod tests {
     fn a_blocked_worktree_explains_and_offers_status_and_push() {
         let mut s = base(git::ID, Group::Projects, "wt");
         s.risk = Risk::Risky;
-        s.reason = "3 uncommitted files.".into();
+        s.reason = "3 uncommitted files would be deleted.".into();
         s.location = "~/work/my app".into();
         annotate(&mut s);
-        assert!(s.risk_why[0].starts_with("3 uncommitted files."));
+        assert!(s.risk_why[0].starts_with("3 uncommitted files would be deleted."));
         assert_eq!(s.safer[0].command, "git -C \"$HOME/work/my app\" status --short");
         assert!(s.safer.iter().any(|x| x.label.starts_with("Commit")));
         let mut p = base(git::ID, Group::Projects, "wt2");
         p.risk = Risk::Risky;
-        p.reason = "2 unpushed commits.".into();
+        p.reason = "A merge, rebase or cherry-pick is in progress.".into();
         p.location = "/tmp/$x".into();
         annotate(&mut p);
-        assert!(p.safer.iter().any(|x| x.command == "git -C \"/tmp/\\$x\" push -u origin HEAD"), "{:?}", p.safer);
+        // Unpushed commits are no longer a risk: the branch keeps them.
+        assert!(!p.safer.iter().any(|x| x.command.contains(" push")), "{:?}", p.safer);
+        assert_eq!(p.safer[0].command, "git -C \"/tmp/\\$x\" status --short");
     }
 
     #[test]

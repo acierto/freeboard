@@ -863,6 +863,32 @@ impl AppCore {
 
     /// The latest scan's suggestions with the user's Keep / Ask me later
     /// decisions and part choices applied.
+    /// The Worktrees view (spec "Worktrees view"): every linked worktree as an
+    /// item, and each repository with its main checkout's size (the folder's
+    /// size at the last measurement, less its worktrees), never removable.
+    pub fn get_worktrees(&self) -> CmdResult<WorktreesView> {
+        let findings = self.store.findings()?;
+        let decided = self.decided_suggestions()?;
+        let items: Vec<Suggestion> = decided.into_iter().filter(|s| s.detector == crate::detectors::git::ID && s.worktree.is_some()).collect();
+        let m = self.measurement();
+        let mut repos: Vec<WorktreeRepo> = Vec::new();
+        for f in findings.iter().filter(|f| f.suggestion.detector == crate::detectors::git::ID) {
+            let (Target::Native { cwd: Some(main), .. }, Some(w)) = (&f.target, &f.suggestion.worktree) else { continue };
+            if repos.iter().any(|r| r.root == w.root) {
+                continue;
+            }
+            let main = std::path::Path::new(main);
+            let inside: u64 = findings
+                .iter()
+                .filter(|g| matches!(&g.target, Target::Native { resources, .. } if resources.first().is_some_and(|r| std::path::Path::new(r).starts_with(main))))
+                .map(|g| g.suggestion.size_bytes)
+                .sum();
+            let main_bytes = m.as_ref().and_then(|m| diskmap::roots::folder_bytes(m, main)).map(|b| b.saturating_sub(inside));
+            repos.push(WorktreeRepo { name: w.repo.clone(), root: w.root.clone(), main_bytes });
+        }
+        Ok(WorktreesView { repos, items })
+    }
+
     fn decided_suggestions(&self) -> CmdResult<Vec<Suggestion>> {
         let mut items: Vec<Suggestion> = self.store.findings()?.into_iter().map(|f| f.suggestion).collect();
         items.iter_mut().for_each(crate::risk_notes::annotate);
@@ -1333,6 +1359,24 @@ impl QuickScanSchedule {
             QuickScanSchedule::OnRequest => "Only when I ask",
         }
     }
+}
+
+/// A repository in the Worktrees view.
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WorktreeRepo {
+    pub name: String,
+    /// The main checkout, as shown ("~/proj/app").
+    pub root: String,
+    /// The main checkout's own size, when a deep scan measured it.
+    pub main_bytes: Option<u64>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WorktreesView {
+    pub repos: Vec<WorktreeRepo>,
+    pub items: Vec<Suggestion>,
 }
 
 #[cfg(test)]

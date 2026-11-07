@@ -2,6 +2,8 @@
 // the helm (free space, status, forecast, goal, Where from, Toss, the pile,
 // Trash), and the section tabs. Markup and class names follow the prototype
 // so the visual verifier can drive both with the same steps.
+import { WorktreesView } from "../worktrees/WorktreesView";
+import { readyCount } from "../worktrees/worktreesModel";
 import { fx, lang, t, tn, unitGB } from "../../i18n";
 import { itemName, tb } from "../../i18n/backend";
 import { useEffect, useState } from "react";
@@ -21,7 +23,7 @@ import { progressOf } from "../cleanup/cleanupModel";
 import { useCleanup } from "../cleanup/useCleanup";
 import type { Crate } from "../../components/Dinghy";
 
-type Tab = "tidy" | "map" | "log";
+type Tab = "tidy" | "map" | "wt" | "log";
 // The wave strip along the bottom of the Toss button (prototype `.splash`).
 const SPLASH = "M0 6 q6 -5 12 0" + " t12 0".repeat(33) + " V10 H0Z";
 const GOALS = (): [Goal, string][] => [
@@ -55,6 +57,7 @@ export function Home({ navigate }: { navigate: View | null }) {
   // when it started; each leaves as its item is removed (prototype `run()`).
   const [deckAtRun, setDeckAtRun] = useState<Crate[] | null>(null);
   const running = cleanup.flow?.kind === "run";
+  const wtReady = readyCount(h.data?.worktrees ?? null);
 
   useEffect(() => {
     if (navigate === "pile") setShowPile(true);
@@ -284,13 +287,17 @@ export function Home({ navigate }: { navigate: View | null }) {
             {t("tab.map")}
             {coverage !== null && <span className="dot num">{coverage}%</span>}
           </button>
+          <button className="tab" role="tab" data-tab="wt" id="tab-wt" aria-selected={tab === "wt"} onClick={() => setTab("wt")}>
+            {t("tab.wt")}
+            {wtReady > 0 && <span className="dot num">{wtReady}</span>}
+          </button>
           <button className="tab" role="tab" data-tab="log" id="tab-log" aria-selected={tab === "log"} onClick={() => setTab("log")}>
             {t("tab.log")}
           </button>
         </div>
 
         <section id="v-tidy" className="two" hidden={tab !== "tidy"}>
-          <QuickQuestions items={suggestions} pile={pile} act={{ add: h.add, takeOut: h.takeOut, decide: h.decide, parts: h.parts, remove: cleanup.fromItems, toss: cleanup.fromPile }} />
+          <QuickQuestions items={suggestions} pile={pile} act={{ add: h.add, takeOut: h.takeOut, decide: h.decide, parts: h.parts, remove: cleanup.fromItems, toss: cleanup.fromPile, openWorktrees: () => setTab("wt") }} />
         </section>
         <section id="v-map" className="two" hidden={tab !== "map"}>
           {map && (
@@ -306,6 +313,9 @@ export function Home({ navigate }: { navigate: View | null }) {
               onResolve={h.resolveSpot}
             />
           )}
+        </section>
+        <section id="v-wt" className="wt-view" hidden={tab !== "wt"}>
+          <WorktreesView view={h.data.worktrees} onChanged={() => void h.reload()} />
         </section>
         <section id="v-log" className="card" hidden={tab !== "log"}>
           {tab === "log" && <Logbook platform={status.platform} refresh={`${status.trashBytes}|${status.volumes[0]?.freeBytes ?? 0}`} />}

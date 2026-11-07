@@ -40,3 +40,16 @@ html.tray-native, html.tray-native body { background: transparent; }
 /* Confirmation: drop one item from the toss (found on a real Mac: an item
    needing its own acknowledgment blocked the whole toss). */
 .cf-leave { align-self: flex-start; font-size: 13px; }
+/* Worktrees: a repository heading holds only a code-font name. Without a
+   doctype (the prototype) that line is shorter than in standards mode; as a
+   block it has the same height in both. */
+.wt-rh h3 > .mono { display: block; }
+/* A code-font path or command on a line of its own (the repository path at
+   phone width, the reopen command): its own line height is the text's, so
+   the line is as tall without a doctype as with one. */
+.wt-rh .note .mono { line-height: 19.5px; }
+.wt-after .mono { display: inline-block; line-height: 21px; }
+/* Worktrees: the Agent, Claude and Codex badges. The prototype's accent text
+   on its tint is under WCAG AA contrast at 11 px in the light theme; mixed
+   with the ink colour it passes in both themes. */
+.wt-ag:not(.lock) { color: color-mix(in srgb, var(--accent) 70%, var(--ink)); }

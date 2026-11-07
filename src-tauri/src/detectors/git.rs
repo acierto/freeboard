@@ -1,14 +1,13 @@
-//! `git.worktrees`: linked worktrees of repositories under the scan folders.
+//! `git.worktrees`: linked worktrees of repositories under the scan folders,
+//! one item each, for the Worktrees view (spec "Git worktrees", Version 19).
 //!
-//! The main worktree is never suggested. Clean worktrees whose branch is
-//! merged, or pushed but not merged, are Review. Dirty, untracked, unpushed,
-//! no-upstream, locked, merging/rebasing, process-open and unknown-state
-//! worktrees are Risky and blocked.
-//!
-//! Removal itself is disabled (task 4.1): the source protects repository roots
-//! but also lists `git worktree remove` for linked worktrees, whose roots are
-//! repository roots. Until the user confirms the rule, every worktree carries
-//! a blocked reason; discovery and risk presentation still work.
+//! `git worktree remove` deletes the folder only; the branch and its commits
+//! stay. So a clean worktree idle 7+ days is Ready whether or not its branch
+//! is pushed or merged, and its branch is deleted too only when its content
+//! is already in the default branch. Recently used or locked worktrees need a
+//! look (selectable by hand). Uncommitted files, a merge in progress, a
+//! program using it, commits on no branch, or an unreadable state are Work
+//! and are not removed. The main checkout is never an item.
 
 use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
@@ -114,30 +113,92 @@ fn default_branch(ctx: &ScanContext, main: &Path) -> Option<String> {
     None
 }
 
+/// Days without use before a clean worktree is Ready (spec "Git worktrees").
+pub const IDLE_DAYS: u32 = 7;
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct Classified {
-    pub risk: Risk,
-    /// Reason for the risk (shown as "Why it is listed").
+    pub status: WtStatus,
+    /// One plain sentence: why it has this status.
     pub reason: String,
-    /// Risky states are blocked with their own reason.
-    pub unsafe_reason: Option<String>,
+    /// Work items are not removed; this says what would make them removable.
+    pub blocked: Option<String>,
     pub fingerprint: String,
     pub last_commit: Option<i64>,
-    pub merged: bool,
+    /// The latest of the last commit, checkout, and change at its top level.
+    pub last_used: Option<i64>,
+    pub merged: WtMerged,
+    pub ahead: u32,
+    pub pushed: bool,
+    pub dirty: u32,
+    pub dirty_files: Vec<String>,
+    pub hold: Option<&'static str>,
 }
 
 fn unknown(why: &str) -> Classified {
     Classified {
-        risk: Risk::Risky,
+        status: WtStatus::Work,
         reason: format!("Freeboard couldn't determine this worktree's state ({why})."),
-        unsafe_reason: Some("Blocked because its status can't be determined.".into()),
+        blocked: Some("Blocked because its status can't be determined.".into()),
         fingerprint: fingerprint_of(&["unknown", why]),
         last_commit: None,
-        merged: false,
+        last_used: None,
+        merged: WtMerged::No,
+        ahead: 0,
+        pushed: false,
+        dirty: 0,
+        dirty_files: vec![],
+        hold: Some("unknown"),
     }
 }
 
-/// Classify one linked worktree. Any failure is Risky (invariant 11).
+fn mtime(p: &Path) -> Option<i64> {
+    let m = std::fs::metadata(p).ok()?.modified().ok()?;
+    m.duration_since(std::time::UNIX_EPOCH).ok().map(|d| d.as_secs() as i64)
+}
+
+/// The time of a reflog's last entry ("<old> <new> Name <email> <time> <tz>\t<message>").
+fn reflog_time(p: &Path) -> Option<i64> {
+    let text = std::fs::read_to_string(p).ok()?;
+    let line = text.lines().rev().find(|l| !l.trim().is_empty())?;
+    let head = line.split('\t').next()?;
+    let mut parts = head.rsplitn(3, ' ');
+    let _tz = parts.next()?;
+    parts.next()?.parse().ok()
+}
+
+/// "Idle 30 days", "Used today": the idle part of a reason.
+fn used(now: i64, last: Option<i64>) -> String {
+    match last.map(|t| ((now - t).max(0) / 86_400) as u32) {
+        None => "Last use unknown".into(),
+        Some(0) => "Used today".into(),
+        Some(1) => "Used yesterday".into(),
+        Some(d) => format!("Used {d} days ago"),
+    }
+}
+
+/// Is the branch's content already in the default branch although it is not
+/// an ancestor (a squash merge)? Every file the branch changed since it left
+/// the default branch is then the same in both. Read-only, unlike the spec's
+/// `git merge-tree --write-tree`, which writes objects into the repository
+/// (decision 2026-11-07). If the default branch changed those files again
+/// later, this says no and the branch is kept: never a wrong yes.
+fn squash_merged(ctx: &ScanContext, p: &Path, default: &str) -> bool {
+    let Ok(base) = git_ok(ctx, p, &["merge-base", default, "HEAD"]) else { return false };
+    let Ok(files) = git_ok(ctx, p, &["diff", "--name-only", "-z", &base, "HEAD"]) else { return false };
+    let files: Vec<&str> = files.split('\0').filter(|f| !f.is_empty()).collect();
+    if files.is_empty() {
+        return false;
+    }
+    let mut args = vec!["diff", "--quiet", default, "HEAD", "--"];
+    args.extend(files.iter().copied());
+    matches!(git(ctx, p, &args), Ok((0, _)))
+}
+
+/// Classify one linked worktree (spec "Git worktrees"). Removing a worktree
+/// deletes its folder, never its branch, so only uncommitted files, commits on
+/// no branch, or work in progress can be lost; those are Work. Any failure to
+/// read the state is Work too (invariant 11).
 pub fn classify(ctx: &ScanContext, main: &Path, wt: &WtEntry, default: Option<&str>) -> Classified {
     let p = &wt.path;
     let status = match git(ctx, p, &["status", "--porcelain=v2", "--branch", "--untracked-files=normal"]) {
@@ -146,17 +207,23 @@ pub fn classify(ctx: &ScanContext, main: &Path, wt: &WtEntry, default: Option<&s
         Err(e) => return unknown(&e),
     };
     let mut upstream = None;
-    let mut ahead: Option<u64> = None;
-    let (mut changed, mut untracked) = (0u32, 0u32);
+    let mut dirty_files = vec![];
+    let mut dirty = 0u32;
     for l in status.lines() {
         if let Some(u) = l.strip_prefix("# branch.upstream ") {
             upstream = Some(u.to_string());
-        } else if let Some(ab) = l.strip_prefix("# branch.ab ") {
-            ahead = ab.split_whitespace().next().and_then(|a| a.trim_start_matches('+').parse().ok());
-        } else if l.starts_with("? ") {
-            untracked += 1;
-        } else if l.starts_with("1 ") || l.starts_with("2 ") || l.starts_with("u ") {
-            changed += 1;
+        } else if l.starts_with("? ") || l.starts_with("1 ") || l.starts_with("2 ") || l.starts_with("u ") {
+            dirty += 1;
+            // The path is the last field ("1 .M N... 100644 100644 100644 h h path").
+            let name = if let Some(n) = l.strip_prefix("? ") {
+                n.to_string()
+            } else {
+                let fields = if l.starts_with("1 ") { 8 } else if l.starts_with("2 ") { 9 } else { 10 };
+                l.splitn(fields + 1, ' ').nth(fields).unwrap_or("").split('\t').next().unwrap_or("").to_string()
+            };
+            if dirty_files.len() < 8 && !name.is_empty() {
+                dirty_files.push(name);
+            }
         }
     }
     let gitdir = match git_ok(ctx, p, &["rev-parse", "--absolute-git-dir"]) {
@@ -167,13 +234,32 @@ pub fn classify(ctx: &ScanContext, main: &Path, wt: &WtEntry, default: Option<&s
         .iter()
         .any(|f| std::fs::symlink_metadata(gitdir.join(f)).is_ok());
     let last_commit = git_ok(ctx, p, &["log", "-1", "--format=%ct"]).ok().and_then(|s| s.parse().ok());
-    let merged = match (default, wt.head.as_deref()) {
-        (Some(d), Some(_)) => match git(ctx, p, &["merge-base", "--is-ancestor", "HEAD", d]) {
-            Ok((0, _)) => Some(true),
-            Ok((1, _)) => Some(false),
-            _ => None,
-        },
-        _ => Some(false),
+    // Last use: commits, checkouts (the time in the reflog's last entry and
+    // HEAD's date) and files coming or going at the top level. Not the
+    // reflog's own file date, which `git gc` rewrites in every worktree
+    // (found on a real Mac, 2026-11-07), nor the index, which `git status`
+    // rewrites.
+    let last_used = [last_commit, reflog_time(&gitdir.join("logs/HEAD")), mtime(&gitdir.join("HEAD")), mtime(p)].into_iter().flatten().max();
+    let idle = last_used.map(|t| ((ctx.now - t).max(0) / 86_400) as u32);
+    let (merged, ahead) = match (default, wt.head.as_deref()) {
+        (Some(d), Some(_)) => {
+            let anc = match git(ctx, p, &["merge-base", "--is-ancestor", "HEAD", d]) {
+                Ok((0, _)) => Some(true),
+                Ok((1, _)) => Some(false),
+                _ => None,
+            };
+            let Some(anc) = anc else { return unknown("merge check failed") };
+            let ahead = git_ok(ctx, p, &["rev-list", "--count", &format!("{d}..HEAD")]).ok().and_then(|n| n.parse().ok()).unwrap_or(0);
+            let merged = if anc {
+                WtMerged::Yes
+            } else if squash_merged(ctx, p, d) {
+                WtMerged::Squash
+            } else {
+                WtMerged::No
+            };
+            (merged, ahead)
+        }
+        _ => (WtMerged::No, 0),
     };
     let procs = crate::scan::processes_in(ctx, p);
     let fp = fingerprint_of(&[
@@ -181,67 +267,78 @@ pub fn classify(ctx: &ScanContext, main: &Path, wt: &WtEntry, default: Option<&s
         &status,
         &format!("{}|{in_progress}", wt.locked),
         &format!("{merged:?}"),
+        &last_used.unwrap_or(0).to_string(),
     ]);
-    let risky = |reason: String, block: &str| Classified {
-        risk: Risk::Risky,
-        reason,
-        unsafe_reason: Some(block.to_string()),
-        fingerprint: fp.clone(),
+    let base = Classified {
+        status: WtStatus::Ready,
+        reason: String::new(),
+        blocked: None,
+        fingerprint: fp,
         last_commit,
-        merged: merged == Some(true),
+        last_used,
+        merged,
+        ahead,
+        pushed: upstream.is_some(),
+        dirty,
+        dirty_files,
+        hold: None,
     };
+    let work = |reason: String, block: &str, hold: Option<&'static str>| Classified { status: WtStatus::Work, reason, blocked: Some(block.to_string()), hold, ..base.clone() };
     let _ = main;
-    if wt.locked {
-        return risky("The worktree is locked.".into(), "Blocked because the worktree is locked.");
-    }
     if in_progress {
-        return risky("A merge, rebase or cherry-pick is in progress.".into(), "Blocked until the merge or rebase is finished.");
+        return work("A merge, rebase or cherry-pick is in progress.".into(), "Blocked until the merge or rebase is finished.", Some("merging"));
     }
-    if changed > 0 || untracked > 0 {
-        let mut parts = vec![];
-        if changed > 0 {
-            parts.push(format!("{changed} uncommitted file{}", if changed == 1 { "" } else { "s" }));
-        }
-        if untracked > 0 {
-            parts.push(format!("{untracked} untracked file{}", if untracked == 1 { "" } else { "s" }));
-        }
-        return risky(format!("{}.", parts.join(" and ")), "Blocked in v1. Commit and push this work first.");
+    if dirty > 0 {
+        let reason = if dirty == 1 { "1 uncommitted file would be deleted.".to_string() } else { format!("{dirty} uncommitted files would be deleted.") };
+        return work(reason, "Commit or stash these files first, then scan again.", None);
     }
     match procs {
-        None => return risky("Freeboard couldn't check whether a program has this worktree open.".into(), "Blocked because its status can't be determined."),
-        Some(v) if !v.is_empty() => return risky("A running program has this worktree open.".into(), "Blocked while a program is using it."),
+        None => return work("Freeboard couldn't check whether a program has this worktree open.".into(), "Blocked because its status can't be determined.", Some("unknown")),
+        Some(v) if !v.is_empty() => return work("A running program has this worktree open.".into(), "Blocked while a program is using it.", Some("in_use")),
         _ => {}
     }
-    let Some(merged) = merged else { return unknown("merge check failed") };
-    if merged {
-        return Classified {
-            risk: Risk::Review,
-            reason: "The branch is merged and the worktree has no local changes.".into(),
-            unsafe_reason: None,
-            fingerprint: fp,
-            last_commit,
-            merged: true,
-        };
+    // Commits on no branch would be lost with the folder.
+    if wt.branch.is_none() && ahead > 0 {
+        return work("Its commits are on no branch, so they would be lost.".into(), "Create a branch for them first, then scan again.", Some("no_branch"));
     }
-    match (upstream, ahead) {
-        (None, _) | (Some(_), None) => risky("The branch has no upstream, so its commits may exist only here.".into(), "Blocked in v1. Push this branch first."),
-        (Some(_), Some(a)) if a > 0 => risky(
-            format!("{a} unpushed commit{}.", if a == 1 { "" } else { "s" }),
-            "Blocked in v1. Push this work first.",
-        ),
-        _ => Classified {
-            risk: Risk::Review,
-            // Git can't detect squash merges reliably; they show up here.
-            reason: "No local changes, and the branch is pushed but not merged.".into(),
-            unsafe_reason: None,
-            fingerprint: fp,
-            last_commit,
-            merged: false,
-        },
+    if wt.locked {
+        return Classified { status: WtStatus::Look, reason: format!("Locked, maybe by an agent that is still running. {}.", used(ctx.now, last_used)), ..base };
+    }
+    if idle.is_none_or(|d| d < IDLE_DAYS) {
+        return Classified { status: WtStatus::Look, reason: format!("{}. It may still be in use.", used(ctx.now, last_used)), ..base };
+    }
+    let d = idle.unwrap_or(0);
+    let reason = match merged {
+        WtMerged::Squash => format!("Idle {d} days, already in main (squash-merged)."),
+        WtMerged::Yes => format!("Idle {d} days, merged into main."),
+        WtMerged::No => format!("Idle {d} days, nothing uncommitted. The branch stays, so you can reopen it anytime."),
+    };
+    Classified { reason, ..base }
+}
+
+/// "agent", "claude" or "codex" for branches coding agents create.
+pub fn agent_of(branch: Option<&str>) -> Option<String> {
+    let b = branch?;
+    if b.starts_with("worktree-agent-") {
+        Some("agent".into())
+    } else if b.starts_with("claude/") {
+        Some("claude".into())
+    } else if b.starts_with("codex/") {
+        Some("codex".into())
+    } else {
+        None
     }
 }
 
-fn finding(ctx: &ScanContext, main: &Path, wt: &WtEntry, c: Classified) -> Finding {
+/// Does removal delete the branch too? Only when its content is in the
+/// default branch, and never the default branch itself.
+fn branch_goes(c: &Classified, branch: Option<&str>, default: Option<&str>) -> bool {
+    let Some(b) = branch else { return false };
+    let default_short = default.map(|d| d.rsplit('/').next().unwrap_or(d));
+    c.merged != WtMerged::No && Some(b) != default_short && !matches!(b, "main" | "master")
+}
+
+fn finding(ctx: &ScanContext, main: &Path, wt: &WtEntry, c: Classified, default: Option<&str>) -> Finding {
     let canon = std::fs::canonicalize(&wt.path).unwrap_or_else(|_| wt.path.clone());
     let mut s = base(ID, Group::Projects, &canon.to_string_lossy());
     let repo = main.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
@@ -250,27 +347,67 @@ fn finding(ctx: &ScanContext, main: &Path, wt: &WtEntry, c: Classified) -> Findi
     s.location = display_path(ctx, &wt.path);
     let ex = walk::exclusions(ctx);
     s.size_bytes = measure(&wt.path, &MeasureOpts { exclusions: ex, serial: false }).bytes;
-    s.last_used_at = c.last_commit.and_then(rfc3339);
+    s.last_used_at = c.last_used.and_then(rfc3339);
     s.last_used_label = match (c.merged, c.last_commit) {
-        (true, Some(t)) => format!("Merged, last commit {}", ago(ctx.now, t)),
+        (WtMerged::Yes, Some(t)) => format!("Merged, last commit {}", ago(ctx.now, t)),
         (_, Some(t)) => format!("Last commit {}", ago(ctx.now, t)),
         _ => "Last commit unknown".into(),
     };
-    s.risk = c.risk;
     s.action = Action::NativeCommand;
-    s.reason = c.reason;
-    s.fingerprint = c.fingerprint;
-    if c.risk == Risk::Risky {
+    s.reason = c.reason.clone();
+    s.fingerprint = c.fingerprint.clone();
+    let rel = wt.path.strip_prefix(main).map(|r| r.to_string_lossy().to_string()).unwrap_or_else(|_| display_path(ctx, &wt.path));
+    let root = display_path(ctx, main);
+    let goes = branch_goes(&c, wt.branch.as_deref(), default);
+    let mut commands = vec![];
+    if wt.locked {
+        commands.push(format!("git -C {root} worktree unlock {rel}"));
+    }
+    commands.push(format!("git -C {root} worktree remove {rel}"));
+    if goes {
+        let flag = if c.merged == WtMerged::Yes { "-d" } else { "-D" };
+        commands.push(format!("git -C {root} branch {flag} {}", wt.branch.as_deref().unwrap_or("")));
+    }
+    let reopen = match (&wt.branch, goes) {
+        (Some(b), false) => Some(format!("git worktree add {rel} {b}")),
+        _ => None,
+    };
+    if c.status == WtStatus::Work {
+        s.risk = Risk::Risky;
         s.action_label = "None".into();
         s.recovery = "Your work exists only here.".into();
         s.recoverable = false;
-        s.blocked_reason = c.unsafe_reason;
+        s.blocked_reason = c.blocked.clone();
     } else {
+        // Nothing is lost: the branch keeps every commit, or its content is
+        // already in the default branch. Never automatic (Review).
+        s.risk = Risk::Review;
         s.action_label = format!("git worktree remove {}", wt.path.display());
-        s.recovery = "Run git worktree add with the same branch.".into();
+        s.recovery = match &reopen {
+            Some(r) => format!("The branch stays. Reopen it with {r}."),
+            None => "Everything is already in main.".into(),
+        };
         s.recoverable = true;
         s.blocked_reason = None;
     }
+    s.worktree = Some(WorktreeInfo {
+        repo,
+        root,
+        branch: wt.branch.clone(),
+        rel_path: rel,
+        status: c.status,
+        agent: agent_of(wt.branch.as_deref()),
+        locked: wt.locked,
+        idle_days: c.last_used.map(|t| ((ctx.now - t).max(0) / 86_400) as u32),
+        dirty: c.dirty,
+        dirty_files: c.dirty_files.clone(),
+        merged: c.merged,
+        ahead: c.ahead,
+        pushed: c.pushed,
+        hold: c.hold.map(str::to_string),
+        commands,
+        reopen,
+    });
     Finding {
         parts: vec![],
         suggestion: s,
@@ -348,7 +485,7 @@ impl Detector for Worktrees {
                         break;
                     }
                     let c = classify(ctx, main, wt, default.as_deref());
-                    *results[i].lock().unwrap_or_else(|e| e.into_inner()) = Some(finding(ctx, main, wt, c));
+                    *results[i].lock().unwrap_or_else(|e| e.into_inner()) = Some(finding(ctx, main, wt, c, default.as_deref()));
                 });
             }
         });
@@ -356,58 +493,15 @@ impl Detector for Worktrees {
         if out.is_empty() && failures > 0 {
             return Err(err(ID, "error", format!("Git could not list worktrees in {failures} repositories.")));
         }
-        Ok(merge_removable(ctx, out))
+        // One item per worktree: the Worktrees view lists and removes them
+        // one by one (spec "Worktrees view"), so they are no longer grouped.
+        Ok(out)
     }
 }
 
-/// Removable worktrees (clean, merged or pushed) are one item with a part per
-/// worktree, like unused Docker images (decided by the user 2026-11-06: a real
-/// machine had 146 separate questions). Each part keeps its own finding, so the
-/// "still clean, still pushed, no new commits" check runs per worktree.
-/// Blocked (Risky) worktrees stay separate items: the interface folds them
-/// into one protected card.
-pub fn merge_removable(_ctx: &ScanContext, found: Vec<Finding>) -> Vec<Finding> {
-    let (mut ok, mut rest): (Vec<Finding>, Vec<Finding>) = found.into_iter().partition(|f| f.suggestion.risk == Risk::Review && f.suggestion.blocked_reason.is_none());
-    if ok.len() < 2 {
-        rest.extend(ok);
-        return rest;
-    }
-    ok.sort_by(|a, b| b.suggestion.size_bytes.cmp(&a.suggestion.size_bytes).then(a.suggestion.id.cmp(&b.suggestion.id)));
-    let n = ok.len();
-    let total: u64 = ok.iter().map(|f| f.suggestion.size_bytes).sum();
-    let repos: std::collections::BTreeSet<&str> = ok.iter().filter_map(|f| f.suggestion.title.split(": ").next()).collect();
-    let mut s = base(ID, Group::Projects, "removable-worktrees");
-    s.title = "Git worktrees with no local changes".into();
-    s.location = if repos.len() == 1 { format!("{n} worktrees in 1 repository") } else { format!("{n} worktrees in {} repositories", repos.len()) };
-    s.size_bytes = total;
-    s.full_size_bytes = total;
-    let newest = ok.iter().filter(|f| f.suggestion.last_used_at.is_some()).max_by(|a, b| a.suggestion.last_used_at.cmp(&b.suggestion.last_used_at));
-    s.last_used_at = newest.and_then(|f| f.suggestion.last_used_at.clone());
-    s.last_used_label = newest.map(|f| format!("Newest: {}", f.suggestion.last_used_label.to_lowercase())).unwrap_or_else(|| "Last commits unknown".into());
-    s.risk = Risk::Review;
-    s.action = Action::NativeCommand;
-    s.action_label = "git worktree remove".into();
-    s.reason = "No uncommitted or untracked files, and each branch is merged or pushed.".into();
-    s.recovery = "Run git worktree add with the same branch.".into();
-    s.recoverable = true;
-    s.parts = ok
-        .iter()
-        .map(|f| SuggestionPart { id: f.suggestion.id.clone(), label: f.suggestion.title.clone(), location: f.suggestion.location.clone(), size_bytes: f.suggestion.size_bytes, selected: true })
-        .collect();
-    s.fingerprint = fingerprint_of(&ok.iter().map(|f| f.suggestion.fingerprint.as_str()).collect::<Vec<_>>());
-    let resources: Vec<String> = ok
-        .iter()
-        .flat_map(|f| match &f.target {
-            Target::Native { resources, .. } => resources.clone(),
-            _ => vec![],
-        })
-        .collect();
-    rest.push(Finding { suggestion: s, target: Target::Native { program: "git".into(), args: vec![], resources, cwd: None }, parts: ok });
-    rest
-}
-
-/// Pre-cleanup check: still clean, still pushed or merged, not locked, no new
-/// commits. (Removal stays disabled; this is used for the record.)
+/// Pre-cleanup check (spec "Pre-cleanup check", Worktree): still no
+/// uncommitted or untracked files, not locked unless the plan unlocks it (the
+/// lock is part of the fingerprint), not used since the scan.
 pub fn probe(f: &Finding, ctx: &ScanContext) -> Probe {
     let Target::Native { cwd: Some(main), resources, .. } = &f.target else {
         return Probe::Unknown("Unexpected cleanup target.".into());
@@ -421,7 +515,7 @@ pub fn probe(f: &Finding, ctx: &ScanContext) -> Probe {
         return Probe::Changed("The worktree no longer exists.".into());
     };
     let c = classify(ctx, &main, &wt, default_branch(ctx, &main).as_deref());
-    if c.risk != Risk::Review {
+    if c.status == WtStatus::Work {
         return Probe::Changed(c.reason);
     }
     if c.fingerprint != f.suggestion.fingerprint {

@@ -79,6 +79,48 @@ const idle = (p) => p.waitForFunction(() => document.documentElement.dataset.bus
   await ctx.close();
 }
 
+// Worktrees (spec "Worktrees view"): status tiles filter, a repository's
+// ready ones are selected at once, removal is the normal plan and run, one
+// at a time; a timeout is listed with Try N again.
+{
+  const { p, ctx } = await page();
+  check("worktrees: the tab badge counts the Ready ones", (await p.textContent("#tab-wt")) === "Worktrees15", await p.textContent("#tab-wt"));
+  await p.click("#tab-wt");
+  await idle(p);
+  check("worktrees: one summary line", (await p.textContent(".wt-head .muted")) === "20 in 6 repositories · 23.0 GB", await p.textContent(".wt-head .muted"));
+  const tiles = await p.$$eval(".wt-leg", (l) => l.map((x) => x.textContent));
+  check("worktrees: four status tiles with count and size", JSON.stringify(tiles) === JSON.stringify(["Ready to remove15 · 17.0 GB", "Needs a look2 · 2.0 GB", "Has your work2 · 3.5 GB", "Main checkouts1 · 0.5 GB"]), JSON.stringify(tiles));
+  await p.click('[data-wt-filter="work"]');
+  check("worktrees: a tile filters the list", (await p.$$(".wt-row")).length === 2 && (await p.getAttribute('[data-wt-filter="work"]', "aria-pressed")) === "true");
+  await p.click('[data-wt-filter="work"]');
+  check("worktrees: a second click clears the filter", (await p.$$(".wt-row")).length === 20);
+  await p.click('[data-wt-filter="agent"]');
+  check("worktrees: Made by agents shows the agent branches", (await p.$$(".wt-row")).length === 12);
+  await p.click('[data-wt-filter="all"]');
+  check("worktrees: Has your work and main can't be selected", (await p.isDisabled('[data-wt-sel="w3"]')) && (await p.isDisabled('[data-wt-sel="w7"]')) && !(await p.$('[data-wt-sel^="main:"]')));
+  check("worktrees: Needs a look can be selected by hand", !(await p.isDisabled('[data-wt-sel="w6"]')) && !(await p.isDisabled('[data-wt-sel="w19"]')));
+  await p.click('[data-wt-open="w5"]');
+  const after = await p.textContent(".wt-row.open .wt-after");
+  check("worktrees: an unmerged branch stays, with how to reopen it", after === "Only the folder goes. Branch codex/ios-testflight-20261019 stays with its 3 commits. Reopen it with git worktree add .codex/worktrees/ios-testflight codex/ios-testflight-20261019.", after);
+  check("worktrees: the exact commands, with no branch delete", (await p.textContent(".wt-row.open .wt-cmd")) === "git -C ~/proj/leftyou worktree remove .codex/worktrees/ios-testflight");
+  await p.click('[data-wt-open="w5"]');
+  await p.click('[data-wt-selrepo="sheltersync"]');
+  check("worktrees: Select N ready selects that repository's ready ones", (await p.textContent(".wt-dock")).startsWith("8 selected · 3.9 GB") && (await p.textContent('[data-wt-act="remove"]')) === "Remove 8 worktrees", await p.textContent(".wt-dock"));
+  await p.evaluate(() => (window.__FIXTURE_CALLS__ = []));
+  await p.click('[data-wt-act="remove"]');
+  await p.waitForSelector('.wt-run [data-wt-act="retry"]');
+  await idle(p);
+  const sent = await p.evaluate(() => window.__FIXTURE_CALLS__);
+  check("worktrees: removal is one confirmed plan of those IDs, biggest first", JSON.stringify(sent.find((c) => c.cmd === "create_plan")?.args.itemIds) === '["w12","w13","w14","w15","w16","w17","w18","w20"]', JSON.stringify(sent.find((c) => c.cmd === "create_plan")?.args));
+  const run = await p.textContent(".wt-run");
+  check("worktrees: the result in the summary card, the timeout listed with Try 1 again", run.startsWith("Done: 7 removed, 1 could not go") && run.includes("worktree-agent-a447c27fa307f5ebd: timed out after 120 s") && run.includes("Try 1 again"), run);
+  check("worktrees: removed ones leave the list", !(await p.$('[data-wt-open="w12"]')) && (await p.textContent("#tab-wt")) === "Worktrees8", await p.textContent("#tab-wt"));
+  await p.click('[data-wt-act="retry"]');
+  await p.waitForFunction(() => document.querySelector(".wt-run b")?.textContent === "Done: 1 removed");
+  check("worktrees: Try again removes the one that timed out", !(await p.$('[data-wt-open="w18"]')));
+  await ctx.close();
+}
+
 // Languages, the whole app: no visible text or accessible name is still an
 // English interface string, on every screen (found by the user on 1.2.0).
 {
@@ -122,6 +164,7 @@ const idle = (p) => p.waitForFunction(() => document.documentElement.dataset.bus
     await visit(`lang=${l}`, "places", ["#tab-map", "#places-btn"]);
     await visit(`lang=${l}`, "report", ["#tab-map", '[data-act="report"]']);
     await visit(`lang=${l}`, "logbook", ["#tab-log"]);
+    await visit(`lang=${l}`, "worktrees", ["#tab-wt", '[data-wt-open="w1"]', '[data-wt-open="w3"]', '[data-wt-selrepo="sheltersync"]']);
     await visit(`lang=${l}`, "run details", ["#tab-log", '[data-run="run-2"]']);
     await visit(`lang=${l}`, "settings", ['[data-act="settings"]']);
     await visit(`lang=${l}`, "confirm", ["#cta", async (p) => p.waitForSelector("#go")]);
@@ -178,12 +221,12 @@ const idle = (p) => p.waitForFunction(() => document.documentElement.dataset.bus
 {
   const { p, ctx } = await page();
   const order = [];
-  for (let i = 0; i < 13; i++) {
+  for (let i = 0; i < 14; i++) {
     await p.keyboard.press("Tab");
     order.push(await focused(p));
   }
   // "All areas" is disabled while every area is ticked, so Tab skips it.
-  const want = ["settings", "20", "50", "100", "all", "Docker", "Projects", "Caches", "cta", "pile-btn", "tab-tidy", "tab-map", "tab-log"];
+  const want = ["settings", "20", "50", "100", "all", "Docker", "Projects", "Caches", "cta", "pile-btn", "tab-tidy", "tab-map", "tab-wt", "tab-log"];
   check("home: Tab order follows the prototype's reading order", JSON.stringify(order) === JSON.stringify(want), order.join(" | "));
   await p.focus("#cta");
   await p.keyboard.press("Shift+Tab");

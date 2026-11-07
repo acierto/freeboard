@@ -416,6 +416,7 @@ mod shell {
                 crate::commands::folder_suggestions,
                 crate::commands::get_folder_details,
                 crate::commands::get_tools,
+                crate::commands::get_worktrees,
                 crate::commands::open_main_view,
                 crate::commands::undo_remove_folder,
                 crate::commands::add_suggested_folder,

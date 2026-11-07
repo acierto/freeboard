@@ -83,7 +83,8 @@ export function resultWord(i: RunItem, platform: Platform, trash: (p: Platform) 
   const why = i.reason ? `: ${tb(i.reason)}` : "";
   switch (i.state) {
     case "done":
-      return t("c.removed");
+      // A worktree says whether its branch was kept.
+      return t("c.removed") + why;
     case "moved_to_trash":
       return t("c.movedto", { t: trash(platform) });
     case "skipped":

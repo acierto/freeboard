@@ -176,6 +176,7 @@ pub fn base(detector: &str, group: Group, identity: &str) -> Suggestion {
         risk_why: Vec::new(),
         safer: Vec::new(),
         ack_name: None,
+        worktree: None,
     }
 }
 

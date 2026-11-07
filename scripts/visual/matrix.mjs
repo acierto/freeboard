@@ -400,6 +400,49 @@ export const ENTRIES = [
   },
 ];
 
+// Worktrees (prototype Version 19): its own tab.
+const WT_CLIP = [".tabs", "#v-wt"];
+const WT_TAB = { click: "#tab-wt" };
+function noAckForWork() {
+  // Worktrees with uncommitted files stay unremovable in the app: removing
+  // them needs `git worktree remove --force`, which invariant 7 bans (decision
+  // 2026-11-07). The prototype's in-row acknowledgment is not offered.
+  document.querySelectorAll("#v-wt [data-wt-ack]").forEach((i) => i.closest("label")?.remove());
+}
+function noGitHubCheck() {
+  // Freeboard does not ask GitHub whether a pull request merged (invariant
+  // 12, no network); those branches are found as squash merges instead, and
+  // the squash check runs `git diff`, not `git merge-tree --write-tree`,
+  // which writes to the repository (decision 2026-11-07).
+  const walk = document.createTreeWalker(document.getElementById("v-wt"), NodeFilter.SHOW_TEXT);
+  for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+    n.textContent = n.textContent
+      .replace(/^Idle (\d+) days, pull request #\d+ merged\.$/, "Idle $1 days, already in main (squash-merged).")
+      .replace(/^Pull request #\d+ merged, so the branch can go too$/, "Changes already in main (squash merge, checked with git diff), so the branch can go too")
+      .replace("(squash merge, checked with git merge-tree)", "(squash merge, checked with git diff)");
+  }
+}
+function noRefocus() {
+  // The prototype re-renders the list when a row opens and focuses the new
+  // button, which shows its focus ring after a mouse click; the app keeps the
+  // same button, so a mouse click shows no ring (as everywhere else).
+  if (document.activeElement?.closest?.("#v-wt")) document.activeElement.blur();
+}
+const WT_NOTE = "Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff, and rows with uncommitted files have no acknowledgment to remove them (invariant 7).";
+const wtEntry = (id, state, steps, sizes = [DESKTOP, MID, PHONE], refOnly = []) => ({
+  id, surface: "Worktrees", state, sizes, query: "",
+  ref: [WT_TAB, ...steps, evalRef(noAckForWork), evalRef(noGitHubCheck), ...refOnly], impl: [WT_TAB, ...steps], clip: WT_CLIP, supplemental: true, note: WT_NOTE,
+});
+ENTRIES.push(
+  wtEntry("wt-default", "Worktrees: 20 in 6 repositories, 15 ready, by repository", []),
+  wtEntry("wt-filter-ready", "Worktrees: the Ready tile filters the list", [{ click: '[data-wt-filter="ready"]' }], [DESKTOP, PHONE]),
+  wtEntry("wt-filter-agents", "Worktrees: Made by agents", [{ click: '[data-wt-filter="agent"]' }], [DESKTOP]),
+  wtEntry("wt-open-ready", "Worktrees: a squash-merged agent worktree opened (checks, after removal, commands)", [{ click: '[data-wt-open="w1"]' }], [DESKTOP, PHONE], [evalRef(noRefocus)]),
+  wtEntry("wt-open-kept", "Worktrees: an unmerged one opened (the branch stays, how to reopen it)", [{ click: '[data-wt-open="w5"]' }], [DESKTOP], [evalRef(noRefocus)]),
+  wtEntry("wt-open-work", "Worktrees: one with uncommitted files opened (what would be lost, how to save it)", [{ click: '[data-wt-open="w3"]' }], [DESKTOP], [evalRef(noRefocus)]),
+  wtEntry("wt-selected", "Worktrees: Select 8 ready in sheltersync, with the dock", [{ click: '[data-wt-selrepo="sheltersync"]' }], [DESKTOP, PHONE]),
+);
+
 // Languages (prototype Version 18): the page follows the browser's language,
 // as the app follows the system's, so each capture runs in that locale.
 const LOCALES = { de: "de-DE", fr: "fr-FR", nl: "nl-NL", es: "es-ES" };

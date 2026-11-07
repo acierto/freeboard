@@ -1,20 +1,14 @@
 .venv in data-tools
 1 container
 1 installer and disk image that you have not opened recently.
-1 uncommitted file.
-1 uncommitted file. Your work may exist only here.
-1 unpushed commit.
-1 unpushed commit. Your work may exist only here.
-1 untracked file.
-1 untracked file. Your work may exist only here.
+1 uncommitted file would be deleted.
+1 uncommitted file would be deleted. Your work may exist only here.
 2 dangling images
 2 simulator devices
 2 temporary items that have not changed in 14 days.
 2 unnamed volumes
-2 worktrees in 1 repository
 3 dangling images
 3 images no container uses
-3 worktrees in 1 repository
 8 installers and disk images that you have not opened recently.
 A Gradle daemon is running. Stop it with gradle --stop, then scan again.
 A merge, rebase or cherry-pick is in progress.
@@ -25,10 +19,6 @@ A tagged image that no container uses. Docker Desktop may keep the space in its 
 A virtual environment is usually rebuilt from requirements, but packages installed by hand with pip install are not listed there.
 An image built only on this computer and never pushed has to be built again from its source.
 Blocked because its status can't be determined.
-Blocked because the worktree is locked.
-Blocked in v1. Commit and push this work first.
-Blocked in v1. Push this branch first.
-Blocked in v1. Push this work first.
 Blocked until the merge or rebase is finished.
 Blocked while a program is using it.
 Build layers that no recent build has reused. Docker Desktop may keep the space in its virtual disk for a while.
@@ -38,8 +28,8 @@ Build the project again.
 Builds that must work offline need it until then.
 Cargo download caches
 Check for ignored files you want to keep
-Check one worktree for ignored files (use a path from Choose which)
-Commit what you want to keep, then push
+Commit it on the branch, then the worktree can go
+Commit or stash these files first, then scan again.
 Compose project billing, not attached to a container
 Create the simulator again in Xcode.
 Create them again. Files written inside them are lost.
@@ -63,6 +53,7 @@ Downloaded crates and Git sources that Cargo can fetch again. Offline builds nee
 Downloaded packages that npm can fetch again.
 Downloaded wheels that pip can fetch again.
 Every project has a lockfile.
+Everything is already in main.
 Files Git ignores, such as .env files and local settings, are removed with the worktree.
 Files a container wrote outside its volumes are removed with it.
 Freeboard can't tell whether you still need these files.
@@ -74,30 +65,31 @@ Freeboard couldn't determine this worktree's state (git status failed).
 Freeboard couldn't determine this worktree's state (git status failed). Your work may exist only here.
 Freeboard will not remove it until that is no longer true.
 Git is not installed.
-Git worktrees with no local changes
 Gradle caches
 Homebrew cache
 Homebrew downloads them when needed.
+Idle 30 days, already in main (squash-merged).
+Idle 30 days, merged into main.
+Idle 30 days, nothing uncommitted. The branch stays, so you can reopen it anytime.
 Installers in Downloads
 It belongs to the Compose project billing, which may expect to find it again.
 Last changed 120 days ago
 Last changed today
-Last commit today
+Last commit 30 days ago
 Last commit unknown
 List them
+Locked, maybe by an agent that is still running. Used 30 days ago.
 Look inside first
 Look inside one (use a name from that list)
+Merged, last commit 30 days ago
 Merged, last commit today
 Move to Recycle Bin
 Move to Trash
 Newest created 53 days ago
 Newest created 6 days ago
 Newest created 64 days ago
-Newest: last commit today
-Newest: merged, last commit today
 No container uses them, but one may still hold the only copy of some data.
 No container uses them. Docker doesn't name or describe them, so it can't tell what is inside; one may still hold the only copy of some data.
-No uncommitted or untracked files, and each branch is merged or pushed.
 No undo. Docker deletes a volume outright; it never goes to the Trash.
 None
 Not attached to a container
@@ -115,12 +107,12 @@ Old temporary files
 Old versions and downloads
 Old versions and downloads of installed packages (1 items).
 Older than 14 days
+Only the folder goes. The branch stays with all its commits, so nothing is lost.
 Packages in the store that no project links to.
 Project idle for 120 days
 Project idle for 20 days
 Project idle for 60 days
 Projects idle for 60+ days
-Push the commits
 Rebuild the image from its Dockerfile.
 Restore it from the Trash, or recreate it from requirements.txt.
 Restore it from the Trash, or: Run npm install in the project.
@@ -132,7 +124,6 @@ Restore them from the Trash.
 Run cargo build.
 Run docker pull for the ones you need, or build them again.
 Run docker pull postgres:14, or build it again.
-Run git worktree add with the same branch.
 Run npm install in the project.
 Run pnpm install in the project.
 Run the project's build again.
@@ -147,17 +138,16 @@ See what would be lost
 Stopped containers
 Stopped over 14 days ago
 Tagged images that no container uses, including stopped ones. Docker Desktop may keep the space in its virtual disk for a while.
-The branch has no upstream, so its commits may exist only here.
-The branch has no upstream, so its commits may exist only here. Your work may exist only here.
-The branch is merged and the worktree has no local changes.
-The branch is merged, so its commits are safe in the main branch.
+The branch is already in main, so the branch goes too and nothing is lost.
+The branch stays. Reopen it with git worktree add .worktrees/locked locked.
+The branch stays. Reopen it with git worktree add .worktrees/pushed pushed.
+The branch stays. Reopen it with git worktree add .worktrees/unpushed unpushed.
+The branch stays. Reopen it with git worktree add .worktrees/worktree-agent-a1b2 worktree-agent-a1b2.
 The name hints at real data: it looks like a database.
 The project has a lockfile, so this can be installed again.
 The project has a lockfile, so this can be installed again. Freeboard couldn't check for programs running in this project.
 The tool downloads or rebuilds it when needed, which takes time and network.
 The tool reported a cache location Freeboard could not read.
-The worktree is locked.
-The worktree is locked. Your work may exist only here.
 Their writable layers still take up space.
 These simulators depend on runtimes that are gone.
 They go to the Trash first, so you can put them back.
@@ -167,6 +157,7 @@ Unreferenced pnpm packages
 Untagged Docker images
 Unused Docker images
 Unused build cache
+Used today. It may still be in use.
 Usually regenerable, but it may hold packages you installed by hand.
 Volume billing_pgdata
 Volume cache_vol
@@ -177,14 +168,15 @@ Your work exists only here.
 admin
 app: broken
 app: dirty
+app: fresh
 app: locked
 app: merged
 app: merging
-app: noupstream
 app: pushed
 app: squash
 app: unpushed
 app: untracked
+app: worktree-agent-a1b2
 brew cleanup
 brew is not installed.
 dist folder in site
@@ -200,7 +192,6 @@ docker volume rm billing_pgdata
 docker volume rm cache_vol
 docker volume rm web_data
 docs-site
-git worktree remove
 node_modules in 3 inactive projects
 node_modules in idle
 node_modules in kept
@@ -240,14 +231,15 @@ xcrun simctl delete unavailable
 ~/projects
 ~/projects/app/.worktrees/broken
 ~/projects/app/.worktrees/dirty
+~/projects/app/.worktrees/fresh
 ~/projects/app/.worktrees/locked
 ~/projects/app/.worktrees/merged
 ~/projects/app/.worktrees/merging
-~/projects/app/.worktrees/noupstream
 ~/projects/app/.worktrees/pushed
 ~/projects/app/.worktrees/squash
 ~/projects/app/.worktrees/unpushed
 ~/projects/app/.worktrees/untracked
+~/projects/app/.worktrees/worktree-agent-a1b2
 ~/projects/data-tools/.venv
 ~/projects/idle/node_modules
 ~/projects/kept/node_modules

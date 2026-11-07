@@ -123,6 +123,7 @@ button.tb-link:hover { background: var(--soft); } .tb-link.static { font-weight:
 .flabel { font-size: 13px; font-weight: 800; color: var(--muted); }
 .flabel-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .link.small { font-size: 13px; }
+.btn.small { padding: 6px 12px; font-size: 13px; border-radius: 10px; white-space: nowrap; flex: none; }
 .link.small:disabled { color: var(--muted); text-decoration: none; cursor: default; }
 .seg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.5fr); gap: 3px; background: var(--card); border: 2px solid var(--line); border-radius: 14px; padding: 3px; }
 .seg button { border: 0; background: none; border-radius: 10px; padding: 7px 4px; font-weight: 800; font-size: 14px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
@@ -490,6 +491,65 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
   .tile span { font-size: 12px; padding: 4px 5px; }
 }
 
+
+/* Worktrees */
+.wt-view { display: flex; flex-direction: column; gap: 14px; padding-bottom: 80px; }
+.wt-top { display: flex; flex-direction: column; gap: 12px; }
+.wt-head { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
+.wt-head h2 { margin: 0; }
+.wt-rule { max-width: 52ch; color: var(--muted); font-size: 14px; background: var(--soft); border-radius: 14px; padding: 10px 14px; margin: 0; }
+.wt-bar { display: flex; height: 14px; border-radius: 99px; overflow: hidden; gap: 2px; background: var(--soft); }
+.wt-bar i { display: block; min-width: 4px; }
+.wt-legend { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.wt-leg { display: grid; grid-template-columns: 12px minmax(0, 1fr); column-gap: 8px; align-items: center; text-align: left; border: 2px solid var(--line); background: var(--card); color: var(--ink); border-radius: 14px; padding: 8px 10px; cursor: pointer; font: inherit; }
+.wt-leg .sw { width: 12px; height: 12px; border-radius: 4px; grid-row: span 2; }
+.wt-leg b { font-size: 14px; } .wt-leg .num { font-size: 13px; color: var(--muted); }
+.wt-leg.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--card)); }
+.wt-filters { display: flex; gap: 6px; flex-wrap: wrap; }
+.chipbtn { border: 2px solid var(--line); background: var(--card); color: var(--ink); border-radius: 99px; padding: 4px 12px; font: 800 13px var(--body); cursor: pointer; }
+.chipbtn.on { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
+.wt-repo { background: var(--card); border: 2px solid var(--line); border-radius: 22px; overflow: hidden; }
+.wt-rh { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 16px; background: var(--soft); }
+.wt-rh h3 { margin: 0; font-size: 17px; }
+.wt-rh > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.wt-mini { display: flex; height: 6px; width: 160px; max-width: 100%; border-radius: 99px; overflow: hidden; gap: 1px; }
+.wt-mini i { display: block; }
+.wt-row { border-top: 1px solid var(--line); }
+.wt-line { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 16px; }
+.wt-cb { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); }
+.wt-main { border: 0; background: none; text-align: left; padding: 2px 0; color: var(--ink); font: inherit; cursor: pointer; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.wt-b { display: flex; align-items: center; gap: 6px; min-width: 0; color: var(--muted); }
+.wt-b .mono { color: var(--ink); font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.wt-ag { flex: none; font-size: 11px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; padding: 1px 7px; border-radius: 99px; background: color-mix(in srgb, var(--accent) 14%, var(--card)); color: var(--accent); }
+.wt-ag.lock { background: color-mix(in srgb, var(--review) 18%, var(--card)); color: var(--ink); }
+.wt-why { display: flex; align-items: center; gap: 7px; font-size: 13.5px; color: var(--muted); }
+.wt-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.wt-row.work .wt-why { color: var(--ink); }
+.wt-meta { display: flex; flex-direction: column; align-items: flex-end; white-space: nowrap; }
+.wt-meta small { color: var(--muted); font-size: 12px; }
+.wt-row.busy { background: color-mix(in srgb, var(--accent) 8%, var(--card)); }
+.wt-row.main .wt-b .mono { color: var(--muted); }
+.wt-detail { padding: 4px 16px 14px 48px; display: flex; flex-direction: column; gap: 10px; }
+.wt-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; }
+.wt-checks { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+.wt-checks li { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 6px; }
+.wt-checks li.ok::before { content: "✓"; color: var(--safe); font-weight: 800; }
+.wt-checks li.no::before { content: "✕"; color: var(--risky); font-weight: 800; }
+.wt-files { font-size: 13px; overflow-wrap: anywhere; }
+.wt-path { margin: 2px 0 8px; font-size: 13px; overflow-wrap: anywhere; }
+.wt-after { margin: 2px 0 8px; font-size: 14px; }
+.wt-cmd { white-space: pre-wrap; display: block; background: var(--soft); border-radius: 8px; padding: 5px 8px; font-size: 12.5px; overflow-wrap: anywhere; margin: 2px 0 8px; }
+.wt-run { border-radius: 16px; background: var(--soft); padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.wt-prog { height: 8px; border-radius: 99px; background: var(--card); overflow: hidden; }
+.wt-prog i { display: block; height: 100%; background: var(--accent); transition: width .3s; }
+.wt-dock { position: sticky; bottom: max(12px, env(safe-area-inset-bottom, 0px)); z-index: 5; display: flex; align-items: center; gap: 12px; justify-content: flex-end; padding: 10px 12px 10px 18px; border-radius: 18px; background: var(--card); border: 2px solid var(--accent); box-shadow: 0 14px 34px -12px rgba(20, 60, 90, .35); }
+.wt-dock > span { margin-right: auto; }
+@media (max-width: 700px) {
+  .wt-legend { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .wt-cols { grid-template-columns: minmax(0, 1fr); }
+  .wt-detail { padding-left: 16px; }
+  .wt-line { padding: 8px 12px; }
+}
 /* First run */
 .lang-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .lang-tile { text-align: left; border: 2px solid var(--line); background: var(--card); color: var(--ink); border-radius: 14px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; cursor: pointer; font: inherit; min-width: 0; }
@@ -690,11 +750,13 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
   <div class="tabs" role="tablist" aria-label="Freeboard sections">
     <button class="tab" role="tab" data-tab="tidy" id="tab-tidy"></button>
     <button class="tab" role="tab" data-tab="map" id="tab-map"></button>
+    <button class="tab" role="tab" data-tab="wt" id="tab-wt">Worktrees</button>
     <button class="tab" role="tab" data-tab="log" id="tab-log">Logbook</button>
   </div>
 
   <section id="v-tidy" class="two"></section>
   <section id="v-map" class="two" hidden></section>
+  <section id="v-wt" class="wt-view" hidden></section>
   <section id="v-log" class="card" hidden></section>
 </div>
 <div id="sheet-root"></div>
@@ -793,7 +855,7 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
   function partSum(i) { return Math.round(i.parts.reduce(function (t, x) { return t + (x.on ? x.s : 0); }, 0) * 10) / 10; }
   function fresh() {
     ITEMS.forEach(function (i) { if (i.parts) { i.parts.forEach(function (x) { x.on = true; x.done = false; }); i.size = partSum(i); } });
-    return { whyMore: {}, expanded: {}, manual: null, areas: {}, open: {}, target: [], goal: 50, tab: 'tidy', tile: 'ai', drift: 0, tossed: 0, queued: {}, excl: {}, gone: {}, held: {}, kept: {}, later: {}, skipped: {}, acks: {}, spots: {}, freedBy: {}, heldBy: {}, log: SAMPLE_LOG.slice(), low: 20, crit: 8, folders: [{ p: '~/projects', m: '14 projects, 96 GB' }, { p: '~/work', m: '2 repositories, 41 GB' }, { p: '~/Downloads', m: '23 GB' }, { p: '~/Desktop', m: '12 GB' }], suggest: [{ p: '~/ComfyUI-Installs', m: '1 repository, 18 GB' }, { p: '~/material-ui', m: '1 repository, 2 GB' }], skip: [], adding: null, removed: null, scanning: null, lastScan: '18 minutes ago', pile: false, tray: false, sheet: null, run: null, report: false, auto: { caches: false, docker: false } };
+    return { whyMore: {}, expanded: {}, manual: null, areas: {}, open: {}, target: [], goal: 50, tab: 'tidy', tile: 'ai', wt: { gone: {}, sel: {}, open: {}, ack: {}, filter: 'all', run: null, failed: {}, tries: {} }, drift: 0, tossed: 0, queued: {}, excl: {}, gone: {}, held: {}, kept: {}, later: {}, skipped: {}, acks: {}, spots: {}, freedBy: {}, heldBy: {}, log: SAMPLE_LOG.slice(), low: 20, crit: 8, folders: [{ p: '~/projects', m: '14 projects, 96 GB' }, { p: '~/work', m: '2 repositories, 41 GB' }, { p: '~/Downloads', m: '23 GB' }, { p: '~/Desktop', m: '12 GB' }], suggest: [{ p: '~/ComfyUI-Installs', m: '1 repository, 18 GB' }, { p: '~/material-ui', m: '1 repository, 2 GB' }], skip: [], adding: null, removed: null, scanning: null, lastScan: '18 minutes ago', pile: false, tray: false, sheet: null, run: null, report: false, auto: { caches: false, docker: false } };
   }
   var S = fresh();
   var $ = function (id) { return document.getElementById(id); };
@@ -960,7 +1022,9 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
     var d = deck().length, ex = explained();
     $('tab-tidy').innerHTML = T('tab.q', 'Quick questions') + (d ? '<span class="dot num">' + d + '</span>' : '');
     $('tab-map').innerHTML = T('tab.map', 'Disk map') + (ex.un > 0 ? '<span class="dot num">' + Math.round(ex.pct) + '%</span>' : '');
-    ['tidy', 'map', 'log'].forEach(function (t) { $('tab-' + t).setAttribute('aria-selected', S.tab === t); $('v-' + t).hidden = S.tab !== t; });
+    var wr = WT.filter(function (w) { return !S.wt.gone[w.id] && wtVerdict(w).k === 'ready'; }).length;
+    $('tab-wt').innerHTML = 'Worktrees' + (wr ? '<span class="dot num">' + wr + '</span>' : '');
+    ['tidy', 'map', 'wt', 'log'].forEach(function (t) { $('tab-' + t).setAttribute('aria-selected', S.tab === t); $('v-' + t).hidden = S.tab !== t; });
   }
 
   /* Quick questions */
@@ -1368,7 +1432,7 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
 
   function renderAll() {
     var f = document.activeElement && document.activeElement.id;
-    renderHero(); renderTidy(); renderMap(); renderLog();
+    renderHero(); renderTidy(); renderMap(); renderWT(); renderLog();
     if (f && $(f)) $(f).focus({ preventScroll: true });
   }
 
@@ -1472,6 +1536,172 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
     if (t.id === 'crit-gb') { S.crit = +t.value; $('crit-out').textContent = gbi(S.crit); renderHero(); }
   });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && S.tray) { S.tray = false; renderHero(); $('tray-btn').focus(); return; } if (e.key === 'Escape' && S.sheet && !S.running) { closeSheet(); renderAll(); } });
+
+
+  /* ---------- Worktrees ---------- */
+  // st: dirty files, ahead = commits not on any remote, merged: 'yes' | 'squash' | 'pr' | 'no', pushed: branch exists on remote
+  var WT = [
+    { id: 'w1', repo: 'loitr', b: 'worktree-agent-aeee3547468b1220d', gb: 3.6, idle: 21, dirty: 0, ahead: 2, merged: 'squash', pushed: false, path: '.claude/worktrees/agent-aeee3547' },
+    { id: 'w2', repo: 'backstage', b: 'docs/scaffolder-api-tags', gb: 2.8, idle: 40, dirty: 0, ahead: 0, merged: 'no', pushed: true, path: '.worktrees/scaffolder-api-tags' },
+    { id: 'w3', repo: 'freeboard', b: 'worktree-agent-a6ecf655b775fad2d', gb: 2.5, idle: 0, dirty: 4, ahead: 1, merged: 'no', pushed: false, locked: true, path: '.claude/worktrees/agent-a6ecf655', files: ['src-tauri/src/scan.rs', 'ui/src/Map.tsx', 'ui/src/i18n/de.json', '+1 more'] },
+    { id: 'w4', repo: 'leftyou', b: 'codex/ios-signin-20261019', gb: 2.5, idle: 19, dirty: 0, ahead: 0, merged: 'pr', pr: 212, pushed: true, path: '.codex/worktrees/ios-signin' },
+    { id: 'w5', repo: 'leftyou', b: 'codex/ios-testflight-20261019', gb: 2.2, idle: 19, dirty: 0, ahead: 3, merged: 'no', pushed: false, path: '.codex/worktrees/ios-testflight' },
+    { id: 'w6', repo: 'leftyou', b: 'v3/ios-b4', gb: 1.6, idle: 2, dirty: 0, ahead: 0, merged: 'no', pushed: true, path: '.worktrees/ios-b4' },
+    { id: 'w7', repo: 'knowback', b: 'feat/admin-users-data', gb: 1.0, idle: 6, dirty: 2, ahead: 0, merged: 'no', pushed: true, path: '.worktrees/admin-users-data', files: ['api/users.ts', 'api/users.test.ts'] },
+    { id: 'w8', repo: 'backstage', b: 'fix/gitlab-merge-request-squash', gb: 0.9, idle: 28, dirty: 0, ahead: 0, merged: 'pr', pr: 1874, pushed: true, path: '.worktrees/gitlab-mr-squash' },
+    { id: 'w9', repo: 'knowback', b: 'knowback-release', gb: 0.7, idle: 12, dirty: 0, ahead: 0, merged: 'yes', pushed: true, path: '.worktrees/release' },
+    { id: 'w10', repo: 'knowback', b: 'main', gb: 0.5, idle: 0, main: true, path: '' },
+    { id: 'w11', repo: 'knowback', b: 'claude/speed-lab', gb: 0.4, idle: 33, dirty: 0, ahead: 4, merged: 'squash', pushed: false, path: '.claude/worktrees/speed-lab' },
+    { id: 'w12', repo: 'sheltersync', b: 'marketing/website-concept-20261005', gb: 0.6, idle: 33, dirty: 0, ahead: 0, merged: 'no', pushed: true, path: '.worktrees/website-concept' },
+    { id: 'w13', repo: 'sheltersync', b: 'integrate/codex-isolated-runtimes-20261006', gb: 0.6, idle: 31, dirty: 0, ahead: 0, merged: 'yes', pushed: true, path: '.worktrees/isolated-runtimes' },
+    { id: 'w14', repo: 'sheltersync', b: 'worktree-agent-ab4f500a5b11321c', gb: 0.5, idle: 30, dirty: 0, ahead: 1, merged: 'squash', pushed: false, path: '.claude/worktrees/agent-ab4f500a' },
+    { id: 'w15', repo: 'sheltersync', b: 'worktree-agent-a9d7596e094134430', gb: 0.5, idle: 30, dirty: 0, ahead: 2, merged: 'squash', pushed: false, path: '.claude/worktrees/agent-a9d7596e' },
+    { id: 'w16', repo: 'sheltersync', b: 'worktree-agent-a833cc67c8f5c7d97', gb: 0.5, idle: 29, dirty: 0, ahead: 1, merged: 'no', pushed: false, path: '.claude/worktrees/agent-a833cc67' },
+    { id: 'w17', repo: 'sheltersync', b: 'worktree-agent-a546ecee472064e43', gb: 0.4, idle: 29, dirty: 0, ahead: 0, merged: 'yes', pushed: false, path: '.claude/worktrees/agent-a546ecee' },
+    { id: 'w18', repo: 'sheltersync', b: 'worktree-agent-a447c27fa307f5ebd', gb: 0.4, idle: 28, dirty: 0, ahead: 1, merged: 'squash', pushed: false, slow: true, path: '.claude/worktrees/agent-a447c27f' },
+    { id: 'w19', repo: 'sheltersync', b: 'worktree-agent-a232bf190a8e016ec', gb: 0.4, idle: 1, dirty: 0, ahead: 0, merged: 'no', pushed: false, locked: true, path: '.claude/worktrees/agent-a232bf19' },
+    { id: 'w20', repo: 'sheltersync', b: 'worktree-agent-a967e423392b9befa', gb: 0.4, idle: 27, dirty: 0, ahead: 2, merged: 'squash', pushed: false, path: '.claude/worktrees/agent-a967e423' }
+  ];
+  var WT_ROOT = { loitr: '~/proj/loitr', backstage: '~/proj/backstage', freeboard: '~/proj/freeboard', leftyou: '~/proj/leftyou', knowback: '~/proj/knowback', sheltersync: '~/proj/sheltersync' };
+  var WT_STATES = {
+    ready: { label: 'Ready to remove', short: 'Ready', c: 'var(--safe)' },
+    look: { label: 'Needs a look', short: 'Look first', c: 'var(--review)' },
+    work: { label: 'Has your work', short: 'Your work', c: 'var(--risky)' },
+    main: { label: 'Main checkouts', short: 'Main', c: 'var(--muted)' }
+  };
+  function wtAgent(w) { return /^worktree-agent-/.test(w.b) ? 'Agent' : /^claude\//.test(w.b) ? 'Claude' : /^codex\//.test(w.b) ? 'Codex' : ''; }
+  // Removing a worktree deletes its folder only. The branch and every commit on it stay in the repository,
+  // so only uncommitted (and untracked) files can be lost.
+  function wtIdle(w) { return w.idle === 0 ? 'today' : w.idle === 1 ? 'yesterday' : w.idle + ' days ago'; }
+  function wtVerdict(w) {
+    if (w.main) return { k: 'main', why: 'This is the repository itself, not an extra worktree.' };
+    if (w.dirty) return { k: 'work', why: w.dirty + ' uncommitted file' + (w.dirty === 1 ? '' : 's') + ' would be deleted.' };
+    if (w.locked) return { k: 'look', why: 'Locked, maybe by an agent that is still running. Used ' + wtIdle(w) + '.' };
+    if (w.idle < 7) return { k: 'look', why: 'Used ' + wtIdle(w) + '. It may still be in use.' };
+    var merged = w.merged !== 'no';
+    return { k: 'ready', why: merged ? (w.merged === 'squash' ? 'Idle ' + w.idle + ' days, already in main (squash-merged).' : w.merged === 'pr' ? 'Idle ' + w.idle + ' days, pull request #' + w.pr + ' merged.' : 'Idle ' + w.idle + ' days, merged into main.')
+      : 'Idle ' + w.idle + ' days, nothing uncommitted. The branch stays, so you can reopen it anytime.' };
+  }
+  function wtBranchGoes(w) { return w.merged !== 'no' && !w.main; }
+  function wtChecks(w) {
+    var merged = w.merged !== 'no';
+    return [
+      [!w.dirty, w.dirty ? w.dirty + ' uncommitted file' + (w.dirty === 1 ? '' : 's') + ' (these would be lost)' : 'No uncommitted or untracked files'],
+      [w.idle >= 7, w.idle >= 7 ? 'Idle for ' + w.idle + ' days' : 'Used ' + wtIdle(w)],
+      [!w.locked, w.locked ? 'Locked by git' : 'Not locked'],
+      [true, merged ? (w.merged === 'squash' ? 'Changes already in main (squash merge, checked with git merge-tree), so the branch can go too' : w.merged === 'pr' ? 'Pull request #' + w.pr + ' merged, so the branch can go too' : 'Merged into main, so the branch can go too')
+        : 'Branch ' + (w.ahead ? 'has ' + w.ahead + ' commit' + (w.ahead === 1 ? '' : 's') + ' not in main' : 'is not merged') + (w.pushed ? ' (pushed)' : '') + '. I keep the branch, so nothing is lost']
+    ];
+  }
+  function wtCmds(w) {
+    var root = WT_ROOT[w.repo], out = [];
+    if (w.locked) out.push('git -C ' + root + ' worktree unlock ' + w.path);
+    out.push('git -C ' + root + ' worktree remove ' + w.path);
+    if (wtBranchGoes(w)) out.push('git -C ' + root + ' branch ' + (w.merged === 'yes' ? '-d ' : '-D ') + w.b);
+    return out;
+  }
+  function wtFix(w) {
+    var dir = WT_ROOT[w.repo] + '/' + w.path, out = [];
+    if (w.dirty) { out.push(['See what would be lost', 'git -C ' + dir + ' status --short']); out.push(['Commit it on the branch, then the worktree can go', 'git -C ' + dir + ' commit -am "wip"']); }
+    return out;
+  }
+  function wtLive() { return WT.filter(function (w) { return !S.wt.gone[w.id]; }); }
+  function wtRemovable(w) { var k = wtVerdict(w).k; return k === 'ready' || k === 'look' || (k === 'work' && S.wt.ack[w.id]); }
+  function renderWT() {
+    var el = $('v-wt'); if (!el) return;
+    var W = S.wt, live = wtLive(), by = { ready: 0, look: 0, work: 0, main: 0 }, cnt = { ready: 0, look: 0, work: 0, main: 0 };
+    live.forEach(function (w) { var k = wtVerdict(w).k; by[k] += w.gb; cnt[k]++; });
+    var tot = sum(live.map(function (w) { return { size: w.gb }; })), repos = {};
+    live.forEach(function (w) { (repos[w.repo] = repos[w.repo] || []).push(w); });
+    var bar = ['ready', 'look', 'work', 'main'].map(function (k) { return by[k] ? '<i style="flex:' + by[k].toFixed(2) + ';background:' + WT_STATES[k].c + '" title="' + WT_STATES[k].label + ' ' + gb(by[k]) + '"></i>' : ''; }).join('');
+    var legend = ['ready', 'look', 'work', 'main'].map(function (k) {
+      return '<button class="wt-leg' + (W.filter === k ? ' on' : '') + '" data-wt-filter="' + k + '" aria-pressed="' + (W.filter === k) + '"><span class="sw" style="background:' + WT_STATES[k].c + '"></span><b>' + WT_STATES[k].label + '</b><span class="num">' + cnt[k] + ' · ' + gb(by[k]) + '</span></button>'; }).join('');
+    var agents = live.filter(function (w) { return wtAgent(w); }).length;
+    var show = function (w) { return W.filter === 'all' || (W.filter === 'agent' ? !!wtAgent(w) : wtVerdict(w).k === W.filter); };
+    var running = !!W.run;
+    var groups = Object.keys(repos).sort(function (a, b) { return sum(repos[b].map(function (w) { return { size: w.gb }; })) - sum(repos[a].map(function (w) { return { size: w.gb }; })); }).map(function (r) {
+      var ws = repos[r].filter(show).sort(function (a, b) { return b.gb - a.gb; }); if (!ws.length) return '';
+      var all = repos[r], rt = sum(all.map(function (w) { return { size: w.gb }; })), ready = all.filter(function (w) { return wtVerdict(w).k === 'ready'; });
+      var mini = ['ready', 'look', 'work', 'main'].map(function (k) { var v = all.filter(function (w) { return wtVerdict(w).k === k; }).reduce(function (t, w) { return t + w.gb; }, 0); return v ? '<i style="flex:' + v.toFixed(2) + ';background:' + WT_STATES[k].c + '"></i>' : ''; }).join('');
+      return '<section class="wt-repo"><header class="wt-rh"><div><h3><span class="mono">' + esc(r) + '</span></h3><span class="note num">' + all.length + ' worktree' + (all.length === 1 ? '' : 's') + ' · ' + gb(rt) + ' · <span class="mono">' + esc(WT_ROOT[r]) + '</span></span><div class="wt-mini" aria-hidden="true">' + mini + '</div></div>' +
+        (ready.length ? '<button class="btn small" data-wt-selrepo="' + r + '"' + (running ? ' disabled' : '') + '>Select ' + ready.length + ' ready</button>' : '') + '</header>' +
+        ws.map(wtRow).join('') + '</section>';
+    }).join('');
+    var sel = live.filter(function (w) { return W.sel[w.id] && wtRemovable(w); }), selGB = sel.reduce(function (t, w) { return t + w.gb; }, 0);
+    var runBox = '';
+    if (W.run) {
+      var R = W.run, doneN = R.done.length + R.failed.length;
+      runBox = '<div class="wt-run" role="status" aria-live="polite"><div class="row between"><b>' + (R.cur ? 'Removing ' + doneN + ' of ' + R.total + '…' : 'Done: ' + R.done.length + ' removed' + (R.failed.length ? ', ' + R.failed.length + ' could not go' : '')) + '</b><span class="num">' + gb(R.freed) + ' freed</span></div>' +
+        '<div class="wt-prog"><i style="width:' + (doneN / R.total * 100).toFixed(1) + '%"></i></div>' +
+        (R.cur ? '<p class="note">One at a time, each with a 120 s limit. A slow one never stops the rest.</p>' : '') +
+        (R.failed.length && !R.cur ? '<p class="note">' + R.failed.map(function (id) { var w = WT.filter(function (x) { return x.id === id; })[0]; return '<span class="mono">' + esc(w.b) + '</span>: timed out after 120 s'; }).join('<br>') + '</p><div class="row"><button class="btn small" data-wt-act="retry">Try ' + R.failed.length + ' again</button><button class="link small" data-wt-act="dismiss">Close</button></div>' : (!R.cur ? '<button class="link small" data-wt-act="dismiss">Close</button>' : '')) + '</div>';
+    }
+    el.innerHTML = '<div class="card wt-top"><div class="wt-head"><div><h2>Worktrees</h2><p class="muted num">' + live.length + ' in ' + Object.keys(repos).length + ' repositories · ' + gb(tot) + '</p></div>' +
+      '<p class="wt-rule">Removing a worktree deletes its folder, not its branch, so commits are never lost. Only uncommitted files can be, and those I won’t touch without your OK. Merged branches go too; I check squash merges against main.</p></div>' +
+      '<div class="wt-bar" aria-hidden="true">' + bar + '</div><div class="wt-legend">' + legend + '</div>' +
+      '<div class="wt-filters"><button class="chipbtn' + (W.filter === 'all' ? ' on' : '') + '" data-wt-filter="all" aria-pressed="' + (W.filter === 'all') + '">All</button><button class="chipbtn' + (W.filter === 'agent' ? ' on' : '') + '" data-wt-filter="agent" aria-pressed="' + (W.filter === 'agent') + '">Made by agents · ' + agents + '</button></div>' + runBox + '</div>' +
+      groups +
+      (sel.length && !running ? '<div class="wt-dock" role="region" aria-label="Selected worktrees"><span><b class="num">' + sel.length + '</b> selected · <b class="num">' + gb(selGB) + '</b></span><button class="link small" data-wt-act="clear">Clear</button><button class="btn primary" data-wt-act="remove">Remove ' + sel.length + ' worktree' + (sel.length === 1 ? '' : 's') + '</button></div>' : '');
+  }
+  function wtRow(w) {
+    var W = S.wt, v = wtVerdict(w), st = WT_STATES[v.k], ag = wtAgent(w), open = W.open[w.id], canSel = wtRemovable(w), cur = W.run && W.run.cur === w.id;
+    var idle = w.main ? '' : (w.idle === 0 ? 'today' : w.idle + 'd ago');
+    return '<div class="wt-row ' + v.k + (open ? ' open' : '') + (cur ? ' busy' : '') + '">' +
+      '<div class="wt-line">' +
+        (v.k === 'main' ? '<span class="wt-cb" aria-hidden="true"></span>' : '<input type="checkbox" class="wt-cb" data-wt-sel="' + w.id + '" aria-label="Select ' + esc(w.b) + '"' + (W.sel[w.id] && canSel ? ' checked' : '') + (canSel && !W.run ? '' : ' disabled') + '>') +
+        '<button class="wt-main" data-wt-open="' + w.id + '" aria-expanded="' + !!open + '">' +
+          '<span class="wt-b"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><circle cx="4" cy="3" r="1.8" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="4" cy="13" r="1.8" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="5" r="1.8" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4 5v6M12 7c0 3-8 2-8 4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span class="mono">' + esc(w.b) + '</span>' + (ag ? '<span class="wt-ag">' + ag + '</span>' : '') + (w.locked ? '<span class="wt-ag lock">Locked</span>' : '') + '</span>' +
+          '<span class="wt-why"><span class="wt-dot" style="background:' + st.c + '"></span>' + (cur ? 'Removing…' : esc(v.why)) + '</span>' +
+        '</button>' +
+        '<span class="wt-meta num"><b>' + gb(w.gb) + '</b><small>' + idle + '</small></span>' +
+      '</div>' + (open ? wtDetail(w, v) : '') + '</div>';
+  }
+  function wtDetail(w, v) {
+    var dir = WT_ROOT[w.repo] + (w.path ? '/' + w.path : '');
+    if (w.main) return '<div class="wt-detail"><p class="note">Freeboard never removes a repository’s main checkout. Clean inside it from the Projects area instead (node_modules, build output).</p></div>';
+    var checks = wtChecks(w).map(function (c) { return '<li class="' + (c[0] ? 'ok' : 'no') + '">' + esc(c[1]) + '</li>'; }).join('');
+    var fixes = wtFix(w), cmd = wtCmds(w).join('\n');
+    var after = w.merged !== 'no' ? 'Folder and branch go. Everything is already in main.' : 'Only the folder goes. Branch <span class="mono">' + esc(w.b) + '</span> stays' + (w.ahead ? ' with its ' + w.ahead + ' commit' + (w.ahead === 1 ? '' : 's') : '') + '. Reopen it with <span class="mono">git worktree add ' + esc(w.path) + ' ' + esc(w.b) + '</span>.';
+    var files = w.files ? '<div class="wt-files"><span class="note">Uncommitted:</span> ' + w.files.map(function (f) { return '<span class="mono">' + esc(f) + '</span>'; }).join(', ') + '</div>' : '';
+    var anyway = v.k === 'work' ? '<label class="ack"><input type="checkbox" data-wt-ack="' + w.id + '"' + (S.wt.ack[w.id] ? ' checked' : '') + '> I understand ' + (w.dirty ? 'these ' + w.dirty + ' file' + (w.dirty === 1 ? '' : 's') : 'these ' + w.ahead + ' commit' + (w.ahead === 1 ? '' : 's')) + ' will be gone for good. Let me select it.</label>' : '';
+    return '<div class="wt-detail"><div class="wt-cols"><div><div class="rx-sub">What I checked</div><ul class="wt-checks">' + checks + '</ul>' + files + '</div>' +
+      '<div><div class="rx-sub">Where</div><p class="mono wt-path">' + esc(dir) + '</p><div class="rx-sub">After removal</div><p class="wt-after">' + after + '</p><div class="rx-sub">Would run</div><code class="mono wt-cmd">' + esc(cmd) + '</code>' +
+      (fixes.length ? '<div class="rx-sub">Make it removable</div><ol class="rx-steps">' + fixes.map(function (f) { return '<li><span>' + esc(f[0]) + '</span><code class="mono">' + esc(f[1]) + '</code></li>'; }).join('') + '</ol>' : '') + '</div></div>' + anyway + '</div>';
+  }
+  function wtStartRun(ids) {
+    var W = S.wt; W.run = { queue: ids.slice(), total: ids.length, cur: null, done: [], failed: [], freed: 0 }; W.sel = {};
+    var step = function () {
+      var R = W.run; if (!R) return;
+      if (!R.queue.length) { R.cur = null; renderAll(); return; }
+      R.cur = R.queue.shift(); renderWT();
+      var wc = WT.filter(function (x) { return x.id === R.cur; })[0];
+      setTimeout(function () {
+        var w = wc;
+        W.tries[w.id] = (W.tries[w.id] || 0) + 1;
+        if (w.slow && W.tries[w.id] === 1) R.failed.push(w.id);
+        else { R.done.push(w.id); W.gone[w.id] = true; R.freed += w.gb; S.tossed += w.gb; S.log.unshift({ when: 'Today', text: 'Removed worktree ' + w.repo + ': ' + w.b, freed: w.gb, note: wtBranchGoes(w) ? 'Branch deleted too (already in main).' : 'Branch kept.' }); }
+        step();
+      }, reduced ? 20 : (wc.slow && !W.tries[wc.id] ? 1400 : 650));
+    };
+    renderAll(); step();
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-wt-open],[data-wt-filter],[data-wt-selrepo],[data-wt-act]'); if (!b) return;
+    var W = S.wt;
+    if (b.dataset.wtOpen) { W.open[b.dataset.wtOpen] = !W.open[b.dataset.wtOpen]; renderWT(); var nb = document.querySelector('[data-wt-open="' + b.dataset.wtOpen + '"]'); if (nb) nb.focus(); return; }
+    if (b.dataset.wtFilter) { W.filter = W.filter === b.dataset.wtFilter && b.dataset.wtFilter !== 'all' ? 'all' : b.dataset.wtFilter; renderWT(); return; }
+    if (b.dataset.wtSelrepo) { wtLive().forEach(function (w) { if (w.repo === b.dataset.wtSelrepo && wtVerdict(w).k === 'ready') W.sel[w.id] = true; }); renderWT(); return; }
+    var a = b.dataset.wtAct;
+    if (a === 'clear') { W.sel = {}; renderWT(); }
+    else if (a === 'remove') { wtStartRun(wtLive().filter(function (w) { return W.sel[w.id] && wtRemovable(w); }).sort(function (x, y) { return y.gb - x.gb; }).map(function (w) { return w.id; })); }
+    else if (a === 'retry') { wtStartRun(W.run.failed); }
+    else if (a === 'dismiss') { W.run = null; renderWT(); }
+  });
+  document.addEventListener('change', function (e) {
+    var t = e.target, W = S.wt;
+    if (t.dataset && t.dataset.wtSel) { W.sel[t.dataset.wtSel] = t.checked; renderWT(); var n = document.querySelector('[data-wt-sel="' + t.dataset.wtSel + '"]'); if (n) n.focus(); }
+    if (t.dataset && t.dataset.wtAck) { W.ack[t.dataset.wtAck] = t.checked; if (!t.checked) delete W.sel[t.dataset.wtAck]; renderWT(); var m = document.querySelector('[data-wt-ack="' + t.dataset.wtAck + '"]'); if (m) m.focus(); }
+  });
 
   /* ---------- First run ---------- */
   var OB = null;

@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { api, errorText, on } from "../../lib/api";
 import { track } from "../../lib/useBusy";
 import { resolveLang, setLang } from "../../i18n";
-import type { AppStatus, AreaGrowth, BlindSpot, BlindSpotAction, DiskMap, Goal, Group, ItemDecision, PileState, PlaceChecked, Settings, SettingsPatch, Suggestion } from "../../lib/types";
+import type { AppStatus, AreaGrowth, BlindSpot, BlindSpotAction, DiskMap, Goal, Group, ItemDecision, PileState, PlaceChecked, Settings, SettingsPatch, Suggestion, WorktreesView } from "../../lib/types";
 
 export type Progress = { phase: string; detector: string | null; currentCount: number } | null;
 
@@ -19,6 +19,8 @@ export interface Harbor {
   spots: BlindSpot[];
   places: PlaceChecked[];
   growth: AreaGrowth[];
+  /** The Worktrees view: every linked worktree and each repository. */
+  worktrees: WorktreesView | null;
   /** The running scan's latest progress, or null. */
   progress: Progress;
 }
@@ -29,10 +31,10 @@ export function useHarbor() {
 
   const load = useCallback(async () => {
     try {
-      const [status, settings, suggestions, pile, map, spots, places, growth] = await track(
-        Promise.all([api.getStatus(), api.getSettings(), api.getSuggestions(), api.getPile(), api.getDiskMap(), api.getBlindSpots(), api.getPlacesChecked(), api.getGrowth(7)]),
+      const [status, settings, suggestions, pile, map, spots, places, growth, worktrees] = await track(
+        Promise.all([api.getStatus(), api.getSettings(), api.getSuggestions(), api.getPile(), api.getDiskMap(), api.getBlindSpots(), api.getPlacesChecked(), api.getGrowth(7), api.getWorktrees().catch(() => null)]),
       );
-      setData({ status, settings, suggestions, pile, map, spots, places, growth, progress: status.scan.running ? { phase: status.scan.phase ?? "", detector: null, currentCount: 0 } : null });
+      setData({ status, settings, suggestions, pile, map, spots, places, growth, worktrees, progress: status.scan.running ? { phase: status.scan.phase ?? "", detector: null, currentCount: 0 } : null });
       setError(null);
     } catch (e) {
       setError(errorText(e));

@@ -21,6 +21,7 @@ commands.allow = [
   "folder_suggestions",
   "get_folder_details",
   "get_tools",
+  "get_worktrees",
   "open_main_view",
   "undo_remove_folder",
   "add_suggested_folder",

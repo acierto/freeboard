@@ -25,7 +25,7 @@ import { firstSupported, type LanguagePref } from "../i18n";
 // cleaned in part keeps its other parts listed.
 
 import type { Backend } from "./api";
-import type { AppStatus, BlindSpot, CleanupPlan, DiskMap, EventMap, Goal, Group, PileState, PlaceChecked, Platform, RunDetail, RunItem, RunSummary, Settings, Suggestion } from "./types";
+import type { AppStatus, BlindSpot, CleanupPlan, DiskMap, EventMap, Goal, Group, PileState, PlaceChecked, Platform, RunDetail, RunItem, RunSummary, Settings, Suggestion, WorktreesView, WtStatus } from "./types";
 
 export const FIXTURE_MARKER = "FREEBOARD_FIXTURE_BACKEND";
 const G = 1e9;
@@ -173,6 +173,92 @@ function riskNotes(id: string): Pick<Suggestion, "riskWhy" | "safer"> {
 const bytes = (gb: number) => Math.round(gb * G);
 const round1 = (n: number) => Math.round(n * 10) / 10;
 
+// ----- worktrees (prototype Version 19 `WT`, `WT_ROOT`) -----------------------
+// The prototype's real repository and branch names. Merged pull requests
+// (prototype `merged: 'pr'`) are squash merges here: Freeboard does not ask
+// GitHub (invariant 12), and a merged pull request's content is in main.
+type WtRow = { id: string; repo: string; b: string; gb: number; idle: number; dirty?: number; ahead?: number; merged?: "yes" | "squash" | "no"; pushed?: boolean; path: string; locked?: boolean; slow?: boolean; files?: string[]; main?: boolean };
+const WT: WtRow[] = [
+  { id: "w1", repo: "loitr", b: "worktree-agent-aeee3547468b1220d", gb: 3.6, idle: 21, dirty: 0, ahead: 2, merged: "squash", pushed: false, path: ".claude/worktrees/agent-aeee3547" },
+  { id: "w2", repo: "backstage", b: "docs/scaffolder-api-tags", gb: 2.8, idle: 40, dirty: 0, ahead: 0, merged: "no", pushed: true, path: ".worktrees/scaffolder-api-tags" },
+  { id: "w3", repo: "freeboard", b: "worktree-agent-a6ecf655b775fad2d", gb: 2.5, idle: 0, dirty: 4, ahead: 1, merged: "no", pushed: false, locked: true, path: ".claude/worktrees/agent-a6ecf655", files: ["src-tauri/src/scan.rs", "ui/src/Map.tsx", "ui/src/i18n/de.json", "ui/src/i18n/fr.json"] },
+  { id: "w4", repo: "leftyou", b: "codex/ios-signin-20261019", gb: 2.5, idle: 19, dirty: 0, ahead: 0, merged: "squash", pushed: true, path: ".codex/worktrees/ios-signin" },
+  { id: "w5", repo: "leftyou", b: "codex/ios-testflight-20261019", gb: 2.2, idle: 19, dirty: 0, ahead: 3, merged: "no", pushed: false, path: ".codex/worktrees/ios-testflight" },
+  { id: "w6", repo: "leftyou", b: "v3/ios-b4", gb: 1.6, idle: 2, dirty: 0, ahead: 0, merged: "no", pushed: true, path: ".worktrees/ios-b4" },
+  { id: "w7", repo: "knowback", b: "feat/admin-users-data", gb: 1.0, idle: 6, dirty: 2, ahead: 0, merged: "no", pushed: true, path: ".worktrees/admin-users-data", files: ["api/users.ts", "api/users.test.ts"] },
+  { id: "w8", repo: "backstage", b: "fix/gitlab-merge-request-squash", gb: 0.9, idle: 28, dirty: 0, ahead: 0, merged: "squash", pushed: true, path: ".worktrees/gitlab-mr-squash" },
+  { id: "w9", repo: "knowback", b: "knowback-release", gb: 0.7, idle: 12, dirty: 0, ahead: 0, merged: "yes", pushed: true, path: ".worktrees/release" },
+  { id: "w10", repo: "knowback", b: "main", gb: 0.5, idle: 0, main: true, path: "" },
+  { id: "w11", repo: "knowback", b: "claude/speed-lab", gb: 0.4, idle: 33, dirty: 0, ahead: 4, merged: "squash", pushed: false, path: ".claude/worktrees/speed-lab" },
+  { id: "w12", repo: "sheltersync", b: "marketing/website-concept-20261005", gb: 0.6, idle: 33, dirty: 0, ahead: 0, merged: "no", pushed: true, path: ".worktrees/website-concept" },
+  { id: "w13", repo: "sheltersync", b: "integrate/codex-isolated-runtimes-20261006", gb: 0.6, idle: 31, dirty: 0, ahead: 0, merged: "yes", pushed: true, path: ".worktrees/isolated-runtimes" },
+  { id: "w14", repo: "sheltersync", b: "worktree-agent-ab4f500a5b11321c", gb: 0.5, idle: 30, dirty: 0, ahead: 1, merged: "squash", pushed: false, path: ".claude/worktrees/agent-ab4f500a" },
+  { id: "w15", repo: "sheltersync", b: "worktree-agent-a9d7596e094134430", gb: 0.5, idle: 30, dirty: 0, ahead: 2, merged: "squash", pushed: false, path: ".claude/worktrees/agent-a9d7596e" },
+  { id: "w16", repo: "sheltersync", b: "worktree-agent-a833cc67c8f5c7d97", gb: 0.5, idle: 29, dirty: 0, ahead: 1, merged: "no", pushed: false, path: ".claude/worktrees/agent-a833cc67" },
+  { id: "w17", repo: "sheltersync", b: "worktree-agent-a546ecee472064e43", gb: 0.4, idle: 29, dirty: 0, ahead: 0, merged: "yes", pushed: false, path: ".claude/worktrees/agent-a546ecee" },
+  { id: "w18", repo: "sheltersync", b: "worktree-agent-a447c27fa307f5ebd", gb: 0.4, idle: 28, dirty: 0, ahead: 1, merged: "squash", pushed: false, slow: true, path: ".claude/worktrees/agent-a447c27f" },
+  { id: "w19", repo: "sheltersync", b: "worktree-agent-a232bf190a8e016ec", gb: 0.4, idle: 1, dirty: 0, ahead: 0, merged: "no", pushed: false, locked: true, path: ".claude/worktrees/agent-a232bf19" },
+  { id: "w20", repo: "sheltersync", b: "worktree-agent-a967e423392b9befa", gb: 0.4, idle: 27, dirty: 0, ahead: 2, merged: "squash", pushed: false, path: ".claude/worktrees/agent-a967e423" },
+];
+const WT_ROOT: Record<string, string> = { loitr: "~/proj/loitr", backstage: "~/proj/backstage", freeboard: "~/proj/freeboard", leftyou: "~/proj/leftyou", knowback: "~/proj/knowback", sheltersync: "~/proj/sheltersync" };
+
+/** One worktree as the core describes it (detectors/git.rs `finding`). */
+function worktreeItem(w: WtRow): Suggestion {
+  const root = WT_ROOT[w.repo];
+  const dirty = w.dirty ?? 0;
+  const merged = w.merged ?? "no";
+  const status: WtStatus = dirty ? "work" : w.locked || w.idle < 7 ? "look" : "ready";
+  const goes = merged !== "no";
+  const commands = [...(w.locked ? [`git -C ${root} worktree unlock ${w.path}`] : []), `git -C ${root} worktree remove ${w.path}`, ...(goes ? [`git -C ${root} branch ${merged === "yes" ? "-d" : "-D"} ${w.b}`] : [])];
+  const reason = dirty ? `${dirty} uncommitted file${dirty === 1 ? "" : "s"} would be deleted.` : "";
+  return {
+    id: w.id,
+    detector: "git.worktrees",
+    group: "projects",
+    mapArea: "projects",
+    title: `${w.repo}: ${w.b}`,
+    location: `${root}/${w.path}`,
+    sizeBytes: bytes(w.gb),
+    fullSizeBytes: bytes(w.gb),
+    lastUsedAt: null,
+    lastUsedLabel: `Last commit ${w.idle} days ago`,
+    risk: status === "work" ? "risky" : "review",
+    action: status === "work" ? "none" : "native_command",
+    actionLabel: status === "work" ? "None" : `git worktree remove ${root}/${w.path}`,
+    reason,
+    recovery: goes ? "Everything is already in main." : `The branch stays. Reopen it with git worktree add ${w.path} ${w.b}.`,
+    recoverable: status !== "work",
+    blockedReason: status === "work" ? "Commit or stash these files first, then scan again." : null,
+    needsConfirmation: false,
+    parts: [],
+    fingerprint: "fixture",
+    sizeIsEstimate: false,
+    skipReason: null,
+    decision: null,
+    ackName: null,
+    riskWhy: [],
+    safer: [],
+    worktree: {
+      repo: w.repo,
+      root,
+      branch: w.b,
+      relPath: w.path,
+      status,
+      agent: /^worktree-agent-/.test(w.b) ? "agent" : /^claude\//.test(w.b) ? "claude" : /^codex\//.test(w.b) ? "codex" : null,
+      locked: !!w.locked,
+      idleDays: w.idle,
+      dirty,
+      dirtyFiles: w.files ?? [],
+      merged,
+      ahead: w.ahead ?? 0,
+      pushed: !!w.pushed,
+      hold: null,
+      commands,
+      reopen: goes ? null : `git worktree add ${w.path} ${w.b}`,
+    },
+  };
+}
+
 export function createFixtureBackend(params: URLSearchParams): Backend {
   const platform = (params.get("platform") ?? "macos") as Platform;
   let freeGb = params.has("free") ? parseFloat(params.get("free")!) : BASE_FREE;
@@ -218,11 +304,19 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
       decision: null,
       ackName: extra?.ack ? name.replace(/^Volume /, "") + " volume" : null,
       ...riskNotes(id),
+      worktree: null,
       need: extra?.need,
     };
   });
+  // The Worktrees view's worktrees (prototype Version 19 `WT`), served by
+  // get_worktrees and removable through the normal plan and run.
+  items.push(...WT.filter((w) => !w.main).map(worktreeItem));
   const gone = new Set<string>();
   const active = () => items.filter((i) => !gone.has(i.id) && (!i.need || resolvedSpots.get(i.need) === "scan"));
+  // Other views get the prototype's own items; worktrees have their tab.
+  const listed = () => active().filter((i) => !i.worktree);
+  // Prototype `slow`: one removal times out the first time (its demo).
+  const slowOnce = new Set(WT.filter((w) => w.slow).map((w) => w.id));
 
   // ----- the pile (prototype picks / freezePile / addToPile / takeOut) -----
   let goal: Goal = 50 * G;
@@ -234,12 +328,12 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
   const kept = (i: Item) => i.decision === "keep";
   const bySize = (a: Item, b: Item) => b.sizeBytes - a.sizeBytes;
   const safeItems = () =>
-    active()
+    listed()
       .filter((i) => i.risk === "safe" && !excl.has(i.id) && !kept(i) && i.sizeBytes > 0 && !noAreas && (!areas.length || areas.includes(i.group)))
       .sort(bySize);
   function picks(): Item[] {
-    if (manual) return active().filter((i) => manual!.has(i.id) && !kept(i) && i.sizeBytes > 0).sort(bySize);
-    const out = active().filter((i) => queued.has(i.id) && i.sizeBytes > 0);
+    if (manual) return listed().filter((i) => manual!.has(i.id) && !kept(i) && i.sizeBytes > 0).sort(bySize);
+    const out = listed().filter((i) => queued.has(i.id) && i.sizeBytes > 0);
     const inPile = new Set(out.map((i) => i.id));
     let have = out.reduce((t, i) => t + i.sizeBytes, 0);
     for (const i of safeItems()) {
@@ -339,7 +433,7 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
     const sizes = TILES.map(([id, label, gb, rest]) => ({ id, label, rest, gb: Math.max(0, round1(gb + moved(id) + (id === "files" ? BASE_FREE - freeGb : 0))) }));
     const un = Math.max(0, round1(NOT_EXPLAINED_GB - SPOTS.filter((s) => resolvedSpots.has(s.id)).reduce((t, s) => t + s.size, 0)));
     const used = round1(sizes.reduce((t, a) => t + a.gb, 0) + un);
-    const inArea = (id: string) => active().filter((i) => i.mapArea === id).reduce((t, i) => t + i.fullSizeBytes, 0);
+    const inArea = (id: string) => listed().filter((i) => i.mapArea === id).reduce((t, i) => t + i.fullSizeBytes, 0);
     return {
       usedBytes: bytes(used),
       explainedBytes: bytes(used - un),
@@ -368,7 +462,7 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
     }));
   // Prototype placesList(): every item's name (found), then the extra places (clean).
   const places = (): PlaceChecked[] => [
-    ...active().map((i) => ({ detector: i.id, label: i.title, state: "found" as const, bytes: i.sizeBytes })),
+    ...listed().map((i) => ({ detector: i.id, label: i.title, state: "found" as const, bytes: i.sizeBytes })),
     ...EXTRA_PLACES.map((n) => ({ detector: "extra." + n, label: n, state: "clean" as const, bytes: 0 })),
   ];
   // Prototype reportText().
@@ -382,7 +476,7 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
       free_gb: +freeGb.toFixed(1),
       explained_pct: +(((used - un) / used) * 100).toFixed(1),
       areas: [...m.areas.map((a) => ({ name: a.label, gb: a.bytes / G })), { name: "Not explained", gb: un }],
-      suggestions: active().map((i) => ({ name: i.title, gb: i.sizeBytes / G, risk: risk[i.risk], where: i.location })),
+      suggestions: listed().map((i) => ({ name: i.title, gb: i.sizeBytes / G, risk: risk[i.risk], where: i.location })),
       not_explained: SPOTS.filter((s) => !resolvedSpots.has(s.id)).map((s) => ({ what: s.text, gb: s.size })),
     };
   };
@@ -476,6 +570,10 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
         it.skipReason = "A new commit appeared after the scan.";
         continue;
       }
+      if (slowOnce.has(pi.suggestionId)) {
+        setItem(r, row, "failed", "It took longer than 2 minutes, so I stopped it.");
+        continue;
+      }
       if (failOnce.has(pi.suggestionId)) {
         setItem(r, row, "failed", "Docker did not answer within 20 seconds");
         continue;
@@ -490,7 +588,8 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
         setItem(r, row, "moved_to_trash");
       } else {
         freeGb += step.size / G;
-        setItem(r, row, "done");
+        const wt = it.worktree;
+        setItem(r, row, "done", wt ? (wt.commands.some((c) => c.includes(" branch -")) ? "Branch deleted too (already in main)." : "Branch kept.") : null);
       }
       trashFailed.delete(step.id);
       if (step.parent) {
@@ -501,6 +600,7 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
       } else gone.add(it.id);
     }
     failOnce.delete(pi.suggestionId);
+    slowOnce.delete(pi.suggestionId);
   }
   function finish(r: Run, state: RunDetail["state"]) {
     const d = r.detail;
@@ -684,7 +784,14 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
     get_status: () => status(),
     get_settings: () => ({ ...settings }),
     update_settings: (a) => Object.assign(settings, a.patch as Partial<Settings>) && { ...settings },
-    get_suggestions: () => active().map(({ need: _need, ...s }) => ({ ...s, parts: s.parts.map((p) => ({ ...p })) })),
+    get_suggestions: () => listed().map(({ need: _need, ...s }) => ({ ...s, parts: s.parts.map((p) => ({ ...p })) })),
+    get_worktrees: (): WorktreesView => ({
+      repos: Object.entries(WT_ROOT).map(([name, root]) => {
+        const main = WT.find((w) => w.main && w.repo === name);
+        return { name, root, mainBytes: main ? bytes(main.gb) : null };
+      }),
+      items: active().filter((i) => i.worktree).map(({ need: _need, ...s }) => ({ ...s, parts: [] })),
+    }),
     get_disk_map: () => diskMap(),
     get_blind_spots: () => blindSpots(),
     resolve_blind_spots: (a) => {

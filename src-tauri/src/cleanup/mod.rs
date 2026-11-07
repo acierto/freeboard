@@ -695,10 +695,12 @@ impl CleanupEngine {
         }
     }
 
-    /// `git worktree remove <path>` for a linked worktree (decision
-    /// 2026-11-04, task 4.1). Never uses --force: Git itself refuses a worktree
-    /// with local changes, which is a second safety net behind the pre-cleanup
-    /// probe that already confirmed it is clean and merged or pushed.
+    /// Remove a linked worktree (spec "Git worktrees"): `git worktree unlock`
+    /// when it is locked, `git worktree remove <path>`, then `git branch -d`
+    /// (merged) or `-D` (squash-merged) when its content is already in the
+    /// default branch; otherwise the branch stays. Never uses --force: Git
+    /// itself refuses a worktree with local changes, a second safety net
+    /// behind the pre-cleanup probe. Each command has 120 seconds.
     fn remove_worktree(&self, f: &Finding, job: &Job) -> (ItemState, Option<String>) {
         let Target::Native { program, args, resources, cwd: Some(main) } = &f.target else {
             return (ItemState::Failed, Some("Unexpected cleanup target.".into()));
@@ -713,14 +715,33 @@ impl CleanupEngine {
             Ok(c) => c,
             Err(e) => return (ItemState::Skipped, Some(format!("Refused: {e}."))),
         };
-        let cmd = Cmd::new("git", ["worktree", "remove", &checked.canonical.to_string_lossy()]).in_dir(Path::new(main));
-        match self.runner.run_action(&cmd, &job.confirmed) {
-            Ok(out) if out.success() => (ItemState::Done, None),
-            Ok(out) => {
-                let msg = out.stderr.lines().find(|l| !l.trim().is_empty()).unwrap_or("git worktree remove failed.").trim().to_string();
-                (ItemState::Failed, Some(msg))
+        let runner = self.runner.clone().with_action_timeout(crate::runner::WORKTREE_TIMEOUT);
+        let wt = f.suggestion.worktree.as_ref();
+        let path = checked.canonical.to_string_lossy().to_string();
+        let run = |args: &[&str]| runner.run_action(&Cmd::new("git", args.iter()).in_dir(Path::new(main)), &job.confirmed);
+        let failed = |out: crate::runner::CmdOutput, what: &str| out.stderr.lines().find(|l| !l.trim().is_empty()).unwrap_or(what).trim().to_string();
+        if wt.is_some_and(|w| w.locked) {
+            match run(&["worktree", "unlock", &path]) {
+                Ok(out) if out.success() => {}
+                Ok(out) => return (ItemState::Failed, Some(failed(out, "git worktree unlock failed."))),
+                Err(e) => return (ItemState::Failed, Some(action_error(&e, &runner))),
             }
-            Err(e) => (ItemState::Failed, Some(action_error(&e, &self.runner))),
+        }
+        match run(&["worktree", "remove", &path]) {
+            Ok(out) if out.success() => {}
+            Ok(out) => return (ItemState::Failed, Some(failed(out, "git worktree remove failed."))),
+            Err(e) => return (ItemState::Failed, Some(action_error(&e, &runner))),
+        }
+        // The folder is gone. The branch goes only when its content is in the
+        // default branch, as the probe confirmed just before.
+        let Some(w) = wt else { return (ItemState::Done, Some("Branch kept.".into())) };
+        let Some(branch) = w.branch.as_deref().filter(|_| w.commands.iter().any(|c| c.contains(" branch -"))) else {
+            return (ItemState::Done, Some("Branch kept.".into()));
+        };
+        let flag = if w.merged == WtMerged::Yes { "-d" } else { "-D" };
+        match run(&["branch", flag, branch]) {
+            Ok(out) if out.success() => (ItemState::Done, Some("Branch deleted too (already in main).".into())),
+            _ => (ItemState::Done, Some("Branch kept: Git would not delete it.".into())),
         }
     }
 

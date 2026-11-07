@@ -214,7 +214,20 @@ exit 0"#,
 
 /// Run real git for building fixtures (never via the app's runner).
 pub fn git(dir: &Path, args: &[&str]) -> String {
-    let out = std::process::Command::new(Runner::default().resolve("git").expect("git is required for fixture tests"))
+    git_at(dir, args, None)
+}
+
+/// `git` with commits dated `days` before `NOW`, for idle worktrees.
+pub fn git_old(dir: &Path, args: &[&str], days: i64) -> String {
+    git_at(dir, args, Some(NOW - days * DAY))
+}
+
+fn git_at(dir: &Path, args: &[&str], when: Option<i64>) -> String {
+    let mut cmd = std::process::Command::new(Runner::default().resolve("git").expect("git is required for fixture tests"));
+    if let Some(t) = when {
+        cmd.env("GIT_AUTHOR_DATE", format!("@{t} +0000")).env("GIT_COMMITTER_DATE", format!("@{t} +0000"));
+    }
+    let out = cmd
         .args(["-c", "init.defaultBranch=main", "-c", "commit.gpgsign=false", "-c", "core.hooksPath=/dev/null"])
         .args(args)
         .current_dir(dir)

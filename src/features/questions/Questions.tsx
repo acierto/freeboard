@@ -20,6 +20,8 @@ export interface Choices {
   remove(ids: string[]): void;
   /** Review and toss: open the confirmation for the pile. */
   toss(): void;
+  /** Show the Worktrees tab (worktrees are listed there, not here). */
+  openWorktrees?(): void;
 }
 
 function Question({ items, pile, act }: { items: Suggestion[]; pile: PileState; act: Choices }) {
@@ -264,7 +266,7 @@ function Protected({ items }: { items: Suggestion[] }) {
   );
 }
 
-function Everything({ items, pile, chosen, act }: { items: Suggestion[]; pile: PileState; chosen: Set<string>; act: Choices }) {
+function Everything({ items, pile, chosen, act, worktrees }: { items: Suggestion[]; pile: PileState; chosen: Set<string>; act: Choices; worktrees: number }) {
   const total = items.reduce((t, s) => t + s.sizeBytes, 0);
   const blocked = items.filter((s) => s.blockedReason);
   return (
@@ -275,6 +277,14 @@ function Everything({ items, pile, chosen, act }: { items: Suggestion[]; pile: P
         <p className="note" style={{ marginBottom: 6 }}>
           {items.length ? (items.length === 1 ? t("e.sum1", { x: gb(total) }) : t("e.sumN", { n: items.length, x: gb(total) })) : t("e.none")}
         </p>
+        {worktrees > 0 && (
+          <p className="note" id="wt-link">
+            {(worktrees === 1 ? t("q.wtlink1") : t("q.wtlinkN", { n: worktrees })) + " "}
+            <button className="link small" data-act="open-worktrees" onClick={() => act.openWorktrees?.()}>
+              {t("q.wtgo")}
+            </button>
+          </p>
+        )}
         {GROUPS.map(({ id, label }) => {
           const l = items.filter((s) => s.group === id).sort((a, b) => b.sizeBytes - a.sizeBytes);
           return { id, label, l, bytes: l.reduce((t, s) => t + s.sizeBytes, 0) };
@@ -308,12 +318,16 @@ function Everything({ items, pile, chosen, act }: { items: Suggestion[]; pile: P
   );
 }
 
-export function QuickQuestions({ items, pile, act }: { items: Suggestion[]; pile: PileState; act: Choices }) {
+export function QuickQuestions({ items: all, pile, act }: { items: Suggestion[]; pile: PileState; act: Choices }) {
   const chosen = new Set(pile.itemIds);
+  // Worktrees have their own tab (spec "Worktrees view"): there can be
+  // hundreds, each with its own reason.
+  const items = all.filter((s) => !s.worktree);
+  const worktrees = all.length - items.length;
   return (
     <>
       <Question items={items} pile={pile} act={act} />
-      <Everything items={items} pile={pile} chosen={chosen} act={act} />
+      <Everything items={items} pile={pile} chosen={chosen} act={act} worktrees={worktrees} />
     </>
   );
 }

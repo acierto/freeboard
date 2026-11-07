@@ -1,7 +1,7 @@
 {
   "version": 1,
   "source": "docs/reference/freeboard-prototype.html",
-  "sourceSha256": "690475a45472bbf358ad2d69fddc6e3959aec6813246b8d0eac75f3e33dac4f2",
+  "sourceSha256": "e4e14a41ea9d80541a355c731f1c77e49c00c1563aeff2c49dc779ff680d6028",
   "engine": {
     "engine": "chromium",
     "version": "156.0.8078.4",
@@ -20,8 +20,8 @@
   "locale": "en-US",
   "timezone": "UTC",
   "adapter": "scripts/visual/lib.mjs referenceHtml(): local fonts, data-theme, host reset (src/styles/reset.css), prototype-only controls hidden (.top-right .sim, .top-right [data-act=\"reset\"], .top > div > .note, .top-right .tray, .top-right [data-act=\"welcome\"])",
-  "acceptedAt": "2026-11-07T17:56:56.241Z",
-  "rationale": "Prototype Version 18: languages (Settings → Language, the setup language picker) and German, French, Dutch and Spanish captures of the main card, menu bar window, setup and Settings",
+  "acceptedAt": "2026-11-07T20:25:26.682Z",
+  "rationale": "Worktrees: the Agent, Claude and Codex badges darkened for WCAG AA contrast (supplemental.css)",
   "entries": {
     "cleanup-confirm-ack--dark--1120x900": {
       "id": "cleanup-confirm-ack",
@@ -1058,7 +1058,7 @@
       "fixture": "free=4",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "6eee671ac97c9835346be19950bacfb1cc3a6393bc0a9a7edb98cca4074f1e5b"
+      "sha256": "3d05ce08154aa124a544fcc9ee31ed424843368f79b67d717130006af9b21cf6"
     },
     "home-critical--dark--390x844": {
       "id": "home-critical",
@@ -1092,7 +1092,7 @@
       "fixture": "free=4",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "2e2ae0250a01a6386e282d9594ce95982406dee133a3eb88ff04b76ae5050208"
+      "sha256": "6e42f92d27921b5ccba68e15eaa344fc673bed941d685c7f024031ca2db4ba3d"
     },
     "home-critical--light--1120x900": {
       "id": "home-critical",
@@ -1109,7 +1109,7 @@
       "fixture": "free=4",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "1ad33254eae07c5975485ed9e558ac0b2f614283611c93ec3a25161163a6a60e"
+      "sha256": "9fc85095650e11a6322081f11a0e551a8aa079443beb76f6da3f47b9807fe8bd"
     },
     "home-critical--light--390x844": {
       "id": "home-critical",
@@ -1143,7 +1143,7 @@
       "fixture": "free=4",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "ba7966296780b776b77b3da683168ad4ac8fad8d0af53ed629ab377f8d8ded2e"
+      "sha256": "c8c9dc27b41a4b6e043ce7226208eb93ee3843916bc1ab9c28b48821c03e5af5"
     },
     "home-critical-de--dark--1120x900": {
       "id": "home-critical-de",
@@ -1160,7 +1160,7 @@
       "fixture": "free=4",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "70d21ee38a8c9500063287496feb0b6514a8b645d5c4e2dc5216e194aaace25d"
+      "sha256": "b39bd46cfd9e767deab8dccb3bca84fa6f3cfc1e15dcf2aa50bbeb5f6a1bbab7"
     },
     "home-critical-de--dark--390x844": {
       "id": "home-critical-de",
@@ -1194,7 +1194,7 @@
       "fixture": "free=4",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "02e3fe76305485fc718c2d326a6da5493de991588a5ca931fe044d0ce532ce83"
+      "sha256": "e6ecc6f4a54bda18de6de2b25d7224fb463da2c465f60314991fb622795aaef7"
     },
     "home-critical-de--light--390x844": {
       "id": "home-critical-de",
@@ -1228,7 +1228,7 @@
       "fixture": "free=40",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "d06c2f771653edcb085f9456523cc8fe0c481e26a8f8e1c1594ae429cfd3fcf5"
+      "sha256": "610554fc0a191a0874505981375d0fa12d4e2e659c7139e5868c27bec6cbe6c1"
     },
     "home-healthy--dark--390x844": {
       "id": "home-healthy",
@@ -1262,7 +1262,7 @@
       "fixture": "free=40",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "b9813a0906f64c217a390ad53075cbde5dac95070e13d44492afa59f6e3f7078"
+      "sha256": "3402d33e62fa704f5d320618c5b8c6db7d60553277d6ed73afc14e98f9618868"
     },
     "home-healthy--light--1120x900": {
       "id": "home-healthy",
@@ -1279,7 +1279,7 @@
       "fixture": "free=40",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "5fc13f8dab060f376f13c74eadddceb80c9a3f48f25c7fc2503e32fd20cf21dc"
+      "sha256": "fb123a1e7adf83601a437776b82935d142967847c8edfe010fda2746db058463"
     },
     "home-healthy--light--390x844": {
       "id": "home-healthy",
@@ -1313,7 +1313,7 @@
       "fixture": "free=40",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "961e90c6d57934e0638041b4e485860ed53fad95e9ccf5c5f3de881ddb37420b"
+      "sha256": "ba2a6d3e3b2619f2c675599ef13ff1ccb75d032d6f70a6e4f98c256fdb221dc8"
     },
     "home-low--dark--1120x900": {
       "id": "home-low",
@@ -1330,7 +1330,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "5aa943376c6073d7ab28e5965202c042f1cd499eaa6b3b623e565ba443ac91b7"
+      "sha256": "a7801361d65b934d894b68b25c338bd346b9e6d4fea4de497396cc6c9897d75a"
     },
     "home-low--dark--390x844": {
       "id": "home-low",
@@ -1364,7 +1364,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "8fbcced7be56c5a86f585094f1537c283202a49ea4c89cd16119e6a2d1c6b461"
+      "sha256": "88b5f0be11fae73ef061d9ea2c2186785e181b74e2dccbb2702fcad33c5ffdc7"
     },
     "home-low--light--1120x900": {
       "id": "home-low",
@@ -1381,7 +1381,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "d2ddcfe7dbfb0e4bfbe353e79c39ae9891d4b9c6506feddfa0fc5a2ce443b626"
+      "sha256": "f2dd5adec1605bb778804844b5dd5d404c055e9fb231c33079d17666ac5e56b0"
     },
     "home-low--light--390x844": {
       "id": "home-low",
@@ -1415,7 +1415,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "5a9a325d4538515aa8756f9248f15d2b96e88e9dea49d6aaa1d6d306ec6fa4b2"
+      "sha256": "e0e69f7bba532e0ac9237af5fc2f78b48a7d1b778311db2864757e7616fd6989"
     },
     "home-low-de--dark--1120x900": {
       "id": "home-low-de",
@@ -1432,7 +1432,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "a531061e92326494d8a75ccf951b44a05b81970a166b955cb1ab471efc6f76de"
+      "sha256": "381a9a7a8da200ef59ee1ebc24eff8931f0a022b5a6e9da4cf60a71ccfa8c5b3"
     },
     "home-low-de--dark--390x844": {
       "id": "home-low-de",
@@ -1466,7 +1466,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "3c9f864f135786e1ae14c0007e5a342629f0419a20819c8cf432c1f61cc50b3d"
+      "sha256": "f4673afcc15b20af1138a3ff7d08a5919ef37c0a6fa997a46969f932703ddbf9"
     },
     "home-low-de--light--390x844": {
       "id": "home-low-de",
@@ -1500,7 +1500,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "31cffd6d24b4ceba057385461896d29c52a9cb584476ed7ff001faefa0d84d80"
+      "sha256": "2cdec6a663f79a9f705ba2d029321a586318ede20778e12097457656bce2eace"
     },
     "home-low-es--dark--390x844": {
       "id": "home-low-es",
@@ -1534,7 +1534,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "767e34fec466ee7e98ff7345439344cf30a2af2b2ccbcb0fa5959ecd997c7672"
+      "sha256": "7397da9597f4f84c54a85ab3dec58b803f8d064e83047d11d5f3f425d2a42c53"
     },
     "home-low-es--light--390x844": {
       "id": "home-low-es",
@@ -1568,7 +1568,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "c4f9be5841347911443da96ef34d305510eae20281ec739581cbfc1848bb68de"
+      "sha256": "759b0394203bf13444f0cdf694d786dbfbc64aa56b2119c13a6134611cbdb050"
     },
     "home-low-fr--dark--390x844": {
       "id": "home-low-fr",
@@ -1602,7 +1602,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "72c5f7ad2905c52ee5fcca47095a76bffc5a874d818338ad2bb9239f917c4ab7"
+      "sha256": "b59b89e3ceefc92f7695afa71b68b66d83a148f9a1dcaf54ebf01bb31de997fa"
     },
     "home-low-fr--light--390x844": {
       "id": "home-low-fr",
@@ -1636,7 +1636,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "0fb16d92708527e28933675195b711ba345d43917a0f8d8eb68f8d50bc60d560"
+      "sha256": "83265ff79a1b0d52446207348c55abe5dbeb35c7759a65e2472f3634d35120e0"
     },
     "home-low-nl--dark--390x844": {
       "id": "home-low-nl",
@@ -1653,7 +1653,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "12d9b741646fbef740efb4da02d21c71bf699bb7498ca6e190fb9d26989a09ec"
+      "sha256": "98030b3188826e7a01f2a7b986d148b2455e114014b5190f93ef367844452fed"
     },
     "home-low-nl--light--1120x900": {
       "id": "home-low-nl",
@@ -1670,7 +1670,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "df44f9245b628e95ca40fd5b2be59cc99390b4e2bc3bade64323875f140004e3"
+      "sha256": "8c8d965e7884bafc60e1adff84889847c2632eb3224f30fb267a921d943e9bd4"
     },
     "home-low-nl--light--390x844": {
       "id": "home-low-nl",
@@ -1687,7 +1687,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "10a8c85a438c220a1bf46300f5cac731b9284220789bc08a3e7aebef9f919690"
+      "sha256": "15e3dd2e6992df0f827d7a6d5cbcf1ca58a6bbc462fbb9574ee3119c82dfaeb7"
     },
     "logbook--dark--1120x900": {
       "id": "logbook",
@@ -1840,7 +1840,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "e6266c9ae538d37e54820226e4b3c4121fc5e505003f3ca2bcb1e2ea8175d1e5"
+      "sha256": "1bc884882f28644ffd37274ebf1ba6cc3f9be02d14358ee5ee53ddfa9a313d4f"
     },
     "map-default--dark--390x844": {
       "id": "map-default",
@@ -1874,7 +1874,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "c3897ec766de5aab159e9cb328867c8d75b9065cacd2a80979bb1f975e9ba593"
+      "sha256": "39438f281052efd51ea47c62778ab760acf9050ffff2b945b436d44c1319ee34"
     },
     "map-default--light--1120x900": {
       "id": "map-default",
@@ -1891,7 +1891,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "8ef20692e94af90bdbb5c187c45703106670e056bee9b834d191ea28cb766c35"
+      "sha256": "142fafde38a760b5f6b78545ffffc78f2f620dd79d3603a5bb5816c9d919bb68"
     },
     "map-default--light--390x844": {
       "id": "map-default",
@@ -1925,7 +1925,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "96ac81a29d7a65c6870cf923a42f24f595ce51c0306c6ab8b1ab48e9c10e7af5"
+      "sha256": "6e25b05372aa734dce7bafa357021f1460ba4c20b3358c4cb47229ab4b78c040"
     },
     "map-place-go--dark--1120x900": {
       "id": "map-place-go",
@@ -1942,7 +1942,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "aadee13b4241625977dae373400166e184f769bb89f79195050dc4de01b9f938"
+      "sha256": "174c63a4e20f237396c15956ff1eb2d3a55ef67c8c19cface09b419e751cd173"
     },
     "map-place-go--dark--390x844": {
       "id": "map-place-go",
@@ -1976,7 +1976,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "f5f79ae0d8254425f5133e0d1fe32cf5ef7637c15768c807dd05d076e68d0d9c"
+      "sha256": "a27043cb54bb2be36706a611b7b26481916be22da9ddd52d93c80b5e4aa566b6"
     },
     "map-place-go--light--1120x900": {
       "id": "map-place-go",
@@ -1993,7 +1993,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "49da3104757d2f026b957240b9b46c11123eb8b72ea52a19852f3edd174f07a3"
+      "sha256": "26ab7735086d83fd5ff77b14a63bd28393b424f3bde46f4a53878b9bfa518d44"
     },
     "map-place-go--light--390x844": {
       "id": "map-place-go",
@@ -2027,7 +2027,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "3d628d43bf1c7f87fc16cc324c4944fab79f74d4b7c2923f2023607a08bbd30b"
+      "sha256": "fbf3ece22395c52da47066659c98b284e14619c8238082dccc7d5c1eaa71b333"
     },
     "map-places--dark--1120x900": {
       "id": "map-places",
@@ -2112,7 +2112,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "165e62beb02007e437a377a7e999f4660c41735976f7b99b8abeb88d0083f675"
+      "sha256": "11c2f1c31bac06a5146af7bd5a5a2a6b53c04a8780123a36b5647b58b674d5e6"
     },
     "map-report--dark--390x844": {
       "id": "map-report",
@@ -2146,7 +2146,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "a1a03ff007732014e4ba16c26318132491f63531eaf625aad33b3467141590f0"
+      "sha256": "ba1ed46900a60e6d65046cd209be5be7461996cbde17fda57aa028366a49170b"
     },
     "map-report--light--1120x900": {
       "id": "map-report",
@@ -2163,7 +2163,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "6fa2b3c1b215876b241cf8dc66010d5054b61a8c22843fd66e0b0a4d83902235"
+      "sha256": "bd43b59476fd4a7bc3673713d386d2416f32e0de4ed5f030c8ca6e54ce099f97"
     },
     "map-report--light--390x844": {
       "id": "map-report",
@@ -2197,7 +2197,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "8865e3d0f33c17bc3d0141bbac0a6005bde6e78b55f6d89258a59d26c09b81bb"
+      "sha256": "32f880650021af78053874ae04c2d17b012c7ab0ad9d784a57f0be395650b35f"
     },
     "map-scan-all--dark--1120x900": {
       "id": "map-scan-all",
@@ -2214,7 +2214,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "f964fc74bb2ecf699da28fc6e14b86d247bbbca1f8015424ff9fa441bda865be"
+      "sha256": "9fc8a7cef9e6b7e0cc2506c00547eae169017ee66ac2a140a3e5a2dbefcca5c4"
     },
     "map-scan-all--dark--390x844": {
       "id": "map-scan-all",
@@ -2248,7 +2248,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "ff0f66650a7134524d4659b7729a68a47a239217942955fe3c70a29a4637bd55"
+      "sha256": "538bfd1b8f08e258f047c9cf0b58e0ae95a4220436ab1601e9fb42a944a9824a"
     },
     "map-scan-all--light--1120x900": {
       "id": "map-scan-all",
@@ -2265,7 +2265,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "6ffa9875f5a2ca8b4f773c058fb9371186950d143179276f803c3230913d08b1"
+      "sha256": "055475a2a88fde3101301012da478cf46bc0dbc689d7c02d7c9798bd24155e33"
     },
     "map-scan-all--light--390x844": {
       "id": "map-scan-all",
@@ -2299,7 +2299,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "1f5de800fcab39fbebd45ec0e507271cbf74a5ee0ff7a5c16a7c2ff03ed378cf"
+      "sha256": "2be184270f66f439413447e656e72ccef408d021a9777f83467d5313d503ac48"
     },
     "map-spot-access--dark--1120x900": {
       "id": "map-spot-access",
@@ -2316,7 +2316,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "c153b4fbe62408b6e8fcc7b780297eeaf504027452a27ca401684b78baefd377"
+      "sha256": "06b08b23c82fad25a071060d8b9a0a7b686700910733702de5282869bdb1526b"
     },
     "map-spot-access--dark--390x844": {
       "id": "map-spot-access",
@@ -2350,7 +2350,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "1e7dfa1fedc945fb3aa9ce99d79c2916e1539d54840f6e731e5b78df70862e7a"
+      "sha256": "1d71fb0cfbd69203a84c8e7d037abe48ace2177fbb8ecf9c7d78fda2962d099b"
     },
     "map-spot-access--light--1120x900": {
       "id": "map-spot-access",
@@ -2367,7 +2367,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "2d1528918b1f3c974ce7fc931d0bfb76878f1bf85e0219dc8299d4db28da5698"
+      "sha256": "b4704a0769973b44b658bfc17c65b3b6ad16a79c1325bdfc35f1276f7c082f2d"
     },
     "map-spot-access--light--390x844": {
       "id": "map-spot-access",
@@ -2401,7 +2401,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "1bd70e9614e3c9ce2c818d7ecbdac9432d5eb570b9d293e61843e76860e18817"
+      "sha256": "9d7e7ed06bcbfb09ce8438ef9c279161b37793e841bea6032f873c94922a0755"
     },
     "map-spot-archive--dark--1120x900": {
       "id": "map-spot-archive",
@@ -2418,7 +2418,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "e8a708f673558fa72a1da07ee111a05cd3974df1070725d519790cbda2b2e6ab"
+      "sha256": "0af5adbb37a28588aba8e2ac8f5803f36c78862def53bc3198d95af5a21c5649"
     },
     "map-spot-archive--dark--390x844": {
       "id": "map-spot-archive",
@@ -2452,7 +2452,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "096eaaf7f6e4251328d485e36dfec64dad939f77c784e2554f7dcb35bfb13a1c"
+      "sha256": "16bd9a026b1749b36bcbd759c6f6ed9e23b91c584549dcb7da85cef2149a6349"
     },
     "map-spot-archive--light--1120x900": {
       "id": "map-spot-archive",
@@ -2469,7 +2469,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "ab4ddff7f713033a23b51cc541d8e1dd255a98f97d78256b5e06da8da76bc2d8"
+      "sha256": "5d57150c8f2ca247d03439009014420f8b39e3d62e6aa0b446433ca3f82f47e8"
     },
     "map-spot-archive--light--390x844": {
       "id": "map-spot-archive",
@@ -2503,7 +2503,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "7ba3bf504da9a8bd021b5ea6905f31a19758973ac81686469f0c478f53ec9620"
+      "sha256": "506db6364c3bb7038269090c96b7d0a7dd1aec18d8a61b0d6ba86b94ac1b104b"
     },
     "map-spot-comfy--dark--1120x900": {
       "id": "map-spot-comfy",
@@ -2520,7 +2520,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "fbe597fd397339079fb15864edbe5356789e47c2f4e0e4cbc27fe0128dbf96bf"
+      "sha256": "61b63d736549c9be7b7159aff4b2a607d7fb7c110d109e3c1e9b6640aaa88453"
     },
     "map-spot-comfy--dark--390x844": {
       "id": "map-spot-comfy",
@@ -2554,7 +2554,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "7d35c143959f9df4838fa88e7f5dbd924e12f2b9e76fc03ab80d1eac6715a1bf"
+      "sha256": "fce59a18895a46ddd260963744bae27667f9cc207f66b336389eaf5547cb4830"
     },
     "map-spot-comfy--light--1120x900": {
       "id": "map-spot-comfy",
@@ -2571,7 +2571,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "2ddb1e2dfec8614d775457ffd593578e36d1dea744623f43e937957900a8d15a"
+      "sha256": "f18c95fdc3a5f81af848d1b6c9073fa22b3a8375dba3cda9bb3d27b9a1db78f5"
     },
     "map-spot-comfy--light--390x844": {
       "id": "map-spot-comfy",
@@ -2605,7 +2605,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "da2fb49854d7a2013a6aa0147e463d73178f8a31c14bc84d4e143b73af23beef"
+      "sha256": "a42388754b6b024ea6aa3201ca679ff49e3d68ca5946fd0144c42e288739f63c"
     },
     "map-spot-mystery--dark--1120x900": {
       "id": "map-spot-mystery",
@@ -2622,7 +2622,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "2585e648977f09e68fe6b47066675bcba52c8d42b07082dd6412d4c8e7f41d4e"
+      "sha256": "861c2679f4e63510cf7bfbe5ed4310c5498a5d0ddeb0b8948027f788b377f16c"
     },
     "map-spot-mystery--dark--390x844": {
       "id": "map-spot-mystery",
@@ -2656,7 +2656,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "6ea990a672dbca3ac5094d2c522e129b375397dade9a994d441ec1e43dae548f"
+      "sha256": "4b32eb2b8ba6c3ae629f75dfc643807720d18461b263125d375a9f095d93f03e"
     },
     "map-spot-mystery--light--1120x900": {
       "id": "map-spot-mystery",
@@ -2673,7 +2673,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "77ed987737ca713405e4d42df82b24b1e7c1425e6be7162cfd3435f878909029"
+      "sha256": "2e73617c1a1ba1ae8fd8d4a3d5a922d484a4b96af61322c9fd077333f93b7051"
     },
     "map-spot-mystery--light--390x844": {
       "id": "map-spot-mystery",
@@ -2707,7 +2707,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "96c8d266357c4175f20ea86556699e5d1b5d8b6d729365a5c22c92d564cff3ec"
+      "sha256": "f1196c239beb196d53d6d8b5d69e88087d34a30cf4048adb9a6022b8974cab9a"
     },
     "map-spot-skip--dark--1120x900": {
       "id": "map-spot-skip",
@@ -2724,7 +2724,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "29ea62ca0474572e0f06a20882bd94293671a3f497dc7f3e73568c843ccc074b"
+      "sha256": "52eae726bc4914dac93e1eae64fb695e2bfe9ffb9a89cc6714738b21ffcaf631"
     },
     "map-spot-skip--dark--390x844": {
       "id": "map-spot-skip",
@@ -2758,7 +2758,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "097ec28179c6e36b991a2a2fec6858556fd0f74b5410f5604c6d6d9987ace7ad"
+      "sha256": "3af9e94f63dd3472f9483abb2b2c093561c891d61b8505e992b7d20eae4825fa"
     },
     "map-spot-skip--light--1120x900": {
       "id": "map-spot-skip",
@@ -2775,7 +2775,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "734e487a1a9a7a2b2e8ad946557f651b53d7db45cc3656b7809a0eb68e01f59f"
+      "sha256": "3db010e77f88c8df6e115792d8e8a4b5f41bcacef6d6389ae49b0a6966825ada"
     },
     "map-spot-skip--light--390x844": {
       "id": "map-spot-skip",
@@ -2809,7 +2809,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "8694b10baa3696a60713e4a30ff73cf255b24f299fe3becbf531b62058522b7f"
+      "sha256": "c5792dbfd628be272bb5700e928ec1aed6cfc295c81b3a24a32b1fe99424a418"
     },
     "map-spots-all--dark--1120x900": {
       "id": "map-spots-all",
@@ -2826,7 +2826,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "3278a07ff1a55d282ca9acfebe2ab4691e4266e62a9a7f53e119d13b8bb2baae"
+      "sha256": "d9906f46f42fb978aee36634475931afe3d92d8a616417e48181ae0fdf77dcd1"
     },
     "map-spots-all--dark--390x844": {
       "id": "map-spots-all",
@@ -2860,7 +2860,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "01898875f9add0352d5a6f2de792572659b9ca112c6d65fc642eb274d1083d61"
+      "sha256": "931a972f173d84c745b618f9d637d65e919bb65f4c4144b1a9b758378159ac4e"
     },
     "map-spots-all--light--1120x900": {
       "id": "map-spots-all",
@@ -2877,7 +2877,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "9f9b158486b14caff2c85fb57566e418463618cf617687c1ab85ab4003003609"
+      "sha256": "b2f653bff3a29b87efd9a241f257b0519d04d40ac79c1021c33e940a1373d652"
     },
     "map-spots-all--light--390x844": {
       "id": "map-spots-all",
@@ -2911,7 +2911,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "5723a81060d013ab78410e3d5a4181e36091f0c5de8639000c491ac4ca044ddc"
+      "sha256": "90b94cd46ad8039650bb8045fd728a30832db1e9512a09bdb9047fa7b9f06d68"
     },
     "map-tile-apps--dark--1120x900": {
       "id": "map-tile-apps",
@@ -2928,7 +2928,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "92798f4d2fd6dcbe7aaab0c1dcb7bd5e07cc120461f2a55a81e4894910206263"
+      "sha256": "4a7c1dd87719b658efec989135f2b9be4493de34ac60aef715da286c658d2dfc"
     },
     "map-tile-apps--dark--390x844": {
       "id": "map-tile-apps",
@@ -2962,7 +2962,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "c0a8e87d8f92c693f8802ee52b24aad45853c8316ce8303c13d86a01d67acf76"
+      "sha256": "72499f405fdb7a7db08536f38b093aa025ae00d49288900d121a998ffe52f254"
     },
     "map-tile-apps--light--1120x900": {
       "id": "map-tile-apps",
@@ -2979,7 +2979,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "574bc3a9d98a4813314c7e0188a45994af73792065663d1a74ef141bb14d76ee"
+      "sha256": "4fb4eb81caa993856b06fabd8d3f7150ed0ffede106269f32bd8500a296bea59"
     },
     "map-tile-apps--light--390x844": {
       "id": "map-tile-apps",
@@ -3013,7 +3013,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "54e07b6884ffa8fcc12c736178b8fea4ae2589703b47eea4283418490f234ab5"
+      "sha256": "3d865f5acbdbdbd27f357a17da6c7bce3e41acef9625de0694c54616fa610129"
     },
     "map-tile-browser--dark--1120x900": {
       "id": "map-tile-browser",
@@ -3030,7 +3030,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "c76217487a43bafdcf44f741b7683fa8ec7b96093c8b51c68c2955c6fadb5571"
+      "sha256": "0ef8419d155d89773adf313d6c34e7c4e0975881660b4f6753f10e3fcecc442c"
     },
     "map-tile-browser--dark--390x844": {
       "id": "map-tile-browser",
@@ -3064,7 +3064,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "605e4d7126407ea26448437ea3489d43088d03eed38bd24ef7abb6e9afab21ca"
+      "sha256": "c6104d1c4c7417650567e93d78eefc516a30fba2ace3e71cff94c6e1ed55cade"
     },
     "map-tile-browser--light--1120x900": {
       "id": "map-tile-browser",
@@ -3081,7 +3081,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "a26641f9df1fa8e9eb210094daa9437ab107310419ce55a0f291c8fb59fb432a"
+      "sha256": "9c112c07573445e13d2937648a1cf511425321c1ee6809d0e221fc7863c4168f"
     },
     "map-tile-browser--light--390x844": {
       "id": "map-tile-browser",
@@ -3115,7 +3115,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "7446e4056c23aa997dbeb9579e90356b5e7d1ec3169760ba670d9b160c2b8b09"
+      "sha256": "432be2a5377df52c44a6cbac2d9eb6ec9a8ca229084448a9cd2ddd71c5da163b"
     },
     "map-tile-caches--dark--1120x900": {
       "id": "map-tile-caches",
@@ -3132,7 +3132,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "d33faa2c89e679987bc6b7a2b9a5fda220742d54e59f605773f02cc6708e8e4b"
+      "sha256": "a8a6ab4c542891cdca1cf8d6652aa64df0134471b13b95769da24da6a7e6e3d3"
     },
     "map-tile-caches--dark--390x844": {
       "id": "map-tile-caches",
@@ -3166,7 +3166,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "8f2254c424b8da61b2f67cbb9c47173e0c1d07e76890e06cba10c3f7a870f654"
+      "sha256": "b8dd4eb666ad78b95f45faf23bd4a43a092d4e425c3b1fafcb2e3e2d843cb223"
     },
     "map-tile-caches--light--1120x900": {
       "id": "map-tile-caches",
@@ -3183,7 +3183,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "eef54a1098aee6afbe8d3b801755db07374096427ab012c4429ebf37e600f1e9"
+      "sha256": "27f83ae98af435da26ecb8cad8a7ba6260668b60e1708399ecf518b4b30071ce"
     },
     "map-tile-caches--light--390x844": {
       "id": "map-tile-caches",
@@ -3217,7 +3217,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "24d392f104e568c045ca63ff9b9c43075ddb6bc64b235dfd79700ef634c56610"
+      "sha256": "a8a5cd8d679eb7b007cf73b3b365ab6ad8b7dfe45fbb8b7022e0178a5f927c0d"
     },
     "map-tile-docker--dark--1120x900": {
       "id": "map-tile-docker",
@@ -3234,7 +3234,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "d9ea68e038193bcf353cfc1eb05c47b20d0b4cd117adf6da223633ff1d362e9a"
+      "sha256": "8609d32b0b72e755483d1b5505571cd8e42b1c6f864daa0c2b049e2af9bd0a81"
     },
     "map-tile-docker--dark--390x844": {
       "id": "map-tile-docker",
@@ -3268,7 +3268,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "5202f2a64aef4919e80353a6d88748831e92cc51119fe6b34c0a5788e185230f"
+      "sha256": "367f4cb43318c95be9701cca728bf6cbf9e4f7c8d41ea4cf9416696ab22a07f9"
     },
     "map-tile-docker--light--1120x900": {
       "id": "map-tile-docker",
@@ -3285,7 +3285,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "ee7661974285bb1b6594709f2cf9424748c36453d6a8332965b7f17b61d3b6c1"
+      "sha256": "f66c088028e377081ed8bc46e738ceb659d6fc6a4d9784b2d1c3fe9f54b586b5"
     },
     "map-tile-docker--light--390x844": {
       "id": "map-tile-docker",
@@ -3319,7 +3319,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "87f9529abc89db84a239e2c2e8ca1a7fccb692e086ab1fe65e70022eae004658"
+      "sha256": "fc3ae1d00dc02efaed3704915791b801dcdb9f01755c5966653d709ac606089c"
     },
     "map-tile-files--dark--1120x900": {
       "id": "map-tile-files",
@@ -3336,7 +3336,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "7bc7d47761c09749d480d30cf3903730d9deba056ea3636b8d483fcb063893d8"
+      "sha256": "235a40fe08f84b9b64cc10251149aa0a45bbc8f36f3dff0bf022e7399feaa74e"
     },
     "map-tile-files--dark--390x844": {
       "id": "map-tile-files",
@@ -3370,7 +3370,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "44eee34a4e745dfba6c56fbfbaae8dc63dbec521ed61bde001ff9f253f59ba4a"
+      "sha256": "206e5b08eb047143d29fc7b905add4bde2a3dc0d9aae6bfddac671a0aade46a2"
     },
     "map-tile-files--light--1120x900": {
       "id": "map-tile-files",
@@ -3387,7 +3387,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "d516e94fe06b0f25fea8779d85a045133d0e7246815a88a23d5985337e222618"
+      "sha256": "65bbc887ea7bde693e71c6ad087628811c45c63b45c74cc0a4e08e8b935a7cbf"
     },
     "map-tile-files--light--390x844": {
       "id": "map-tile-files",
@@ -3421,7 +3421,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "4c7b823686f455136e02dc8ce110dad6b7c19f7d728c2dd3505b7e0e550096c1"
+      "sha256": "0950a2d5fdae751c8fa97298ee146bc48eb1105766fc952e3bef65836efcf7f8"
     },
     "map-tile-fonts--dark--1120x900": {
       "id": "map-tile-fonts",
@@ -3438,7 +3438,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "58c855b6e42233d597c3edcbc6223aad7c6af8f971559ce2261a737a930ab72e"
+      "sha256": "f321bea463d5b2feb3a22870bb8f7f222a5e21f2a6186a1f3f66c8865afa43a6"
     },
     "map-tile-fonts--dark--390x844": {
       "id": "map-tile-fonts",
@@ -3472,7 +3472,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "32e89014ff6b825ffb9fe343e19cb12398a5e653c9e22885f073c7b0ac2f1f17"
+      "sha256": "7ac4c1607c4a8f5fb453b3eb46b7d7f44ecffc4bffe2dc16b311edd0ccfb1f50"
     },
     "map-tile-fonts--light--1120x900": {
       "id": "map-tile-fonts",
@@ -3489,7 +3489,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "5ed231e51e932bb1fadda301f720ef58983d72e595b2b5214e523f4abf632fbf"
+      "sha256": "16b20dc7830dd9ea259e2db494a641530e90bf3e668ea95f7d06e392f71c0e61"
     },
     "map-tile-fonts--light--390x844": {
       "id": "map-tile-fonts",
@@ -3523,7 +3523,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "48d885c8567421cc6fdf6ddb57ec17df4b6eeeb015851faa6935d4e2fffc712d"
+      "sha256": "acd1436e6f2733b4ca00d9f1b4b9cf6ea3c4a179f130a6665895f6893ddbe3bd"
     },
     "map-tile-mobile--dark--1120x900": {
       "id": "map-tile-mobile",
@@ -3540,7 +3540,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "32a19d1363c9325032d703ea78c547bc5c3d26210ce58c5684ccdd0aef8086e9"
+      "sha256": "7b9a7f6bbecc540e2958015fb1aaf390387cb04a83792930ac7eef108b4abd2b"
     },
     "map-tile-mobile--dark--390x844": {
       "id": "map-tile-mobile",
@@ -3574,7 +3574,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "474f38532bcf74f33d4e09b6af7a9b4bb25bc1369afd1198d72a576760c52031"
+      "sha256": "5b49d6fdb06d0cf3658889e3307c48560e03a0a2116ad33fc675881943f34cef"
     },
     "map-tile-mobile--light--1120x900": {
       "id": "map-tile-mobile",
@@ -3591,7 +3591,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "281b1e58c14f1956653bd92a8109c1b9e9bae511dd8698f2ee931d5a1ad3159f"
+      "sha256": "67d4bdac22fd3fb8fd82ce0be23edc8239c81dc1b148a9d105ffa9334152425d"
     },
     "map-tile-mobile--light--390x844": {
       "id": "map-tile-mobile",
@@ -3625,7 +3625,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "ed7873b705455191462bd1f553cc8142c992e1a10442f7ee9fc76e9d2fde5b12"
+      "sha256": "63a700a36248d69c8436d76aa2b5cc35ff71e6154e66cf884e33dfa9df4a645b"
     },
     "map-tile-projects--dark--1120x900": {
       "id": "map-tile-projects",
@@ -3642,7 +3642,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "ef91fe8fe2b74b6517b77494cf6263ead400e7d1dc2653d62f718b65040a22fc"
+      "sha256": "7ab2b97508fa686e4abcfe3ba2a06bacda1851fb2a695d4c1755e3908f5ff7fe"
     },
     "map-tile-projects--dark--390x844": {
       "id": "map-tile-projects",
@@ -3676,7 +3676,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "03c102371bdaace592dc0d1e9d915850bc93a3e23aadd7555b4424c13889213d"
+      "sha256": "d403e621f8e1ee0eb9b571a4f5d292fcf5c3ddda0cc66dc3718272b8fa2480a2"
     },
     "map-tile-projects--light--1120x900": {
       "id": "map-tile-projects",
@@ -3693,7 +3693,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "39ffa564751fc4eca9b8ccf9bab31523126c5cec5ec6424a1657eb213124db0f"
+      "sha256": "382721040a378d50cff25137fb761502f5304f7b49decc0be2610c56d2259d00"
     },
     "map-tile-projects--light--390x844": {
       "id": "map-tile-projects",
@@ -3727,7 +3727,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "67d166b1465ee7620be08efcc22cc9140d1e083ecfddb531950e9ebadd84eaa8"
+      "sha256": "7b7e80a502cf690fb2a9399d4c237ff43f53af4774d29e4c2b562e4e93ad989b"
     },
     "map-tile-system--dark--1120x900": {
       "id": "map-tile-system",
@@ -3744,7 +3744,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "28e31c5c8b805a3e8d71d446300b79087ab7494034bfe3f81750b40e1fce6437"
+      "sha256": "e1b6e2a371a2b58b300badfd778596188baac94978673c1e062077797e27bae0"
     },
     "map-tile-system--dark--390x844": {
       "id": "map-tile-system",
@@ -3778,7 +3778,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "4d4dead3c366d775970db966495dbc46a2bab3663e9841633d866c028e460478"
+      "sha256": "e540dec113964cf05e8456b132f084a9d65ad384118f9945abc07d0c47a33d91"
     },
     "map-tile-system--light--1120x900": {
       "id": "map-tile-system",
@@ -3795,7 +3795,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "c095730de4f2d5663a69c6f7f4307fd294ba77384e7dd3fe840dc66db030841c"
+      "sha256": "b8620b7da07a8424613571034d07d1b6d235da1c48af647cfd0ba4e47493a7c9"
     },
     "map-tile-system--light--390x844": {
       "id": "map-tile-system",
@@ -3829,7 +3829,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "75eabb0663131903a2f15a5f2dea862acfec879837023239ee771a7064e6a731"
+      "sha256": "4d0b4f74c162676bf8e02cf04c4f826d0459c9fa6ddf2b08d36b2a9f6aaa328f"
     },
     "map-tile-unknown--dark--1120x900": {
       "id": "map-tile-unknown",
@@ -3846,7 +3846,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "b28b4d87a3dd922fe86cacfa2d3bb992f7d77c98c5514751846b93dbb69ee038"
+      "sha256": "234854b6b1c039e0f98da61764447017f114aed1a91e26782d8c427d37f5f50f"
     },
     "map-tile-unknown--dark--390x844": {
       "id": "map-tile-unknown",
@@ -3880,7 +3880,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "ccf875a89a6cbebfc619e9235fcc217aad5ee4ad923544f85952be0fcf1edc02"
+      "sha256": "b349143f20727ef910d7274946792b0b33e422d6cff2c4bff2b989cfa70a14b5"
     },
     "map-tile-unknown--light--1120x900": {
       "id": "map-tile-unknown",
@@ -3897,7 +3897,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "3108ff2d4eceb2fbaa5624967f699c41f15d58e5ccb3eb641c26326db6c85438"
+      "sha256": "b6997f0e7cbf97b90e758e09e30a827231eb0db3bed0abcfe4394d420cd7ad93"
     },
     "map-tile-unknown--light--390x844": {
       "id": "map-tile-unknown",
@@ -3931,7 +3931,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "6e421cf82a01fab997a73076e8b245388824fd511cfbdbb2fbfd63f4b6bcd857"
+      "sha256": "098ca214ec90ace7de283f6caeb3ffa4460432b4cfc3c0e5dae805b296e6b82f"
     },
     "map-why-more--dark--1120x900": {
       "id": "map-why-more",
@@ -3948,7 +3948,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "59705d338e7e81314a36082215baecd107a2309e1b9e90fa30dc318ab95dceca"
+      "sha256": "07239085498f208c9dd64aa74429e124c5df53be7f946beaaf05cec872dc4b49"
     },
     "map-why-more--dark--390x844": {
       "id": "map-why-more",
@@ -3982,7 +3982,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "51a8adbbc2316ad2a89fe2455ccfdb132981e8d930b3873fe7e3e4cf9b7bba06"
+      "sha256": "b53007f275805bcc486439d0eb4f511abf5aef5f998df429288bad4c0467f73d"
     },
     "map-why-more--light--1120x900": {
       "id": "map-why-more",
@@ -3999,7 +3999,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "d8b04c87bf9789c0bf340caeadd957517340961ded7d09a97cae621531c294a4"
+      "sha256": "b9b56bc07573adba7d86ef717e60a6583a255d9e6185a49e692da2c550d202c1"
     },
     "map-why-more--light--390x844": {
       "id": "map-why-more",
@@ -4033,7 +4033,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "dcd70ae70de204be87085cfddeadb64743706ee38409e92f055b2abf6a03f189"
+      "sha256": "538e32730480bd36ca7bfb46a4e063c00a96abdea99ec3956e48919b25ab5c69"
     },
     "risk-question--dark--1120x900": {
       "id": "risk-question",
@@ -4816,6 +4816,414 @@
       "supplemental": true,
       "note": "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
       "sha256": "be842aaec884df79598ef0cb8c6ea56d503a0be8e304264e7c01f8b43f42cd12"
+    },
+    "wt-default--dark--1120x900": {
+      "id": "wt-default",
+      "surface": "Worktrees",
+      "state": "Worktrees: 20 in 6 repositories, 15 ready, by repository",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff, and rows with uncommitted files have no acknowledgment to remove them (invariant 7).",
+      "sha256": "11ef1eac38ee0a6d0349b25bd6820d763403bebb072c946bba9ca8c7ca760020"
+    },
+    "wt-default--dark--390x844": {
+      "id": "wt-default",
+      "surface": "Worktrees",
+      "state": "Worktrees: 20 in 6 repositories, 15 ready, by repository",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff, and rows with uncommitted files have no acknowledgment to remove them (invariant 7).",
+      "sha256": "adce5d0f2dd2adf3890600ba29a99c768f9f5b6b982bb8dfeea928c89b3accc8"
+    },
+    "wt-default--dark--760x900": {
+      "id": "wt-default",
+      "surface": "Worktrees",
+      "state": "Worktrees: 20 in 6 repositories, 15 ready, by repository",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff, and rows with uncommitted files have no acknowledgment to remove them (invariant 7).",
+      "sha256": "1c140876bcb049665f643ac6230796138b401cf72b3cc969cd10bfe51f2c4135"
+    },
+    "wt-default--light--1120x900": {
+      "id": "wt-default",
+      "surface": "Worktrees",
+      "state": "Worktrees: 20 in 6 repositories, 15 ready, by repository",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff, and rows with uncommitted files have no acknowledgment to remove them (invariant 7).",
+      "sha256": "bf7f2cdb961bc7b760e115ba34afb141dee310b8356a41809e530f3f580857b2"
+    },
+    "wt-default--light--390x844": {
+      "id": "wt-default",
+      "surface": "Worktrees",
+      "state": "Worktrees: 20 in 6 repositories, 15 ready, by repository",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff, and rows with uncommitted files have no acknowledgment to remove them (invariant 7).",
+      "sha256": "5310ec49146ea1ad2e930dea59ecea408f3629bf5a8f606fcdee45458402faa2"
+    },
+    "wt-default--light--760x900": {
+      "id": "wt-default",
+      "surface": "Worktrees",
+      "state": "Worktrees: 20 in 6 repositories, 15 ready, by repository",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff, and rows with uncommitted files have no acknowledgment to remove them (invariant 7).",
+      "sha256": "cbf5f3eef2e1ceee61a1ae50be9e971b86f0afb4fe628b8b2ba45a65b41943ea"
+    },
+    "wt-filter-agents--dark--1120x900": {
+      "id": "wt-filter-agents",
+      "surface": "Worktrees",
+      "state": "Worktrees: Made by agents",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff, and rows with uncommitted files have no acknowledgment to remove them (invariant 7).",
+      "sha256": "cfd708f980521bd049ef5468be1f0122f18bb047d3b215b20073702b8ce37a9a"
+    },
+    "wt-filter-agents--light--1120x900": {
+      "id": "wt-filter-agents",
+      "surface": "Worktrees",
+      "state": "Worktrees: Made by agents",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff, and rows with uncommitted files have no acknowledgment to remove them (invariant 7).",
+      "sha256": "0433686c964326cce737c2df58d91d4b741fce5f6f05f010ad20b24d65db6307"
+    },
+    "wt-filter-ready--dark--1120x900": {
+      "id": "wt-filter-ready",
+      "surface": "Worktrees",
+      "state": "Worktrees: the Ready tile filters the list",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff, and rows with uncommitted files have no acknowledgment to remove them (invariant 7).",
+      "sha256": "f5e344a3efd382a55f8eb96cf48645cabae3c8977c9bcc902ab9ff3b1d14e59b"
+    },
+    "wt-filter-ready--dark--390x844": {
+      "id": "wt-filter-ready",
+      "surface": "Worktrees",
+      "state": "Worktrees: the Ready tile filters the list",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff, and rows with uncommitted files have no acknowledgment to remove them (invariant 7).",
+      "sha256": "a8271e11808b38e10cee3f55a14e99d2a80d8caa44f7624c849815e64b71b18a"
+    },
+    "wt-filter-ready--light--1120x900": {
+      "id": "wt-filter-ready",
+      "surface": "Worktrees",
+      "state": "Worktrees: the Ready tile filters the list",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff, and rows with uncommitted files have no acknowledgment to remove them (invariant 7).",
+      "sha256": "2eaf1a5bb809c9789ce6261fb48ff118e8a3539285c247f69c500bf04d472dec"
+    },
+    "wt-filter-ready--light--390x844": {
+      "id": "wt-filter-ready",
+      "surface": "Worktrees",
+      "state": "Worktrees: the Ready tile filters the list",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff, and rows with uncommitted files have no acknowledgment to remove them (invariant 7).",
+      "sha256": "2d4b16524564de3668c838ed68477dc1c28a7c184df80e654cbe167663657a5d"
+    },
+    "wt-open-kept--dark--1120x900": {
+      "id": "wt-open-kept",
+      "surface": "Worktrees",
+      "state": "Worktrees: an unmerged one opened (the branch stays, how to reopen it)",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff, and rows with uncommitted files have no acknowledgment to remove them (invariant 7).",
+      "sha256": "aaeadf193d6209304e42f33c54f2dc10c7cd5a70b624e8ecd52dc1f38c3c861c"
+    },
+    "wt-open-kept--light--1120x900": {
+      "id": "wt-open-kept",
+      "surface": "Worktrees",
+      "state": "Worktrees: an unmerged one opened (the branch stays, how to reopen it)",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff, and rows with uncommitted files have no acknowledgment to remove them (invariant 7).",
+      "sha256": "14198ae95c3e8d717cb16ac60dce5397ba48ce4261efad992441faf2424b2c76"
+    },
+    "wt-open-ready--dark--1120x900": {
+      "id": "wt-open-ready",
+      "surface": "Worktrees",
+      "state": "Worktrees: a squash-merged agent worktree opened (checks, after removal, commands)",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff, and rows with uncommitted files have no acknowledgment to remove them (invariant 7).",
+      "sha256": "d9c3a66f10718120873fae4ed621d069a1a8dacf3bb455389482e90cd34e3903"
+    },
+    "wt-open-ready--dark--390x844": {
+      "id": "wt-open-ready",
+      "surface": "Worktrees",
+      "state": "Worktrees: a squash-merged agent worktree opened (checks, after removal, commands)",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff, and rows with uncommitted files have no acknowledgment to remove them (invariant 7).",
+      "sha256": "b8c1ef48a9c9eafeb55bb740913753998ae2bbb9e638a5c24d82c88ce65092e8"
+    },
+    "wt-open-ready--light--1120x900": {
+      "id": "wt-open-ready",
+      "surface": "Worktrees",
+      "state": "Worktrees: a squash-merged agent worktree opened (checks, after removal, commands)",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff, and rows with uncommitted files have no acknowledgment to remove them (invariant 7).",
+      "sha256": "6a5203e2158e801072432a4e6d16cac3e5a8c7608fb74fcae1b96ef3dd93f76e"
+    },
+    "wt-open-ready--light--390x844": {
+      "id": "wt-open-ready",
+      "surface": "Worktrees",
+      "state": "Worktrees: a squash-merged agent worktree opened (checks, after removal, commands)",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff, and rows with uncommitted files have no acknowledgment to remove them (invariant 7).",
+      "sha256": "ec260308d3309a5cbedeebade37ef86fc86593e598f0bea13322dade89f60106"
+    },
+    "wt-open-work--dark--1120x900": {
+      "id": "wt-open-work",
+      "surface": "Worktrees",
+      "state": "Worktrees: one with uncommitted files opened (what would be lost, how to save it)",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff, and rows with uncommitted files have no acknowledgment to remove them (invariant 7).",
+      "sha256": "98c79f48f12b93daf718fd3f63eaafe51f8c2b0e3955f826913bd664b5fbe8fa"
+    },
+    "wt-open-work--light--1120x900": {
+      "id": "wt-open-work",
+      "surface": "Worktrees",
+      "state": "Worktrees: one with uncommitted files opened (what would be lost, how to save it)",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff, and rows with uncommitted files have no acknowledgment to remove them (invariant 7).",
+      "sha256": "6a6a0857e70c55792e164d007aa57c9ac55e578dbc343b858422e26deb01e903"
+    },
+    "wt-selected--dark--1120x900": {
+      "id": "wt-selected",
+      "surface": "Worktrees",
+      "state": "Worktrees: Select 8 ready in sheltersync, with the dock",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff, and rows with uncommitted files have no acknowledgment to remove them (invariant 7).",
+      "sha256": "4b167fc56787c1a66ee8f5839314952c3f594651ff79c8c0554ac429eb93da02"
+    },
+    "wt-selected--dark--390x844": {
+      "id": "wt-selected",
+      "surface": "Worktrees",
+      "state": "Worktrees: Select 8 ready in sheltersync, with the dock",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff, and rows with uncommitted files have no acknowledgment to remove them (invariant 7).",
+      "sha256": "5f170153380eab8e06de50f6624ccaecd4c52ba852ed36a4de2a008a6aa7fde4"
+    },
+    "wt-selected--light--1120x900": {
+      "id": "wt-selected",
+      "surface": "Worktrees",
+      "state": "Worktrees: Select 8 ready in sheltersync, with the dock",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff, and rows with uncommitted files have no acknowledgment to remove them (invariant 7).",
+      "sha256": "31be000680d76d50ad14cdb93c9eb465a7f87a9f7b326b133751114e5fd81833"
+    },
+    "wt-selected--light--390x844": {
+      "id": "wt-selected",
+      "surface": "Worktrees",
+      "state": "Worktrees: Select 8 ready in sheltersync, with the dock",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff, and rows with uncommitted files have no acknowledgment to remove them (invariant 7).",
+      "sha256": "888bb46fdc1f13f4c8ffd8059d76841881acef66e75aa82315ef1064e7f49a94"
     }
   }
 }

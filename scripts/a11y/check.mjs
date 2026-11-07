@@ -31,6 +31,10 @@ const STATES = [
   { id: "trash-confirm", query: "trash=2.4", click: ['[data-act="empty"]'], wait: "#go" },
   { id: "logbook", query: "", click: ["#tab-log"], wait: ".log" },
   { id: "logbook-run-details", query: "", click: ["#tab-log", '[data-run="run-2"]'], wait: "#sheet .plan-list" },
+  // Worktrees (prototype Version 19): the tab, an opened row, the dock.
+  { id: "worktrees", query: "", click: ["#tab-wt"] },
+  { id: "worktrees-open", query: "", click: ["#tab-wt", '[data-wt-open="w1"]', '[data-wt-open="w3"]'] },
+  { id: "worktrees-selected", query: "", click: ["#tab-wt", '[data-wt-selrepo="sheltersync"]'] },
   // Languages: longer German and French text, and the language controls.
   { id: "home-low-de", query: "lang=de" },
   { id: "settings-sheet-fr", query: "lang=fr", click: ['[data-act="settings"]'] },

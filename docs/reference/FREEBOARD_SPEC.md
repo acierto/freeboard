@@ -358,18 +358,20 @@ All external commands run through `runner.rs`, with a 20-second default timeout.
 
 Discover repositories under the configured folders, then read each one with `git worktree list --porcelain`. Never suggest the main worktree.
 
-| State | Risk | Cleanup |
-| --- | --- | --- |
-| Clean and merged into the default branch | Review | Allowed |
-| Clean, pushed, not merged | Review | Allowed |
-| Uncommitted or untracked files | Risky | Blocked |
-| Unpushed commits, or no upstream | Risky | Blocked |
-| Locked worktree | Risky | Blocked |
-| In the middle of a merge or rebase | Risky | Blocked |
-| Currently open in a detected process | Risky | Blocked |
-| Status can't be determined | Risky | Blocked |
+`git worktree remove` deletes the worktree's folder only. The branch and every commit on it stay in the repository, so unpushed or unmerged commits are never lost by removing a worktree. Only uncommitted and untracked files can be lost. Decide by that:
 
-Git cannot reliably detect squash merges, so show those branches as "pushed, not merged".
+| State | Status in the Worktrees view | Cleanup |
+| --- | --- | --- |
+| Clean, idle 7+ days, merged (normal, squash or merged PR) | Ready to remove | Folder and branch go (`git branch -d`, or `-D` after the squash check) |
+| Clean, idle 7+ days, not merged (pushed or not, any number of local commits) | Ready to remove | Folder goes, branch kept. Show how to reopen it with `git worktree add` |
+| Clean, used in the last 7 days | Needs a look | Selectable by hand, never automatic |
+| Locked | Needs a look | Selectable by hand; plan runs `git worktree unlock` first |
+| Uncommitted or untracked files | Has your work | Blocked until the user ticks "I understand these N files will be gone" in the row |
+| In the middle of a merge or rebase, or open in a detected process | Has your work | Blocked |
+| Main checkout | Main | Never |
+| Status can't be determined | Has your work | Blocked |
+
+Squash merges: git can't see them, so check whether merging the branch into the default branch would change anything: `git merge-tree --write-tree <default> <branch>` returning the default branch's own tree means the changes are already in main. Also accept a merged pull request from `gh pr view` when the GitHub CLI is signed in. Branches created by coding agents (`worktree-agent-*`, `claude/*`, `codex/*`) get an Agent, Claude or Codex badge and their own filter.
 
 **Removing many worktrees.** Real repositories can hold 100+ worktrees, and `git worktree remove` can be slow or time out on large ones. Rules:
 
@@ -513,7 +515,7 @@ Rules run at low priority, stop if a pre-cleanup check fails, and appear in the 
 | Resource | Checks immediately before cleanup |
 | --- | --- |
 | All paths | Canonical path, protected-path rules, no symlink swap, same fingerprint |
-| Worktree | Still clean, still pushed or merged, not locked, no new commits |
+| Worktree | Still no uncommitted or untracked files, not locked unless the plan unlocks it, not used since the scan |
 | Project folder | Manifest still present, no process running in the project |
 | Docker image or volume | Still unused by every container |
 | Docker container | Still stopped |
@@ -686,7 +688,7 @@ Required reasons and steps for the detectors that produce Risky items:
 
 - **Docker volume (named):** no undo; contents unseen; name hints (pgdata, mysql, redis). Steps: list contents with `docker run --rm -v <vol>:/v alpine ls -la /v`; archive to `~/Backups` with a `tar czf` run.
 - **Unnamed (anonymous) volumes, bundled:** no names, so no clue what is inside; no container uses them; no undo. Steps: inspect the largest three first; the bundle must list each volume with size and created date before **Add to pile** works.
-- **Worktree with local work:** counts of uncommitted files and unpushed commits. Steps: `git -C <path> status --short`; `git -C <path> push`. These stay blocked, not merely Risky.
+- **Worktree with local work:** the uncommitted files that would be lost (unpushed commits are safe, because the branch stays). Steps: `git -C <path> status --short`; `git -C <path> push`. Blocked until the user acknowledges the files in the row.
 
 ### Item rows, confirm, run and outcome
 
@@ -716,6 +718,16 @@ Left column: the explained-percentage ring, the treemap, the small-area chips, a
 Scanning a folder updates the map at once and can surface new items (a 44 GB ComfyUI checkpoints item under AI models). When everything is fixed the card becomes an all-clear.
 
 **Combined scan card.** Three sections in one card: Growing fastest this week (bars); places checked as one line, "49 places checked: 31 had something · 18 clean · 8 folders not yet", with a dot strip and **See all**; Second opinion as one row with **Copy report**. **See all** opens a sheet: counts line, found items grouped by area with risk dots and sizes (a row opens that item on the map, expanded), clean places as a two-column checklist, and folders not looked in yet with a link back to the why card.
+
+### Worktrees view
+
+Worktrees get their own tab (Quick questions · Disk map · Worktrees · Logbook) because there can be hundreds, and every one needs a visible reason. The tab badge counts the Ready ones.
+
+1. **Summary card:** "148 in 6 repositories · 58.2 GB", the rule in one sentence (removing a worktree deletes its folder, not its branch, so only uncommitted files can be lost), a stacked bar by status, and four status tiles (Ready to remove, Needs a look, Has your work, Main checkouts) with count and size. A tile filters the list; a second click clears it. A "Made by agents · N" chip filters agent branches.
+2. **One card per repository**, biggest first: name, count, size, path, a thin status bar, and **Select N ready**.
+3. **Rows:** checkbox, branch name in mono with Agent/Claude/Codex and Locked badges, size, last-used age, and a status dot with the reason in one plain sentence ("Idle 30 days, already in main (squash-merged).", "2 uncommitted files would be deleted."). Never a bare "will not touch".
+4. **Expanded row:** What I checked (✓/✕ for uncommitted files, idle time, lock, merge state), Where, After removal ("Only the folder goes. Branch X stays with its 3 commits. Reopen it with git worktree add …" or "Folder and branch go"), Would run (the exact commands), Make it removable (status and commit commands for dirty ones), and for Has your work the acknowledgment checkbox that makes it selectable.
+5. **Dock:** a sticky bar appears with a selection: "9 selected · 6.1 GB", Clear, **Remove 9 worktrees**. The run shows progress in the summary card, one worktree at a time with a 120 s limit; timeouts are listed with **Try N again**, and each removal is logged with whether the branch was kept.
 
 ### Settings sheet
 
@@ -878,7 +890,7 @@ Release requirement: sign the macOS build with a Developer ID certificate and no
 - [ ] Each blind spot has a working action, and a resolved blind spot updates coverage.
 - [ ] Places checked separates found, clean and unavailable detectors.
 - [ ] The disk report can be copied and contains no file contents.
-- [ ] Dirty, unpushed, locked and unknown-state worktrees can't be selected.
+- [ ] Clean worktrees idle 7+ days are removable even with unpushed commits, and their branch is kept; worktrees with uncommitted files or unknown state can't be selected without the in-row acknowledgment.
 - [ ] Docker volumes are never preselected and need individual acknowledgment.
 - [ ] The plan separates space freed now, space held in Trash and unrecoverable items.
 - [ ] Items that changed after the scan are skipped and explained.

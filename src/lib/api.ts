@@ -16,6 +16,7 @@ import type {
   FolderDetails,
   ToolFound,
   View,
+  WorktreesView,
   FolderSuggestion,
   Goal,
   Group,
@@ -102,6 +103,8 @@ export const api = {
   folderSuggestions: () => call<FolderSuggestion[]>("folder_suggestions"),
   getFolderDetails: () => call<FolderDetails>("get_folder_details"),
   getTools: () => call<ToolFound[]>("get_tools"),
+  /** The Worktrees view: every linked worktree and each repository. */
+  getWorktrees: () => call<WorktreesView>("get_worktrees"),
   /** Tray view: close it and open the main window on a view. */
   openMainView: (view: View) => call<void>("open_main_view", { view }),
   undoRemoveFolder: () => call<Settings>("undo_remove_folder"),
