@@ -77,18 +77,26 @@ async function shot(name) {
 
 try {
   // ---- first run ------------------------------------------------------------
-  await waitFor("first run", () => find("#first-run").then((l) => l.length));
+  await waitFor("first run", () => find("#ob-root").then((l) => l.length));
   await shot("first-run");
-  const offer = await waitFor("the fbtest folder offer", () =>
-    js(`return [...document.querySelectorAll('[data-offer]')].map(b=>[b.dataset.offer,b.textContent]).find(([,t])=>t.includes('fbtest'))`),
+  await click("#ob-next");
+  await click("#ob-next");
+  const offer = await waitFor("the fbtest folder card", () =>
+    js(`const c=[...document.querySelectorAll('#ob-root .ob-folder')].find(c=>c.textContent.includes('fbtest'));return c?{text:c.textContent,on:c.querySelector('input').checked}:null`),
   );
-  check("first run offers the folder that holds Git repositories", offer && /fbtest \(\d+ repositor/.test(offer[1]), offer?.[1]);
-  await click(`[data-offer="${offer[0]}"]`);
-  const listed = await js(`return [...document.querySelectorAll('#first-run .mono')].map(e=>e.textContent)`);
-  check("adding the offered folder lists it", listed.some((t) => t.endsWith("/fbtest")), listed.join(", "));
-  await click('[data-act="start"]');
+  check("first run offers the folder that holds Git repositories, ticked", /fbtest.*\d+ repositor/.test(offer.text) && offer.on, offer.text);
+  const tools = await js(`return [...document.querySelectorAll('#ob-root .ob-tool')].map(t=>t.textContent+(t.classList.contains('on')?'+':'-'))`);
+  check("first run lists the developer tools it found", tools.includes("Git+"), tools.join(" "));
+  await shot("first-run-folders");
+  await click("#ob-next");
+  await click("#ob-next");
+  await waitFor("the first look to finish", () => js(`const b=document.getElementById('ob-next');return b&&!b.disabled`), 120000);
+  const look = await text("#ob-root .ob-scanline");
+  check("the first look checks every place", /^Checked \d+ places/.test(look ?? ""), String(look));
+  await shot("first-look");
+  await click("#ob-next");
   await waitFor("home", () => find(".hero").then((l) => l.length));
-  check("Start opens the home view", true);
+  check("Show me opens the home view", true);
 
   // ---- scan --------------------------------------------------------------------
   await waitFor("the deep scan to find projects", () => js(`return [...document.querySelectorAll('#areas [data-area]')].some(b=>b.dataset.area==='Projects')`), 180000);

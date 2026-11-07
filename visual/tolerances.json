@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "entries": {
+    "first-run-promises--light--1120x900": {
+      "threshold": 0,
+      "maxDiffPixels": 60,
+      "rationale": "Only the two bottom corners of the setup dialog differ, each pixel by one colour level, where the rounded corners show the blurred backdrop. Layout is identical to 1/1000 px on both sides; the page behind was removed and the nesting matched, and the light theme alone still differs. A compositing artifact of the 704 px tall dialog, not visible. Experiment recorded in docs/decisions.md, 2026-11-07."
+    }
+  }
+}

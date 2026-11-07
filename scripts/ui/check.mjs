@@ -15,7 +15,7 @@ async function page(query = "", size = { width: 1120, height: 900 }) {
   await ctx.route("**/*", (r) => (new URL(r.request().url()).hostname === "127.0.0.1" ? r.continue() : r.abort()));
   const p = await ctx.newPage();
   await p.goto(`${base}/?${query}`);
-  await p.waitForFunction(() => document.documentElement.dataset.busy === "0" && document.querySelector(".page .hero, .tray-window"));
+  await p.waitForFunction(() => document.documentElement.dataset.busy === "0" && document.querySelector(".page .hero, .tray-window, #ob-root"));
   return { p, ctx };
 }
 const calls = (p) => p.evaluate(() => (window.__FIXTURE_CALLS__ ?? []).map((c) => c.cmd));
@@ -27,7 +27,14 @@ const idle = (p) => p.waitForFunction(() => document.documentElement.dataset.bus
 
 // Tray view: Esc and the close button both ask the shell to close it.
 {
-  const { p, ctx } = await page("view=tray", { width: 312, height: 260 });
+  const { p, ctx } = await page("view=tray", { width: 362, height: 560 });
+  const free = await p.textContent(".tb-free");
+  check("menu bar window: free space, status and a Dinghy line", free.includes("12.4 GB free") && free.includes("Low") && (await p.textContent(".tb-line")).startsWith("Riding low."), free);
+  check("menu bar window: the three biggest crates and the rest", (await p.$$(".tl li")).length === 4 && (await p.textContent(".tl-more")).startsWith("+ 1 more"), await p.textContent(".tl"));
+  // The fixture's last scan is fixed (2026-11-04 11:42 UTC); these checks run on the real clock.
+  check("menu bar window: when it last scanned", /^Scanned (just now|\d+ (min|hours?|days?) ago)$/.test(await p.textContent(".tb-foot .note")), await p.textContent(".tb-foot .note"));
+  await p.click('[data-act="tray-questions"]');
+  check("menu bar window: quick questions open the main window there", JSON.stringify((await p.evaluate(() => window.__FIXTURE_CALLS__)).find((c) => c.cmd === "open_main_view")?.args) === '{"view":"questions"}');
   await p.keyboard.press("Escape");
   check("tray view: Esc closes it", (await calls(p)).includes("close_tray_view"));
   await p.evaluate(() => (window.__FIXTURE_CALLS__ = []));
@@ -35,6 +42,44 @@ const idle = (p) => p.waitForFunction(() => document.documentElement.dataset.bus
   check("tray view: close button closes it", (await calls(p)).includes("close_tray_view"));
   await p.click('[data-act="confirm"]');
   check("tray view: Toss opens the pile in the main window", (await calls(p)).includes("review_pile"));
+  await ctx.close();
+}
+
+// First run: five steps; choices are saved when the first look starts.
+{
+  const { p, ctx } = await page("firstrun=1");
+  const route = () => p.$$eval(".ob-route li", (l) => l.map((x) => x.className).join(","));
+  check("first run: opens on Hello with five buoys", (await p.textContent("#ob-title")) === "Know before your disk is full." && (await route()) === "on,,,,");
+  await p.click("#ob-next");
+  await p.click('[data-ob-preset="roomy"]');
+  check("first run: a preset reacts", (await p.textContent(".ob-verdict")).startsWith("Right now: Critical") && (await p.getAttribute('[data-ob-preset="roomy"]', "aria-checked")) === "true");
+  await p.click("#ob-next");
+  check("first run: folders that hold repositories, all ticked", (await p.$$eval(".ob-folder input", (i) => i.map((x) => x.checked))).join() === "true,true,true");
+  await p.click(".ob-folder:nth-child(3) input");
+  check("first run: unticking updates the count", (await p.textContent(".ob-foot .hint")) === "2 folders chosen");
+  check("first run: tools found, missing ones struck", (await p.$$(".ob-tool.on")).length === 9 && (await p.$$(".ob-tool:not(.on)")).length === 2);
+  await p.click("#ob-next");
+  await p.click('[data-ob-sw="login"]');
+  await p.evaluate(() => (window.__FIXTURE_CALLS__ = []));
+  await p.click("#ob-next");
+  await p.waitForSelector("#ob-next:not([disabled])", { timeout: 10000 });
+  const sent = await p.evaluate(() => window.__FIXTURE_CALLS__);
+  const upd = sent.find((c) => c.cmd === "update_settings")?.args.patch;
+  check("first run: the preset and switches are saved", upd?.lowThresholdBytes === 50e9 && upd?.criticalThresholdBytes === 20e9 && upd?.startAtLogin === false && upd?.menuBarFreeSpace === true, JSON.stringify(upd));
+  check("first run: only the ticked folders are added", JSON.stringify(sent.filter((c) => c.cmd === "add_suggested_folder").map((c) => c.args.index)) === "[0,1]", JSON.stringify(sent.filter((c) => c.cmd === "add_suggested_folder")));
+  check("first run: the first look is the normal quick scan", JSON.stringify(sent.find((c) => c.cmd === "start_scan")?.args) === '{"kind":"quick"}');
+  check("first run: the first look ends with what could come back", (await p.textContent("#ob-title")) === "Here\u2019s what I found." && (await p.$$(".ob-found div")).length === 6 && /GB of it rebuilds by itself/.test(await p.textContent(".ob-total")));
+  await p.click("#ob-next");
+  await p.waitForSelector(".page .hero");
+  check("first run: Show me opens the main view", !(await p.$("#ob-root")));
+  await ctx.close();
+}
+{
+  const { p, ctx } = await page("firstrun=1");
+  await p.keyboard.press("Escape");
+  await p.waitForSelector(".page .hero");
+  const sent = await p.evaluate(() => window.__FIXTURE_CALLS__.filter((c) => c.cmd === "update_settings").map((c) => c.args.patch));
+  check("first run: Esc skips setup and saves nothing else", JSON.stringify(sent) === '[{"onboardingComplete":true}]', JSON.stringify(sent));
   await ctx.close();
 }
 

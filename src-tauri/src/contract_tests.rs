@@ -156,7 +156,7 @@ fn inv03_command_arguments_are_ids_enums_numbers_or_bools() {
     // Typed, non-string inputs defined in Rust.
     const TYPED: &[&str] = &[
         "ScanKind", "Option<SuggestionFilter>", "FolderList", "UiSettingsPatch", "Goal", "Vec<Group>", "ItemDecision", "Option<ItemDecision>",
-        "BlindSpotAction", "PlanSource", "TidyRuleId", "VolumeId",
+        "BlindSpotAction", "PlanSource", "TidyRuleId", "VolumeId", "MainView",
     ];
     const FRAMEWORK: &[&str] = &["Core<'_>", "tauri::AppHandle", "AppHandle"];
     const SCALARS: &[&str] = &["u32", "u64", "bool", "Option<u32>", "Option<u64>", "Option<bool>"];

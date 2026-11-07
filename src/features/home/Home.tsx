@@ -44,12 +44,19 @@ export function Home({ navigate }: { navigate: View | null }) {
 
   useEffect(() => {
     if (navigate === "pile") setShowPile(true);
+    if (navigate === "settings") setSettingsOpen(true);
+    if (navigate === "questions") {
+      setTab("tidy");
+      setTimeout(() => document.getElementById("tab-tidy")?.scrollIntoView({ block: "start" }), 0);
+      return;
+    }
     if (navigate) window.scrollTo({ top: 0 });
   }, [navigate]);
 
   if (!h.data) return h.error ? <p className="page muted">{`Freeboard could not reach its background service. ${h.error}`}</p> : null;
   const { status, settings, suggestions, pile, map } = h.data;
-  if (!settings.onboardingComplete) return <FirstRun settings={settings} platform={status.platform} onSettings={h.setSettings} onDone={() => void h.reload()} />;
+  // First run is on its own: before setup there is nothing behind it to show.
+  if (!settings.onboardingComplete) return <FirstRun settings={settings} status={status} onSettings={h.setSettings} onDone={() => void h.reload()} />;
   const scanning = !!status.scan.running;
 
   const home = status.volumes[0];

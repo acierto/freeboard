@@ -25,7 +25,8 @@ use crate::store::Store;
 /// Native surfaces owned by the shell (tray, notifications, autostart).
 pub trait Shell: Send + Sync {
     fn notify(&self, title: &str, body: &str);
-    fn update_tray(&self, status: DiskStatus, free_bytes: u64);
+    /// `show_free`: the free-space text next to the icon (a setting).
+    fn update_tray(&self, status: DiskStatus, free_bytes: u64, show_free: bool);
     fn set_autostart(&self, enabled: bool);
 }
 
@@ -33,7 +34,7 @@ pub trait Shell: Send + Sync {
 pub struct NullShell;
 impl Shell for NullShell {
     fn notify(&self, _: &str, _: &str) {}
-    fn update_tray(&self, _: DiskStatus, _: u64) {}
+    fn update_tray(&self, _: DiskStatus, _: u64, _: bool) {}
     fn set_autostart(&self, _: bool) {}
 }
 
@@ -180,6 +181,16 @@ pub struct AppCore {
 pub struct FolderSuggestion {
     pub label: String,
     pub repos: u32,
+    /// Size at the last deep scan, when one measured it (none on a first run).
+    pub bytes: Option<u64>,
+}
+
+/// A developer tool Freeboard can ask, and whether it is installed (first run).
+#[derive(Debug, Clone, Serialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct ToolFound {
+    pub name: String,
+    pub found: bool,
 }
 
 /// What Settings shows next to a chosen folder: repositories inside it and
@@ -330,7 +341,7 @@ impl AppCore {
             let _ = self.store.meta_set("notification_pending_view", "home");
         }
         if let Some(home) = tick.volumes.first() {
-            self.shell().update_tray(home.status, home.free_bytes);
+            self.shell().update_tray(home.status, home.free_bytes, s.menu_bar_free_space);
         }
         Ok(())
     }
@@ -1014,7 +1025,7 @@ impl AppCore {
         // a real Mac, 2026-11-07). Status changes still go through the monitor.
         if r.state == "running" {
             let status = self.monitor.lock().unwrap().overall();
-            self.shell().update_tray(status, free);
+            self.shell().update_tray(status, free, self.settings().menu_bar_free_space);
         }
         Ok(r)
     }
@@ -1041,9 +1052,16 @@ impl AppCore {
 
     pub fn update_settings(&self, patch: UiSettingsPatch) -> CmdResult<Settings> {
         let login = patch.start_at_login;
+        let title = patch.menu_bar_free_space;
         self.apply_patch(patch.into())?;
         if let Some(l) = login {
             self.shell().set_autostart(l);
+        }
+        if let Some(show) = title {
+            let latest = self.monitor.lock().unwrap().latest().first().map(|v| (v.status, v.free_bytes));
+            if let Some((status, free)) = latest {
+                self.shell().update_tray(status, free, show);
+            }
         }
         Ok(self.settings())
     }
@@ -1103,7 +1121,11 @@ impl AppCore {
             }
             p.display().to_string()
         };
-        let out = found.iter().map(|c| FolderSuggestion { label: label(&c.path), repos: c.repos }).collect();
+        let m = self.measurement();
+        let out = found
+            .iter()
+            .map(|c| FolderSuggestion { label: label(&c.path), repos: c.repos, bytes: m.as_ref().and_then(|m| diskmap::roots::folder_bytes(m, &c.path)) })
+            .collect();
         *self.folder_offers.lock().unwrap() = found.into_iter().map(|c| c.path).collect();
         Ok(out)
     }
@@ -1134,6 +1156,27 @@ impl AppCore {
             FolderList::Exclusions => patch.exclusions = Some(v),
         }
         self.apply_patch(patch)
+    }
+
+    /// The developer tools Freeboard asks for reports, and which are installed
+    /// (found on the search path; nothing is run).
+    pub fn tools(&self) -> Vec<ToolFound> {
+        let mut list: Vec<(&str, &[&str])> = vec![
+            ("Docker", &["docker"]),
+            ("Git", &["git"]),
+            ("pnpm", &["pnpm"]),
+            ("npm", &["npm"]),
+            ("pip", &["pip3", "pip"]),
+            ("Homebrew", &["brew"]),
+            ("Ollama", &["ollama"]),
+            ("Cargo", &["cargo"]),
+            ("Gradle", &["gradle"]),
+            ("Conda", &["conda"]),
+        ];
+        if self.platform == "macos" {
+            list.insert(6, ("Xcode", &["xcrun"]));
+        }
+        list.into_iter().map(|(name, progs)| ToolFound { name: name.into(), found: progs.iter().any(|p| self.runner.resolve(p).is_some()) }).collect()
     }
 
     /// Put back the folder removed last, at its old position.
@@ -1311,7 +1354,7 @@ pub(crate) mod tests {
         fn notify(&self, title: &str, _body: &str) {
             self.0.lock().unwrap().push(title.to_string());
         }
-        fn update_tray(&self, _: DiskStatus, _: u64) {}
+        fn update_tray(&self, _: DiskStatus, _: u64, _: bool) {}
         fn set_autostart(&self, _: bool) {}
     }
 

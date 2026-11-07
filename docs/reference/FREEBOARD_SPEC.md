@@ -590,6 +590,39 @@ Dinghy may speak in the first person in the bubble, blind spots and disk map. Co
 - Do not rely on color or animation alone.
 - Re-rendering a list keeps open groups and keyboard focus in place.
 
+### First-run setup
+
+First launch opens a five-step setup in a modal window, never a single long form. The left half is Dinghy's sea scene with a speech bubble; the right half holds a buoy progress row, the step content and a footer with **Back** and the main button. **Skip setup** (and Esc) is available on steps 1 to 4 and keeps the defaults. On narrow windows the two halves stack, sea on top.
+
+| Step | Title | What it shows | Dinghy |
+| --- | --- | --- | --- |
+| 1 Hello | Know before your disk is full. | Free space and disk size from `get_disk_status`, a used-space bar, three promises: warns early, tosses what comes back, stays on this computer. Button **Let's set sail**. | Waves a flag |
+| 2 Waterline | Where's your waterline? | Three presets as radio cards: Relaxed 10/4 GB, Balanced 20/8 GB (tagged Recommended, preselected), Roomy 50/20 GB. A 0–160 GB gauge with red, amber and green zones and a marker at current free space, plus "Right now: Low". | Bubble reacts to the chosen preset |
+| 3 Folders | Where do you keep your code? | Folders found by a shallow search for git repositories, as checkbox cards with path, repository count and size; code folders preselected, Downloads unchecked. **+ Add another folder** opens an inline path field and native picker. Below: tools found on PATH as chips; missing ones struck through. | Holds a spyglass |
+| 4 Promises | What I read, and what I never do. | Two checklists (reads: free space every 5 minutes, tool reports, sizes and dates in chosen folders; never: remove without a confirmed plan, send data anywhere, touch uncommitted or unpushed work). Switches: menu bar free space (on), open at login (on). Full Disk Access row with **Later**. Button **Start first look**. | Holds a green shield |
+| 5 First look | Taking a first look… / Here's what I found. | Progress over the 49 places with the current place named; findings appear one by one with sizes; then the total that could come back and how much of it is Safe. Button **Show me**, disabled until done. | Crates land on deck as findings arrive; smiles when done |
+
+**Show me** saves the thresholds, the chosen folders and the two switches, marks setup complete, and opens the main window on Quick questions. Skipping saves nothing except `setupDone: false`, and Settings shows a **Run setup again** link. The first look is the normal first scan, not a separate code path.
+
+### Menu bar window
+
+Clicking the menu bar item opens a 330 px window that answers "am I OK, and what would one click get me?". It closes on outside click, Esc or its close button. Sections, top to bottom, separated by hairlines:
+
+1. **Header:** small Dinghy, "Freeboard", settings gear, close.
+2. **Status:** free space as the large number with the status pill; a gauge from 0 to 60+ GB with red (under Critical), amber (under Low) and green zones at the user's thresholds, a dot at current free space and a striped stretch to where the pile would land; one Dinghy line plus "Full in about N days" from the forecast. The section is tinted amber when Low and pink when Critical.
+3. **Ready to toss:** the three biggest crates in the pile with sizes, then "+ N more" with their total. The Toss button opens the normal confirm sheet.
+4. **Links:** "N quick questions · X GB ›" opens the main window on Quick questions; "\<area> grew fastest +X GB this week".
+5. **Footer:** "Scanned 18 min ago", **Scan now** (quick scan, label becomes "Scanning…"), **Open Freeboard**.
+
+| State | Dinghy line | Toss button |
+| --- | --- | --- |
+| Healthy | Plenty of room. Nothing urgent. | Quiet outlined style, with "Optional. Everything here rebuilds by itself." |
+| Low | Riding low. Toss X GB and I float again. | Filled primary |
+| Critical | Nearly under! Toss something now. | Filled primary |
+| Nothing Safe to toss | (status line only) | Hidden; "Nothing Safe to toss right now." |
+
+The window never shows Review or Risky items as tossable. On phones-width previews it spans the screen with a 12 px gutter.
+
 ### Tauri commands
 
 | Command | Input | Returns |

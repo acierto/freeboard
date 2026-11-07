@@ -106,6 +106,14 @@ pub fn run_scan(ctx: &ScanContext, detectors: &[Box<dyn Detector>]) -> ScanOutco
         .filter(|d| d.platforms().contains(&ctx.platform))
         .filter(|d| !d.deep_only() || ctx.kind == ScanKind::Deep)
         .collect();
+    // How many places this scan checks, then one event per place done, so
+    // the first look can say "23 / 49".
+    (ctx.progress)("detectors", None, applicable.len() as u64);
+    let done = std::sync::atomic::AtomicU64::new(0);
+    let finished = |d: &dyn Detector| {
+        let n = done.fetch_add(1, std::sync::atomic::Ordering::Relaxed) + 1;
+        (ctx.progress)("detector_done", Some(d.id()), n);
+    };
     if ctx.kind == ScanKind::Quick {
         // Quick scans mostly wait on tools (docker, brew, pnpm). Run the
         // detectors concurrently; each still fails on its own. Results are
@@ -120,7 +128,9 @@ pub fn run_scan(ctx: &ScanContext, detectors: &[Box<dyn Detector>]) -> ScanOutco
                             return None;
                         }
                         (ctx.progress)("detector", Some(d.id()), 0);
-                        Some(size::with_serial(|| run_one(d, ctx)))
+                        let r = size::with_serial(|| run_one(d, ctx));
+                        finished(d);
+                        Some(r)
                     })
                 })
                 .collect();
@@ -147,6 +157,7 @@ pub fn run_scan(ctx: &ScanContext, detectors: &[Box<dyn Detector>]) -> ScanOutco
                 Ok(f) => out.findings.extend(f),
                 Err(e) => out.errors.push(e),
             }
+            finished(d);
         }
     }
     for f in &mut out.findings {

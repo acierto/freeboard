@@ -64,7 +64,40 @@ input[type="range"] { accent-color: var(--accent); max-width: 120px; }
 .tray { position: relative; }
 .tray-btn { border: 2px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 3px 12px; font-weight: 800; }
 .icon-btn { border: 2px solid var(--line); background: var(--card); border-radius: 50%; width: 36px; height: 36px; font-size: 17px; line-height: 1; padding: 0; color: var(--ink); }
-.popover { position: absolute; right: 0; top: calc(100% + 8px); z-index: 6; width: min(280px, calc(100vw - 32px)); background: var(--card); color: var(--ink); border: 2px solid var(--line); border-radius: 18px; padding: 14px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 10px 28px rgba(20, 60, 90, .22); }
+.popover { position: absolute; right: 0; top: calc(100% + 8px); z-index: 6; width: min(330px, calc(100vw - 32px)); background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: 16px; padding: 0; display: flex; flex-direction: column; box-shadow: 0 14px 36px rgba(20, 60, 90, .26); overflow: hidden; font-size: 14px; }
+.popover > section { padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.popover > section + section, .tb-foot { border-top: 1px solid var(--line); }
+.tb-head { display: flex; align-items: center; gap: 8px; padding: 10px 10px 8px 14px; }
+.tb-head b { font-family: var(--display); font-size: 16px; flex: 1; }
+.tb-boat { width: 26px; height: 20px; }
+.tb-icon { width: 28px; height: 28px; border-radius: 50%; border: 0; background: none; color: var(--muted); font-size: 17px; line-height: 1; padding: 0; }
+.tb-icon:hover { background: var(--soft); color: var(--ink); }
+.tb-free { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.tb-free b { font-family: var(--display); font-size: 28px; font-weight: 700; }
+.tb-status.crit { background: color-mix(in srgb, var(--risky) 10%, var(--card)); }
+.tb-status.warn { background: color-mix(in srgb, var(--review) 12%, var(--card)); }
+.tg-track { position: relative; height: 10px; border-radius: 99px; background: var(--soft); margin-top: 4px; }
+.tg-track .z { position: absolute; top: 0; bottom: 0; opacity: .35; }
+.tg-track .z.crit { left: 0; background: var(--risky); border-radius: 99px 0 0 99px; } .tg-track .z.warn { background: var(--review); } .tg-track .z.good { background: var(--safe); border-radius: 0 99px 99px 0; }
+.tg-track .ghost { position: absolute; top: 2px; bottom: 2px; border-radius: 99px; background: repeating-linear-gradient(135deg, var(--accent) 0 4px, transparent 4px 7px); }
+.tg-mark { position: absolute; top: 50%; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: var(--st); border: 3px solid var(--card); box-shadow: 0 0 0 1px var(--line); }
+.tg-scale { position: relative; height: 16px; font-size: 11px; color: var(--muted); }
+.tg-scale span { position: absolute; top: 2px; transform: translateX(-50%); }
+.tg-scale span:first-child { transform: none; } .tg-scale span:last-child { transform: none; }
+.tb-line { font-weight: 700; } .tb-line .muted { font-weight: 600; }
+.tb-sub { display: flex; justify-content: space-between; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 800; }
+.tl { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.tl li { display: flex; justify-content: space-between; gap: 10px; } .tl-n { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tl-more { color: var(--muted); }
+.tb-toss { width: 100%; margin-top: 4px; }
+.btn.calm { border-color: var(--accent); color: var(--ink); background: color-mix(in srgb, var(--accent) 14%, var(--card)); }
+.tb-c { text-align: center; margin-top: -2px; }
+.popover > .tb-links { padding: 6px 6px; gap: 0; }
+.tb-link { display: flex; justify-content: space-between; gap: 10px; padding: 7px 8px; border: 0; background: none; border-radius: 10px; text-align: left; font-weight: 700; width: 100%; }
+button.tb-link:hover { background: var(--soft); } .tb-link.static { font-weight: 600; }
+.tb-foot { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: var(--soft); }
+.tb-foot .note { flex: 1; white-space: nowrap; }
+@media (max-width: 600px) { .popover { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 10px); left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); width: auto; max-height: calc(100vh - 20px); overflow-y: auto; } } .tb-open { padding: 5px 12px; font-size: 13px; }
 .note { font-size: 13px; color: var(--muted); }
 
 /* Hero */
@@ -454,6 +487,120 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
   .map { aspect-ratio: 100 / 110; }
   .tile span { font-size: 12px; padding: 4px 5px; }
 }
+
+/* First run */
+.ob-root { position: fixed; inset: 0; z-index: 40; display: flex; padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); background: color-mix(in srgb, var(--ink) 38%, transparent); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); overflow-y: auto; }
+.ob { margin: auto; flex: none; width: min(1000px, 100%); min-height: min(640px, calc(100vh - 32px)); display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); background: var(--card); border-radius: 28px; overflow: hidden; box-shadow: 0 40px 90px -30px rgba(10, 30, 60, .55); border: 1px solid var(--line); }
+.ob-sea { position: relative; background: linear-gradient(var(--sky-a), var(--sky-b)); min-height: 280px; overflow: hidden; }
+.ob-sea svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ob-sea .ob-bubble { position: absolute; left: 22px; right: 22px; top: 22px; background: var(--bubble); color: var(--ink); border-radius: 18px; padding: 12px 16px; font-weight: 700; box-shadow: 0 6px 18px rgba(20, 60, 90, .12); z-index: 2; }
+.ob-sea .ob-bubble::after { content: ""; position: absolute; left: 38%; bottom: -9px; width: 18px; height: 18px; background: var(--bubble); transform: rotate(45deg); border-radius: 3px; }
+.ob-boat { transition: transform .9s cubic-bezier(.3, 1.4, .5, 1); }
+.ob-crate { transition: transform .5s cubic-bezier(.3, 1.5, .5, 1), opacity .3s; }
+.ob-side { display: flex; flex-direction: column; padding: 26px 30px 22px; gap: 18px; min-width: 0; }
+.ob-top { display: flex; align-items: center; gap: 14px; }
+.ob-route { flex: 1; display: flex; align-items: center; gap: 0; list-style: none; margin: 0; padding: 0; }
+.ob-route li { flex: 1; display: flex; align-items: center; font-size: 12px; font-weight: 800; color: var(--muted); }
+.ob-route li:last-child { flex: none; }
+.ob-route .buoy { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; border: 2px solid var(--line); background: var(--card); flex: none; transition: all .3s; }
+.ob-route .leg { flex: 1; height: 0; border-top: 2px dashed var(--line); margin: 0 4px; }
+.ob-route li.done .buoy { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.ob-route li.done .leg { border-top-style: solid; border-color: var(--accent); }
+.ob-route li.on .buoy { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 20%, transparent); }
+.ob-skip { border: 0; background: none; color: var(--muted); font-weight: 800; font-size: 14px; padding: 6px 4px; cursor: pointer; }
+.ob-skip:hover { color: var(--ink); text-decoration: underline; }
+.ob-body { flex: 1; display: flex; flex-direction: column; gap: 14px; }
+.ob-kicker { font-size: 12px; text-transform: uppercase; letter-spacing: .12em; color: var(--accent); font-weight: 800; }
+.ob-body h2 { font-family: var(--display); font-weight: 600; font-size: clamp(28px, 3.4vw, 38px); line-height: 1.08; margin: 0; text-wrap: balance; }
+.ob-body > p { color: var(--muted); max-width: 52ch; }
+.ob-disk { display: flex; flex-direction: column; gap: 8px; padding: 16px; border-radius: 18px; background: var(--soft); }
+.ob-disk .row1 { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.ob-disk b { font-family: var(--display); font-size: 28px; font-weight: 600; }
+.ob-bar { height: 12px; border-radius: 99px; background: color-mix(in srgb, var(--accent) 22%, var(--card)); overflow: hidden; display: flex; }
+.ob-bar i { display: block; height: 100%; background: var(--ink); opacity: .78; }
+.ob-promises { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.ob-promise { border: 2px solid var(--line); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 4px; font-size: 14px; color: var(--muted); }
+.ob-promise b { color: var(--ink); font-size: 15px; }
+.ob-promise .ic { font-size: 20px; }
+.ob-presets { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.ob-preset { position: relative; text-align: left; border: 2px solid var(--line); background: var(--card); color: var(--ink); border-radius: 18px; padding: 14px; display: flex; flex-direction: column; gap: 6px; cursor: pointer; font: inherit; transition: border-color .2s, transform .2s; }
+.ob-preset:hover { transform: translateY(-2px); }
+.ob-preset[aria-pressed="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--card)); }
+.ob-preset[aria-pressed="true"]::after { content: "✓"; position: absolute; right: 12px; top: 10px; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); font-size: 13px; font-weight: 800; }
+.ob-preset b { font-family: var(--display); font-size: 19px; font-weight: 600; }
+.ob-preset .nums { font-size: 13px; color: var(--muted); }
+.ob-preset .rec { align-self: flex-start; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); }
+.ob-gauge { display: flex; flex-direction: column; gap: 4px; }
+.ob-gauge .track { position: relative; height: 14px; border-radius: 99px; background: var(--soft); overflow: hidden; }
+.ob-gauge .z { position: absolute; top: 0; bottom: 0; transition: width .4s, left .4s; }
+.ob-gauge .z.crit { left: 0; background: color-mix(in srgb, var(--risky) 45%, var(--card)); }
+.ob-gauge .z.warn { background: color-mix(in srgb, var(--review) 40%, var(--card)); }
+.ob-gauge .z.good { right: 0; background: color-mix(in srgb, var(--safe) 30%, var(--card)); }
+.ob-gauge .you { position: absolute; top: -3px; width: 4px; height: 20px; border-radius: 2px; background: var(--ink); transition: left .4s; }
+.ob-gauge .lbl { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+.ob-verdict { font-weight: 700; }
+.ob-folders { display: flex; flex-direction: column; gap: 8px; }
+.ob-folder { display: grid; grid-template-columns: 22px 34px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 14px; border: 2px solid var(--line); border-radius: 16px; cursor: pointer; transition: border-color .2s, background .2s; }
+.ob-folder:has(input:checked) { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 7%, var(--card)); }
+.ob-folder input { width: 20px; height: 20px; accent-color: var(--accent); margin: 0; }
+.ob-folder .fi { width: 34px; height: 28px; border-radius: 6px; background: color-mix(in srgb, var(--accent) 22%, var(--card)); position: relative; }
+.ob-folder .fi::before { content: ""; position: absolute; left: 0; top: -5px; width: 15px; height: 8px; border-radius: 4px 4px 0 0; background: inherit; }
+.ob-folder .fp { font-family: var(--mono); font-size: 14px; font-weight: 500; overflow-wrap: anywhere; }
+.ob-folder .fm { font-size: 13px; color: var(--muted); }
+.ob-folder .fs { font-weight: 800; font-variant-numeric: tabular-nums; }
+.ob-add { border: 2px dashed var(--line); border-radius: 16px; padding: 10px 14px; background: none; color: var(--accent); font: inherit; font-weight: 800; text-align: left; cursor: pointer; }
+.ob-addform { display: flex; gap: 8px; }
+.ob-addform input { flex: 1; min-width: 0; border: 2px solid var(--line); border-radius: 12px; padding: 8px 12px; font: 500 14px var(--mono); background: var(--card); color: var(--ink); }
+.ob-tools { display: flex; flex-wrap: wrap; gap: 6px; }
+.ob-tool { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 99px; font-size: 13px; font-weight: 800; background: var(--soft); color: var(--muted); }
+.ob-tool.on { background: color-mix(in srgb, var(--safe) 16%, var(--card)); color: var(--ink); }
+.ob-tool.on::before { content: "✓"; color: var(--safe); }
+.ob-tool:not(.on) { text-decoration: line-through; opacity: .7; }
+.ob-sub { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 800; }
+.ob-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.ob-list { border-radius: 18px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+.ob-list.yes { background: color-mix(in srgb, var(--safe) 10%, var(--card)); }
+.ob-list.no { background: color-mix(in srgb, var(--risky) 8%, var(--card)); }
+.ob-list h3 { font-family: var(--display); font-size: 18px; font-weight: 600; margin: 0; }
+.ob-list ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.ob-list li { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 8px; color: var(--ink); }
+.ob-list.yes li::before { content: "✓"; color: var(--safe); font-weight: 800; }
+.ob-list.no li::before { content: "✕"; color: var(--risky); font-weight: 800; }
+.ob-switches { display: flex; flex-direction: column; border: 2px solid var(--line); border-radius: 16px; }
+.ob-switch { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 14px; }
+.ob-switch + .ob-switch { border-top: 1px solid var(--line); }
+.ob-switch span { display: flex; flex-direction: column; font-weight: 800; font-size: 14.5px; }
+.ob-switch small { font-weight: 600; color: var(--muted); font-size: 13px; }
+.tg-sw { appearance: none; -webkit-appearance: none; width: 44px; height: 26px; border-radius: 99px; background: var(--line); position: relative; cursor: pointer; transition: background .2s; margin: 0; }
+.tg-sw::after { content: ""; position: absolute; left: 3px; top: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .2s; }
+.tg-sw:checked { background: var(--accent); }
+.tg-sw:checked::after { transform: translateX(18px); }
+.ob-scan { display: flex; flex-direction: column; gap: 10px; }
+.ob-prog { height: 10px; border-radius: 99px; background: var(--soft); overflow: hidden; }
+.ob-prog i { display: block; height: 100%; width: 0; background: var(--accent); border-radius: 99px; transition: width .15s linear; }
+.ob-scanline { display: flex; justify-content: space-between; font-size: 14px; color: var(--muted); }
+.ob-found { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.ob-found div { display: flex; justify-content: space-between; gap: 8px; padding: 9px 12px; border-radius: 12px; background: var(--soft); font-size: 14px; font-weight: 700; animation: obIn .35s ease both; }
+.ob-found .num { color: var(--accent); }
+@keyframes obIn { from { opacity: 0; transform: translateY(6px); } }
+.ob-total { display: flex; align-items: baseline; gap: 10px; padding: 14px 16px; border-radius: 18px; background: color-mix(in srgb, var(--accent) 12%, var(--card)); }
+.ob-found .num, .ob-total b { white-space: nowrap; }
+.ob-total b { font-family: var(--display); font-size: 34px; font-weight: 600; color: var(--accent); }
+.ob-foot { display: flex; align-items: center; gap: 10px; padding-top: 14px; border-top: 1px solid var(--line); }
+.ob-foot .grow { flex: 1; }
+.ob-foot .hint { font-size: 13px; color: var(--muted); }
+.ob-foot .btn.primary { padding-inline: 22px; }
+@media (max-width: 780px) {
+  .ob { grid-template-columns: minmax(0, 1fr); min-height: 0; border-radius: 22px; }
+  .ob-sea { min-height: 350px; }
+  .ob-foot .hint { display: none; }
+  .ob-sea .ob-bubble { left: 14px; right: 14px; top: 14px; font-size: 14px; }
+  .ob-side { padding: 18px 18px 16px; }
+  .ob-promises, .ob-presets, .ob-two { grid-template-columns: minmax(0, 1fr); }
+  .ob-found { grid-template-columns: minmax(0, 1fr); }
+  .ob-route li .leg { margin: 0 2px; }
+}
+@media (prefers-reduced-motion: reduce) { .ob-boat, .ob-crate, .ob-found div, .ob-prog i { transition: none !important; animation: none !important; } }
 @media (prefers-reduced-motion: reduce) {
   .bob, .wave, .crate-fly, .toss .tcrate, .toss .splash, .eager [data-crate] { animation: none !important; } .toss { transition: none; } #boat { transition: none; }
 }
@@ -471,6 +618,7 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
         <button class="tray-btn num" id="tray-btn" aria-expanded="false" aria-controls="popover"></button>
         <div class="popover" id="popover" hidden></div>
       </div>
+      <button class="btn" data-act="welcome">First run</button>
       <button class="icon-btn" data-act="settings" aria-label="Settings">&#9881;</button>
       <button class="btn" data-act="reset">Start over</button>
     </div>
@@ -701,6 +849,33 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
     return out;
   }
 
+  /* Menu bar window */
+  function trayHTML(f, st, p, total) {
+    var MAX = 60, x = function (v) { return Math.min(100, Math.max(0, v / MAX * 100)); };
+    var now = x(f), after = x(f + total), ql = deck(), qs = sum(ql), g = GROWING[0];
+    var line = st.key === 'crit' ? 'Nearly under! Toss something now.' : st.key === 'warn' ? 'Riding low. Toss ' + gb(total) + ' and I float again.' : 'Plenty of room. Nothing urgent.';
+    var days = Math.max(1, Math.round(f / 2.2));
+    var boat = '<svg class="tb-boat" viewBox="0 0 40 30" aria-hidden="true"><path d="M20 3v15" stroke="var(--ink)" stroke-width="2"/><path d="M21 4l10 12H21Z" fill="var(--accent)"/><path d="M3 18h34l-5 9H8Z" fill="var(--hull)" stroke="var(--ink)" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+    var gauge = '<div class="tg" role="img" aria-label="' + gb(f) + ' free. Low below ' + S.low + ' GB, critical below ' + S.crit + ' GB.">' +
+      '<div class="tg-track"><i class="z crit" style="width:' + x(S.crit) + '%"></i><i class="z warn" style="left:' + x(S.crit) + '%;width:' + (x(S.low) - x(S.crit)) + '%"></i><i class="z good" style="left:' + x(S.low) + '%;right:0"></i>' +
+      (p.length && after > now ? '<i class="ghost" style="left:' + now + '%;width:' + (after - now) + '%"></i>' : '') +
+      '<span class="tg-mark ' + st.key + '" style="left:' + now + '%"></span></div>' +
+      '<div class="tg-scale num"><span style="left:0">0</span><span style="left:' + x(S.crit) + '%">' + S.crit + '</span><span style="left:' + x(S.low) + '%">' + S.low + '</span><span style="right:0">' + MAX + '+ GB</span></div></div>';
+    var top = p.slice(0, 3).map(function (i) { return '<li><span class="tl-n">' + esc(i.name) + '</span><span class="num">' + gb(i.size) + '</span></li>'; }).join('');
+    var more = p.length > 3 ? '<li class="tl-more"><span>+ ' + (p.length - 3) + ' more</span><span class="num">' + gb(sum(p.slice(3))) + '</span></li>' : '';
+    var calm = st.key === 'good';
+    return '<div class="tb-head">' + boat + '<b>Freeboard</b><button class="tb-icon" data-act="tray-settings" aria-label="Settings">&#9881;</button><button class="tb-icon" id="tray-close" data-act="close-tray" aria-label="Close">&times;</button></div>' +
+      '<section class="tb-status ' + st.key + '"><div class="tb-free"><span class="num"><b>' + f.toFixed(1) + '</b> GB free</span><span class="pill ' + st.key + '">' + st.label + '</span></div>' + gauge +
+      '<p class="tb-line">' + line + ' <span class="muted num">Full in about ' + days + ' days.</span></p></section>' +
+      (p.length ? '<section class="tb-pile"><div class="tb-sub"><span>Ready to toss</span><span class="num">' + p.length + ' crate' + (p.length === 1 ? '' : 's') + '</span></div><ul class="tl">' + top + more + '</ul>' +
+        '<button class="btn ' + (calm ? 'calm' : 'primary') + ' tb-toss" data-act="confirm">Toss ' + gb(total) + '</button>' +
+        (calm ? '<p class="note tb-c">Optional. Everything here rebuilds by itself.</p>' : '') + '</section>'
+        : '<section class="tb-pile"><p class="muted">Nothing Safe to toss right now.</p></section>') +
+      '<section class="tb-links">' + (ql.length ? '<button class="tb-link" data-act="tray-questions"><span>' + ql.length + ' quick question' + (ql.length === 1 ? '' : 's') + '</span><span class="num muted">' + gb(qs) + ' ›</span></button>' : '') +
+      '<div class="tb-link static"><span>' + esc(g[0]) + ' grew fastest</span><span class="num muted">+' + g[1].toFixed(1) + ' GB this week</span></div></section>' +
+      '<div class="tb-foot"><span class="note">' + (S.trayScan ? 'Scanning…' : 'Scanned ' + S.lastScan.replace(' minutes', ' min')) + '</span><button class="link small" data-act="tray-scan"' + (S.trayScan ? ' disabled' : '') + '>Scan now</button><button class="btn tb-open" data-act="tray-open">Open Freeboard</button></div>';
+  }
+
   /* Top half */
   function renderHero() {
     var f = free(), st = status(f), p = picks(), total = sum(p), safeAll = sum(safeItems());
@@ -744,7 +919,7 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
     $('tray-btn').textContent = 'Menu bar: ' + gb(f);
     $('tray-btn').setAttribute('aria-expanded', S.tray ? 'true' : 'false');
     var pop = $('popover'); pop.hidden = !S.tray;
-    pop.innerHTML = '<div class="row between"><b>Your menu bar</b><button class="x" id="tray-close" data-act="close-tray" aria-label="Close menu bar">&times;</button></div><p>Most days, this is all you need to open.</p><div class="row between"><span class="num">' + gb(f) + ' free</span><span class="pill ' + st.key + '">' + st.label + '</span></div><button class="btn primary" data-act="confirm"' + (p.length ? '' : ' disabled') + '>Toss ' + gb(total) + '</button>';
+    if (S.tray) pop.innerHTML = trayHTML(f, st, p, total);
     var d = deck().length, ex = explained();
     $('tab-tidy').innerHTML = 'Quick questions' + (d ? '<span class="dot num">' + d + '</span>' : '');
     $('tab-map').innerHTML = 'Disk map' + (ex.un > 0 ? '<span class="dot num">' + Math.round(ex.pct) + '%</span>' : '');
@@ -1199,6 +1374,10 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
     if (b.dataset.fcancel) { var was = S.adding; S.adding = null; renderSettings(); if ($('add-' + was)) $('add-' + was).focus(); return; }
     if (b.dataset.scan) { runScan(b.dataset.scan); return; }
     var a = b.dataset.act;
+    if (a === 'tray-settings') { S.tray = false; renderHero(); settingsSheet(); return; }
+    if (a === 'tray-questions') { S.tray = false; S.tab = 'tidy'; renderAll(); $('tab-tidy').scrollIntoView({ block: 'start' }); return; }
+    if (a === 'tray-open') { S.tray = false; renderHero(); window.scrollTo(0, 0); return; }
+    if (a === 'tray-scan') { S.trayScan = true; renderHero(); setTimeout(function () { S.trayScan = false; S.lastScan = 'just now'; renderHero(); }, reduced ? 50 : 1100); return; }
     if (a === 'close-tray') { S.tray = false; renderHero(); $('tray-btn').focus(); }
     else if (a === 'confirm') { S.tray = false; renderHero(); confirmSheet(picks()); }
     else if (a === 'run') run();
@@ -1209,6 +1388,7 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
     else if (a === 'toggle-pile') { S.pile = !S.pile; renderHero(); }
     else if (a === 'bring-back') { S.later = {}; renderAll(); }
     else if (a === 'settings') settingsSheet();
+    else if (a === 'welcome') obOpen();
     else if (a === 'places') placesSheet();
     else if (a === 'reset') { S = fresh(); closeSheet(); renderAll(); }
     else if (a === 'empty') {
@@ -1247,6 +1427,160 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
     if (t.id === 'crit-gb') { S.crit = +t.value; $('crit-out').textContent = S.crit + ' GB'; renderHero(); }
   });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && S.tray) { S.tray = false; renderHero(); $('tray-btn').focus(); return; } if (e.key === 'Escape' && S.sheet && !S.running) { closeSheet(); renderAll(); } });
+
+  /* ---------- First run ---------- */
+  var OB = null;
+  var OB_STEPS = ['Hello', 'Waterline', 'Folders', 'Promises', 'First look'];
+  var OB_PRESETS = [
+    { id: 'relaxed', name: 'Relaxed', low: 10, crit: 4, note: 'Fewer nudges. For big disks.' },
+    { id: 'rec', name: 'Balanced', low: 20, crit: 8, note: 'Room for a big build or a model pull.', rec: true },
+    { id: 'roomy', name: 'Roomy', low: 50, crit: 20, note: 'Early warnings. For heavy Docker or AI work.' }
+  ];
+  var OB_TOOLS = [['Docker', 1], ['Git', 1], ['pnpm', 1], ['npm', 1], ['pip', 1], ['Homebrew', 1], ['Xcode', 1], ['Ollama', 1], ['Cargo', 1], ['Gradle', 0], ['Conda', 0]];
+  var OB_FOUND = [['node_modules in quiet projects', 18.7], ['Docker build cache', 14.8], ['Xcode DerivedData', 11.3], ['Rust build output', 9.2], ['Unused Ollama models', 41.2], ['Old iPhone backup', 22.5]];
+  function obOpen() {
+    OB = { step: 0, preset: 'rec', folders: [
+      { p: '~/projects', m: '14 repositories', gb: 96, on: true },
+      { p: '~/work', m: '2 repositories', gb: 41, on: true },
+      { p: '~/ComfyUI-Installs', m: '1 repository', gb: 18, on: true },
+      { p: '~/Downloads', m: 'Big old files only', gb: 23, on: false }
+    ], adding: false, sw: { menubar: true, login: true }, scan: 0, shown: 0, done: false };
+    var root = document.createElement('div'); root.id = 'ob-root'; root.className = 'ob-root';
+    root.setAttribute('role', 'dialog'); root.setAttribute('aria-modal', 'true'); root.setAttribute('aria-labelledby', 'ob-title');
+    document.body.appendChild(root); obRender();
+  }
+  function obClose(finish) {
+    if (finish) {
+      var pr = OB_PRESETS.filter(function (x) { return x.id === OB.preset; })[0]; S.low = pr.low; S.crit = pr.crit;
+      S.folders = OB.folders.filter(function (f) { return f.on; }).map(function (f) { return { p: f.p, m: f.m + ', ' + f.gb + ' GB' }; });
+      S.tab = 'tidy';
+    }
+    OB = null; var r = $('ob-root'); if (r) r.remove(); renderAll();
+    try { if (location.hash === '#welcome') history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+  }
+  function obSea() {
+    var st = OB.step, f = free(), found = st === 4 ? OB.shown : 0;
+    var lift = st === 4 ? 0 : st === 0 ? 0 : 0;
+    var y = st === 4 ? 238 + Math.min(found, 4) * 5 : 228;
+    var face = st === 4 && OB.done ? 'happy' : st === 4 ? 'focus' : st === 1 ? 'think' : st === 3 ? 'proud' : 'happy';
+    var faces = {
+      happy: '<circle cx="-82" cy="-30" r="6" fill="#FFB4A8"/><circle cx="-32" cy="-30" r="6" fill="#FFB4A8"/><path d="M-78 -46q7 -9 14 0M-50 -46q7 -9 14 0" fill="none" stroke="var(--boat-ink)" stroke-width="3.5" stroke-linecap="round"/><path d="M-68 -30q11 12 22 0" fill="var(--boat-ink)"/>',
+      think: '<circle cx="-71" cy="-44" r="5" fill="var(--boat-ink)"/><circle cx="-43" cy="-44" r="5" fill="var(--boat-ink)"/><path d="M-66 -26h18" stroke="var(--boat-ink)" stroke-width="3.5" stroke-linecap="round"/><path d="M-80 -56l14 -3M-34 -59l-14 3" stroke="var(--boat-ink)" stroke-width="3" stroke-linecap="round"/>',
+      focus: '<circle cx="-71" cy="-42" r="6" fill="var(--boat-ink)"/><circle cx="-43" cy="-42" r="6" fill="var(--boat-ink)"/><circle cx="-69" cy="-44" r="2" fill="#fff"/><circle cx="-41" cy="-44" r="2" fill="#fff"/><path d="M-62 -26q5 4 10 0" fill="none" stroke="var(--boat-ink)" stroke-width="3.5" stroke-linecap="round"/>',
+      proud: '<circle cx="-82" cy="-30" r="6" fill="#FFB4A8"/><circle cx="-32" cy="-30" r="6" fill="#FFB4A8"/><path d="M-78 -42q7 -7 14 0M-50 -42q7 -7 14 0" fill="none" stroke="var(--boat-ink)" stroke-width="3.5" stroke-linecap="round"/><path d="M-70 -28q13 8 26 0" fill="none" stroke="var(--boat-ink)" stroke-width="3.5" stroke-linecap="round"/>'
+    };
+    var crates = '';
+    [[22, 19], [62, 15], [100, 11], [42, 9]].forEach(function (c, n) {
+      var shown = n < found, cy = n === 3 ? -62 : -32;
+      crates += '<g class="ob-crate" style="transform:translate(' + c[0] + 'px,' + (shown ? cy : cy - 160) + 'px);opacity:' + (shown ? 1 : 0) + '"><rect x="-17" y="-15" width="34" height="30" rx="5" fill="var(--crate)" stroke="var(--crate-edge)" stroke-width="3"/><path d="M-15 -4h30M-15 5h30" stroke="var(--crate-edge)" stroke-width="2"/></g>';
+    });
+    var flag = st === 0 ? '<g><path d="M-24 -112v-40" stroke="var(--boat-ink)" stroke-width="3"/><path d="M-24 -152l30 9 -30 9z" fill="var(--accent)"><animateTransform attributeName="transform" type="skewY" values="0;-6;0" dur="1.4s" repeatCount="indefinite"/></path></g>' : '';
+    var spy = st === 2 ? '<g transform="translate(-6 -40) rotate(-18)"><rect x="0" y="-7" width="46" height="14" rx="5" fill="var(--boat-ink)"/><circle cx="46" cy="0" r="9" fill="#9FD8F5" stroke="var(--boat-ink)" stroke-width="3"/></g>' : '';
+    var shield = st === 3 ? '<g transform="translate(70 -58)"><path d="M0 -26l22 8v12c0 14 -10 24 -22 30c-12 -6 -22 -16 -22 -30v-12z" fill="var(--safe)" stroke="var(--boat-ink)" stroke-width="3"/><path d="M-9 0l6 7 12 -14" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g>' : '';
+    var lines = false ? '<g font-family="var(--body)" font-size="12" font-weight="800"><path d="M0 268H400" stroke="var(--review)" stroke-width="3" stroke-dasharray="8 6"/><text x="392" y="262" text-anchor="end" fill="var(--review)">Low</text><path d="M0 292H400" stroke="var(--risky)" stroke-width="3" stroke-dasharray="8 6"/><text x="392" y="286" text-anchor="end" fill="var(--risky)">Critical</text></g>' : '';
+    return '<svg viewBox="0 70 400 330" preserveAspectRatio="xMidYMax slice" aria-hidden="true">' +
+      '<circle cx="320" cy="150" r="26" fill="var(--sun)"/><g fill="var(--cloud)"><ellipse cx="96" cy="170" rx="30" ry="9"/><ellipse cx="108" cy="163" rx="16" ry="9"/><ellipse cx="300" cy="200" rx="24" ry="8"/></g>' +
+      '<path d="' + obWave(272, 10) + '" fill="var(--sea-a)"/>' +
+      '<g class="ob-boat" style="transform:translate(200px,' + y + 'px) scale(.78)"><g class="bob">' +
+      '<path d="M-118 -6H134Q128 58 72 66H-78Q-112 58 -118 -6Z" fill="var(--hull)"/><path d="M-118 -6H134L131 8H-116Z" fill="var(--hull-dark)"/>' +
+      '<rect x="-104" y="-82" width="94" height="78" rx="20" fill="var(--cabin)" stroke="var(--boat-ink)" stroke-width="3"/>' +
+      '<path d="M-114 -74Q-58 -104 0 -74Z" fill="var(--hull)" stroke="var(--boat-ink)" stroke-width="3" stroke-linejoin="round"/>' +
+      '<rect x="-34" y="-112" width="20" height="30" rx="5" fill="var(--hull-dark)" stroke="var(--boat-ink)" stroke-width="3"/>' + flag + faces[face] + spy + shield + crates + '</g></g>' +
+      lines + '<path class="wave" d="' + obWave(290, 12) + '" fill="var(--sea-b)" fill-opacity=".94"/></svg>';
+  }
+  function obWave(y, a) { var d = 'M-40 ' + y; for (var x = -40; x < 480; x += 60) d += ' q15 -' + a + ' 30 0 t30 0'; return d + ' V420 H-40Z'; }
+  function obBubble() {
+    var f = free(), pr = OB_PRESETS.filter(function (x) { return x.id === OB.preset; })[0];
+    return [
+      'Hi, I’m Dinghy. I keep your disk above the waterline.',
+      f < pr.crit ? 'With ' + f.toFixed(1) + ' GB free I’d already be under. Let’s fix that first.' : f < pr.low ? 'With ' + f.toFixed(1) + ' GB free I’m riding low. I’ll nudge you.' : 'With ' + f.toFixed(1) + ' GB free I’m floating fine.',
+      'Let me look around. Where do you keep your code?',
+      'Here’s my promise. Read it, then we’re off.',
+      OB.done ? 'Found ' + gb(sum(OB_FOUND.map(function (x) { return { size: x[1] }; }))) + ' I could toss. Nothing moved yet.' : 'Looking around… ' + OB.scan + ' of 49 places.'
+    ][OB.step];
+  }
+  function obBody() {
+    var st = OB.step, f = free(), used = TOTAL - f;
+    if (st === 0) return '<span class="ob-kicker">Welcome aboard</span><h2 id="ob-title">Know before your disk is full.</h2>' +
+      '<p>Freeboard watches your free space, finds what you can safely remove, and asks before anything goes. Setup takes about a minute.</p>' +
+      '<div class="ob-disk"><div class="row1"><span><b class="num">' + f.toFixed(1) + ' GB</b> free</span><span class="muted num">of ' + TOTAL + ' GB, Macintosh HD</span></div><div class="ob-bar" aria-hidden="true"><i style="width:' + (used / TOTAL * 100).toFixed(1) + '%"></i></div></div>' +
+      '<div class="ob-promises"><div class="ob-promise"><span class="ic" aria-hidden="true">🔔</span><b>Warns early</b>Before a build fails on a full disk.</div><div class="ob-promise"><span class="ic" aria-hidden="true">♻️</span><b>Tosses what comes back</b>Caches and builds first. The rest, only if you say yes.</div><div class="ob-promise"><span class="ic" aria-hidden="true">🏠</span><b>Stays here</b>Nothing about your files leaves this computer.</div></div>';
+    if (st === 1) {
+      var pr = OB_PRESETS.filter(function (x) { return x.id === OB.preset; })[0], MAX = 160, x = function (v) { return Math.min(100, v / MAX * 100); };
+      var stt = f < pr.crit ? ['Critical', 'var(--risky)'] : f < pr.low ? ['Low', 'var(--review)'] : ['Healthy', 'var(--safe)'];
+      return '<span class="ob-kicker">Step 1 of 3</span><h2 id="ob-title">Where’s your waterline?</h2><p>I warn you when free space drops under <b>Low</b>, and get loud under <b>Critical</b>. You can change this anytime in Settings.</p>' +
+        '<div class="ob-presets" role="radiogroup" aria-label="Warning levels">' + OB_PRESETS.map(function (p) {
+          return '<button class="ob-preset" role="radio" aria-checked="' + (p.id === OB.preset) + '" aria-pressed="' + (p.id === OB.preset) + '" data-ob-preset="' + p.id + '">' + (p.rec ? '<span class="rec">Recommended</span>' : '<span class="rec" style="visibility:hidden">·</span>') + '<b>' + p.name + '</b><span class="nums num">Low ' + p.low + ' GB · Critical ' + p.crit + ' GB</span><span class="note">' + p.note + '</span></button>'; }).join('') + '</div>' +
+        '<div class="ob-gauge"><div class="track"><i class="z crit" style="width:' + x(pr.crit) + '%"></i><i class="z warn" style="left:' + x(pr.crit) + '%;width:' + (x(pr.low) - x(pr.crit)) + '%"></i><i class="z good" style="left:' + x(pr.low) + '%"></i><span class="you" style="left:calc(' + x(f) + '% - 2px)" title="You"></span></div>' +
+        '<div class="lbl num"><span>0 GB free</span><span>' + MAX + '+ GB</span></div></div>' +
+        '<p class="ob-verdict">Right now: <span style="color:' + stt[1] + '">' + stt[0] + '</span> <span class="muted num">(' + f.toFixed(1) + ' GB free)</span></p>';
+    }
+    if (st === 2) {
+      return '<span class="ob-kicker">Step 2 of 3</span><h2 id="ob-title">Where do you keep your code?</h2><p>I found these. I’ll look for worktrees, node_modules and build output inside them. Sizes and dates only, never file contents.</p>' +
+        '<div class="ob-folders">' + OB.folders.map(function (fo, n) {
+          return '<label class="ob-folder"><input type="checkbox" data-ob-folder="' + n + '"' + (fo.on ? ' checked' : '') + '><span class="fi" aria-hidden="true"></span><span><span class="fp">' + esc(fo.p) + '</span><br><span class="fm">' + esc(fo.m) + '</span></span><span class="fs num">' + fo.gb + ' GB</span></label>'; }).join('') +
+        (OB.adding ? '<form class="ob-addform" id="ob-addform"><input id="ob-addpath" placeholder="~/somewhere/else" aria-label="Folder path"><button class="btn primary" type="submit">Add</button><button class="btn" type="button" data-ob="cancel-add">Cancel</button></form>' : '<button class="ob-add" data-ob="add">+ Add another folder</button>') + '</div>' +
+        '<div class="ob-sub">Tools I can ask</div><div class="ob-tools">' + OB_TOOLS.map(function (t) { return '<span class="ob-tool' + (t[1] ? ' on' : '') + '"' + (t[1] ? '' : ' title="Not installed"') + '>' + t[0] + '</span>'; }).join('') + '</div>';
+    }
+    if (st === 3) return '<span class="ob-kicker">Step 3 of 3</span><h2 id="ob-title">What I read, and what I never do.</h2>' +
+      '<div class="ob-two"><div class="ob-list yes"><h3>I read</h3><ul><li>Free space on your disk, every 5 minutes</li><li>Reports from Docker, Git, pnpm, pip and friends</li><li>Sizes and dates in the folders you chose</li></ul></div>' +
+      '<div class="ob-list no"><h3>I never</h3><ul><li>Remove anything without a plan you confirm</li><li>Send your data anywhere</li><li>Touch uncommitted or unpushed work</li></ul></div></div>' +
+      '<div class="ob-switches"><label class="ob-switch"><span>Show free space in the menu bar<small>One glance, no window.</small></span><input class="tg-sw" type="checkbox" data-ob-sw="menubar"' + (OB.sw.menubar ? ' checked' : '') + '></label>' +
+      '<label class="ob-switch"><span>Open Freeboard at login<small>So the warnings actually reach you.</small></span><input class="tg-sw" type="checkbox" data-ob-sw="login"' + (OB.sw.login ? ' checked' : '') + '></label>' +
+      '<div class="ob-switch"><span>Mail, Photos and app data<small>macOS hides these until you allow Full Disk Access. Optional.</small></span><button class="btn" data-ob="fda">Later</button></div></div>';
+    var found = OB_FOUND.slice(0, OB.shown);
+    return '<span class="ob-kicker">First look</span><h2 id="ob-title">' + (OB.done ? 'Here’s what I found.' : 'Taking a first look…') + '</h2>' +
+      '<div class="ob-scan"><div class="ob-prog" role="progressbar" aria-valuemin="0" aria-valuemax="49" aria-valuenow="' + OB.scan + '"><i style="width:' + (OB.scan / 49 * 100).toFixed(1) + '%"></i></div><div class="ob-scanline"><span>' + (OB.done ? 'Checked 49 places' : 'Checking ' + ['Docker', 'git worktrees', 'node_modules', 'Xcode', 'Ollama', 'Homebrew', 'pip and pnpm caches'][Math.floor(OB.scan / 7.1)]) + '</span><span class="num">' + OB.scan + ' / 49</span></div></div>' +
+      '<div class="ob-found">' + found.map(function (x) { return '<div><span>' + esc(x[0]) + '</span><span class="num">' + gb(x[1]) + '</span></div>'; }).join('') + '</div>' +
+      (OB.done ? '<div class="ob-total"><b class="num">' + gb(sum(OB_FOUND.map(function (x) { return { size: x[1] }; }))) + '</b><span>you could get back. <span class="muted">' + gb(18.7 + 14.8 + 11.3 + 9.2) + ' of it rebuilds by itself.</span></span></div>' : '');
+  }
+  function obRender() {
+    var r = $('ob-root'); if (!r || !OB) return; var st = OB.step;
+    var route = '<ol class="ob-route" aria-label="Setup progress">' + OB_STEPS.map(function (n, i) {
+      return '<li class="' + (i < st ? 'done' : i === st ? 'on' : '') + '"' + (i === st ? ' aria-current="step"' : '') + '><span class="buoy" title="' + n + '">' + (i < st ? '✓' : i + 1) + '</span>' + (i < OB_STEPS.length - 1 ? '<span class="leg"></span>' : '') + '</li>'; }).join('') + '</ol>';
+    var next = st === 0 ? 'Let’s set sail' : st === 3 ? 'Start first look' : st === 4 ? (OB.done ? 'Show me' : 'Looking…') : 'Next';
+    var nf = OB.folders.filter(function (x) { return x.on; }).length;
+    var hint = st === 2 ? nf + ' folder' + (nf === 1 ? '' : 's') + ' chosen' : st === 4 && OB.done ? 'Nothing is removed until you confirm.' : '';
+    r.innerHTML = '<div class="ob"><div class="ob-sea"><p class="ob-bubble" aria-live="polite">' + obBubble() + '</p>' + obSea() + '</div>' +
+      '<div class="ob-side"><div class="ob-top">' + route + (st < 4 ? '<button class="ob-skip" data-ob="skip">Skip setup</button>' : '') + '</div>' +
+      '<div class="ob-body">' + obBody() + '</div>' +
+      '<div class="ob-foot">' + (st > 0 && st < 4 ? '<button class="btn" data-ob="back">Back</button>' : '') + '<span class="grow hint">' + hint + '</span>' +
+      '<button class="btn primary" id="ob-next" data-ob="next"' + (st === 4 && !OB.done ? ' disabled' : '') + '>' + next + '</button></div></div></div>';
+  }
+  function obScan() {
+    OB.scan = 0; OB.shown = 0; OB.done = false; obRender();
+    var tick = function () {
+      if (!OB) return;
+      OB.scan = Math.min(49, OB.scan + (reduced ? 49 : 2));
+      OB.shown = Math.min(OB_FOUND.length, Math.floor(OB.scan / 8));
+      if (OB.scan >= 49) { OB.done = true; OB.shown = OB_FOUND.length; }
+      obRender(); if (!OB.done) setTimeout(tick, 110); else { var n = $('ob-next'); if (n) n.focus(); }
+    };
+    setTimeout(tick, reduced ? 0 : 300);
+  }
+  document.addEventListener('click', function (e) {
+    if (!OB) return; var b = e.target.closest && e.target.closest('[data-ob],[data-ob-preset]'); if (!b) return;
+    if (b.dataset.obPreset) { OB.preset = b.dataset.obPreset; obRender(); return; }
+    var a = b.dataset.ob;
+    if (a === 'skip') obClose(false);
+    else if (a === 'back') { OB.step--; obRender(); }
+    else if (a === 'next') { if (OB.step === 4) { obClose(true); return; } OB.step++; if (OB.step === 4) obScan(); else obRender(); var nx = $('ob-next'); if (nx) nx.focus(); }
+    else if (a === 'add') { OB.adding = true; obRender(); $('ob-addpath').focus(); }
+    else if (a === 'cancel-add') { OB.adding = false; obRender(); }
+    else if (a === 'fda') { b.textContent = 'Ask me later ✓'; b.disabled = true; }
+  });
+  document.addEventListener('change', function (e) {
+    if (!OB) return; var t = e.target;
+    if (t.dataset.obFolder) { OB.folders[+t.dataset.obFolder].on = t.checked; obRender(); }
+    if (t.dataset.obSw) OB.sw[t.dataset.obSw] = t.checked;
+  });
+  document.addEventListener('submit', function (e) {
+    if (!OB || e.target.id !== 'ob-addform') return; e.preventDefault();
+    var v = $('ob-addpath').value.trim(); if (v) OB.folders.push({ p: v, m: 'Not scanned yet', gb: 0, on: true }); OB.adding = false; obRender();
+  });
+  document.addEventListener('keydown', function (e) { if (OB && e.key === 'Escape' && OB.step < 4) obClose(false); });
+  if (location.hash === '#welcome') setTimeout(obOpen, 0);
+  window.addEventListener('hashchange', function () { if (location.hash === '#welcome' && !OB) obOpen(); });
 
   waves();
   renderAll();

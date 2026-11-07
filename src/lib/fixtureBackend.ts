@@ -273,10 +273,21 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
     ["/Users/you/Downloads", { repos: 0, bytes: 23 * G }],
     ["/Users/you/Desktop", { repos: 0, bytes: 12 * G }],
   ]);
-  const offers = [
-    { label: "~/ComfyUI-Installs", repos: 1, bytes: 18 * G },
-    { label: "~/material-ui", repos: 1, bytes: 2 * G },
-  ];
+  const firstRun = params.has("firstrun");
+  // First run (prototype OB folders): code folders found in the home folder.
+  const offers = firstRun
+    ? [
+        { label: "~/projects", repos: 14, bytes: 96 * G },
+        { label: "~/work", repos: 2, bytes: 41 * G },
+        { label: "~/ComfyUI-Installs", repos: 1, bytes: 18 * G },
+      ]
+    : [
+        { label: "~/ComfyUI-Installs", repos: 1, bytes: 18 * G },
+        { label: "~/material-ui", repos: 1, bytes: 2 * G },
+      ];
+  // Prototype OB_TOOLS.
+  const TOOLS: [string, boolean][] = [["Docker", true], ["Git", true], ["pnpm", true], ["npm", true], ["pip", true], ["Homebrew", true], ["Xcode", true], ["Ollama", true], ["Cargo", true], ["Gradle", false], ["Conda", false]];
+  let lastOffers = offers;
   let removedFolder: { list: "scanFolders" | "exclusions"; at: number; path: string } | null = null;
 
   const settings: Settings = {
@@ -291,10 +302,12 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
     pauseDeepScansOnBattery: true,
     startAtLogin: true,
     notifications: true,
-    scanFolders: platform === "windows" ? ["C:\\Users\\you\\projects", "C:\\Users\\you\\work", "C:\\Users\\you\\Downloads", "C:\\Users\\you\\Desktop"] : ["/Users/you/projects", "/Users/you/work", "/Users/you/Downloads", "/Users/you/Desktop"],
+    scanFolders: firstRun ? [] : platform === "windows" ? ["C:\\Users\\you\\projects", "C:\\Users\\you\\work", "C:\\Users\\you\\Downloads", "C:\\Users\\you\\Desktop"] : ["/Users/you/projects", "/Users/you/work", "/Users/you/Downloads", "/Users/you/Desktop"],
     exclusions: [],
     extraVolumes: [],
-    onboardingComplete: true,
+    // firstrun=1: the five-step setup, with nothing chosen yet.
+    onboardingComplete: !params.has("firstrun"),
+    menuBarFreeSpace: true,
   };
 
   const status = (): AppStatus => {
@@ -738,13 +751,20 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
       changed();
       return it;
     },
-    folder_suggestions: () => offers.map((o) => ({ label: o.label, repos: o.repos })),
+    // Like the core: chosen folders are not offered, and an index refers to
+    // the list as last returned.
+    folder_suggestions: () => {
+      lastOffers = offers.filter((o) => !settings.scanFolders.includes(o.label.replace(/^~/, "/Users/you")));
+      return lastOffers.map((o) => ({ label: o.label, repos: o.repos, bytes: o.bytes }));
+    },
+    get_tools: () => TOOLS.map(([name, found]) => ({ name, found })),
+    open_main_view: () => undefined,
     // The prototype's Settings sheet: four scanned folders, two offered.
     get_folder_details: () => ({
       scan: settings.scanFolders.map((p) => folderInfo.get(p) ?? { repos: 0, bytes: null }),
       skip: settings.exclusions.map(() => ({ repos: 0, bytes: null })),
-      suggestions: offers.map((o) => ({ label: o.label, repos: o.repos })),
-      suggestionBytes: offers.map((o) => o.bytes),
+      suggestions: (lastOffers = offers.filter((o) => !settings.scanFolders.includes(o.label.replace(/^~/, "/Users/you")))).map((o) => ({ label: o.label, repos: o.repos, bytes: o.bytes })),
+      suggestionBytes: lastOffers.map((o) => o.bytes),
       lastScanAt: new Date(Date.now() - 18 * 60000).toISOString(),
       removed: removedFolder ? { list: removedFolder.list, label: removedFolder.path.replace(/^\/Users\/you/, "~") } : null,
     }),
@@ -761,7 +781,7 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
       return { ...settings };
     },
     add_suggested_folder: (a) => {
-      const o = offers.splice(a.index as number, 1)[0];
+      const o = lastOffers[a.index as number];
       if (o) {
         const p = o.label.replace(/^~/, "/Users/you");
         settings.scanFolders.push(p);
@@ -770,7 +790,23 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
       removedFolder = null;
       return { ...settings };
     },
-    start_scan: () => "scan-1",
+    // A scan reports its 49 places (the prototype's count) one by one, then finishes.
+    start_scan: () => {
+      const total = 49;
+      const fams = ["docker", "git", "project", "cache", "ai", "mobile", "files"];
+      let n = 0;
+      const tick = () => {
+        n = Math.min(total, n + 7);
+        emit("scan_progress", { scanId: "scan-1", phase: "detector_done", detector: fams[Math.min(fams.length - 1, Math.floor(n / 7))] + ".x", currentCount: n });
+        if (n < total) setTimeout(tick, 30);
+        else setTimeout(() => emit("scan_finished", { scanId: "scan-1", detectorErrors: [], totals: { count: 0, bytes: 0, safeBytes: 0, reviewBytes: 0, riskyBytes: 0 } }), 0);
+      };
+      setTimeout(() => {
+        emit("scan_progress", { scanId: "scan-1", phase: "detectors", detector: null, currentCount: total });
+        tick();
+      }, 0);
+      return "scan-1";
+    },
     list_logbook: () => ({
       runs: [...sessionRuns.map((s) => summary(runs.get(s.id)!.detail)), ...SAMPLE_RUNS.map(summary)],
       page: 0,

@@ -272,3 +272,23 @@ Ubuntu's archive has an unrelated `freeboard` package (an IoT dashboard, 1.1.0).
 
 - Docker Desktop leaves its own containers (Kubernetes pods in `kube-system`) out of `docker ps -a`, but `docker system df -v` lists them. Images those pods used were suggested as unused, and Docker refused 5 removals on a real Mac. Container IDs now come from both lists.
 - The content fingerprint changed to file sizes (decision above, "Fingerprint file sizes"). Items scanned by the previous version were then all skipped as changed (81 on a real Mac, right after the update). The pre-cleanup check now accepts the previous version's fingerprint as well.
+- 2026-11-07: Baselines regenerated from `docs/reference/freeboard-prototype.html` (SHA-256 `190be983f4d2…`, chromium 156.0.8078.4, 236 captures). Rationale: First run in five steps and the menu bar window, redesigned by the product owner in prototype Version 17 (freeboard-prototype (1).html) with the spec sections First-run setup and Menu bar window. Affected screens: new first-run entries; the tray view.
+- 2026-11-07: Baselines regenerated from `docs/reference/freeboard-prototype.html` (SHA-256 `190be983f4d2…`, chromium 156.0.8078.4, 236 captures). Rationale: First-run entries hide the prototype's demo page behind the setup, as the app shows setup on its own.
+- 2026-11-07: Baselines regenerated from `docs/reference/freeboard-prototype.html` (SHA-256 `190be983f4d2…`, chromium 156.0.8078.4, 236 captures). Rationale: Settings references show the Run setup again link the spec adds (First-run setup).
+- 2026-11-07: Baselines regenerated from `docs/reference/freeboard-prototype.html` (SHA-256 `190be983f4d2…`, chromium 156.0.8078.4, 226 captures). Rationale: First-run references take the demo page out of the layout (the app has no page behind setup), and focus Next after a preset click as the app does.
+- 2026-11-07: Baselines regenerated from `docs/reference/freeboard-prototype.html` (SHA-256 `190be983f4d2…`, chromium 156.0.8078.4, 226 captures). Rationale: First-run references nest the setup in a root element as the app does.
+- 2026-11-07: Baselines regenerated from `docs/reference/freeboard-prototype.html` (SHA-256 `190be983f4d2…`, chromium 156.0.8078.4, 226 captures). Rationale: First-run references keep focus where it was when the setup is nested.
+
+## 2026-11-07 — First run in five steps and the menu bar window
+
+The user's prototype Version 17 and the matching spec sections ("First-run setup", "Menu bar window") replaced the reference prototype and `FREEBOARD_SPEC.md`. Implemented as drawn, with these choices:
+
+- Setup shows on its own window content: before setup nothing behind it is meaningful. The visual reference hides its demo page and nests the dialog like the app.
+- Folders: only folders that hold Git repositories are offered (the core's search); sizes come from the last deep scan and are absent on a true first run. Downloads is not offered (macOS guards it with a prompt; it can be added in Settings). "+ Add another folder" opens the native picker, never a typed path (invariant 3).
+- Tools: `get_tools` reports which developer tools are on the search path; nothing is run.
+- First look: the normal quick scan. Scans now report how many places they check ("detectors") and each place done ("detector_done"), so the step shows "23 / 49". Choices are saved when the first look starts; Show me marks setup complete and starts a deep scan when folders were chosen. Skip saves nothing but setup complete; Settings has Run setup again.
+- New setting `menuBarFreeSpace` (the first-run switch) controls the free-space text next to the tray icon.
+- Menu bar window: built as drawn (status gauge, ready to toss, quick questions, growth, Scan now, Open Freeboard). The window is 362 x 560. Its gear and links open the main window on Settings or Quick questions (`open_main_view`).
+- First-run captures are desktop-only: at phone width the dialog scrolls past the screen and the prototype's quirks-mode layout cuts it at another height. The phone layout was checked by eye.
+- Tolerance (the first one): `first-run-promises--light--1120x900` allows 60 pixels. Experiment: layout identical on both sides to 1/1000 px; removing the page behind and matching the nesting left only the two bottom corners, each pixel one colour level apart in the blurred backdrop, in the light theme only.
+- 2026-11-07: Baselines regenerated from `docs/reference/freeboard-prototype.html` (SHA-256 `190be983f4d2…`, chromium 156.0.8078.4, 226 captures). Rationale: Menu bar window: the status pill keeps the card behind it (supplemental.css), for WCAG AA contrast on the tinted status section.

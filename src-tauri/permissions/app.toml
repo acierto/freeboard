@@ -20,6 +20,8 @@ commands.allow = [
   "remove_folder",
   "folder_suggestions",
   "get_folder_details",
+  "get_tools",
+  "open_main_view",
   "undo_remove_folder",
   "add_suggested_folder",
   "set_notifications_paused",

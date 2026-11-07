@@ -12,6 +12,8 @@ A fourth revision (`freeboard-prototype-2.html`) redesigned the disk map's right
 
 A fifth revision (`freeboard-prototype-3.html`, the prototype's Version 15) added the “What Risky means here” box and folded Growing fastest, Places checked (with a See all sheet) and the second opinion into one card.
 
+The user's Version 17 (`freeboard-prototype (1).html`) added the five-step first-run setup and redesigned the menu bar window, with the matching spec sections ("First-run setup", "Menu bar window"), which replaced `FREEBOARD_SPEC.md`.
+
 - `FREEBOARD_SPEC.md`: product behavior, safety invariants, detector inventory, disk accounting, pile rules, API contract, milestones and acceptance criteria.
 - `freeboard-prototype.html`: visual and interaction reference (Dinghy, the pile, Quick questions, Disk map, Logbook). Its data, cleanup and blind-spot results are simulations.
 
@@ -21,5 +23,5 @@ Prototype-only parts that must not ship: example data, **Pretend free space**, *
 
 ## Integrity
 
-- `FREEBOARD_SPEC.md` SHA-256: `98bbfcaca7a0bf7a116bc9a89c27c05739c9566e6ee30d3ff16ff91d9a3458c4`
-- `freeboard-prototype.html` SHA-256: `d38593d8df51f68b58fe64a961aed4819a234ee44b26e8097189bc983d5c946b`
+- `FREEBOARD_SPEC.md` SHA-256: `a995488d7adaff5a1df2ba46097ea815a48bf81c665f728fbefb9734b28e8cd9`
+- `freeboard-prototype.html` SHA-256: `190be983f4d2f504b03d8d1254d7e8a9399f731ce9ceffc2af8f1eed5758bf3c`

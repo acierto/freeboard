@@ -126,13 +126,13 @@ pub fn build(app: &AppHandle, paused: bool) -> tauri::Result<()> {
     Ok(())
 }
 
-pub fn update(app: &AppHandle, status: DiskStatus, free_bytes: u64) {
+pub fn update(app: &AppHandle, status: DiskStatus, free_bytes: u64, show_free: bool) {
     let text = status_text(status, free_bytes);
     if let Some(tray) = app.tray_by_id(TRAY_ID) {
         let _ = tray.set_icon(Some(Image::new_owned(ring_rgba(status, free_bytes, 44), 44, 44)));
         let _ = tray.set_tooltip(Some(format!("Freeboard: {text}")));
         #[cfg(any(target_os = "macos", target_os = "linux"))]
-        let _ = tray.set_title(Some(format!("{:.1} GB", free_bytes as f64 / GB as f64)));
+        let _ = tray.set_title(if show_free { Some(format!("{:.1} GB", free_bytes as f64 / GB as f64)) } else { None });
     }
     if let Some(items) = app.try_state::<TrayItems>() {
         let _ = items.status.set_text(text);

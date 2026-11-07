@@ -86,6 +86,13 @@ pub struct Settings {
     /// Additional fixed volumes (mount points) to monitor besides home.
     pub extra_volumes: Vec<String>,
     pub onboarding_complete: bool,
+    /// Show free space next to the menu bar or tray icon (first-run switch).
+    #[serde(default = "yes")]
+    pub menu_bar_free_space: bool,
+}
+
+fn yes() -> bool {
+    true
 }
 
 impl Default for Settings {
@@ -106,6 +113,7 @@ impl Default for Settings {
             exclusions: Vec::new(),
             extra_volumes: Vec::new(),
             onboarding_complete: false,
+            menu_bar_free_space: true,
         }
     }
 }
@@ -129,6 +137,7 @@ pub struct SettingsPatch {
     pub exclusions: Option<Vec<String>>,
     pub extra_volumes: Option<Vec<String>>,
     pub onboarding_complete: Option<bool>,
+    pub menu_bar_free_space: Option<bool>,
 }
 
 /// The subset of settings the interface may change with `update_settings`.
@@ -149,6 +158,7 @@ pub struct UiSettingsPatch {
     pub start_at_login: Option<bool>,
     pub notifications: Option<bool>,
     pub onboarding_complete: Option<bool>,
+    pub menu_bar_free_space: Option<bool>,
 }
 
 impl From<UiSettingsPatch> for SettingsPatch {
@@ -166,6 +176,7 @@ impl From<UiSettingsPatch> for SettingsPatch {
             start_at_login: p.start_at_login,
             notifications: p.notifications,
             onboarding_complete: p.onboarding_complete,
+            menu_bar_free_space: p.menu_bar_free_space,
             ..Default::default()
         }
     }
@@ -237,7 +248,8 @@ impl Settings {
             scan_folders,
             exclusions,
             extra_volumes,
-            onboarding_complete
+            onboarding_complete,
+            menu_bar_free_space
         );
         s.validate()?;
         Ok(s)

@@ -49,7 +49,7 @@ for (const st of STATES)
       const page = await ctx.newPage();
       await page.goto(`${base}/?theme=${theme}&${st.query}`);
       const root = st.root ?? "body";
-      await page.waitForSelector(".page .hero, .tray-window");
+      await page.waitForSelector(".page .hero, .tray-window, #ob-root");
       for (const sel of st.click ?? []) await page.click(sel);
       if (st.wait) await page.waitForSelector(st.wait);
       await page.waitForFunction(() => document.documentElement.dataset.busy === "0");

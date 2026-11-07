@@ -9,7 +9,7 @@ import { chromium } from "@playwright/test";
 export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 export const PROTOTYPE = join(ROOT, "docs/reference/freeboard-prototype.html");
 /** SHA-256 recorded in docs/reference/README.md. */
-export const PROTOTYPE_SHA256 = "d38593d8df51f68b58fe64a961aed4819a234ee44b26e8097189bc983d5c946b";
+export const PROTOTYPE_SHA256 = "190be983f4d2f504b03d8d1254d7e8a9399f731ce9ceffc2af8f1eed5758bf3c";
 export const FIXED_TIME = Date.parse("2026-11-04T12:00:00Z");
 export const BASELINE_DIR = join(ROOT, "visual/baseline");
 export const TOLERANCE_FILE = join(ROOT, "visual/tolerances.json");
@@ -31,7 +31,7 @@ export const CROP = "page";
  * Pretend free space, Start over, and the "example data" note under the brand.
  * Also the in-page "Menu bar" button, which stands in for the native tray icon
  * (decision 2026-11-06); the tray view itself is compared on its own. */
-export const PROTOTYPE_ONLY = ".top-right .sim, .top-right [data-act=\"reset\"], .top > div > .note, .top-right .tray";
+export const PROTOTYPE_ONLY = ".top-right .sim, .top-right [data-act=\"reset\"], .top > div > .note, .top-right .tray, .top-right [data-act=\"welcome\"]";
 
 export const sha256 = (buf) => createHash("sha256").update(buf).digest("hex");
 
@@ -200,7 +200,7 @@ export async function capture(browser, base, cap, side, opts = {}) {
       const q = new URLSearchParams(cap.query ?? "");
       q.set("theme", cap.theme);
       await page.goto(`${base}/?${q}`);
-      await page.waitForSelector(".page .hero, .tray-window", { timeout: 10000 });
+      await page.waitForSelector(".page .hero, .tray-window, #ob-root", { timeout: 10000 });
     }
     await settle(page, side);
     for (const step of side === "ref" ? cap.ref : cap.impl) await runStep(page, side, step);

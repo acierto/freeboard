@@ -104,9 +104,9 @@ mod shell {
             }
             let _ = self.0.notification().builder().title(title).body(body).show();
         }
-        fn update_tray(&self, status: DiskStatus, free_bytes: u64) {
+        fn update_tray(&self, status: DiskStatus, free_bytes: u64, show_free: bool) {
             let app = self.0.clone();
-            let _ = self.0.run_on_main_thread(move || crate::tray::update(&app, status, free_bytes));
+            let _ = self.0.run_on_main_thread(move || crate::tray::update(&app, status, free_bytes, show_free));
         }
         fn set_autostart(&self, enabled: bool) {
             // Only release builds register themselves; a dev binary never does.
@@ -121,7 +121,9 @@ mod shell {
     /// The tray view's window label and logical size (prototype `#popover`
     /// plus room for its shadow).
     pub const TRAY_VIEW: &str = "tray";
-    const TRAY_VIEW_SIZE: (f64, f64) = (312.0, 236.0);
+    // The menu bar window (spec "Menu bar window"): a 330 px card in the
+    // transparent window's padding; tall enough for all five sections.
+    const TRAY_VIEW_SIZE: (f64, f64) = (362.0, 560.0);
 
     /// Open the tray view next to the tray icon, or close it if it is open.
     /// `anchor` is the click position in physical pixels (None on Linux, where
@@ -177,9 +179,14 @@ mod shell {
 
     /// The tray view's button: close it and open the main window on the pile.
     pub fn review_pile(app: &AppHandle) {
+        open_main_view(app, "pile");
+    }
+
+    /// Close the tray view and open the main window on a view.
+    pub fn open_main_view(app: &AppHandle, view: &str) {
         close_tray_view(app);
         if let Some(core) = app.try_state::<Arc<AppCore>>() {
-            core.set_pending_view("pile");
+            core.set_pending_view(view);
         }
         open_window(app);
         deliver_pending_view(app);
@@ -390,6 +397,8 @@ mod shell {
                 crate::commands::remove_folder,
                 crate::commands::folder_suggestions,
                 crate::commands::get_folder_details,
+                crate::commands::get_tools,
+                crate::commands::open_main_view,
                 crate::commands::undo_remove_folder,
                 crate::commands::add_suggested_folder,
                 crate::commands::set_notifications_paused,
@@ -411,7 +420,7 @@ mod shell {
 }
 
 #[cfg(feature = "desktop")]
-pub use shell::{close_tray_view, open_window, review_pile, run, toggle_tray_view};
+pub use shell::{close_tray_view, open_main_view, open_window, review_pile, run, toggle_tray_view};
 
 #[cfg(not(feature = "desktop"))]
 pub fn run() {

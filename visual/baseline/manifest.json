@@ -1,7 +1,7 @@
 {
   "version": 1,
   "source": "docs/reference/freeboard-prototype.html",
-  "sourceSha256": "d38593d8df51f68b58fe64a961aed4819a234ee44b26e8097189bc983d5c946b",
+  "sourceSha256": "190be983f4d2f504b03d8d1254d7e8a9399f731ce9ceffc2af8f1eed5758bf3c",
   "engine": {
     "engine": "chromium",
     "version": "156.0.8078.4",
@@ -19,9 +19,9 @@
   "clock": "2026-11-04T12:00:00Z (frozen)",
   "locale": "en-US",
   "timezone": "UTC",
-  "adapter": "scripts/visual/lib.mjs referenceHtml(): local fonts, data-theme, host reset (src/styles/reset.css), prototype-only controls hidden (.top-right .sim, .top-right [data-act=\"reset\"], .top > div > .note, .top-right .tray)",
-  "acceptedAt": "2026-11-07T09:40:07.443Z",
-  "rationale": "Risk scale: other levels keep readable text (supplemental.css), since the prototype's 50% opacity fails WCAG AA contrast. Affected screens: risk-question, risk-row-risky, risk-row-blocked.",
+  "adapter": "scripts/visual/lib.mjs referenceHtml(): local fonts, data-theme, host reset (src/styles/reset.css), prototype-only controls hidden (.top-right .sim, .top-right [data-act=\"reset\"], .top > div > .note, .top-right .tray, .top-right [data-act=\"welcome\"])",
+  "acceptedAt": "2026-11-07T14:08:39.645Z",
+  "rationale": "Menu bar window: the status pill keeps the card behind it (supplemental.css), for WCAG AA contrast on the tinted status section.",
   "entries": {
     "cleanup-confirm-ack--dark--1120x900": {
       "id": "cleanup-confirm-ack",
@@ -532,6 +532,176 @@
       "supplemental": false,
       "note": null,
       "sha256": "1f7bcacacab2e8c962890f344d661031aafd52351aebb74719a7f3b42afddf86"
+    },
+    "first-run-folders--dark--1120x900": {
+      "id": "first-run-folders",
+      "surface": "First run",
+      "state": "First run 3: Folders with repositories and the tools found",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "firstrun=1",
+      "supplemental": true,
+      "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
+      "sha256": "d2c2e5a1028421d7a4e8ed510f09e57d5fe6f72a4ca950646f2f6dc1f0446c37"
+    },
+    "first-run-folders--light--1120x900": {
+      "id": "first-run-folders",
+      "surface": "First run",
+      "state": "First run 3: Folders with repositories and the tools found",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "firstrun=1",
+      "supplemental": true,
+      "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
+      "sha256": "d4e05e2fe2de2855d353147f51baf488e0e7bdd98a298e5fd1c89aecf3b9b609"
+    },
+    "first-run-hello--dark--1120x900": {
+      "id": "first-run-hello",
+      "surface": "First run",
+      "state": "First run 1: Hello, with the disk and three promises",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "firstrun=1",
+      "supplemental": true,
+      "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
+      "sha256": "e7ac5fbe4b377ae4bb5b20becdfe13356cbbaab89d97ec0ffd1779123583f726"
+    },
+    "first-run-hello--light--1120x900": {
+      "id": "first-run-hello",
+      "surface": "First run",
+      "state": "First run 1: Hello, with the disk and three promises",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "firstrun=1",
+      "supplemental": true,
+      "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
+      "sha256": "f4f50797d2c916c7d9d1009439eeca06765bbb3ad4b4db08fd321ad835b6f689"
+    },
+    "first-run-promises--dark--1120x900": {
+      "id": "first-run-promises",
+      "surface": "First run",
+      "state": "First run 4: what I read, what I never do, and the switches",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "firstrun=1",
+      "supplemental": true,
+      "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
+      "sha256": "61ef396c28687427afe93d584617dc4212e8c40c14e950c3085006e10b3e01d4"
+    },
+    "first-run-promises--light--1120x900": {
+      "id": "first-run-promises",
+      "surface": "First run",
+      "state": "First run 4: what I read, what I never do, and the switches",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "firstrun=1",
+      "supplemental": true,
+      "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
+      "sha256": "cd4338f8682d71d7a112041e897df43047d028958f3e8a5de90c6f7951b6cc36"
+    },
+    "first-run-roomy--dark--1120x900": {
+      "id": "first-run-roomy",
+      "surface": "First run",
+      "state": "First run 2: Waterline, Roomy chosen (Dinghy reacts)",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "firstrun=1",
+      "supplemental": true,
+      "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
+      "sha256": "1978ea9d99db1add6388fc0b482b8aa9d515b0f4a10614133ae5909669f02794"
+    },
+    "first-run-roomy--light--1120x900": {
+      "id": "first-run-roomy",
+      "surface": "First run",
+      "state": "First run 2: Waterline, Roomy chosen (Dinghy reacts)",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "firstrun=1",
+      "supplemental": true,
+      "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
+      "sha256": "d1ce2fcde4bac98b02ce9c7b2f9eb35f8b390da7fe9d5168c42ad63d54920407"
+    },
+    "first-run-waterline--dark--1120x900": {
+      "id": "first-run-waterline",
+      "surface": "First run",
+      "state": "First run 2: Waterline, Balanced chosen",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "firstrun=1",
+      "supplemental": true,
+      "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
+      "sha256": "7eea618a7d18570b2f8caece9094dbcebe9e00afbbf5508b003ff7e3fceb8cfb"
+    },
+    "first-run-waterline--light--1120x900": {
+      "id": "first-run-waterline",
+      "surface": "First run",
+      "state": "First run 2: Waterline, Balanced chosen",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "firstrun=1",
+      "supplemental": true,
+      "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
+      "sha256": "552c7d4dc0c3b5920cf2a9bc34a229dca841d4bf2100e8e370ccd8641204efd4"
     },
     "home-critical--dark--1120x900": {
       "id": "home-critical",
@@ -3404,7 +3574,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
-      "sha256": "749c9142c55c7198eec5f85d12626da650d5a744b9cdd16b201a130438798dbe"
+      "sha256": "2c133b601ed79ec7fc90d72c098e448d1b76410987efb508b9aa7d4817337cd6"
     },
     "settings-sheet--dark--390x844": {
       "id": "settings-sheet",
@@ -3421,7 +3591,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
-      "sha256": "3a2fdb1c2860d9d38aedb9b991db71943ec36c787b418eadc6beab32e82a8be3"
+      "sha256": "080f610f5a4dfd9abe3f9527e8c7f6eddd66f228cfd6941b7ff0b0cc61f5ff31"
     },
     "settings-sheet--light--1120x900": {
       "id": "settings-sheet",
@@ -3438,7 +3608,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
-      "sha256": "84110552b7654e152de38589c9af47e1cfe8a53e048bffd2aef3ce0883ab4a46"
+      "sha256": "131c2ae99de4cd67512f41334281d81c06c845d45410b253091de59452f34bfe"
     },
     "settings-sheet--light--390x844": {
       "id": "settings-sheet",
@@ -3455,7 +3625,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
-      "sha256": "935d811b6eb541ce36eb89b66d45342a645c5fabd5d5e7da6ca64921dc396377"
+      "sha256": "98b798b433a0e307c585a380749d0afa8e662930e35eb400d40589ff2493055f"
     },
     "settings-suggested-added--dark--1120x900": {
       "id": "settings-suggested-added",
@@ -3472,7 +3642,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
-      "sha256": "5a903555a436f91a6ef4d77e0405e84e52872149949d712693546483736df206"
+      "sha256": "f4fb443bdc42326d2e429f324eba8027fe82cc83f9c8a6c529052826501b266c"
     },
     "settings-suggested-added--dark--390x844": {
       "id": "settings-suggested-added",
@@ -3489,7 +3659,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
-      "sha256": "3a2fdb1c2860d9d38aedb9b991db71943ec36c787b418eadc6beab32e82a8be3"
+      "sha256": "080f610f5a4dfd9abe3f9527e8c7f6eddd66f228cfd6941b7ff0b0cc61f5ff31"
     },
     "settings-suggested-added--light--1120x900": {
       "id": "settings-suggested-added",
@@ -3506,7 +3676,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
-      "sha256": "81003e3fec2cff6e19044d37f66d92ffcd2eb0f8a1c2c2cc84b4fa526a894245"
+      "sha256": "64cb35f299b36f69901ac8e8a81aba5fca84d5f9fa8cccaceff66438cf5c1b94"
     },
     "settings-suggested-added--light--390x844": {
       "id": "settings-suggested-added",
@@ -3523,7 +3693,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
-      "sha256": "935d811b6eb541ce36eb89b66d45342a645c5fabd5d5e7da6ca64921dc396377"
+      "sha256": "98b798b433a0e307c585a380749d0afa8e662930e35eb400d40589ff2493055f"
     },
     "settings-undo--dark--1120x900": {
       "id": "settings-undo",
@@ -3540,7 +3710,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
-      "sha256": "13d3e5f5dc16e57a6db67f8e82cf823ba6989a219fdb6982320c14024779f20b"
+      "sha256": "3e3b2b84b4b55df44c3b64a4dd06ad6054d46c566662d44fc6eab29e87b771f8"
     },
     "settings-undo--dark--390x844": {
       "id": "settings-undo",
@@ -3557,7 +3727,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
-      "sha256": "398a4ac7dc25658c9928b8aadddc214fa9f8df7de561936e1d418d7bc212e922"
+      "sha256": "b612562295e8f3bfa680491bbe8bdd02542593e2088a345c1f8848f8dd324ba8"
     },
     "settings-undo--light--1120x900": {
       "id": "settings-undo",
@@ -3574,7 +3744,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
-      "sha256": "417a8d969c74dadc991b85cb6a4380146857fdf8ee533fd95d5b3986b949a7f7"
+      "sha256": "3e0e20e0e1d1c2f1017ebbe0e17a754c5694c45677aff1ac51c755d562ac74f2"
     },
     "settings-undo--light--390x844": {
       "id": "settings-undo",
@@ -3591,7 +3761,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
-      "sha256": "4a9f41db625f63a68df2b12c285f489b91ef8a6e1b21c7935c3011a322f69542"
+      "sha256": "b8e3cac2fe58fed7831bdbfe127654974fb39d7a6a376818ed90cc4fc28f1d0c"
     },
     "trash-confirm--dark--1120x900": {
       "id": "trash-confirm",
@@ -3661,14 +3831,14 @@
       "note": "Emptying the Trash needs its own confirmation (spec); built from the prototype's sheet, .muted, .note, .row and .btn components.",
       "sha256": "c1166031171a8225f92212e2e132cd9ad208992a97da90c62dd29a2085409395"
     },
-    "tray-view--dark--312x260": {
+    "tray-view--dark--362x560": {
       "id": "tray-view",
       "surface": "Tray",
-      "state": "Tray view, Low",
+      "state": "Menu bar window, Low",
       "theme": "dark",
       "viewport": {
-        "width": 312,
-        "height": 260
+        "width": 362,
+        "height": 560
       },
       "deviceScaleFactor": 1,
       "reducedMotion": true,
@@ -3676,16 +3846,16 @@
       "fixture": "view=tray",
       "supplemental": true,
       "note": "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
-      "sha256": "c30954c69d6436f20295b71829ad91605aa6678736315e5437bf9d1479ce32b6"
+      "sha256": "4388a0b6bbda347de166bada7820cefa64379cceed4361d8e4533b697d57bb33"
     },
-    "tray-view--light--312x260": {
+    "tray-view--light--362x560": {
       "id": "tray-view",
       "surface": "Tray",
-      "state": "Tray view, Low",
+      "state": "Menu bar window, Low",
       "theme": "light",
       "viewport": {
-        "width": 312,
-        "height": 260
+        "width": 362,
+        "height": 560
       },
       "deviceScaleFactor": 1,
       "reducedMotion": true,
@@ -3693,7 +3863,7 @@
       "fixture": "view=tray",
       "supplemental": true,
       "note": "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
-      "sha256": "540b87465936b16473a38291b6108719d3df266afa1d925e2aa282e8df64fb83"
+      "sha256": "0e66a02040b531f46c917a4759826b79c604f72033f1056efdcb4fc679095044"
     }
   }
 }

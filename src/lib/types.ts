@@ -327,6 +327,8 @@ export interface Settings {
   exclusions: string[];
   extraVolumes: string[];
   onboardingComplete: boolean;
+  /** Free space next to the menu bar or tray icon. */
+  menuBarFreeSpace: boolean;
 }
 
 /** Settings the interface may change directly. Folder lists change only
@@ -346,6 +348,7 @@ export type SettingsPatch = Partial<
     | "startAtLogin"
     | "notifications"
     | "onboardingComplete"
+    | "menuBarFreeSpace"
   >
 >;
 
@@ -355,6 +358,14 @@ export type FolderList = "scanFolders" | "exclusions";
 export interface FolderSuggestion {
   label: string;
   repos: number;
+  /** Size at the last deep scan; null on a first run. */
+  bytes: number | null;
+}
+
+/** A developer tool Freeboard can ask, and whether it is installed. */
+export interface ToolFound {
+  name: string;
+  found: boolean;
 }
 
 /** Settings' folder rows, matched to the settings lists by position. */
@@ -404,7 +415,7 @@ export interface CleanupFinished {
   skippedCount: number;
 }
 /** Where a notification click or the tray view sends the window. */
-export type View = "home" | "pile";
+export type View = "home" | "pile" | "questions" | "settings";
 export interface Navigate {
   view: View;
 }

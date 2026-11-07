@@ -14,6 +14,8 @@ import type {
   EventMap,
   FolderList,
   FolderDetails,
+  ToolFound,
+  View,
   FolderSuggestion,
   Goal,
   Group,
@@ -99,6 +101,9 @@ export const api = {
   /** Home folders that hold Git repositories (labels only). */
   folderSuggestions: () => call<FolderSuggestion[]>("folder_suggestions"),
   getFolderDetails: () => call<FolderDetails>("get_folder_details"),
+  getTools: () => call<ToolFound[]>("get_tools"),
+  /** Tray view: close it and open the main window on a view. */
+  openMainView: (view: View) => call<void>("open_main_view", { view }),
   undoRemoveFolder: () => call<Settings>("undo_remove_folder"),
   /** Adds an offered folder by its index; the path never passes through the interface. */
   addSuggestedFolder: (index: number) => call<Settings>("add_suggested_folder", { index }),

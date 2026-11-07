@@ -189,6 +189,37 @@ pub async fn add_suggested_folder(core: Core<'_>, index: u32) -> CmdResult<Setti
 }
 
 #[tauri::command]
+pub async fn get_tools(core: Core<'_>) -> CmdResult<Vec<crate::app_core::ToolFound>> {
+    Ok(core.tools())
+}
+
+/// The tray view's links: close it and open the main window on a view.
+#[tauri::command]
+pub fn open_main_view(app: tauri::AppHandle, view: MainView) {
+    crate::open_main_view(&app, view.as_str());
+}
+
+#[derive(Debug, Clone, Copy, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum MainView {
+    Home,
+    Pile,
+    Questions,
+    Settings,
+}
+
+impl MainView {
+    fn as_str(self) -> &'static str {
+        match self {
+            MainView::Home => "home",
+            MainView::Pile => "pile",
+            MainView::Questions => "questions",
+            MainView::Settings => "settings",
+        }
+    }
+}
+
+#[tauri::command]
 pub async fn get_folder_details(core: Core<'_>) -> CmdResult<crate::app_core::FolderDetails> {
     core.folder_details()
 }

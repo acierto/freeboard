@@ -280,6 +280,9 @@ export function SettingsSheet({
         </section>
       </div>
       <div className="st-foot">
+        <button className="link small" id="rerun-setup" style={{ marginRight: "auto" }} onClick={() => void track(api.updateSettings({ onboardingComplete: false })).then((s) => { onSettings(s); onClose(); }, () => undefined)}>
+          Run setup again
+        </button>
         <button className="btn primary" id="settings-done" onClick={onClose}>
           Done
         </button>

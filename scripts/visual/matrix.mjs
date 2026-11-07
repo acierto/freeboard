@@ -189,6 +189,53 @@ function biggestGroupFirst() {
 const SCALE = "The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.";
 const BIGGEST = "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way.";
 
+// ---- first run (prototype Version 17) -----------------------------------------
+
+function stillFlag() {
+  // The flag on step 1 waves with SVG animation, which no timer controls:
+  // stop it at its first frame on both sides.
+  document.querySelectorAll("#ob-root svg").forEach((s) => {
+    s.pauseAnimations?.();
+    s.setCurrentTime?.(0);
+  });
+}
+function setupAlone() {
+  // The app shows first run on its own (nothing is set up behind it yet);
+  // the prototype opens it over its demo page.
+  document.querySelector(".page").style.display = "none";
+  document.querySelectorAll("#sheet-root, .tray-window").forEach((e) => (e.style.visibility = "hidden"));
+  // The app's setup sits inside its root element; the same nesting keeps
+  // the corners' compositing identical.
+  const ob = document.getElementById("ob-root");
+  if (ob && ob.parentElement === document.body) {
+    const focused = document.activeElement;
+    const root = document.createElement("div");
+    root.id = "root";
+    document.body.appendChild(root);
+    root.appendChild(ob);
+    if (focused && focused !== document.body) focused.focus();
+  }
+}
+function focusNext() {
+  // The prototype re-renders the whole step on a preset click, which drops
+  // focus; the app keeps it on Next.
+  document.getElementById("ob-next")?.focus();
+}
+function noDownloadsCard() {
+  // The app offers only folders that hold Git repositories; Downloads (which
+  // macOS guards with a permission prompt) is chosen in Settings instead.
+  const cards = [...document.querySelectorAll("#ob-root .ob-folder")];
+  cards.filter((c) => c.textContent.includes("~/Downloads")).forEach((c) => c.remove());
+}
+const NEXT = { click: "#ob-next" };
+const FIRST_RUN_NOTE = "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.";
+const firstRunEntry = (id, state, steps, extra = {}) => ({
+  // Desktop only: at phone width the dialog scrolls past the screen, and the
+  // prototype's quirks-mode layout cuts it at a different height.
+  id, surface: "First run", state, sizes: [DESKTOP], query: "firstrun=1",
+  ref: [act("welcome"), ...steps, evalRef(stillFlag), evalRef(setupAlone), ...(extra.ref ?? [])], impl: steps, clip: [".ob"], supplemental: true, note: FIRST_RUN_NOTE,
+});
+
 // ---- settings ------------------------------------------------------------------
 
 function settingsWording() {
@@ -196,6 +243,16 @@ function settingsWording() {
   // prototype calls the first row's "projects". A deep scan also measures the
   // disk map, which takes a few minutes on a full disk.
   for (const e of document.querySelectorAll("#sheet .frow small")) e.textContent = e.textContent.replace(/^(\d+) projects,/, "$1 repositories,");
+  // Spec "First-run setup": Settings offers Run setup again.
+  const foot = document.querySelector("#sheet .st-foot");
+  if (foot && !document.getElementById("rerun-setup")) {
+    const b = document.createElement("button");
+    b.className = "link small";
+    b.id = "rerun-setup";
+    b.style.marginRight = "auto";
+    b.textContent = "Run setup again";
+    foot.prepend(b);
+  }
   const deep = document.querySelector("#scan-deep small");
   if (deep) deep.textContent = "Every file in your folders and the disk map, a few minutes";
 }
@@ -245,10 +302,17 @@ export const ENTRIES = [
   },
   mapEntry("map-report", "Disk report shown in the copy-by-hand box", [act("report")]),
   {
-    id: "tray-view", surface: "Tray", state: "Tray view, Low", sizes: [[312, 260]], query: "view=tray",
+    id: "tray-view", surface: "Tray", state: "Menu bar window, Low", sizes: [[362, 560]], query: "view=tray",
     ref: [{ click: "#tray-btn" }, evalRef(trayWindow)], impl: [], clip: [".tray-window"], supplemental: true,
     note: "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
   },
+
+  // First run, five steps (prototype Version 17).
+  firstRunEntry("first-run-hello", "First run 1: Hello, with the disk and three promises", []),
+  firstRunEntry("first-run-waterline", "First run 2: Waterline, Balanced chosen", [NEXT]),
+  firstRunEntry("first-run-roomy", "First run 2: Waterline, Roomy chosen (Dinghy reacts)", [NEXT, { click: '[data-ob-preset="roomy"]' }], { ref: [evalRef(focusNext)] }),
+  firstRunEntry("first-run-folders", "First run 3: Folders with repositories and the tools found", [NEXT, NEXT], { ref: [evalRef(noDownloadsCard)] }),
+  firstRunEntry("first-run-promises", "First run 4: what I read, what I never do, and the switches", [NEXT, NEXT, NEXT]),
 
   // Settings (prototype revision of 2026-11-07).
   settingsEntry("settings-sheet", "Settings: warning zones, folders, always protected, scanning", []),

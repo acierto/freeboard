@@ -30,3 +30,10 @@ html.tray-native, html.tray-native body { background: transparent; }
    their colour stripe fades, so the item's own level still stands out. */
 .rscale .rs:not(.on) { opacity: 1; border-top-color: color-mix(in srgb, currentColor 35%, var(--card)); }
 .rscale .rs:not(.on) b { color: var(--muted); }
+/* First-run folder cards: path and repositories on their own lines. The
+   prototype renders in quirks mode, where its <br>-separated lines get no
+   strut; blocks give the app (standards mode) the same height. */
+.ob-ftext > .fp, .ob-ftext > .fm { display: block; }
+/* Menu bar window: the status pill keeps the card behind it, so its text
+   meets WCAG AA contrast on the amber and pink tinted status sections. */
+.tb-status .pill { background: var(--card); }
