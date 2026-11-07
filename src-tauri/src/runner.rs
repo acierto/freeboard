@@ -13,6 +13,12 @@ use std::process::{Command, Stdio};
 use std::time::{Duration, Instant};
 
 pub const DEFAULT_TIMEOUT: Duration = Duration::from_secs(20);
+/// Cleanup actions the user confirmed (`git worktree remove`, `docker image
+/// rm`, ...) may take minutes on a big worktree or image set. Stopping one
+/// halfway can leave a half-deleted worktree, so they get far longer than
+/// detector reads (found on a real Mac, 2026-11-07: many worktree removals
+/// timed out at 20 seconds).
+pub const ACTION_TIMEOUT: Duration = Duration::from_secs(30 * 60);
 pub const MAX_OUTPUT: usize = 8 * 1024 * 1024;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -276,12 +282,14 @@ pub struct Runner {
     /// PATH used to resolve executables. Tests point this at fake tools.
     search_path: Option<OsString>,
     pub timeout: Duration,
+    /// For `run_action` (see `ACTION_TIMEOUT`).
+    pub action_timeout: Duration,
     pub max_output: usize,
 }
 
 impl Default for Runner {
     fn default() -> Self {
-        Runner { search_path: None, timeout: DEFAULT_TIMEOUT, max_output: MAX_OUTPUT }
+        Runner { search_path: None, timeout: DEFAULT_TIMEOUT, action_timeout: ACTION_TIMEOUT, max_output: MAX_OUTPUT }
     }
 }
 
@@ -292,6 +300,11 @@ impl Runner {
 
     pub fn with_timeout(mut self, t: Duration) -> Runner {
         self.timeout = t;
+        self
+    }
+
+    pub fn with_action_timeout(mut self, t: Duration) -> Runner {
+        self.action_timeout = t;
         self
     }
 
@@ -345,10 +358,14 @@ impl Runner {
     /// Run a cleanup action for a confirmed plan.
     pub fn run_action(&self, cmd: &Cmd, confirmed: &Confirmed) -> Result<CmdOutput, RunError> {
         check(cmd, Policy::Action, Some(confirmed))?;
-        self.exec(cmd)
+        self.exec_for(cmd, self.action_timeout)
     }
 
     fn exec(&self, cmd: &Cmd) -> Result<CmdOutput, RunError> {
+        self.exec_for(cmd, self.timeout)
+    }
+
+    fn exec_for(&self, cmd: &Cmd, timeout: Duration) -> Result<CmdOutput, RunError> {
         let exe = self.resolve(&cmd.program).ok_or_else(|| RunError::NotFound(cmd.program.clone()))?;
         let mut c = Command::new(exe);
         c.args(&cmd.args).stdin(Stdio::null()).stdout(Stdio::piped()).stderr(Stdio::piped());
@@ -388,7 +405,7 @@ impl Runner {
         let mut se = child.stderr.take().expect("piped");
         let to = std::thread::spawn(move || read_bounded(&mut so, max));
         let te = std::thread::spawn(move || read_bounded(&mut se, 64 * 1024));
-        let deadline = Instant::now() + self.timeout;
+        let deadline = Instant::now() + timeout;
         let status = loop {
             match child.try_wait() {
                 Ok(Some(s)) => break s,
@@ -577,6 +594,21 @@ mod tests {
         let t = Instant::now();
         assert!(matches!(r.run_read(&c("docker", &["version"])), Err(RunError::Timeout(_))));
         assert!(t.elapsed() < Duration::from_secs(3));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn confirmed_actions_get_their_own_longer_timeout() {
+        let d = tempfile::tempdir().unwrap();
+        fake::tool(d.path(), "git", "sleep 1");
+        // A read stops at the short limit; the same command as a confirmed
+        // action outlives it.
+        let r = Runner::with_path(d.path()).with_timeout(Duration::from_millis(200)).with_action_timeout(Duration::from_secs(5));
+        assert!(matches!(r.run_read(&c("git", &["status"])), Err(RunError::Timeout(_))));
+        let ok = r.run_action(&c("git", &["worktree", "remove", "/tmp/wt"]), &Confirmed::new("plan-test"));
+        assert!(ok.is_ok(), "{ok:?}");
+        assert_eq!(Runner::default().action_timeout, ACTION_TIMEOUT);
+        assert!(ACTION_TIMEOUT >= Duration::from_secs(10 * 60));
     }
 
     #[test]

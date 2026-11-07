@@ -29,7 +29,20 @@ use crate::detectors::common::{hash_hex, rfc3339};
 use crate::detectors::{self, docker, git, Probe};
 use crate::guard::Guard;
 use crate::model::*;
-use crate::runner::{Cmd, Confirmed, Runner};
+use crate::runner::{Cmd, Confirmed, RunError, Runner};
+
+/// Why a confirmed command could not run, in words that are the same for
+/// every item, so the result can group identical failures (a timeout once
+/// named each worktree's full path, found on a real Mac, 2026-11-07).
+fn action_error(e: &RunError, runner: &Runner) -> String {
+    match e {
+        RunError::Timeout(_) => {
+            let min = (runner.action_timeout.as_secs() / 60).max(1);
+            format!("It took longer than {min} minute{}, so I stopped it.", if min == 1 { "" } else { "s" })
+        }
+        other => other.to_string(),
+    }
+}
 use crate::scan::size::{measure, MeasureOpts};
 use crate::scan::ScanContext;
 use crate::settings::Settings;
@@ -675,7 +688,7 @@ impl CleanupEngine {
                         let msg = out.stderr.lines().find(|l| !l.trim().is_empty()).unwrap_or("The command failed.").trim().to_string();
                         (ItemState::Failed, Some(msg))
                     }
-                    Err(e) => (ItemState::Failed, Some(e.to_string())),
+                    Err(e) => (ItemState::Failed, Some(action_error(&e, &self.runner))),
                 }
             }
             _ => (ItemState::Failed, Some("This action is not supported.".into())),
@@ -707,7 +720,7 @@ impl CleanupEngine {
                 let msg = out.stderr.lines().find(|l| !l.trim().is_empty()).unwrap_or("git worktree remove failed.").trim().to_string();
                 (ItemState::Failed, Some(msg))
             }
-            Err(e) => (ItemState::Failed, Some(e.to_string())),
+            Err(e) => (ItemState::Failed, Some(action_error(&e, &self.runner))),
         }
     }
 

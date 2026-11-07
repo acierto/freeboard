@@ -169,6 +169,97 @@ details > summary { cursor: pointer; font-weight: 800; }
 .item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1px 10px; padding: 7px 0 7px 16px; font-size: 14px; }
 .item .sub { color: var(--muted); font-size: 12.5px; font-weight: 600; grid-column: 1 / -1; overflow-wrap: anywhere; }
 .grp-actions { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 0 4px 16px; }
+/* Item rows: one quiet line each, details on demand */
+.irow { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 0 10px; align-items: start; padding: 10px 0; border-top: 2px dotted var(--line); }
+.irow > input { width: 18px; height: 18px; margin: 3px 0 0; accent-color: var(--accent); }
+.irow .lockic { width: 18px; height: 18px; margin-top: 3px; }
+.irow-main { border: 0; background: none; padding: 0; text-align: left; min-width: 0; color: var(--ink); display: flex; flex-direction: column; gap: 2px; }
+.irow-main .iname { font-weight: 800; font-size: 14.5px; display: flex; gap: 6px; align-items: baseline; }
+.irow-main .iname::after { content: "\25BE"; font-size: 11px; color: var(--muted); transition: transform .15s; }
+.irow-main[aria-expanded="true"] .iname::after { transform: rotate(180deg); }
+.irow-main:hover .iname { color: var(--accent); }
+.imeta { font-size: 12.5px; color: var(--muted); font-weight: 600; display: flex; flex-wrap: wrap; gap: 0 6px; align-items: center; }
+.rdot { width: 8px; height: 8px; border-radius: 50%; background: var(--st); display: inline-block; }
+.isize { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; font-weight: 800; font-size: 14.5px; min-width: 72px; }
+.szbar { display: block; width: 72px; height: 5px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.szbar i { display: block; height: 100%; background: var(--st, var(--accent)); border-radius: 99px; }
+.idetail { grid-column: 2 / -1; margin-top: 10px; background: var(--soft); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.idetail .facts { font-size: 13.5px; }
+.iactions { display: flex; flex-wrap: wrap; gap: 8px; }
+.iactions .btn { padding: 6px 14px; font-size: 14px; }
+.grp-tools { display: flex; flex-wrap: wrap; gap: 4px 16px; padding: 6px 0 2px 16px; }
+.pilebar { position: sticky; bottom: 0; margin: 10px -18px -18px; padding: 10px 18px; background: var(--card); border-top: 2px solid var(--line); border-radius: 0 0 20px 20px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 14px; }
+/* Confirmation sheet */
+.sheet.framed { width: min(580px, 100%); padding: 0; gap: 0; }
+.cf-sum { display: flex; flex-direction: column; gap: 6px; }
+.cf-big { font-family: var(--display); font-size: 30px; font-weight: 700; line-height: 1.1; }
+.cf-big small { font-size: 16px; color: var(--muted); font-weight: 600; }
+.cf-flags { display: flex; flex-wrap: wrap; gap: 6px; }
+.cf-flag { font-size: 12.5px; font-weight: 800; border-radius: 999px; padding: 2px 10px; background: var(--soft); }
+.cf-flag.bad { background: transparent; color: var(--risky); border: 2px solid var(--risky); }
+.cf-item { border: 2px solid var(--line); border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.cf-top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.cf-top b { font-size: 15px; } .cf-top .num { font-weight: 800; }
+.cf-lines { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 3px 10px; font-size: 13px; margin: 0; }
+.cf-lines dt { color: var(--muted); } .cf-lines dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.cf-parts summary { font-size: 13px; color: var(--accent); }
+.cf-parts ul { margin: 6px 0 0; padding-left: 18px; font-size: 13px; columns: 2; }
+.cf-safe { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; color: var(--muted); }
+.cf-safe svg { width: 16px; height: 16px; flex: none; margin-top: 2px; }
+.cf-list { display: flex; flex-direction: column; gap: 8px; }
+@media (max-width: 460px) { .cf-lines { grid-template-columns: minmax(0, 1fr); } .cf-parts ul { columns: 1; } .isize { min-width: 0; } .szbar { width: 52px; } }
+/* Cleanup run: a little 3D deck where crates hop off one by one */
+.voyage { position: relative; height: 210px; border-radius: 20px; overflow: hidden; background: linear-gradient(var(--sky-a), var(--sky-b)); perspective: 700px; }
+.voyage .vsea { position: absolute; left: 0; width: 100%; bottom: 0; height: 64px; }
+.voyage .hull { position: absolute; left: 50%; bottom: 40px; width: 230px; height: 46px; margin-left: -150px; }
+.deck { position: absolute; left: 50%; bottom: 84px; margin-left: -120px; width: 190px; height: 90px; transform-style: preserve-3d; transform: rotateX(-14deg) rotateY(-24deg); }
+.cube { position: absolute; width: 30px; height: 30px; transform-style: preserve-3d; transition: transform .5s cubic-bezier(.3, 1.4, .5, 1), opacity .3s; }
+.cube i { position: absolute; inset: 0; border: 2px solid var(--crate-edge); border-radius: 5px; background: linear-gradient(transparent 31%, var(--crate-edge) 31% 37%, transparent 37% 63%, var(--crate-edge) 63% 69%, transparent 69%), var(--crate); }
+.cube i:nth-child(1) { transform: translateZ(15px); }
+.cube i:nth-child(2) { transform: rotateY(180deg) translateZ(15px); }
+.cube i:nth-child(3) { transform: rotateY(90deg) translateZ(15px); filter: brightness(.88); }
+.cube i:nth-child(4) { transform: rotateY(-90deg) translateZ(15px); filter: brightness(.88); }
+.cube i:nth-child(5) { transform: rotateX(90deg) translateZ(15px); filter: brightness(1.08); }
+.cube i:nth-child(6) { transform: rotateX(-90deg) translateZ(15px); filter: brightness(.75); }
+.cube.lift { transform: var(--at) translateY(-26px) rotateY(25deg); }
+.cube.gone { animation: overboard .8s cubic-bezier(.45, 0, .7, 1) forwards; }
+@keyframes overboard { 0% { transform: var(--at) translateY(-26px); } 45% { transform: var(--at) translate3d(150px, -70px, 30px) rotateX(200deg) rotateY(120deg); } 100% { transform: var(--at) translate3d(240px, 120px, 40px) rotateX(420deg) rotateY(260deg); opacity: 0; } }
+.cube.stay i { border-color: var(--review); }
+.cube.stay { animation: nope .5s ease-in-out; }
+@keyframes nope { 0%, 100% { transform: var(--at); } 25% { transform: var(--at) rotateZ(-12deg); } 75% { transform: var(--at) rotateZ(12deg); } }
+.cube.stuck i { border-color: var(--risky); }
+.cube.stuck { animation: stuck .45s steps(4) 2; }
+@keyframes stuck { 50% { transform: var(--at) translateX(4px); } }
+.splash { position: absolute; bottom: 30px; right: 54px; width: 70px; height: 24px; pointer-events: none; }
+.splash ellipse { fill: none; stroke: #FFFFFF; stroke-width: 2.5; opacity: 0; transform-origin: center; }
+.splash.go ellipse { animation: ring .9s ease-out forwards; } .splash.go ellipse:nth-child(2) { animation-delay: .15s; }
+@keyframes ring { 0% { opacity: .9; transform: scale(.2); } 100% { opacity: 0; transform: scale(1.4); } }
+.voyage .count { position: absolute; left: 14px; top: 12px; background: var(--bubble); border-radius: 14px; padding: 6px 12px; font-weight: 800; font-size: 13.5px; box-shadow: 0 3px 0 rgba(20, 60, 90, .1); }
+.voyage .count b { font-family: var(--display); font-size: 22px; display: block; line-height: 1.1; }
+.now-doing { font-size: 14px; display: flex; justify-content: space-between; gap: 10px; }
+.now-doing span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tally { display: flex; flex-wrap: wrap; gap: 6px; }
+.tally span { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 800; border-radius: 999px; padding: 2px 10px; background: var(--soft); }
+.tally i { width: 9px; height: 9px; border-radius: 50%; background: var(--st); }
+/* Outcome */
+.done-hero { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 14px; align-items: center; }
+.done-hero svg { width: 96px; height: 80px; }
+.done-big { font-family: var(--display); font-size: 34px; font-weight: 700; line-height: 1.05; }
+.freebar { display: flex; height: 12px; border-radius: 99px; overflow: hidden; background: var(--soft); margin-top: 6px; }
+.freebar i { display: block; height: 100%; }
+.freebar-legend { display: flex; justify-content: space-between; gap: 8px; font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+.res { border: 2px solid var(--line); border-radius: 16px; padding: 0; }
+.res > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 14px; font-weight: 800; }
+.res > summary::-webkit-details-marker { display: none; }
+.res > summary i { width: 12px; height: 12px; border-radius: 50%; background: var(--st); }
+.res > summary small { display: block; font-weight: 600; color: var(--muted); font-size: 12.5px; }
+.res > summary::after { content: "\25BE"; color: var(--muted); grid-column: 3; grid-row: 1; justify-self: end; }
+.res[open] > summary::after { content: "\25B4"; }
+.res > summary .n { grid-column: 3; grid-row: 1; margin-right: 18px; }
+.res ul { margin: 0; padding: 0 14px 12px 36px; font-size: 13.5px; display: flex; flex-direction: column; gap: 4px; max-height: 180px; overflow-y: auto; }
+.res li span { color: var(--muted); }
+@media (max-width: 460px) { .done-hero { grid-template-columns: minmax(0, 1fr); } .done-hero svg { display: none; } .voyage .hull { margin-left: -130px; } .deck { margin-left: -100px; } }
+@media (prefers-reduced-motion: reduce) { .cube, .cube.gone, .cube.stay, .cube.stuck, .splash.go ellipse { animation: none !important; transition: none !important; } .cube.gone { opacity: 0; } }
 .row-item { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 2px 8px; padding: 8px 0; border-top: 2px dotted var(--line); font-size: 14px; }
 .row-item > input { width: 18px; height: 18px; margin: 2px 0 0; accent-color: var(--accent); }
 .row-item .main { min-width: 0; }
@@ -437,7 +528,7 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
   function partSum(i) { return Math.round(i.parts.reduce(function (t, x) { return t + (x.on ? x.s : 0); }, 0) * 10) / 10; }
   function fresh() {
     ITEMS.forEach(function (i) { if (i.parts) { i.parts.forEach(function (x) { x.on = true; x.done = false; }); i.size = partSum(i); } });
-    return { manual: null, areas: {}, open: {}, target: [], goal: 50, tab: 'tidy', tile: 'ai', drift: 0, tossed: 0, queued: {}, excl: {}, gone: {}, held: {}, kept: {}, later: {}, skipped: {}, acks: {}, spots: {}, freedBy: {}, heldBy: {}, log: SAMPLE_LOG.slice(), low: 20, crit: 8, folders: [{ p: '~/projects', m: '14 projects, 96 GB' }, { p: '~/work', m: '2 repositories, 41 GB' }, { p: '~/Downloads', m: '23 GB' }, { p: '~/Desktop', m: '12 GB' }], suggest: [{ p: '~/ComfyUI-Installs', m: '1 repository, 18 GB' }, { p: '~/material-ui', m: '1 repository, 2 GB' }], skip: [], adding: null, removed: null, scanning: null, lastScan: '18 minutes ago', pile: false, tray: false, sheet: null, run: null, report: false, auto: { caches: false, docker: false } };
+    return { expanded: {}, manual: null, areas: {}, open: {}, target: [], goal: 50, tab: 'tidy', tile: 'ai', drift: 0, tossed: 0, queued: {}, excl: {}, gone: {}, held: {}, kept: {}, later: {}, skipped: {}, acks: {}, spots: {}, freedBy: {}, heldBy: {}, log: SAMPLE_LOG.slice(), low: 20, crit: 8, folders: [{ p: '~/projects', m: '14 projects, 96 GB' }, { p: '~/work', m: '2 repositories, 41 GB' }, { p: '~/Downloads', m: '23 GB' }, { p: '~/Desktop', m: '12 GB' }], suggest: [{ p: '~/ComfyUI-Installs', m: '1 repository, 18 GB' }, { p: '~/material-ui', m: '1 repository, 2 GB' }], skip: [], adding: null, removed: null, scanning: null, lastScan: '18 minutes ago', pile: false, tray: false, sheet: null, run: null, report: false, auto: { caches: false, docker: false } };
   }
   var S = fresh();
   var $ = function (id) { return document.getElementById(id); };
@@ -577,19 +668,38 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
       return '<label class="part" for="' + id + '"><input type="checkbox" id="' + id + '" data-part="' + i.id + ':' + n + '"' + (x.on ? ' checked' : '') + '><span>' + esc(x.n) + '</span><span class="num">' + gb(x.s) + '</span></label>';
     }).join('') + '</details>';
   }
-  function rowHTML(i, ctx, chosen) {
-    var can = !i.blocked && !S.skipped[i.id], kept = S.kept[i.id], box = '<span></span>', ctl = '';
-    if (can && !kept) box = '<input type="checkbox" id="' + ctx + '-pile-' + i.id + '" data-pile="' + i.id + '" aria-label="Add ' + esc(i.name) + ' to the pile"' + (chosen[i.id] ? ' checked' : '') + (i.size > 0 ? '' : ' disabled') + '>';
-    if (can && !kept) ctl = '<div class="ctl"><button class="mini go" id="' + ctx + '-now-' + i.id + '" data-now="' + i.id + '"' + (i.size > 0 ? '' : ' disabled') + '>Remove now</button><button class="mini" id="' + ctx + '-keep-' + i.id + '" data-keep="' + i.id + '">Keep</button></div>';
-    if (kept) ctl = '<div class="ctl"><button class="mini" id="' + ctx + '-keep-' + i.id + '" data-keep="' + i.id + '">Stop keeping</button></div>';
-    return '<div class="row-item">' + box + '<span class="main">' + esc(i.name) + '<span class="sub">' + esc(tagFor(i)) + ' \u00B7 ' + esc(i.last) + '</span></span><span class="num size">' + gb(i.size) + '</span>' + (can && !kept ? '<div class="parts">' + partsHTML(i, ctx) + '</div>' : '') + ctl + '</div>';
+  function age(t) {
+    return String(t).replace(/(\d+)\+ days/, function (m, d) { d = +d; return d >= 730 ? Math.floor(d / 365) + '+ years' : d >= 365 ? '1+ year' : d >= 60 ? Math.floor(d / 30) + '+ months' : m; });
+  }
+  var RCLS = { Safe: 'safe', Review: 'review', Risky: 'risky' };
+  function rowHTML(i, ctx, chosen, max) {
+    var can = !i.blocked && !S.skipped[i.id], kept = S.kept[i.id], key = ctx + '-' + i.id, open = !!S.expanded[key];
+    var box = can && !kept ? '<input type="checkbox" id="' + ctx + '-pile-' + i.id + '" data-pile="' + i.id + '" aria-label="Add ' + esc(i.name) + ' to the pile"' + (chosen[i.id] ? ' checked' : '') + (i.size > 0 ? '' : ' disabled') + '>' : i.blocked ? '<svg class="lockic" viewBox="0 0 12 12" aria-hidden="true"><rect x="1.5" y="5" width="9" height="6.5" rx="1.5" fill="var(--risky)"/><path d="M3.5 5V3.6a2.5 2.5 0 0 1 5 0V5" fill="none" stroke="var(--risky)" stroke-width="1.5"/></svg>' : '<span></span>';
+    var parts = i.parts ? i.parts.filter(function (x) { return !x.done; }) : null, on = parts ? parts.filter(function (x) { return x.on; }).length : 0;
+    var meta = '<span class="rdot ' + RCLS[i.risk] + '"></span><span>' + esc(tagFor(i)) + '</span><span>·</span><span>' + esc(age(i.last)) + '</span>' + (parts && on < parts.length ? '<span>·</span><span>' + on + ' of ' + parts.length + ' chosen</span>' : '');
+    var pct = max ? Math.max(3, i.size / max * 100) : 0;
+    var html = '<div class="irow">' + box +
+      '<button class="irow-main" id="' + ctx + '-x-' + i.id + '" data-expand="' + key + '" aria-expanded="' + open + '"><span class="iname">' + esc(i.name) + '</span><span class="imeta">' + meta + '</span></button>' +
+      '<span class="isize num ' + RCLS[i.risk] + '">' + gb(i.size) + '<span class="szbar" aria-hidden="true"><i style="width:' + pct.toFixed(1) + '%"></i></span></span>';
+    if (open) {
+      var acts = i.blocked ? '<p class="note">' + esc(i.blocked) + '</p>' : kept ? '<div class="iactions"><button class="btn" id="' + ctx + '-keep-' + i.id + '" data-keep="' + i.id + '">Stop keeping</button></div>' :
+        S.skipped[i.id] ? '<p class="note">It changed after the scan. Scan again to remove it.</p>' :
+        '<div class="iactions"><button class="btn primary" id="' + ctx + '-now-' + i.id + '" data-now="' + i.id + '"' + (i.size > 0 ? '' : ' disabled') + '>Remove ' + gb(i.size) + ' now</button><button class="btn" id="' + ctx + '-keep-' + i.id + '" data-keep="' + i.id + '">Keep, don’t suggest</button></div>';
+      html += '<div class="idetail"><dl class="facts"><dt>Why</dt><dd>' + esc(i.why) + '</dd><dt>Where</dt><dd class="mono">' + esc(i.where) + '</dd><dt>Would run</dt><dd class="mono">' + esc(cmdFor(i)) + '</dd><dt>To get it back</dt><dd>' + esc(i.back) + '</dd></dl>' +
+        (can && !kept ? partsHTML(i, ctx) : '') + acts + '</div>';
+    }
+    return html + '</div>';
   }
   function chosenMap() { var m = {}; picks().forEach(function (i) { m[i.id] = true; }); return m; }
   function usable(kind, val) { return active().filter(function (i) { return i[kind] === val && !i.blocked && !S.kept[i.id] && !S.skipped[i.id] && !i.ack && i.size > 0; }); }
   function areaButtons(kind, val, slug) {
     var l = usable(kind, val);
     if (!l.length) return '';
-    return '<div class="grp-actions"><button class="mini go" id="clean-' + slug + '" data-clean="' + kind + ':' + val + '">Remove all here (' + gb(sum(l)) + ')</button><button class="mini" id="add-' + slug + '" data-add="' + kind + ':' + val + '">Add all to pile</button></div>';
+    return '<div class="grp-tools"><button class="link small" id="add-' + slug + '" data-add="' + kind + ':' + val + '">Add all ' + l.length + ' to the pile (' + gb(sum(l)) + ')</button><button class="link small" id="clean-' + slug + '" data-clean="' + kind + ':' + val + '">Remove all ' + l.length + '…</button></div>';
+  }
+  function pileBar() {
+    var p = picks(); if (!p.length) return '';
+    return '<div class="pilebar"><span class="num"><b>' + p.length + ' in the pile</b> · ' + gb(sum(p)) + '</span><button class="btn primary" id="pilebar-go" data-act="confirm">Review and toss</button></div>';
   }
   function everything() {
     var act = active(), chosen = chosenMap();
@@ -597,12 +707,13 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
       var l = act.filter(function (i) { return i.group === g; }).sort(function (a, b) { return b.size - a.size; });
       if (!l.length) return '';
       var key = 'grp-' + g.replace(/ /g, '-');
-      return '<details class="grp" data-open="' + key + '"' + (S.open[key] ? ' open' : '') + '><summary><span>' + g + '</span><span class="num muted">' + gb(sum(l)) + '</span></summary>' + areaButtons('group', g, key) + l.map(function (i) { return rowHTML(i, 'l', chosen); }).join('') + '</details>';
+      var mx = l[0].size;
+      return '<details class="grp" data-open="' + key + '"' + (S.open[key] ? ' open' : '') + '><summary><span>' + g + ' <span class="muted" style="font-weight:600">' + l.length + '</span></span><span class="num muted">' + gb(sum(l)) + '</span></summary>' + areaButtons('group', g, key) + l.map(function (i) { return rowHTML(i, 'l', chosen, mx); }).join('') + '</details>';
     }).join('');
     var pro = act.filter(function (i) { return i.blocked; }).map(function (i) {
       return '<div class="protect"><b>' + esc(i.name) + ' <span class="num">' + gb(i.size) + '</span></b><span>' + esc(i.why) + ' I will not touch it.</span><span class="muted">' + esc(i.blocked) + '</span></div>';
     }).join('');
-    return '<div class="stack">' + pro + '<div class="card"><h3>Everything I found</h3><p class="note" style="margin-bottom:6px">' + act.length + ' items, ' + gb(sum(act)) + ' in total. Open a group to pick exactly what goes.</p>' + groups + '</div>' +
+    return '<div class="stack">' + pro + '<div class="card"><h3>Everything I found</h3><p class="note" style="margin-bottom:6px">' + act.length + ' items, ' + gb(sum(act)) + ' in total. Tick to add to the pile. Open a row for details.</p>' + groups + pileBar() + '</div>' +
       '<div class="card stack"><h3>Keep me tidy</h3><p class="note">Optional. Each rule only covers Safe items, and every run shows in the Logbook.</p>' +
       '<label class="toggle"><input type="checkbox" id="auto-caches" data-auto="caches"' + (S.auto.caches ? ' checked' : '') + '><span>Clear package caches over 30 days old when space is Low</span></label>' +
       '<label class="toggle"><input type="checkbox" id="auto-docker" data-auto="docker"' + (S.auto.docker ? ' checked' : '') + '><span>Clear unused Docker build cache every week</span></label></div></div>';
@@ -655,7 +766,7 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
     if (t.id === 'unknown') rows = SPOTS.filter(function (s) { return !S.spots[s.id]; }).map(function (s) { return '<div class="detail-row"><span>' + esc(s.text) + '</span><span class="num">' + gb(s.size) + '</span></div>'; }).join('') || '<p class="muted">Nothing is left unexplained.</p>';
     else {
       var chosen = chosenMap();
-      rows = areaButtons('map', t.id, 'map-' + t.id) + inside.map(function (i) { return rowHTML(i, 'm', chosen); }).join('');
+      rows = areaButtons('map', t.id, 'map-' + t.id) + inside.map(function (i) { return rowHTML(i, 'm', chosen, inside.length ? inside[0].size : 0); }).join('');
       if (rest > 0.05) rows += '<div class="detail-row"><span class="muted">' + esc(t.rest || 'Other') + ' (leave these)</span><span class="num muted">' + gb(rest) + '</span></div>';
     }
     var left = '<div class="stack"><div class="card stack"><div class="cover">' + ring(ex.pct) + '<div><b class="num">' + ex.pct.toFixed(1) + '% explained</b><span class="muted num">I can account for ' + (ex.used - ex.un).toFixed(1) + ' of the ' + ex.used.toFixed(1) + ' GB in use.</span></div></div>' +
@@ -690,49 +801,115 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
   function acksDone(l) { return l.every(function (i) { return !i.ack || S.acks[i.id]; }); }
   function byId(id) { return ITEMS.filter(function (i) { return i.id === id; })[0]; }
   function cmdFor(i) { if (!i.parts) return i.cmd; var on = i.parts.filter(function (x) { return x.on; }); return on.length === i.parts.filter(function (x) { return !x.done; }).length ? i.cmd : i.cmd + ': ' + on.map(function (x) { return x.n; }).join(', '); }
+  function verbFor(i) { return i.action === 'trash' ? 'Move to Trash' : i.action === 'delete' ? 'Delete' : 'Remove'; }
   function confirmSheet(p) {
     S.target = p.map(function (i) { return i.id; });
     var now = sum(p.filter(function (i) { return groupOf(i) === 'now'; })), held = sum(p.filter(function (i) { return groupOf(i) === 'held'; })), lost = p.filter(function (i) { return i.lost; });
+    var review = p.filter(function (i) { return i.risk !== 'Safe'; }).length, one = p.length === 1, total = sum(p);
     S.sheet = 'confirm';
-    openSheet('<h2 id="sheet-title">Toss ' + p.length + ' crate' + (p.length === 1 ? '' : 's') + '?</h2><p class="muted">Each one is checked again first. Anything that changed since the scan stays on board.</p>' +
-      '<div class="sum3"><div><b class="num">' + gb(now) + '</b>Free right away</div><div><b class="num">' + gb(held) + '</b>Held in the Trash</div><div class="' + (lost.length ? 'bad' : '') + '"><b class="num">' + lost.length + '</b>Cannot be recovered</div></div>' +
-      '<div class="plan-list">' + p.map(function (i) { return '<div class="pile-row" style="grid-template-columns:minmax(0,1fr) auto"><span>' + esc(i.name) + '<span class="sub mono">' + esc(cmdFor(i)) + '</span></span><span class="num">' + gb(i.size) + '</span>' + (i.ack ? '<label class="ack" style="grid-column:1/-1"><input type="checkbox" id="sheet-ack-' + i.id + '" data-ack="' + i.id + '"' + (S.acks[i.id] ? ' checked' : '') + '>I understand this cannot be recovered.</label>' : '') + '</div>'; }).join('') + '</div>' +
-      '<div class="row"><button class="btn primary" id="go" data-act="run"' + (acksDone(p) ? '' : ' disabled') + '>' + (p.length === 1 ? 'Remove it' : 'Toss them') + '</button><button class="btn" data-act="close">Not now</button></div>');
+    var title = one ? verbFor(p[0]) + ' ' + p[0].name + '?' : 'Toss ' + p.length + ' items?';
+    var flags = (held ? '<span class="cf-flag num">' + gb(held) + ' goes to the Trash first</span>' : '') +
+      (review ? '<span class="cf-flag">' + (one ? 'You approved this one' : review + ' you approved') + '</span>' : '<span class="cf-flag">All rebuildable by their tools</span>') +
+      (lost.length ? '<span class="cf-flag bad">' + lost.length + ' cannot be recovered</span>' : '');
+    var items = p.map(function (i) {
+      var parts = i.parts ? i.parts.filter(function (x) { return x.on && !x.done; }) : null;
+      return '<div class="cf-item">' + (one ? '' : '<div class="cf-top"><b>' + esc(i.name) + '</b><span class="num">' + gb(i.size) + '</span></div>') +
+        '<dl class="cf-lines"><dt>Runs</dt><dd class="mono">' + esc(i.cmd) + '</dd><dt>To get it back</dt><dd>' + esc(i.back) + '</dd><dt>Last used</dt><dd>' + esc(age(i.last)) + '</dd></dl>' +
+        (parts && parts.length ? '<details class="cf-parts"><summary>Includes ' + parts.length + ': ' + esc(parts.slice(0, 3).map(function (x) { return x.n; }).join(', ')) + (parts.length > 3 ? ' and ' + (parts.length - 3) + ' more' : '') + '</summary><ul>' + parts.map(function (x) { return '<li>' + esc(x.n) + ' <span class="muted num">' + gb(x.s) + '</span></li>'; }).join('') + '</ul></details>' : '') +
+        (i.ack ? '<label class="ack"><input type="checkbox" id="sheet-ack-' + i.id + '" data-ack="' + i.id + '"' + (S.acks[i.id] ? ' checked' : '') + '>I understand this cannot be recovered.</label>' : '') + '</div>';
+    }).join('');
+    openSheet('<div class="st-head"><h2 id="sheet-title">' + esc(title) + '</h2><button class="icon-x" data-act="close" aria-label="Cancel">&times;</button></div>' +
+      '<div class="st-body"><div class="cf-sum"><div class="cf-big num">' + gb(now) + ' <small>free right away</small></div><div class="cf-flags">' + flags + '</div></div>' +
+      '<div class="cf-list plan-list">' + items + '</div>' +
+      '<p class="cf-safe"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5l5.5 2v4.2c0 3.2-2.3 5.6-5.5 6.8C4.8 13.3 2.5 10.9 2.5 7.7V3.5Z" fill="var(--safe)" opacity=".18" stroke="var(--safe)" stroke-width="1.4"/><path d="M5.3 8.2l1.9 1.9 3.6-3.8" fill="none" stroke="var(--safe)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Each item is checked again just before it goes. Anything that changed since the scan stays put.</span></p></div>' +
+      '<div class="st-foot"><button class="btn" data-act="close">Cancel</button><button class="btn primary" id="go" data-act="run"' + (acksDone(p) ? '' : ' disabled') + '>' + (one ? verbFor(p[0]) + ' ' + gb(total) : 'Toss ' + gb(total)) + '</button></div>', 'framed');
+  }
+  /* Demo only: these stand in for the outcomes a real run can have. */
+  var DEMO_FAIL = { 'd-cache': 'Docker did not answer within 20 seconds' };
+  function cubeHTML(n) {
+    var spots = [[0, 56], [36, 56], [72, 56], [108, 56], [18, 24], [54, 24], [90, 24], [36, -8], [72, -8]], at = spots[n % spots.length];
+    return '<div class="cube" id="cube-' + n + '" style="--at: translate3d(' + at[0] + 'px,' + at[1] + 'px,0); transform: var(--at)"><i></i><i></i><i></i><i></i><i></i><i></i></div>';
+  }
+  function voyageHTML(count) {
+    var cubes = ''; for (var n = Math.min(count, 9) - 1; n >= 0; n--) cubes += cubeHTML(n);
+    return '<div class="voyage" aria-hidden="true">' +
+      '<svg class="vsea" viewBox="0 0 440 64" preserveAspectRatio="none"><path d="M0 18 q20 -10 40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 V64 H0Z" fill="var(--sea-a)"/><path d="M0 30 q20 -10 40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 V64 H0Z" fill="var(--sea-b)"/></svg>' +
+      '<svg class="hull" viewBox="0 0 230 46"><path d="M0 2H230Q224 40 176 44H40Q6 40 0 2Z" fill="var(--hull)"/><path d="M0 2H230L228 10H2Z" fill="var(--hull-dark)"/></svg>' +
+      '<div class="deck" id="deck">' + cubes + '</div>' +
+      '<svg class="splash" id="splash" viewBox="0 0 70 24"><ellipse cx="35" cy="12" rx="32" ry="9"/><ellipse cx="35" cy="12" rx="20" ry="6"/></svg>' +
+      '<div class="count num"><b id="run-freed">0.0 GB</b>freed so far</div></div>';
   }
   async function run() {
-    var p = S.target.map(byId), done = 0, freed = 0, held = 0, skipped = [], step = reduced ? 50 : 260;
-    S.running = true;
-    openSheet('<h2 id="sheet-title">Tossing crates</h2><p id="run-now" class="muted"></p><div class="progress"><i id="run-bar" style="width:0"></i></div>');
+    var p = S.target.map(byId), done = 0, freed = 0, held = 0, results = [], step = reduced ? 60 : 520, before = free();
+    S.running = true; S.cancel = false;
+    openSheet('<div class="st-head"><h2 id="sheet-title">Tossing crates</h2></div><div class="st-body">' + voyageHTML(p.length) +
+      '<div class="now-doing"><span id="run-now" aria-live="polite"></span><span class="num muted" id="run-of"></span></div><div class="progress"><i id="run-bar" style="width:0"></i></div><div class="tally" id="run-tally"></div></div>' +
+      '<div class="st-foot"><button class="btn" id="run-cancel" data-act="cancel-run">Stop after this one</button></div>', 'framed');
+    var tally = function () {
+      var c = function (st) { return results.filter(function (x) { return x.state === st; }).length; };
+      $('run-tally').innerHTML = '<span class="safe"><i></i>' + c('done') + ' tossed</span>' + (c('stayed') ? '<span class="review"><i></i>' + c('stayed') + ' stayed on board</span>' : '') + (c('failed') ? '<span class="risky"><i></i>' + c('failed') + ' could not go</span>' : '');
+    };
+    tally();
     for (var n = 0; n < p.length; n++) {
-      var i = p[n];
+      if (S.cancel) break;
+      var i = p[n], cube = $('cube-' + (n % 9));
       $('run-now').textContent = 'Checking ' + i.name;
-      var c = document.querySelector('[data-crate="' + i.id + '"]');
+      $('run-of').textContent = (n + 1) + ' of ' + p.length;
+      if (cube) cube.classList.add('lift');
       await sleep(step);
       delete S.queued[i.id];
-      if (i.id === 'wt-exp') { skipped.push(i); S.skipped[i.id] = true; }
+      var c = document.querySelector('[data-crate="' + i.id + '"]');
+      if (i.id === 'wt-exp') { results.push({ i: i, state: 'stayed', why: 'A new commit appeared after the scan.' }); S.skipped[i.id] = true; if (cube) { cube.classList.remove('lift'); cube.classList.add('stay'); } }
+      else if (DEMO_FAIL[i.id]) { results.push({ i: i, state: 'failed', why: DEMO_FAIL[i.id] }); delete DEMO_FAIL[i.id]; if (cube) { cube.classList.remove('lift'); cube.classList.add('stuck'); } }
       else {
+        if (cube) { cube.classList.add('gone'); var sp = $('splash'); if (sp) { sp.classList.remove('go'); void sp.getBBox(); setTimeout(function () { var s2 = $('splash'); if (s2) s2.classList.add('go'); }, reduced ? 0 : 380); } }
         if (c) c.classList.add('crate-fly');
         var partial = i.parts && i.parts.some(function (x) { return !x.on; }), size = i.size, key = partial ? i.id + '#' + n : i.id;
         if (i.action === 'trash') { S.held[key] = size; S.heldBy[key] = i.map; held += size; }
         else { if (!partial) S.gone[i.id] = true; S.tossed += size; S.freedBy[i.map] = (S.freedBy[i.map] || 0) + size; freed += size; }
-        if (partial) { i.parts.forEach(function (x) { x.done = x.done || x.on; x.on = !x.done; }); i.size = partSum(i); delete S.excl[i.id]; S.excl[i.id] = true; }
+        if (partial) { i.parts.forEach(function (x) { x.done = x.done || x.on; x.on = !x.done; }); i.size = partSum(i); S.excl[i.id] = true; }
+        results.push({ i: i, state: 'done', size: size, held: i.action === 'trash' });
       }
       done++;
       $('run-bar').style.width = (done / p.length * 100) + '%';
+      $('run-freed').textContent = gb(freed);
+      tally();
       var bx = $('free'); if (bx) bx.textContent = free().toFixed(1);
       $('boat').style.transform = boatAt(free());
-      await sleep(step / 2);
+      await sleep(step * 0.8);
+      if (n + 9 < p.length && cube) { cube.className = 'cube'; }
     }
-    S.running = false; S.manual = null;
-    var count = p.length - skipped.length;
-    S.log.unshift({ when: 'Today', text: 'Tossed ' + count + ' crate' + (count === 1 ? '' : 's'), freed: freed, note: (held ? gb(held) + ' in the Trash. ' : '') + (skipped.length ? skipped.length + ' skipped because it changed.' : 'Nothing skipped.') });
-    openSheet('<h2 id="sheet-title">Much better!</h2><p class="num">I freed <b>' + gb(freed) + '</b>. You now have <b>' + gb(free()) + '</b> free.</p>' +
-      (held ? '<p class="num">' + gb(held) + ' is in the Trash and frees up when you empty it.</p>' : '') +
-      skipped.map(function (s) { return '<p style="color:var(--review)">' + esc(s.name) + ' stayed on board. A new commit appeared after the scan.</p>'; }).join('') +
-      (p.some(function (x) { return x.group === 'Docker'; }) ? '<p class="note">Docker Desktop may take a while to return its space. I will show the measured change in the Logbook.</p>' : '') +
-      '<div class="row"><button class="btn primary" id="go" data-act="close">Done</button></div>');
+    var notStarted = p.slice(done);
+    S.running = false; S.manual = null; S.cancel = false;
+    S.lastRun = { results: results, notStarted: notStarted, freed: freed, held: held, before: before, after: free() };
+    var cnt = function (st) { return results.filter(function (x) { return x.state === st; }).length; };
+    S.log.unshift({ when: 'Today', text: 'Tossed ' + cnt('done') + ' crate' + (cnt('done') === 1 ? '' : 's'), freed: freed, note: [held ? gb(held) + ' in the Trash' : '', cnt('stayed') ? cnt('stayed') + ' stayed on board' : '', cnt('failed') ? cnt('failed') + ' could not go' : '', notStarted.length ? notStarted.length + ' not started' : ''].filter(Boolean).join('. ') || 'Nothing skipped.' });
+    outcomeSheet();
     renderAll();
   }
+  function outcomeSheet() {
+    var R = S.lastRun, res = R.results, by = function (st) { return res.filter(function (x) { return x.state === st; }); };
+    var ok = by('done'), stayed = by('stayed'), failed = by('failed');
+    var happy = '<svg viewBox="0 0 96 80" aria-hidden="true"><path d="M8 46H90Q86 70 66 74H28Q10 70 8 46Z" fill="var(--hull)"/><rect x="16" y="14" width="40" height="34" rx="10" fill="var(--cabin)" stroke="var(--boat-ink)" stroke-width="2.5"/><path d="M24 28q3 -4 6 0M38 28q3 -4 6 0" fill="none" stroke="var(--boat-ink)" stroke-width="2.5" stroke-linecap="round"/><path d="M28 36q6 6 12 0" fill="var(--boat-ink)"/><circle cx="22" cy="36" r="3" fill="#FFB4A8"/><circle cx="50" cy="36" r="3" fill="#FFB4A8"/><path d="M0 72q8 -5 16 0t16 0t16 0t16 0t16 0t16 0V80H0Z" fill="var(--sea-b)"/></svg>';
+    var max = Math.max(R.after + 10, 60), bw = function (v) { return (Math.max(0, v) / max * 100).toFixed(1) + '%'; };
+    var head = R.freed > 0 ? '<div class="done-big num">' + gb(R.freed) + ' freed</div>' : '<div class="done-big">Nothing freed yet</div>';
+    var list = function (arr, fn) { return '<ul>' + arr.map(fn).join('') + '</ul>'; };
+    var section = function (cls, title, sub, arr, fn, open) { return arr.length ? '<details class="res ' + cls + '"' + (open ? ' open' : '') + '><summary><i></i><span>' + title + '<small>' + sub + '</small></span><span class="n num">' + arr.length + '</span></summary>' + list(arr, fn) + '</details>' : ''; };
+    var whyGroups = function (arr) { var g = {}; arr.forEach(function (x) { (g[x.why] = g[x.why] || []).push(x); }); return Object.keys(g).map(function (k) { return { why: k, items: g[k] }; }); };
+    var failedSub = whyGroups(failed).map(function (g) { return g.why; }).join(' · ');
+    openSheet('<div class="st-head"><h2 id="sheet-title">' + (failed.length || stayed.length ? 'Done, mostly' : 'Much better!') + '</h2><button class="icon-x" data-act="close" aria-label="Close">&times;</button></div><div class="st-body">' +
+      '<div class="done-hero">' + happy + '<div>' + head + '<div class="freebar" aria-hidden="true"><i style="width:' + bw(R.before) + ';background:var(--accent)"></i><i style="width:' + bw(R.after - R.before) + ';background:var(--safe)"></i></div>' +
+        '<div class="freebar-legend num"><span>' + gb(R.before) + ' free before</span><span><b>' + gb(R.after) + ' free now</b></span></div></div></div>' +
+      (R.held ? '<p class="note num">' + gb(R.held) + ' is in the Trash. It frees up when you empty it.</p>' : '') +
+      section('safe', 'Tossed', ok.length + ' item' + (ok.length === 1 ? '' : 's') + ', ' + gb(R.freed + R.held), ok, function (x) { return '<li>' + esc(x.i.name) + ' <span class="num">' + gb(x.size) + (x.held ? ', in the Trash' : '') + '</span></li>'; }, false) +
+      section('review', 'Stayed on board', 'They changed after the scan, so I left them alone', stayed, function (x) { return '<li>' + esc(x.i.name) + ' <span>' + esc(x.why) + '</span></li>'; }, true) +
+      section('risky', 'Could not go', failedSub, failed, function (x) { return '<li>' + esc(x.i.name) + ' <span class="num">' + gb(x.i.size) + '</span></li>'; }, true) +
+      section('', 'Not started', 'You stopped the run before these', R.notStarted, function (x) { return '<li>' + esc(x.name) + '</li>'; }, false) +
+      ((ok.some(function (x) { return x.i.group === 'Docker'; })) ? '<p class="note">Docker Desktop can take a while to hand space back. The Logbook shows the measured change.</p>' : '') +
+      '</div><div class="st-foot">' + (failed.length + R.notStarted.length ? '<button class="btn" id="retry" data-act="retry">Try ' + (failed.length + R.notStarted.length) + ' again</button>' : '') +
+      '<button class="btn primary" id="go" data-act="close">Done</button></div>', 'framed');
+  }
+
   var FOLDER_SVG = '<svg class="ficon" viewBox="0 0 34 28" aria-hidden="true"><path d="M2 6a3 3 0 0 1 3-3h8l3 3h13a3 3 0 0 1 3 3v14a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3Z" fill="var(--crate)" stroke="var(--crate-edge)" stroke-width="2"/></svg>';
   var LOCK_SVG = '<svg viewBox="0 0 12 12" aria-hidden="true"><rect x="1.5" y="5" width="9" height="6.5" rx="1.5" fill="var(--muted)"/><path d="M3.5 5V3.6a2.5 2.5 0 0 1 5 0V5" fill="none" stroke="var(--muted)" stroke-width="1.5"/></svg>';
   function folderRow(f, kind, n) {
@@ -829,6 +1006,7 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
       renderAll(); return;
     }
     if (b.dataset.spot) { S.spots[b.dataset.spot] = true; renderAll(); return; }
+    if (b.dataset.expand) { var ek = b.dataset.expand; S.expanded[ek] = !S.expanded[ek]; renderAll(); return; }
     if (b.dataset.step) { var st = b.dataset.step.split(':'); S[st[0]] += +st[1]; renderSettings(); renderHero(); return; }
     if (b.dataset.frm) { var fr = b.dataset.frm.split(':'), list = fr[0] === 'scan' ? S.folders : S.skip; S.removed = { kind: fr[0], f: list.splice(+fr[1], 1)[0], at: +fr[1] }; renderSettings(); return; }
     if (b.dataset.fundo) { var rm = S.removed; (rm.kind === 'scan' ? S.folders : S.skip).splice(rm.at, 0, rm.f); S.removed = null; renderSettings(); return; }
@@ -840,6 +1018,8 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
     if (a === 'close-tray') { S.tray = false; renderHero(); $('tray-btn').focus(); }
     else if (a === 'confirm') { S.tray = false; renderHero(); confirmSheet(picks()); }
     else if (a === 'run') run();
+    else if (a === 'cancel-run') { S.cancel = true; b.disabled = true; b.textContent = 'Stopping…'; }
+    else if (a === 'retry') { var again = S.lastRun.results.filter(function (x) { return x.state === 'failed'; }).map(function (x) { return x.i; }).concat(S.lastRun.notStarted); confirmSheet(again); }
     else if (a === 'close') { closeSheet(); renderAll(); }
     else if (a === 'goto-questions') { S.tab = 'tidy'; renderHero(); $('tab-tidy').scrollIntoView({ block: 'start', behavior: reduced ? 'auto' : 'smooth' }); $('tab-tidy').focus({ preventScroll: true }); }
     else if (a === 'toggle-pile') { S.pile = !S.pile; renderHero(); }

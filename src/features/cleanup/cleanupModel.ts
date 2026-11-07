@@ -1,6 +1,6 @@
 // What the cleanup sheets say, as pure functions over backend data. Ported
 // from the prototype's `confirmSheet()`, `cmdFor()` and `run()`.
-import { gb, plural } from "../../lib/format.ts";
+import { GB, gb, plural } from "../../lib/format.ts";
 import type { CleanupPlan, ItemState, Platform, RunDetail, RunItem, Suggestion } from "../../lib/types.ts";
 
 /** The action line of a plan row (prototype `cmdFor`): the item's action,
@@ -14,15 +14,7 @@ export function cmdFor(s: Suggestion): string {
 /** Only commands use the code font in plan rows (decision 2026-11-05). */
 export const isCommand = (s: Pick<Suggestion, "action">) => s.action === "native_command";
 
-export function confirmTitle(plan: CleanupPlan, permanent: boolean): string {
-  const n = plan.items.length;
-  return permanent ? `Delete ${plural(n, "item")} permanently?` : `Toss ${plural(n, "crate")}?`;
-}
 
-export function goLabel(plan: CleanupPlan, permanent: boolean): string {
-  if (permanent) return "Delete permanently";
-  return plan.items.length === 1 ? "Remove it" : "Toss them";
-}
 
 /** The acknowledgment next to an item that needs its own confirmation. */
 export const ackText = (s: Suggestion) => (s.recoverable ? "I understand what this removes." : "I understand this cannot be recovered.");
@@ -74,11 +66,6 @@ export function expectedFreed(run: RunDetail): number {
 
 export const trashUnavailable =(i: RunItem) => i.state === "failed" && !!i.reason?.startsWith("Trash unavailable");
 
-export function resultTitle(run: RunDetail): string {
-  if (run.state === "canceled") return "Stopped";
-  if (run.state === "interrupted") return "Interrupted";
-  return run.items.some((i) => removed(i.state)) ? "Much better!" : "Nothing tossed";
-}
 
 /** The Logbook's one-line note (prototype SAMPLE_LOG wording). */
 export function logNote(r: { trashBytes: number; skipped: number }, platform: Platform, trash: (p: Platform) => string): string {
@@ -107,4 +94,112 @@ export function resultWord(i: RunItem, platform: Platform, trash: (p: Platform) 
     default:
       return "Waiting";
   }
+}
+
+/** "592+ days" reads as "1+ year" (prototype `age()`). */
+export function age(t: string): string {
+  return t.replace(/(\d+)\+ days/, (m, d: string) => {
+    const n = +d;
+    return n >= 730 ? Math.floor(n / 365) + "+ years" : n >= 365 ? "1+ year" : n >= 60 ? Math.floor(n / 30) + "+ months" : m;
+  });
+}
+
+/** The verb for one item (prototype `verbFor`). */
+export const verbFor = (s: Pick<Suggestion, "action">) => (s.action === "trash" ? "Move to Trash" : s.action === "delete" ? "Delete" : "Remove");
+
+/** The confirmation's title and button (prototype `confirmSheet()`). */
+export function confirmHead(plan: CleanupPlan, permanent: boolean): { title: string; go: string } {
+  const n = plan.items.length;
+  const total = plan.items.reduce((t, s) => t + s.sizeBytes, 0);
+  if (permanent) return { title: `Delete ${plural(n, "item")} permanently?`, go: "Delete permanently" };
+  if (n === 1) return { title: `${verbFor(plan.items[0])} ${plan.items[0].title}?`, go: `${verbFor(plan.items[0])} ${gb(total)}` };
+  return { title: `Toss ${n} items?`, go: `Toss ${gb(total)}` };
+}
+
+/** What happened to one plan item, from its steps (a split item has one
+ * step per part): it left the boat if any part did. */
+export type Outcome = "waiting" | "active" | "tossed" | "stayed" | "failed" | "not_started";
+export function outcomeOf(run: RunDetail | null, itemId: string): Outcome {
+  const steps = stepsOf(run, itemId);
+  if (!steps.length) return "waiting";
+  if (!steps.every((x) => isFinal(x.state))) return steps.some((x) => x.state === "checking" || x.state === "running") ? "active" : "waiting";
+  if (steps.some((x) => removed(x.state))) return "tossed";
+  if (steps.some((x) => x.state === "failed" || x.state === "interrupted")) return "failed";
+  if (steps.some((x) => x.state === "skipped")) return "stayed";
+  return "not_started";
+}
+
+/** The run sheet's figures (prototype `run()`). */
+export function runFigures(plan: CleanupPlan, run: RunDetail | null) {
+  const out = plan.items.map((s) => outcomeOf(run, s.id));
+  const count = (o: Outcome) => out.filter((x) => x === o).length;
+  const active = out.indexOf("active");
+  const handled = out.filter((o) => o !== "waiting" && o !== "active").length;
+  // Space freed so far: removed steps that did not go to the Trash.
+  const freed = (run?.items ?? []).filter((i) => i.state === "done").reduce((t, i) => t + i.expectedBytes, 0);
+  return { outcomes: out, tossed: count("tossed"), stayed: count("stayed"), failed: count("failed"), handled, at: active >= 0 ? active + 1 : Math.min(Math.max(handled, 1), plan.items.length), freed };
+}
+
+/** The 3D deck shows up to nine crates; crate k stands for items k, k+9, ...
+ * (prototype `cubeHTML`). Its look follows the item it stands for now. */
+export type CubeLook = "" | "lift" | "gone" | "stay" | "stuck";
+export function cubeLooks(outcomes: Outcome[]): CubeLook[] {
+  const n = Math.min(outcomes.length, 9);
+  const looks: CubeLook[] = [];
+  for (let k = 0; k < n; k++) {
+    let look: CubeLook = "";
+    for (let i = k; i < outcomes.length; i += 9) {
+      const o = outcomes[i];
+      if (o === "waiting") break;
+      if (o === "active") {
+        look = "lift";
+        break;
+      }
+      // A later item takes this crate's place once this one is handled.
+      if (i + 9 < outcomes.length) {
+        look = "";
+        continue;
+      }
+      look = o === "tossed" ? "gone" : o === "stayed" ? "stay" : o === "failed" ? "stuck" : "";
+    }
+    looks.push(look);
+  }
+  return looks;
+}
+
+/** One line per plan item in the result. */
+export interface ResultLine {
+  id: string;
+  title: string;
+  bytes: number;
+  inTrash: boolean;
+  why: string;
+}
+
+/** The result's sections (prototype `outcomeSheet()`): what was tossed, what
+ * stayed on board, what could not go (with its reasons, each once) and what
+ * did not start. */
+export function resultSections(plan: CleanupPlan, run: RunDetail) {
+  const sec: Record<"tossed" | "stayed" | "failed" | "not_started", ResultLine[]> = { tossed: [], stayed: [], failed: [], not_started: [] };
+  for (const s of plan.items) {
+    const o = outcomeOf(run, s.id);
+    const steps = stepsOf(run, s.id);
+    if (o === "tossed") {
+      const gone = steps.filter((x) => removed(x.state));
+      sec.tossed.push({ id: s.id, title: s.title, bytes: gone.reduce((t, x) => t + x.expectedBytes, 0), inTrash: gone.every((x) => x.state === "moved_to_trash"), why: "" });
+    } else if (o === "stayed" || o === "failed") {
+      const bad = steps.find((x) => (o === "failed" ? x.state === "failed" || x.state === "interrupted" : x.state === "skipped"));
+      sec[o].push({ id: s.id, title: s.title, bytes: s.sizeBytes, inTrash: false, why: bad?.reason ?? (o === "stayed" ? "It changed after the scan." : "") });
+    } else if (o === "not_started" || o === "waiting") sec.not_started.push({ id: s.id, title: s.title, bytes: s.sizeBytes, inTrash: false, why: "" });
+  }
+  const reasons = [...new Set(sec.failed.map((l) => l.why).filter(Boolean))];
+  const tossedBytes = sec.tossed.reduce((t, l) => t + l.bytes, 0);
+  return { ...sec, reasons, tossedBytes, retryIds: [...sec.failed, ...sec.not_started].map((l) => l.id) };
+}
+
+/** The free-space bar under the result's headline. */
+export function freeBar(before: number, after: number) {
+  const max = Math.max(after / GB + 10, 60);
+  const w = (v: number) => ((Math.max(0, v) / GB / max) * 100).toFixed(1) + "%";
+  return { before: w(before), gained: w(after - before) };
 }

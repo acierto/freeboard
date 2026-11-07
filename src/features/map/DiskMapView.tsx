@@ -145,7 +145,7 @@ function Detail({ map, tile, items, spots, chosen, act }: { map: DiskMap; tile: 
       <>
         <GroupActions items={inside} slug={"map-" + t.id} act={act} />
         {(blocked.length > 1 ? inside.filter((s) => !s.blockedReason) : inside).map((s) => (
-          <Row key={s.id} s={s} ctx="m" chosen={chosen} act={act} />
+          <Row key={s.id} s={s} ctx="m" chosen={chosen} act={act} max={inside[0]?.sizeBytes ?? 0} />
         ))}
         {/* More than one protected item share one folded row, as under
             Quick questions (a real disk had 139; found by the user). */}

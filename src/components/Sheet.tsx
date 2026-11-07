@@ -17,6 +17,7 @@ export function Sheet({
   fallbackFocus,
   className,
   closeLabel,
+  headRow = false,
   children,
 }: {
   title: string;
@@ -28,6 +29,8 @@ export function Sheet({
   className?: string;
   /** With a label, the title row gets a close button (prototype `.st-head`). */
   closeLabel?: string;
+  /** The prototype's `.st-head` title row, even without a close button. */
+  headRow?: boolean;
   children: ReactNode;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -111,12 +114,14 @@ export function Sheet({
       }}
     >
       <div className={className ? `sheet ${className}` : "sheet"} role="dialog" aria-modal="true" aria-labelledby="sheet-title" tabIndex={-1} id="sheet" ref={ref}>
-        {closeLabel ? (
+        {closeLabel || headRow ? (
           <div className="st-head">
             <h2 id="sheet-title">{title}</h2>
-            <button className="icon-x" data-act="close" aria-label={closeLabel} onClick={onClose}>
-              ×
-            </button>
+            {closeLabel && (
+              <button className="icon-x" data-act="close" aria-label={closeLabel} onClick={onClose}>
+                ×
+              </button>
+            )}
           </div>
         ) : (
           <h2 id="sheet-title">{title}</h2>

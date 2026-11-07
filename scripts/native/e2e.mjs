@@ -120,15 +120,15 @@ try {
 
   // ---- Everything I found ----------------------------------------------------------
   await click('details[data-open="grp-Projects"] > summary');
-  const nm = await js(`const r=[...document.querySelectorAll('#v-tidy .row-item')].find(r=>r.textContent.includes('node_modules in'));return r?r.textContent:null`);
+  const nm = await js(`const r=[...document.querySelectorAll('#v-tidy .irow')].find(r=>r.textContent.includes('node_modules in'));if(r&&r.querySelector('.irow-main').getAttribute('aria-expanded')!=='true')r.querySelector('.irow-main').click();return r?r.querySelector('.iname').textContent:null`);
   check("projects are one node_modules item split by project", /node_modules in \d+ inactive projects/.test(nm ?? ""), nm ?? "missing");
-  const partsBox = await js(`const d=[...document.querySelectorAll('#v-tidy details.parts')].find(d=>d.closest('.row-item').textContent.includes('node_modules in'));d.open=true;return d.querySelector('summary').textContent`);
+  const partsBox = await js(`const d=[...document.querySelectorAll('#v-tidy details.parts')].find(d=>d.closest('.irow').textContent.includes('node_modules in'));d.open=true;return d.querySelector('summary').textContent`);
   check("Choose which shows every project", /Choose which \(\d+ of \d+\)/.test(partsBox), partsBox);
-  const sizeBefore = await js(`return [...document.querySelectorAll('#v-tidy .row-item')].find(r=>r.textContent.includes('node_modules in')).querySelector('.size').textContent`);
-  await js(`[...document.querySelectorAll('#v-tidy details.parts')].find(d=>d.closest('.row-item').textContent.includes('node_modules in')).querySelector('input').click()`);
+  const sizeBefore = await js(`return [...document.querySelectorAll('#v-tidy .irow')].find(r=>r.textContent.includes('node_modules in')).querySelector('.isize').textContent`);
+  await js(`[...document.querySelectorAll('#v-tidy details.parts')].find(d=>d.closest('.irow').textContent.includes('node_modules in')).querySelector('input').click()`);
   await sleep(1200);
-  const sizeAfter = await js(`return [...document.querySelectorAll('#v-tidy .row-item')].find(r=>r.textContent.includes('node_modules in')).querySelector('.size').textContent`);
-  const partsAfter = await js(`return [...document.querySelectorAll('#v-tidy details.parts')].find(d=>d.closest('.row-item').textContent.includes('node_modules in')).querySelector('summary').textContent`);
+  const sizeAfter = await js(`return [...document.querySelectorAll('#v-tidy .irow')].find(r=>r.textContent.includes('node_modules in')).querySelector('.isize').textContent`);
+  const partsAfter = await js(`return [...document.querySelectorAll('#v-tidy details.parts')].find(d=>d.closest('.irow').textContent.includes('node_modules in')).querySelector('summary').textContent`);
   const [, on, of] = partsBox.match(/\((\d+) of (\d+)\)/) ?? [];
   check("deselecting a part is saved", partsAfter === `Choose which (${on - 1} of ${of})`, `${partsBox} → ${partsAfter}`);
   check("deselecting a part lowers the item's size", parseFloat(sizeAfter) < parseFloat(sizeBefore), `${sizeBefore} → ${sizeAfter}`);
@@ -147,12 +147,14 @@ try {
   }
 
   // ---- Keep ------------------------------------------------------------------------------
-  const keepId = await js(`const b=document.querySelector('#v-tidy [data-keep]');return b?b.dataset.keep:null`);
+  // Rows fold their actions: open one that is not open yet, then keep it.
+  const keepId = await js(`const r=[...document.querySelectorAll('#v-tidy .irow')].find(r=>r.querySelector('input[data-pile]')&&!r.textContent.includes('node_modules in'));if(!r)return null;r.querySelector('.irow-main').click();return r.querySelector('input[data-pile]').dataset.pile`);
   if (keepId) {
+    await sleep(400);
     await click(`[data-keep="${keepId}"]`);
     check("Keep turns into Stop keeping", (await text(`[data-keep="${keepId}"]`)) === "Stop keeping");
     await click(`[data-keep="${keepId}"]`);
-    check("Stop keeping makes it available again", (await text(`[data-keep="${keepId}"]`)) === "Keep");
+    check("Stop keeping makes it available again", (await text(`[data-keep="${keepId}"]`)) === "Keep, don’t suggest");
   }
 
   // ---- Clean up (slice 2): only disposable fixture folders in ~/fbtest ---------------------
@@ -162,22 +164,22 @@ try {
   const home = process.env.HOME;
   const nmBefore = ["web-app", "admin-portal", "docs-site", "storybook"].filter((p) => fs.existsSync(`${home}/fbtest/${p}/node_modules`));
   check("all four fixture node_modules exist before cleanup", nmBefore.length === 4, nmBefore.join(", "));
-  const deselected = await js(`const d=[...document.querySelectorAll('#v-tidy details.parts')].find(d=>d.closest('.row-item').textContent.includes('node_modules in'));const i=[...d.querySelectorAll('input')].find(i=>!i.checked);return i?i.closest('label').querySelector('span').textContent:null`);
+  const deselected = await js(`const d=[...document.querySelectorAll('#v-tidy details.parts')].find(d=>d.closest('.irow').textContent.includes('node_modules in'));const i=[...d.querySelectorAll('input')].find(i=>!i.checked);return i?i.closest('label').querySelector('span').textContent:null`);
   check("one project is deselected under Choose which", !!deselected, String(deselected));
   await click('[data-goal="all"]');
   await sleep(800);
   await click("#cta");
   await waitFor("the confirmation sheet", () => find("#sheet").then((l) => l.length));
   const title = await text("#sheet-title");
-  check("Toss opens the confirmation with the pile", /^Toss \d+ crates?\?$/.test(title), title);
-  const totals = await js(`return [...document.querySelectorAll('#sheet .sum3 > div')].map(d=>d.textContent)`);
-  check("the confirmation shows three totals", totals.length === 3, totals.join(" | "));
+  check("Toss opens the confirmation with the pile", /^Toss \d+ items\?$/.test(title) || /^(Remove|Delete|Move to Trash) .+\?$/.test(title), title);
+  const freeNow = await text("#sheet .cf-big");
+  check("the confirmation says what is free right away", /GB free right away$/.test(freeNow), freeNow);
   await shot("confirm");
   await click('#sheet [data-act="run"]');
-  await waitFor("the result sheet", async () => (await text("#sheet-title")) === "Much better!", 120000);
+  await waitFor("the result sheet", async () => ["Much better!", "Done, mostly"].includes(await text("#sheet-title")), 120000);
   await shot("result");
   const result = await js(`return document.getElementById('sheet').textContent`);
-  check("the result reports the measured free space", /I freed .*GB/.test(result) || /freed/i.test(result), result.slice(0, 160));
+  check("the result reports the measured free space", /GB freed/.test(result) && /free now/.test(result), result.slice(0, 160));
   const nmAfter = ["web-app", "admin-portal", "docs-site", "storybook"].filter((p) => fs.existsSync(`${home}/fbtest/${p}/node_modules`));
   check("only the deselected project's node_modules is left", nmAfter.length === 1 && nmAfter[0] === deselected, `left: ${nmAfter.join(", ")}; deselected: ${deselected}`);
   check("the Rust build output is removed", !fs.existsSync(`${home}/fbtest/rust-cli/target`));

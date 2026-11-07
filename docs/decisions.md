@@ -227,3 +227,15 @@ A second prototype revision from the user redesigned the helm; it replaced `docs
 - Unticking every area is a real state (`noAreas` on the pile, `set_pile_areas(areas, none)`): only added items stay in the pile, and the note says "No areas picked." An empty area list still means everywhere.
 - The Toss button is named by its visible text (WCAG 2.5.3), not the prototype's `aria-label`, and its small line is fully opaque (`.tnote`): at 85% it is 4.1:1 on the light theme's teal. The home visual entries apply the same class to the reference.
 - The Toss button is no longer disabled while a cleanup runs (the run's sheet covers the page and the click is ignored), so its bottom edge matches the prototype under the progress sheet.
+- 2026-11-07: Baselines regenerated from `docs/reference/freeboard-prototype.html` (SHA-256 `ad5d6471db14…`, chromium 156.0.8078.4, 164 captures). Rationale: Item rows, confirmation, cleanup run and result redesigned by the product owner in the prototype revision of 2026-11-07 (third): one-line item rows with details on demand, quiet group links and a pile bar, a framed confirmation with a big free-now figure and flags, a 3D deck of crates during the run with live counters and Stop after this one, and a result with a before/after bar, grouped sections and Try again. Affected screens: Quick questions and disk map lists, every cleanup sheet; new entries cleanup-result-open and cleanup-retry.
+
+## 2026-11-07 — Item rows, confirmation, the cleanup run and its result
+
+A third prototype revision from the user redesigned the item rows, the confirmation, the run and the result; it replaced `docs/reference/freeboard-prototype.html` (hash updated). Implemented as drawn, with these choices:
+
+- **Worktree removals timed out** on a real Mac (dozens of `git worktree remove ... timed out`). Cleanup already removes items one at a time; the cause was the runner's 20-second limit, which is meant for detector reads (spec "Resource detection"). Confirmed cleanup actions now get `ACTION_TIMEOUT` (30 minutes): stopping `git worktree remove` halfway can leave a half-deleted worktree. A timeout now reads "It took longer than 30 minutes, so I stopped it." for every item, without the path, so the result groups identical failures into one reason.
+- The run scene's "freed so far" counts items removed outright; Trash items count once the Trash is emptied, as in the prototype.
+- "Try N again" plans the items that could not go or did not start, through the usual confirmation (`create_plan` with their IDs). An item that has disappeared since makes that plan fail with its message.
+- The result keeps the spec's measured figure and, when it differs, the note "I expected to free X. This is the change your disk reports.", which the prototype does not have. "Delete permanently instead" stays for items whose Trash was unavailable (spec).
+- Commands keep the code font only for commands in the confirmation's Runs line (decision 2026-11-05); the reference applies the same rule.
+- The fixture backend gained `fail=<id>`, failing an item once like the prototype's staged Docker failure.

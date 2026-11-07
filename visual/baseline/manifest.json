@@ -1,7 +1,7 @@
 {
   "version": 1,
   "source": "docs/reference/freeboard-prototype.html",
-  "sourceSha256": "d8903562971bf6bae51c7ca8589ded996f1b26d031c48ac781c8345dec7c4a65",
+  "sourceSha256": "ad5d6471db141cd2e4debfc448849e7742ee1a6a94ce2b7cc54a097c89477c28",
   "engine": {
     "engine": "chromium",
     "version": "156.0.8078.4",
@@ -20,8 +20,8 @@
   "locale": "en-US",
   "timezone": "UTC",
   "adapter": "scripts/visual/lib.mjs referenceHtml(): local fonts, data-theme, host reset (src/styles/reset.css), prototype-only controls hidden (.top-right .sim, .top-right [data-act=\"reset\"], .top > div > .note, .top-right .tray)",
-  "acceptedAt": "2026-11-07T07:23:23.708Z",
-  "rationale": "Home entries now mirror the app's full-opacity Toss note (.tnote, WCAG AA contrast in the light theme) on the reference. Affected screens: home-healthy, home-low, home-critical.",
+  "acceptedAt": "2026-11-07T07:59:22.006Z",
+  "rationale": "Item rows, confirmation, cleanup run and result redesigned by the product owner in the prototype revision of 2026-11-07 (third): one-line item rows with details on demand, quiet group links and a pile bar, a framed confirmation with a big free-now figure and flags, a 3D deck of crates during the run with live counters and Stop after this one, and a result with a before/after bar, grouped sections and Try again. Affected screens: Quick questions and disk map lists, every cleanup sheet; new entries cleanup-result-open and cleanup-retry.",
   "entries": {
     "cleanup-confirm-ack--dark--1120x900": {
       "id": "cleanup-confirm-ack",
@@ -38,7 +38,7 @@
       "fixture": "",
       "supplemental": false,
       "note": null,
-      "sha256": "f22db3e8a7104fa104ed226d2f416dc811272eb3335cc97742575ebd7b7c3cb9"
+      "sha256": "4159e274111cfbf3b9b548e5e56d42dc68296fd35cfd5ff904b275909e1684e1"
     },
     "cleanup-confirm-ack--dark--390x844": {
       "id": "cleanup-confirm-ack",
@@ -55,7 +55,7 @@
       "fixture": "",
       "supplemental": false,
       "note": null,
-      "sha256": "0fd1fc2407feb3f857a1bc4e20a06ff29ad04bf729e7d6fbd9d97982fc13b1a2"
+      "sha256": "a9912b221ad3b3c94af3a55a94bc4f344d4e80bd740080f9b93e6fbf851b1f40"
     },
     "cleanup-confirm-ack--light--1120x900": {
       "id": "cleanup-confirm-ack",
@@ -72,7 +72,7 @@
       "fixture": "",
       "supplemental": false,
       "note": null,
-      "sha256": "4366554a8b14cd0c497b4ca9f65175473f25b3fd1a7226c121cb55df56dbb9f7"
+      "sha256": "080528e7e05dc010b56f151b40524729bf388d18b6699b0988bd17beb16ac327"
     },
     "cleanup-confirm-ack--light--390x844": {
       "id": "cleanup-confirm-ack",
@@ -89,7 +89,7 @@
       "fixture": "",
       "supplemental": false,
       "note": null,
-      "sha256": "d3de3e5cffead4271693b0af58e4279f3fc319770bb41bc35407edfe8a684a81"
+      "sha256": "b27563977e3bd35d8203249f11609f4abfb99fcc3865cc0144903539cecf831c"
     },
     "cleanup-confirm-long--dark--1120x900": {
       "id": "cleanup-confirm-long",
@@ -106,7 +106,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Plan rows use the code font only for commands (decision 2026-11-05); prose action lines lose the prototype's mono class.",
-      "sha256": "5e3be86c3fc1e17f0ee9c9b0d3fc6ac8d14948ec4a3a7b1ce3289cc5bbced041"
+      "sha256": "b657f751c584844175795a758c0fd81cb7af94f11eab57ad5121a2f7fbb76bb6"
     },
     "cleanup-confirm-long--dark--390x844": {
       "id": "cleanup-confirm-long",
@@ -123,7 +123,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Plan rows use the code font only for commands (decision 2026-11-05); prose action lines lose the prototype's mono class.",
-      "sha256": "cc4cb233b7213bf88514bda849471f7408242567a916980951ac967490fa7f73"
+      "sha256": "a12541d0308ca40209c2751c24ffaa27c67e5a0b4cd618d17bad7d5f424d5880"
     },
     "cleanup-confirm-long--light--1120x900": {
       "id": "cleanup-confirm-long",
@@ -140,7 +140,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Plan rows use the code font only for commands (decision 2026-11-05); prose action lines lose the prototype's mono class.",
-      "sha256": "f37b462d8cdd24558d282308beb958a35d396cdf1fdb7b7de07e41f35e99792c"
+      "sha256": "3cef09a1d54f685ed7f91452972727e385a1f0c25ce1b2e9ebeb7e3fd2f843b8"
     },
     "cleanup-confirm-long--light--390x844": {
       "id": "cleanup-confirm-long",
@@ -157,7 +157,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Plan rows use the code font only for commands (decision 2026-11-05); prose action lines lose the prototype's mono class.",
-      "sha256": "576427b517413c918351ecc32bf7909aca31310eeaa19b519751fd9083a25020"
+      "sha256": "89b6582c6f74a33985543af037600897beb5c434d3a112e1f3283bb54e1926c5"
     },
     "cleanup-confirm-pile--dark--1120x900": {
       "id": "cleanup-confirm-pile",
@@ -174,7 +174,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Plan rows use the code font only for commands (decision 2026-11-05); prose action lines lose the prototype's mono class.",
-      "sha256": "109f5f986e224a65de5db55659409d3e26880d553e9f20eafa584d10116f4e2e"
+      "sha256": "a0a8402ae03af141aa276a8857de26f230de7e53f976c69572a0791a1ceb5b48"
     },
     "cleanup-confirm-pile--dark--390x844": {
       "id": "cleanup-confirm-pile",
@@ -191,7 +191,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Plan rows use the code font only for commands (decision 2026-11-05); prose action lines lose the prototype's mono class.",
-      "sha256": "4d004b47bc1c851cc0eb8028a36a82bd362aa5da76a47229860e2658638f460c"
+      "sha256": "3ccb79d9b2234b06783b16900a0a8ebcf116695850830a1f1bfa6364e9764930"
     },
     "cleanup-confirm-pile--light--1120x900": {
       "id": "cleanup-confirm-pile",
@@ -208,7 +208,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Plan rows use the code font only for commands (decision 2026-11-05); prose action lines lose the prototype's mono class.",
-      "sha256": "4a780cddd3cad4c07f78e0611dcb49d31e37779ebcae415046b7aea5deb741de"
+      "sha256": "e7d1517146c883cdd26d009773ea5633c64edf7aac6b33979517e86f1beea1ff"
     },
     "cleanup-confirm-pile--light--390x844": {
       "id": "cleanup-confirm-pile",
@@ -225,12 +225,12 @@
       "fixture": "",
       "supplemental": true,
       "note": "Plan rows use the code font only for commands (decision 2026-11-05); prose action lines lose the prototype's mono class.",
-      "sha256": "4114de6db7fb73665824a8fc70a6e0981ad18f5ac24fa897deed69061acf6297"
+      "sha256": "1589a2edd693bf747bd8b5421ca46e194c273e106a4e057b7634f6dd7c16770e"
     },
     "cleanup-progress--dark--1120x900": {
       "id": "cleanup-progress",
       "surface": "Cleanup",
-      "state": "Tossing crates: first of 4 done, with Cancel",
+      "state": "Tossing crates: the 3D deck, first of 4 tossed, with Stop after this one",
       "theme": "dark",
       "viewport": {
         "width": 1120,
@@ -240,14 +240,14 @@
       "reducedMotion": true,
       "crop": "page",
       "fixture": "hold=1",
-      "supplemental": true,
-      "note": "The prototype's progress sheet one item in (its clock advanced 60 ms), plus the Cancel button the spec requires (a .row with a .btn).",
-      "sha256": "47c26f7dacecd0cf1a11c98531b9f9fb3acd9e9da7ae0cf02724f9cb6bced195"
+      "supplemental": false,
+      "note": null,
+      "sha256": "0eb74f1cfe2dea6052c78f48554004017d743ef6ed5a4d9d795921e691c53ed8"
     },
     "cleanup-progress--dark--390x844": {
       "id": "cleanup-progress",
       "surface": "Cleanup",
-      "state": "Tossing crates: first of 4 done, with Cancel",
+      "state": "Tossing crates: the 3D deck, first of 4 tossed, with Stop after this one",
       "theme": "dark",
       "viewport": {
         "width": 390,
@@ -257,14 +257,14 @@
       "reducedMotion": true,
       "crop": "page",
       "fixture": "hold=1",
-      "supplemental": true,
-      "note": "The prototype's progress sheet one item in (its clock advanced 60 ms), plus the Cancel button the spec requires (a .row with a .btn).",
-      "sha256": "728f37a5f5b81214eeb1b8f5c9e2d0f9987192d6ba268fe70b8ae017fe829d12"
+      "supplemental": false,
+      "note": null,
+      "sha256": "de6dc9bd111e8b4d451574e5b66ae34e038b8c531e2bd916be1e3c74934a43f6"
     },
     "cleanup-progress--light--1120x900": {
       "id": "cleanup-progress",
       "surface": "Cleanup",
-      "state": "Tossing crates: first of 4 done, with Cancel",
+      "state": "Tossing crates: the 3D deck, first of 4 tossed, with Stop after this one",
       "theme": "light",
       "viewport": {
         "width": 1120,
@@ -274,14 +274,14 @@
       "reducedMotion": true,
       "crop": "page",
       "fixture": "hold=1",
-      "supplemental": true,
-      "note": "The prototype's progress sheet one item in (its clock advanced 60 ms), plus the Cancel button the spec requires (a .row with a .btn).",
-      "sha256": "570f6c82ee752a5da22edc7f1c43609a4b2f4a2e42265827f2d4f854f7bd5677"
+      "supplemental": false,
+      "note": null,
+      "sha256": "5c8c02681e08e000af724e4d0e5ebbf26b8dec21840bcadb95c008ae408499d6"
     },
     "cleanup-progress--light--390x844": {
       "id": "cleanup-progress",
       "surface": "Cleanup",
-      "state": "Tossing crates: first of 4 done, with Cancel",
+      "state": "Tossing crates: the 3D deck, first of 4 tossed, with Stop after this one",
       "theme": "light",
       "viewport": {
         "width": 390,
@@ -291,14 +291,14 @@
       "reducedMotion": true,
       "crop": "page",
       "fixture": "hold=1",
-      "supplemental": true,
-      "note": "The prototype's progress sheet one item in (its clock advanced 60 ms), plus the Cancel button the spec requires (a .row with a .btn).",
-      "sha256": "2618ddb75dca6396d74eb15f535dda1dda2dad8242876285c7a4e47ca503162d"
+      "supplemental": false,
+      "note": null,
+      "sha256": "7438ad1e6cdbc69633c1aa3c05889fe844f3a9e7d94ccec31a40fff4699ef8c5"
     },
     "cleanup-result--dark--1120x900": {
       "id": "cleanup-result",
       "surface": "Cleanup",
-      "state": "Much better! after tossing the pile, with the Docker Desktop note",
+      "state": "Done, mostly: the Docker build cache could not go (the prototype stages it), with Try 1 again",
       "theme": "dark",
       "viewport": {
         "width": 1120,
@@ -307,15 +307,15 @@
       "deviceScaleFactor": 1,
       "reducedMotion": true,
       "crop": "page",
-      "fixture": "",
+      "fixture": "fail=d-cache",
       "supplemental": false,
       "note": null,
-      "sha256": "052d7c30109c5f86400011fdee52a27a13c9009c5538123709968e8a47e06bfb"
+      "sha256": "6d96b6a7b55addbacb2edb4bea79519f4ab1f803fdca034b03c255699c1c1a06"
     },
     "cleanup-result--dark--390x844": {
       "id": "cleanup-result",
       "surface": "Cleanup",
-      "state": "Much better! after tossing the pile, with the Docker Desktop note",
+      "state": "Done, mostly: the Docker build cache could not go (the prototype stages it), with Try 1 again",
       "theme": "dark",
       "viewport": {
         "width": 390,
@@ -324,15 +324,15 @@
       "deviceScaleFactor": 1,
       "reducedMotion": true,
       "crop": "page",
-      "fixture": "",
+      "fixture": "fail=d-cache",
       "supplemental": false,
       "note": null,
-      "sha256": "ff0341bb56c1e82d9a0a7621ade555fb625674ffd4bb567591de8420150be5f0"
+      "sha256": "a600b9a91be6976a65bdbb28325cbdecafed7f98f40498a81428aaabec8620be"
     },
     "cleanup-result--light--1120x900": {
       "id": "cleanup-result",
       "surface": "Cleanup",
-      "state": "Much better! after tossing the pile, with the Docker Desktop note",
+      "state": "Done, mostly: the Docker build cache could not go (the prototype stages it), with Try 1 again",
       "theme": "light",
       "viewport": {
         "width": 1120,
@@ -341,15 +341,15 @@
       "deviceScaleFactor": 1,
       "reducedMotion": true,
       "crop": "page",
-      "fixture": "",
+      "fixture": "fail=d-cache",
       "supplemental": false,
       "note": null,
-      "sha256": "cb8aa72ea801a196c1d74480e1bc570242f2cd7d3fa334a0f0dd8c74dff3348c"
+      "sha256": "dda607c4cb3373d1e4b47468b7da473556392e55482ab981147b5fa6ad74270e"
     },
     "cleanup-result--light--390x844": {
       "id": "cleanup-result",
       "surface": "Cleanup",
-      "state": "Much better! after tossing the pile, with the Docker Desktop note",
+      "state": "Done, mostly: the Docker build cache could not go (the prototype stages it), with Try 1 again",
       "theme": "light",
       "viewport": {
         "width": 390,
@@ -358,15 +358,49 @@
       "deviceScaleFactor": 1,
       "reducedMotion": true,
       "crop": "page",
-      "fixture": "",
+      "fixture": "fail=d-cache",
       "supplemental": false,
       "note": null,
-      "sha256": "7ce5ad61782be341c00ca88961172c62968b48ed1fc338e10f2a7fa9c2b0ff7c"
+      "sha256": "c4829429eb9bf0bb2ee74367ca729168452213abee0c014ac1c48ce826b8ba8e"
+    },
+    "cleanup-result-open--dark--1120x900": {
+      "id": "cleanup-result-open",
+      "surface": "Cleanup",
+      "state": "Result with Tossed opened",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "fail=d-cache",
+      "supplemental": false,
+      "note": null,
+      "sha256": "97fd526a924bd5724648445af134ffe6a19ed5bbbcd3603880b5a3a26999f879"
+    },
+    "cleanup-result-open--light--1120x900": {
+      "id": "cleanup-result-open",
+      "surface": "Cleanup",
+      "state": "Result with Tossed opened",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "fail=d-cache",
+      "supplemental": false,
+      "note": null,
+      "sha256": "6f143ce89a28fb30c2489945753b3a5b988cd7117591cb6c15ef19e6136b1ae1"
     },
     "cleanup-result-skipped--dark--1120x900": {
       "id": "cleanup-result-skipped",
       "surface": "Cleanup",
-      "state": "Result with a skipped worktree and an item held in the Trash",
+      "state": "Result with a worktree that stayed on board, an item held in the Trash and one that could not go",
       "theme": "dark",
       "viewport": {
         "width": 1120,
@@ -375,15 +409,15 @@
       "deviceScaleFactor": 1,
       "reducedMotion": true,
       "crop": "page",
-      "fixture": "skip=wt-exp",
+      "fixture": "skip=wt-exp&fail=d-cache",
       "supplemental": false,
       "note": null,
-      "sha256": "c4932fddcd8769a1223bac362e7f185ea12d718016d64ea27917096634b98f59"
+      "sha256": "3bc2580ee4cc1b06b6ed4648d3f21aa347084cd30dc40d135be2b416bdb43da8"
     },
     "cleanup-result-skipped--dark--390x844": {
       "id": "cleanup-result-skipped",
       "surface": "Cleanup",
-      "state": "Result with a skipped worktree and an item held in the Trash",
+      "state": "Result with a worktree that stayed on board, an item held in the Trash and one that could not go",
       "theme": "dark",
       "viewport": {
         "width": 390,
@@ -392,15 +426,15 @@
       "deviceScaleFactor": 1,
       "reducedMotion": true,
       "crop": "page",
-      "fixture": "skip=wt-exp",
+      "fixture": "skip=wt-exp&fail=d-cache",
       "supplemental": false,
       "note": null,
-      "sha256": "7a1eab137a7c26cddcff2d3f6f00439d27d5ade7daf992266f1491127f44a54b"
+      "sha256": "5314e6cbede69ffc022dcb393131d788af36346503c7d73570d713a9692d33c9"
     },
     "cleanup-result-skipped--light--1120x900": {
       "id": "cleanup-result-skipped",
       "surface": "Cleanup",
-      "state": "Result with a skipped worktree and an item held in the Trash",
+      "state": "Result with a worktree that stayed on board, an item held in the Trash and one that could not go",
       "theme": "light",
       "viewport": {
         "width": 1120,
@@ -409,15 +443,15 @@
       "deviceScaleFactor": 1,
       "reducedMotion": true,
       "crop": "page",
-      "fixture": "skip=wt-exp",
+      "fixture": "skip=wt-exp&fail=d-cache",
       "supplemental": false,
       "note": null,
-      "sha256": "63869e058fb53a271ae3ae5b8dab965109393ab998bfee7d9d61d785158e268b"
+      "sha256": "a0ddf7253c4a31044c51da67d31294807f56464924a9a869d01ab8a11f9b967c"
     },
     "cleanup-result-skipped--light--390x844": {
       "id": "cleanup-result-skipped",
       "surface": "Cleanup",
-      "state": "Result with a skipped worktree and an item held in the Trash",
+      "state": "Result with a worktree that stayed on board, an item held in the Trash and one that could not go",
       "theme": "light",
       "viewport": {
         "width": 390,
@@ -426,10 +460,78 @@
       "deviceScaleFactor": 1,
       "reducedMotion": true,
       "crop": "page",
-      "fixture": "skip=wt-exp",
+      "fixture": "skip=wt-exp&fail=d-cache",
       "supplemental": false,
       "note": null,
-      "sha256": "3a51ae720543ee340ccda25e9f3c0e6261433c244be5829261606aa3f4927c04"
+      "sha256": "f0ede8f5829c565826b441d081288835d43a69f294951c3fb805a62f6a38061d"
+    },
+    "cleanup-retry--dark--1120x900": {
+      "id": "cleanup-retry",
+      "surface": "Cleanup",
+      "state": "Try 1 again: the confirmation for what could not go",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "fail=d-cache",
+      "supplemental": false,
+      "note": null,
+      "sha256": "7908d400c450faf9c218fca80b587278d494e742a392c4fbc528340ef3db87f3"
+    },
+    "cleanup-retry--dark--390x844": {
+      "id": "cleanup-retry",
+      "surface": "Cleanup",
+      "state": "Try 1 again: the confirmation for what could not go",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "fail=d-cache",
+      "supplemental": false,
+      "note": null,
+      "sha256": "b6b4f1dc3e4b88ad50c8212611c6c1ff49c8927267cf46d1f61cd590bcfb6dc2"
+    },
+    "cleanup-retry--light--1120x900": {
+      "id": "cleanup-retry",
+      "surface": "Cleanup",
+      "state": "Try 1 again: the confirmation for what could not go",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "fail=d-cache",
+      "supplemental": false,
+      "note": null,
+      "sha256": "4f987c75a25daeb73c69370b58e7ecf9e3cda5489d37c7d1e2437ade4b7f1c66"
+    },
+    "cleanup-retry--light--390x844": {
+      "id": "cleanup-retry",
+      "surface": "Cleanup",
+      "state": "Try 1 again: the confirmation for what could not go",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "fail=d-cache",
+      "supplemental": false,
+      "note": null,
+      "sha256": "1f7bcacacab2e8c962890f344d661031aafd52351aebb74719a7f3b42afddf86"
     },
     "home-critical--dark--1120x900": {
       "id": "home-critical",
@@ -446,7 +548,7 @@
       "fixture": "free=4",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "0abc6b07cae72d6a212de983fe5e031e2ead399583dab63c8a965262b64ed9b7"
+      "sha256": "3761c6a4a3380c853cf324b5c4020bf200ff7599011b4c49f9c382089244f27d"
     },
     "home-critical--dark--390x844": {
       "id": "home-critical",
@@ -463,7 +565,7 @@
       "fixture": "free=4",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "12487e891197b742d01348b153646f1996d9555276d87ebe2cf61958f711eea9"
+      "sha256": "9a4e6d3f3586e365bed3d3d3280c274700c31c6795aaf07b4163280817122caf"
     },
     "home-critical--dark--760x900": {
       "id": "home-critical",
@@ -480,7 +582,7 @@
       "fixture": "free=4",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "7639629619dd09636e32eb0641069f5046ea6fa0292b6cfc01f7ce653e4fb2ae"
+      "sha256": "81c05bb702f80cd0b9618bdfb0db3ba1a9aac4075734608def89bc959cdc115d"
     },
     "home-critical--light--1120x900": {
       "id": "home-critical",
@@ -497,7 +599,7 @@
       "fixture": "free=4",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "93297aa420ab725a280ed5e36cd57e049a91582f53a7aad8e410755b3e89db7e"
+      "sha256": "c63e392285818343750b6e3b884d589a1e3ccd94a13bf92f053081208890ad62"
     },
     "home-critical--light--390x844": {
       "id": "home-critical",
@@ -514,7 +616,7 @@
       "fixture": "free=4",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "7a901a204601794c38112ae8b6cd2af9cffb4143f640b36e65d8c85dda49156f"
+      "sha256": "1b8a5f0ecbbac22e863cd79c28848be02659f6801e9fe34f394b20caf0019425"
     },
     "home-critical--light--760x900": {
       "id": "home-critical",
@@ -531,7 +633,7 @@
       "fixture": "free=4",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "e6c632809cf19f544ae13740270ff30c9f9470480d5a6d6a8681041a9694340a"
+      "sha256": "a067021fb67f681b4308aff7e40752d1deca80fc8ac3e9085ff3d29feb9b22a5"
     },
     "home-healthy--dark--1120x900": {
       "id": "home-healthy",
@@ -548,7 +650,7 @@
       "fixture": "free=40",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "acefa764caed0dc41329829deb968d0e76f85872edbf23905d3bc0e0eed99dba"
+      "sha256": "e77d727061fc2f3a11ac8dba98f3d883dfd7ae33f5a697062d33aa4faee2d745"
     },
     "home-healthy--dark--390x844": {
       "id": "home-healthy",
@@ -565,7 +667,7 @@
       "fixture": "free=40",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "491d59de650c563c42194c35787563947b0b81c15afda9ff3b31e4f8241758fd"
+      "sha256": "3d9734f8413dbebeaad4a717a126ceb2c9248d9f1d654bc13b29f801c6038621"
     },
     "home-healthy--dark--760x900": {
       "id": "home-healthy",
@@ -582,7 +684,7 @@
       "fixture": "free=40",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "6c6bdaf14ebc7b249a02f9c60f5f32ad3cae1bf3eafe5cff921cd88b6c18da13"
+      "sha256": "7aaf63f3f58cc016f8345f1b9f2901983dbe297db817bd7ccaabc39fe9e7c10f"
     },
     "home-healthy--light--1120x900": {
       "id": "home-healthy",
@@ -599,7 +701,7 @@
       "fixture": "free=40",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "6015deb0380db5df75e47b920a8ad02a8f80d854e79573cf42380528a0ad847f"
+      "sha256": "08b942f33141973b63581927e900122095d1b17f382701c0aaf12aa86ab19d79"
     },
     "home-healthy--light--390x844": {
       "id": "home-healthy",
@@ -616,7 +718,7 @@
       "fixture": "free=40",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "4fbfe3c1989b539608422710a6f20836311de0c3848b0d1c59565c420cda268a"
+      "sha256": "ec680846c81af43272d3f6019ef07a3f838947c60bc7a328f0be9c54c0e9f3bd"
     },
     "home-healthy--light--760x900": {
       "id": "home-healthy",
@@ -633,7 +735,7 @@
       "fixture": "free=40",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "6124bf5addce285caf99dc4e8d70ba90af41f6301564a2b3296c621141a89ec6"
+      "sha256": "4d7c142cb53f40e1ad890268c61477731033e7a96990fe26ac45c40643b03c30"
     },
     "home-low--dark--1120x900": {
       "id": "home-low",
@@ -650,7 +752,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "4da21a4f1585289ff38d76e21bd77aba81a01d5edce76ff2f678138149b95a8c"
+      "sha256": "9f4f12c398f4f006341efacaa37de5adef1bb1c75829aa59e6edf80a976f2ca7"
     },
     "home-low--dark--390x844": {
       "id": "home-low",
@@ -667,7 +769,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "4c4a24f9aeff90d17f0e20b0c72f4582699449c6bbbc61bf9fb7d1c8951d182d"
+      "sha256": "76f9f9a352507e6ee05f77ea8ac2ca16fbc6c63074d74865f49f0372c8730264"
     },
     "home-low--dark--760x900": {
       "id": "home-low",
@@ -684,7 +786,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "920fa42ac71ee8551960ba6e25ce254bab6bfe0174e55e431b351c8640a3d2da"
+      "sha256": "80f932611d757e119c68eb5f29ab9bf13fa00e53ae6467a44d8cbd7fb4060a94"
     },
     "home-low--light--1120x900": {
       "id": "home-low",
@@ -701,7 +803,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "53202a11d86bd931186bb0e5ebde96640d20525805310566088e3754933437c6"
+      "sha256": "b83c601635c799e79134b0951851c0825294fb5d8f7b9e2bcfdc9198fd9f7571"
     },
     "home-low--light--390x844": {
       "id": "home-low",
@@ -718,7 +820,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "896e5704087d14b2fbc1a76edee829cb96f209e1bb6c257eec097eef23f1edf0"
+      "sha256": "322e8fa229ede1e5baa5747836fe5822a11fad31ff2c76f10a4a4f2399acdfde"
     },
     "home-low--light--760x900": {
       "id": "home-low",
@@ -735,7 +837,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
-      "sha256": "7e5ad3b5efb6c55c047b26c9bbfcfe59029c6fb7d522c8da6afee787097c9699"
+      "sha256": "4ce6f6c61c04fbd7614f817d50e50fb09ebbe41c10e5839c346ebec4d3bbc611"
     },
     "logbook--dark--1120x900": {
       "id": "logbook",
@@ -888,7 +990,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "bb9efa5f62b79b0e2ecd381e819b71df51734bfafab39abdb9aea741bc45588a"
+      "sha256": "643d792f05e6e7c56615220b37057c0c309aa2de619d72d43cd0cd6f23e09c4b"
     },
     "map-default--dark--390x844": {
       "id": "map-default",
@@ -905,7 +1007,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "c3ecfedd99df4ab9cf2a0bd27a95d423979d53972cfc0d399cf960835d5b704f"
+      "sha256": "1b57a2cb5e69df5594a4111cc8d6db19009b266da7249a1eccc3570515465b68"
     },
     "map-default--dark--760x900": {
       "id": "map-default",
@@ -922,7 +1024,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "8074542b282d0d22baf4aa474061f171bdf242bdc43c5380c181cd8d0e231477"
+      "sha256": "b4fb592a79a45021b5398e950538f428b4538a2c775865048c365149f42e3e94"
     },
     "map-default--light--1120x900": {
       "id": "map-default",
@@ -939,7 +1041,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "8c6e28d41045d98e31fa56f228c47654568aebad3ea1641e03290aba8e6cfd1d"
+      "sha256": "e1209c066001ea77976a679f8515f90d6fbe707ad427ebabb6c641966ba1ac7b"
     },
     "map-default--light--390x844": {
       "id": "map-default",
@@ -956,7 +1058,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "3fb1ca710482cbddfa194835ce137cf767ad762ea81d38a359a1c4046896c694"
+      "sha256": "e5832de2f7fc49bd6192fa65b7b2d1e6efb647827b0bf7aeb530938929d04f18"
     },
     "map-default--light--760x900": {
       "id": "map-default",
@@ -973,7 +1075,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "9bb03a63e2d36fcc87541e51b856c642325edd23955d9262a49a8111eac8ca0e"
+      "sha256": "804f3edfa47e381b3ec08312bfa2b4b0b8e3bfc40b74a6a8056540c828eea777"
     },
     "map-places--dark--1120x900": {
       "id": "map-places",
@@ -990,7 +1092,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "4291c705e0a643d4efa3f0de2cd8dd1ad414b98148daa69549bc415675c1cec4"
+      "sha256": "d5bd0b922d2bc03f362f5092da997ea2cd5b19109db8c4d48676b14810f27c77"
     },
     "map-places--dark--390x844": {
       "id": "map-places",
@@ -1007,7 +1109,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "f6e4eb2e0a5d72984386da66e6d43fd1820415d4825d3699ccf4ce68e95ae11c"
+      "sha256": "59d36c1fe1472ef27daedeb6dbaf834281ebea3f947b98cbb73fefa43238a8e7"
     },
     "map-places--dark--760x900": {
       "id": "map-places",
@@ -1024,7 +1126,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "79a37c50c171c1382c5600e3c4e02d11a48c3fb03f7ddfff7140a9d323550055"
+      "sha256": "77fe7b7f9c1d53d6bf32763b4c9cd379edd9e452403e3457e1913dda078fcf62"
     },
     "map-places--light--1120x900": {
       "id": "map-places",
@@ -1041,7 +1143,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "d573b6820d209be2927ac65d19041010132b470408d273012af533c6391c94e5"
+      "sha256": "73e35988eef7d30859e770fe3cf4ed146d7de29efbfe13fd36ac4b510ebf2b94"
     },
     "map-places--light--390x844": {
       "id": "map-places",
@@ -1058,7 +1160,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "e950d9a4919ddeaf700421990d9cb51795d816626f38a7fd57d4f9fc9736ab5f"
+      "sha256": "5d8972a149692c4cf4d2dcaa9fc42ba537b1117dc96fd8a1e0d14ddd3aa6012a"
     },
     "map-places--light--760x900": {
       "id": "map-places",
@@ -1075,7 +1177,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "804f60fb07449f10e4d2768f3f80f89fa39f0483afbef119fc2852929240ab5a"
+      "sha256": "82a795c48c3efa6c8ac3a527c86c868964a158925e236d1d4d29ad3c5f04b05f"
     },
     "map-report--dark--1120x900": {
       "id": "map-report",
@@ -1092,7 +1194,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "1b02f720de1de05e8a2dd2fcf6036de55a2b15380f29d59517cc3ae08125ad91"
+      "sha256": "ea9ac780e7efd56d18fc1127dd3b13a5725c625a64c5bb7e51edea56c5f60600"
     },
     "map-report--dark--390x844": {
       "id": "map-report",
@@ -1109,7 +1211,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "6eea4c93b432b637962358ecb28ca7230c67eb01d6f0dadf8bff48817c8512db"
+      "sha256": "06898a91e062c06703e07f31c87f2dbd3cefc6d14f7ba052c662d1e4fce3e567"
     },
     "map-report--dark--760x900": {
       "id": "map-report",
@@ -1126,7 +1228,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "75a9e58eb1d98835fb2275c6cb455a097c7d8b9bda308f48060ae01c7c9e6cca"
+      "sha256": "28bd5295b592646dc3266e5cc3b777aaaddb0e1fede470fbe6695593dc6ba532"
     },
     "map-report--light--1120x900": {
       "id": "map-report",
@@ -1143,7 +1245,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "aef95a3a38c83ea9f6861c11f5ac4736731f11b43cea0f6370de53e8a021cdae"
+      "sha256": "31b88c192db99f81d32db9831d029624a7cbcf213cdf00e2c23768057de85d11"
     },
     "map-report--light--390x844": {
       "id": "map-report",
@@ -1160,7 +1262,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "18f6df60cca79ba537ce9a6399bf384b28b9a4d3e9f7e970585d479c9f37d862"
+      "sha256": "c4ee2f0a1af54b0c51d228e4ff9685014bc4bcdb0a2ea50c9fbdcd632909c585"
     },
     "map-report--light--760x900": {
       "id": "map-report",
@@ -1177,7 +1279,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "6f008345a85a0de8462167b7999992dcbfb6e72766b35af4b468887b9a2e75af"
+      "sha256": "a88d091f245df0d75f49290da2fac1dc8024ef09521ee5daacdfa2750d580a4e"
     },
     "map-spot-access--dark--1120x900": {
       "id": "map-spot-access",
@@ -1194,7 +1296,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "0040fecf497f0c89866a1432dfa1343cd2902acc285aa27204beb3a646a37c2b"
+      "sha256": "e2f3d9e7bb5c351b6c29eb9b0b9c25f62c1f0ecd5ce826ccb7b9d2cb255f1600"
     },
     "map-spot-access--dark--390x844": {
       "id": "map-spot-access",
@@ -1211,7 +1313,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "8d48d3d3bff61f856815a16acf8726e51280d6a7de1e3124cc3a51d702c65c72"
+      "sha256": "3b9ca4ed7a0980007d820cc4df4d7fb91bd52ecd19a1d689af76b0ef9f7318e1"
     },
     "map-spot-access--dark--760x900": {
       "id": "map-spot-access",
@@ -1228,7 +1330,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "c5b8ac17467da0f9307262334496d73309d3b2b7977bdc3d873509dcaebd63c0"
+      "sha256": "cce644ae41f3bf08aad9f1e47fb795dbe70bffc3a45fa673effb44567f424eb7"
     },
     "map-spot-access--light--1120x900": {
       "id": "map-spot-access",
@@ -1245,7 +1347,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "f68e1be943ee436729b2a151840a1c198c55199a882b7aff8c2659eebf4bc51b"
+      "sha256": "1dbb2f2a2585bbe69be934393b08151555455b22f56bb2ae778d3b5dc28d9afd"
     },
     "map-spot-access--light--390x844": {
       "id": "map-spot-access",
@@ -1262,7 +1364,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "7efbbc860211deb368c6355ce294592e4f50ebbf9d7f556a74d7678853ed834b"
+      "sha256": "e269b72168c14d5d18f19f89ea1c2649cdce844286f7e496a01b07a8d4755e2a"
     },
     "map-spot-access--light--760x900": {
       "id": "map-spot-access",
@@ -1279,7 +1381,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "61ba425552e0eb6399366cf81e96613dee09aae1771e8268343355e7d921f1c9"
+      "sha256": "0a4e6e3853952edb13886cfdac9eb339158b657b93ba9c18c748525491eb4285"
     },
     "map-spot-archive--dark--1120x900": {
       "id": "map-spot-archive",
@@ -1296,7 +1398,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "3f747fba829e1da66634c3aeb7706388b1a00eb21c87108ffbd794721dc6b008"
+      "sha256": "3a3ec822f67fd2abeb45170e8d09c864dd3bc12ca4324bded24ffe129786a01e"
     },
     "map-spot-archive--dark--390x844": {
       "id": "map-spot-archive",
@@ -1313,7 +1415,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "c262d84f12b5622191f0bb186fcb644f2616b2cdf4878d57e75c4b51a1e0c9f5"
+      "sha256": "3aad35833ba8c74c2896cb9413f6fb938f6026712630ac17b05251e9262a5d8f"
     },
     "map-spot-archive--dark--760x900": {
       "id": "map-spot-archive",
@@ -1330,7 +1432,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "8fdf9e8493c7593eea551c04467920e0e7002f753dc2fdcb3dd5865a8684ca02"
+      "sha256": "f76ec201afd5a0d7973072a534ef7f64f77a62b2677359199705ea43850092fa"
     },
     "map-spot-archive--light--1120x900": {
       "id": "map-spot-archive",
@@ -1347,7 +1449,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "b92574cfaecb9c01f4f33f9605cc602552946d78d86a1b487d9078295e64087a"
+      "sha256": "fbbb82386e7b6713be2919cc67928eb21f2ed49c365341d21b400e13e7d4550a"
     },
     "map-spot-archive--light--390x844": {
       "id": "map-spot-archive",
@@ -1364,7 +1466,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "7449c19c18939acc2646069a9d8fb961f1ddec6a816c882bf102d1250da9f543"
+      "sha256": "2345d3d6092493830c2f4f8f983d5f384799e0bfda4623820796d4f36540f691"
     },
     "map-spot-archive--light--760x900": {
       "id": "map-spot-archive",
@@ -1381,7 +1483,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "82c6b66307193cf4912172cc97d4c9d60b50e08e6dcb6d411c50184ecdb392b2"
+      "sha256": "0adb55ff2507b4f6552d58a31d1617d677902cded36b7df1350b014db2932665"
     },
     "map-spot-mystery--dark--1120x900": {
       "id": "map-spot-mystery",
@@ -1398,7 +1500,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "eeea8e4177a991098925cf783d5037c198aa90d9d5cef56cbb40f791ce9e98f1"
+      "sha256": "e9546be3287ca5e22b016cce32f1b650fb7a8856480a9ab3497771ed6022f4c8"
     },
     "map-spot-mystery--dark--390x844": {
       "id": "map-spot-mystery",
@@ -1415,7 +1517,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "120d1da06d3f64e4b1732f56117e89add7e6563e08118564b23072e64f052966"
+      "sha256": "d6a061dbc2491fa62265c2bfb916fbe3b58fc1310977baa29a21c073807adaf4"
     },
     "map-spot-mystery--dark--760x900": {
       "id": "map-spot-mystery",
@@ -1432,7 +1534,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "2b1da9fb7dbc6b32126b95cd8660778a11d7833d279fc9db7b5d99c918e5476a"
+      "sha256": "25c34d25872a1d4e98ac42dfb55ac1383b3d3357493a0a45e2f237b2e5fda916"
     },
     "map-spot-mystery--light--1120x900": {
       "id": "map-spot-mystery",
@@ -1449,7 +1551,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "cadbb6d0cb80d9b4d5092f9a7bf347385d64c0fdfb50786fc2b1acd2a571299f"
+      "sha256": "ca63dce609071f3de2b6435fac8b8e22c9a889e7cbbbc54481633809a60d69f0"
     },
     "map-spot-mystery--light--390x844": {
       "id": "map-spot-mystery",
@@ -1466,7 +1568,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "60407846b7c2392f4bd271c66cefb5e0bbf24fa519875172d6de18d8b1bfe8f2"
+      "sha256": "c058a7fefabf909aa24f8ad80132f56d3642221894bb45dac4ecd134b0dbff97"
     },
     "map-spot-mystery--light--760x900": {
       "id": "map-spot-mystery",
@@ -1483,7 +1585,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "1d0ac25a30c237079a25f3533f02fb277c2075f19768c942c2e0ae1e4c18d1a7"
+      "sha256": "cc28ad5f3652e8d7e7f1b23cfae84f6889db9160c85e44fdeae24430ff5a7b76"
     },
     "map-spots-all--dark--1120x900": {
       "id": "map-spots-all",
@@ -1500,7 +1602,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "cca3b1a12375ce860435c4548b9699d17b592465e4da8e86ede65e11432e73c7"
+      "sha256": "495a444126fc54118a18685a57bcf336145b88c2346bd01b8e657e248b8b6116"
     },
     "map-spots-all--dark--390x844": {
       "id": "map-spots-all",
@@ -1517,7 +1619,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "c48c1f5429fd2b3e170eebd28bf3ba82f337e300043e12c97d5dfed91b8b7861"
+      "sha256": "675bda290f37ce99d35f26ca3afe65221aaf4caa618438bd76ab0a6073aec4fc"
     },
     "map-spots-all--dark--760x900": {
       "id": "map-spots-all",
@@ -1534,7 +1636,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "733d606d997c09c3b86897638d2e6dc18c71c5689ff974a043cd4280c70e8ede"
+      "sha256": "1c81a338ccff4beac5367749b1b26640746e0ecf3fd5b628d7b3a070aa1b6422"
     },
     "map-spots-all--light--1120x900": {
       "id": "map-spots-all",
@@ -1551,7 +1653,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "7ad0217221f3261db0f4475bf0f29f446c47dbfd0d1a7d34a09087efb5f2e178"
+      "sha256": "8ece6ebe7000e8e2111d00b83318e51a2bfec9a7c947af18058943bcb92c32f7"
     },
     "map-spots-all--light--390x844": {
       "id": "map-spots-all",
@@ -1568,7 +1670,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "b3952080b88eac5dcfb0030629db6e6d6580cb05d9b885738bc00cd07e0ecfcd"
+      "sha256": "80a4298dc83acfdbb0750ebe098113a11748baa9a3af3485756984d02bb84c62"
     },
     "map-spots-all--light--760x900": {
       "id": "map-spots-all",
@@ -1585,7 +1687,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "9fd6635b9fb7ea3ee5a6d238369f8dc53235fe8d42bcb27ee78420fc80c0e93d"
+      "sha256": "42f377c40ccd2fff5d95de34646afee28762f98e1dabd4c80cf34e978c361e33"
     },
     "map-tile-apps--dark--1120x900": {
       "id": "map-tile-apps",
@@ -1602,7 +1704,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "a65e7e14aed982c9258ed2190687da32f35e1b8d3be36d4b44cfd5a9fe4d6a46"
+      "sha256": "b8bdaa0b3479920419408c458ea2800f93a5817d0c1a5add2287663f4d390c00"
     },
     "map-tile-apps--dark--390x844": {
       "id": "map-tile-apps",
@@ -1619,7 +1721,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "ad3880edc175fff11fb453a5fa1ba4613c32f1dc14bae52502470f3dca22f4fa"
+      "sha256": "52dc8d6543b761e306f8a54f78f9b6748802bd4491bb3cbe902a0efc1198aaec"
     },
     "map-tile-apps--dark--760x900": {
       "id": "map-tile-apps",
@@ -1636,7 +1738,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "296448280a1539fbaa99085ec5f85fd422a337b6abde5d57e28bf96a34009694"
+      "sha256": "a35ce14edabc7a84a252bd2e196689f3f7b993b8a303b3903c081e4d58410718"
     },
     "map-tile-apps--light--1120x900": {
       "id": "map-tile-apps",
@@ -1653,7 +1755,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "702976e0edaf84e57cad89d24de5b55bcc40134f3b43cfce39f283fd9bebeac6"
+      "sha256": "f1c638f3ff850b56e272456dd8b23443385dde3ea7e24d26fc9145101e42a068"
     },
     "map-tile-apps--light--390x844": {
       "id": "map-tile-apps",
@@ -1670,7 +1772,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "ac63df6b8270a78c42b0a060a31b27f99e9dea36c1be6937190f664748264b69"
+      "sha256": "47a1356e413bf5766bc5d6e102c1dd730e89daaaf1383a5f35d9db2fdf76f656"
     },
     "map-tile-apps--light--760x900": {
       "id": "map-tile-apps",
@@ -1687,7 +1789,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "923f27ffc32103de0411f1abc74003f6eaa279a2e85661fbfb89886afc6f1204"
+      "sha256": "346ae65cfa123e1530debe692384cf504945e2e85afebc4603b34214a89ef495"
     },
     "map-tile-caches--dark--1120x900": {
       "id": "map-tile-caches",
@@ -1704,7 +1806,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "677c814b98af87392c9600b4a5f576f524bd2a357dff45eb389142c7c8c319f8"
+      "sha256": "8794d0b2358172f409cb5861d3ee25d853bcbb0f02ab191bbdf6cbf9888cc038"
     },
     "map-tile-caches--dark--390x844": {
       "id": "map-tile-caches",
@@ -1721,7 +1823,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "34578d08ea9fce160c0883afe1740b75bc13671fd78486c424f689b126866ce3"
+      "sha256": "8b34181097a7fc24185c0c4439b1e74b03455638346a30ceb61c555c1b8432e4"
     },
     "map-tile-caches--dark--760x900": {
       "id": "map-tile-caches",
@@ -1738,7 +1840,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "68765f582e84d45c12f99649ece2ae31c28e97987d9865b24fa98e0f88936605"
+      "sha256": "a72b6f4af120d0dd3cf715a888aa1d465c86361784bdb5ebc805abcea708b809"
     },
     "map-tile-caches--light--1120x900": {
       "id": "map-tile-caches",
@@ -1755,7 +1857,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "7fb7a0b72972fd75c2fa9a8fece81b3e90adc42188eb7d4a630903479793593b"
+      "sha256": "d7db67ee30e10ba6753f1358ef9d35571c93c09f2c2c318a0f8b6b4f1ef14f22"
     },
     "map-tile-caches--light--390x844": {
       "id": "map-tile-caches",
@@ -1772,7 +1874,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "08f42bb7e9622d2822944ba0fd55b7f527d3c42b9c4059891b51c97ac617f434"
+      "sha256": "37db73b8faaea9b14d5f2a6717eee22ccbbfc59192253e6e5ab4bfc6dbd52328"
     },
     "map-tile-caches--light--760x900": {
       "id": "map-tile-caches",
@@ -1789,7 +1891,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "7c6e918e19333958c3efa1d338fbae41f4578c6993a6023a5313cb25ade353b4"
+      "sha256": "2452fae5c6d1114d5e3ce531bbce1e90decd2c3ec741665fb041b8517c13879f"
     },
     "map-tile-docker--dark--1120x900": {
       "id": "map-tile-docker",
@@ -1806,7 +1908,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "f3d7870e18977dd4feb4f32daaba021a366d56bed7099e67c877427468179d7f"
+      "sha256": "7b6c483db1989d3996cbd80753671c931878bbb88e7905b0f0d9620a1a5edc0d"
     },
     "map-tile-docker--dark--390x844": {
       "id": "map-tile-docker",
@@ -1823,7 +1925,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "b78595197293642b2f20ec29df1724c4e96afb3fb8f6293f4cd38715adf48c98"
+      "sha256": "45eaddc78b0cb42867bdedab7f1a284c6737c3a9502f7a46d9b79164096ff34f"
     },
     "map-tile-docker--dark--760x900": {
       "id": "map-tile-docker",
@@ -1840,7 +1942,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "6f6e59ec8a60dcc34c21070236fa8bd453003b2cc13e5bffacdd5a57ecc4b301"
+      "sha256": "b976ebcb2421687bbbd5647816dc1624b5acedae2e2936106da8ab28a55783ef"
     },
     "map-tile-docker--light--1120x900": {
       "id": "map-tile-docker",
@@ -1857,7 +1959,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "5d902751354d33fa72dead361fb34a53df312714ff6a0dcd2c2dbbb2b67658ed"
+      "sha256": "3e16db9dbb4461aa1abc0e91532b9bbdfc3b3a6aad4712573bd1b284b38fedf2"
     },
     "map-tile-docker--light--390x844": {
       "id": "map-tile-docker",
@@ -1874,7 +1976,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "3d6d997511436e82d95d5cf159c5ff415965eb56e931c1e1b8a277075448159f"
+      "sha256": "3d039fbe5ef835c4298446b366bd34b1e489dd0507c6b86275a4a1ce8e4b3562"
     },
     "map-tile-docker--light--760x900": {
       "id": "map-tile-docker",
@@ -1891,7 +1993,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "9ee7aa0c627d9e00643d2397435bb538b61a8c45da6777d89d4faf70abde82dd"
+      "sha256": "6582d34073d3c7108ef1cd44632b1da721c494094c61e40fbe0f6605e46efd5a"
     },
     "map-tile-files--dark--1120x900": {
       "id": "map-tile-files",
@@ -1908,7 +2010,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "c36b24826820f150e67260093e2b58fbcca548e6e7986dbde3998763295f2d7e"
+      "sha256": "af95492d9c86ac4a19b25c347cfecd93bc3108e5ba75fe3fc75586ad93681404"
     },
     "map-tile-files--dark--390x844": {
       "id": "map-tile-files",
@@ -1925,7 +2027,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "91eb0635ca074721cf9a4da0937a9300ffa46c7655397ca9f88559dbd6f9cd46"
+      "sha256": "dedbc44d9d34ffc2cc86613f2384c8e7eb204a3ae1904bed25958dbaacda8b66"
     },
     "map-tile-files--dark--760x900": {
       "id": "map-tile-files",
@@ -1942,7 +2044,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "389760f0867c0613e809e5d99cd991686c2955bdae93d97d050f8cb2dc761f7e"
+      "sha256": "b459cd7b1281e2cf665ec842f82b8c25601ee32ae28f12f18b5565e37879dbff"
     },
     "map-tile-files--light--1120x900": {
       "id": "map-tile-files",
@@ -1959,7 +2061,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "38019a5efd137f6a1b04398e9e72cb9b9cb7fc3293dd8a94849b1135af4d1d2a"
+      "sha256": "d83cd539363e78e291f3b1ce90fb7144e6a04af6e5144933cb91463461acdc2f"
     },
     "map-tile-files--light--390x844": {
       "id": "map-tile-files",
@@ -1976,7 +2078,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "78977f483ec0c4e92b1ae73199c0a5dc463eefeaa249597758f9a0cf96a113f4"
+      "sha256": "614884031a0a9ab6545c2fb75f57c6957cf9176f03d56f164137f3ba0908559e"
     },
     "map-tile-files--light--760x900": {
       "id": "map-tile-files",
@@ -1993,7 +2095,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "890109c62d3e1076b70a3384f79daba0747c88a5ace75f66d988ec758e858466"
+      "sha256": "df68cd4aab9c903213367cd2b324c52cace60d5118b212dba4413376ab96656e"
     },
     "map-tile-mobile--dark--1120x900": {
       "id": "map-tile-mobile",
@@ -2010,7 +2112,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "d39e56d69c312d1a40968593209d58eda006d41226b12ac419b603df9e972b16"
+      "sha256": "618b937ee75d2d3abe43d489a3eb97701d29fd572ac9b884219e9da411485b63"
     },
     "map-tile-mobile--dark--390x844": {
       "id": "map-tile-mobile",
@@ -2027,7 +2129,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "041245eb63d6239159d80ef1de26874a7228c9944140239698cb0d3edc0b7e39"
+      "sha256": "e6e8e88fceaf1e791b346fc1c52c602be87e0e28a6f01cf5b1bbe44728f62556"
     },
     "map-tile-mobile--dark--760x900": {
       "id": "map-tile-mobile",
@@ -2044,7 +2146,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "46a7d27418bb4228281904dd050f1b32c47e992eaa03d36cd4f82f76b060e2e3"
+      "sha256": "fe346fd64a1a799997a1b3cc08e781fac8ffafad3d99228c37349cc2240294db"
     },
     "map-tile-mobile--light--1120x900": {
       "id": "map-tile-mobile",
@@ -2061,7 +2163,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "2e2a1b0c3f7d265e076a4cb7efe7052a7a30bd5d315edeb3845b161d7e57dd38"
+      "sha256": "5a1960d298989ca0ce22eca51030c2f66c88a6f0e4e08df6d21fc5eb866a0b24"
     },
     "map-tile-mobile--light--390x844": {
       "id": "map-tile-mobile",
@@ -2078,7 +2180,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "52fdc8603f50d515c137b6f6551dd6a473a7d77acd78e801c1c603ecd725a345"
+      "sha256": "670f8c3ddb76e44bb7cb7117010aa4638612268a416cc172dda78e098d0d25f2"
     },
     "map-tile-mobile--light--760x900": {
       "id": "map-tile-mobile",
@@ -2095,7 +2197,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "958fe0b7598147f848c62c6b17f2208246b41fbb0e6a4c67f36d0e02afad231e"
+      "sha256": "e92679455d83d962e2cf36c1428bbd952277ff7e51fbd5abfe8394ce169a70ea"
     },
     "map-tile-projects--dark--1120x900": {
       "id": "map-tile-projects",
@@ -2112,7 +2214,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "bded27bac79e633e37d358e1ec968e293d68ddc837384795831fc6dafd575905"
+      "sha256": "30b3732370337b1a1cb2c0001aba3366562e3bcb3c8795662e4aff319b4e0d16"
     },
     "map-tile-projects--dark--390x844": {
       "id": "map-tile-projects",
@@ -2129,7 +2231,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "cef36c29ca69113b070046f9713435bfde8863a363736dd410c84eb3e8a67216"
+      "sha256": "edf6219fe6fddbde744fa98c56efc94deec309e96aea9e92bb501d6ad1774c73"
     },
     "map-tile-projects--dark--760x900": {
       "id": "map-tile-projects",
@@ -2146,7 +2248,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "ffc363c55de164201e84d7cc1bd0d9da1d9102da3f1726b4fd10257705862d91"
+      "sha256": "5c977d61d62f30126ac65c762cf1a702fe328cb40ebc2b37928672940210339d"
     },
     "map-tile-projects--light--1120x900": {
       "id": "map-tile-projects",
@@ -2163,7 +2265,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "8c7093a38a9f2412820b5b300752dfafe0fbedda0cf77b004155ea461c0aa1f2"
+      "sha256": "302de7329652b37ea98de807145b00f291578c7e851451c467132d400a9400c8"
     },
     "map-tile-projects--light--390x844": {
       "id": "map-tile-projects",
@@ -2180,7 +2282,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "a5da557bcd68677ce43336833f5ac47e83dc320c6918b9801dcc995602a99d4a"
+      "sha256": "70b8d5c869e912d5bbd8af5528de0aeefe19532902907120cd9ec205d0f00291"
     },
     "map-tile-projects--light--760x900": {
       "id": "map-tile-projects",
@@ -2197,7 +2299,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "9fa51d1ea96fbeb09c3cb3f634475a93e11efaaea0a4d26dc31dfaa04dbdae79"
+      "sha256": "0a0338ad1fefdc5ff488e57cccbdddfacedc307f0ce9214c148fb6ef093bc088"
     },
     "map-tile-system--dark--1120x900": {
       "id": "map-tile-system",
@@ -2214,7 +2316,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "ad0e711075021b2d9f0a160fe608b01ac198b2bcd1af237bde4e57e50d2b5741"
+      "sha256": "175a87fa1ca4e9aa6f53b0d601429d3d030a03beba7a1358ac6989d3e38bf477"
     },
     "map-tile-system--dark--390x844": {
       "id": "map-tile-system",
@@ -2231,7 +2333,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "7ad71c8281cecb5754b82e4d860d290c3810ceeca60200c3b1cba2e4c61a03e2"
+      "sha256": "0a3089a559ebe0299f1d1630c192436ad9a6990588a1069483f30ecb08f1b669"
     },
     "map-tile-system--dark--760x900": {
       "id": "map-tile-system",
@@ -2248,7 +2350,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "3e7a67cb70059864cf3f1c1269c7b034df74a8b2db378a17acc4b892cf5d4275"
+      "sha256": "fc3d0bedcb4898a3e7fcc6722de610b0604a6ad7f59e7b700ee0abee24c98751"
     },
     "map-tile-system--light--1120x900": {
       "id": "map-tile-system",
@@ -2265,7 +2367,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "c143f38a336b8b6ca07a40f1038d6ba25a03b753ba274e0accfd6d0aa60222df"
+      "sha256": "cc7efc51d937773a81699fbda8168888df093ed6b2a09283b58b175da9b24985"
     },
     "map-tile-system--light--390x844": {
       "id": "map-tile-system",
@@ -2282,7 +2384,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "a970d415883c8e0bbd540242a8e4bf4aa75b6616f8c0e79dac62ac0a543a5bb5"
+      "sha256": "3e88b9c45cdf93643f468576012e1276ed275ddedb4c2a86393ca62ca1a268da"
     },
     "map-tile-system--light--760x900": {
       "id": "map-tile-system",
@@ -2299,7 +2401,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "A tile label the prototype would cut off is hidden, as the spec requires (`.tile.tiny-fit`).",
-      "sha256": "f9b50630156f78e82fb434a3cf851768dabc45591f586fb9b92f318a2e084ae4"
+      "sha256": "73369482f8af013db50cee28ef7d9d0541ec9a8ce1086639e4f9cd1f85b4581d"
     },
     "map-tile-unknown--dark--1120x900": {
       "id": "map-tile-unknown",
@@ -2418,7 +2520,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
-      "sha256": "7f39793d54ff370816a65bf080793577c6cb5f89572b7a0b643546c2077dbd26"
+      "sha256": "f0d260d5f72cfbedb5488a343f9c9ef95112555940a83ad9d225a016bba0a771"
     },
     "settings-sheet--dark--390x844": {
       "id": "settings-sheet",
@@ -2452,7 +2554,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
-      "sha256": "b6eb4beb085ddcdfcb518a6c4dfef693f3a514c2b7036c36c5005ab12c5e6c50"
+      "sha256": "8ac844190c67689c532b978f23d815c72146d683411bafee5f9308fc91586e19"
     },
     "settings-sheet--light--390x844": {
       "id": "settings-sheet",
@@ -2486,7 +2588,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
-      "sha256": "efd835ed155eac247f9df31de51d793e4a6ee11324f185413f24e4a9842db635"
+      "sha256": "97ed02561fbff3ce3059e8b75c2349debdaaac17de26bfddfc4e569963fcb4aa"
     },
     "settings-suggested-added--dark--390x844": {
       "id": "settings-suggested-added",
@@ -2520,7 +2622,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
-      "sha256": "763913381f6aa5e39b3747f73fbdb3836b114606345db629b8f908143736677e"
+      "sha256": "7a886b490052b30ffe3988837212c69b89690144901831e3e115882d8cb3458c"
     },
     "settings-suggested-added--light--390x844": {
       "id": "settings-suggested-added",
@@ -2554,7 +2656,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
-      "sha256": "1a39747fdaec83ea0df4ea6951047234c5f8a61840110d9c2ff7835c48aeac33"
+      "sha256": "e355db226d09b60312091684e1b54391515cc4d41109fba92e9c9fd3627b7912"
     },
     "settings-undo--dark--390x844": {
       "id": "settings-undo",
@@ -2588,7 +2690,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
-      "sha256": "d6a9f89f8c835ae3447e7ab8f7b910b989a4bfb49f16720200acc4f9210017ef"
+      "sha256": "62e4ed8ada3d03251cd51eb496698a9b3db0dcf1a81c6efc48fec9c415530a95"
     },
     "settings-undo--light--390x844": {
       "id": "settings-undo",

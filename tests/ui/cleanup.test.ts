@@ -2,7 +2,7 @@
 // Run with `npm run test:ui` (Node's built-in test runner).
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { ackText, cmdFor, confirmTitle, expectedFreed, goLabel, logNote, progressOf, resultTitle, resultWord } from "../../src/features/cleanup/cleanupModel.ts";
+import { ackText, age, cmdFor, confirmHead, cubeLooks, expectedFreed, logNote, progressOf, resultSections, resultWord, runFigures } from "../../src/features/cleanup/cleanupModel.ts";
 import type { CleanupPlan, RunDetail, RunItem, Suggestion } from "../../src/lib/types.ts";
 
 const GB = 1e9;
@@ -104,11 +104,14 @@ test("the action line names the chosen parts only when some are left out (protot
 });
 
 test("confirmation copy follows the prototype", () => {
-  assert.equal(confirmTitle(plan([item("a")]), false), "Toss 1 crate?");
-  assert.equal(confirmTitle(plan([item("a"), item("b")]), false), "Toss 2 crates?");
-  assert.equal(goLabel(plan([item("a")]), false), "Remove it");
-  assert.equal(goLabel(plan([item("a"), item("b")]), false), "Toss them");
-  assert.equal(confirmTitle(plan([item("a")]), true), "Delete 1 item permanently?");
+  assert.deepEqual(confirmHead(plan([item("Worktrees", { action: "native_command" })]), false), { title: "Remove Worktrees?", go: "Remove 1.0 GB" });
+  assert.deepEqual(confirmHead(plan([item("venv", { action: "trash" })]), false), { title: "Move to Trash venv?", go: "Move to Trash 1.0 GB" });
+  assert.deepEqual(confirmHead(plan([item("a"), item("b")]), false), { title: "Toss 2 items?", go: "Toss 2.0 GB" });
+  assert.equal(confirmHead(plan([item("a")]), true).title, "Delete 1 item permanently?");
+  assert.equal(age("Projects idle for 592+ days"), "Projects idle for 1+ year");
+  assert.equal(age("Projects idle for 1391+ days"), "Projects idle for 3+ years");
+  assert.equal(age("Projects idle for 90+ days"), "Projects idle for 3+ months");
+  assert.equal(age("Projects idle for 36+ days"), "Projects idle for 36+ days");
   assert.equal(ackText(item("v", { recoverable: false })), "I understand this cannot be recovered.");
 });
 
@@ -130,10 +133,31 @@ test("expected space counts only what was removed", () => {
   assert.equal(expectedFreed(r), GB);
 });
 
-test("result titles", () => {
-  assert.equal(resultTitle(run([row("a", "done")], { state: "finished" })), "Much better!");
-  assert.equal(resultTitle(run([row("a", "skipped")], { state: "finished" })), "Nothing tossed");
-  assert.equal(resultTitle(run([row("a", "canceled")], { state: "canceled" })), "Stopped");
+test("the run scene follows each crate: lifted, gone, stayed, stuck", () => {
+  const p = plan([item("a"), item("b"), item("c"), item("d")]);
+  const r = run([row("a", "done"), row("b", "skipped"), row("c", "running"), row("d", "waiting")]);
+  const f = runFigures(p, r);
+  assert.deepEqual([f.tossed, f.stayed, f.failed, f.handled, f.at], [1, 1, 0, 2, 3]);
+  assert.equal(f.freed, GB);
+  assert.deepEqual(cubeLooks(f.outcomes), ["gone", "stay", "lift", ""]);
+  // Crate k stands for items k, k+9, ...: once item k is handled and a later
+  // one waits, the crate is back on deck for it.
+  const many = plan(Array.from({ length: 11 }, (_, i) => item("i" + i)));
+  const rows = Array.from({ length: 11 }, (_, i) => row("i" + i, i < 10 ? "done" : "failed"));
+  assert.deepEqual(cubeLooks(runFigures(many, run(rows)).outcomes).slice(0, 3), ["gone", "stuck", "gone"]);
+});
+
+test("the result groups items and names each reason once", () => {
+  const p = plan([item("a"), item("b"), item("c"), item("d"), item("e")]);
+  const timeout = "It took longer than 30 minutes, so I stopped it.";
+  const r = resultSections(
+    p,
+    run([row("a", "moved_to_trash"), row("b", "skipped", null, { reason: "A new commit appeared after the scan." }), row("c", "failed", null, { reason: timeout }), row("d", "failed", null, { reason: timeout }), row("e", "canceled")], { state: "canceled" }),
+  );
+  assert.deepEqual([r.tossed.length, r.stayed.length, r.failed.length, r.not_started.length], [1, 1, 2, 1]);
+  assert.ok(r.tossed[0].inTrash);
+  assert.deepEqual(r.reasons, [timeout], "identical failures read as one reason");
+  assert.deepEqual(r.retryIds, ["c", "d", "e"], "Try again reruns what failed or never started");
 });
 
 test("Logbook notes use the prototype's wording, with Recycle Bin on Windows", () => {

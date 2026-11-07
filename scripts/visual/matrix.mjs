@@ -97,18 +97,10 @@ function monoOnlyForCommands() {
   // Plan rows use the code font only for commands (decision 2026-11-05); the
   // prototype sets it on every action line. Prose actions lose `mono`.
   const prose = ["Delete the folders", "Delete the folder", "Move to Trash", "Delete the caches while the apps are closed", "Delete old versions", "Move extra copies to Trash"];
-  for (const e of document.querySelectorAll(".plan-list .sub.mono")) if (prose.some((p) => e.textContent.startsWith(p))) e.classList.remove("mono");
+  for (const e of document.querySelectorAll(".cf-lines dd.mono")) if (prose.some((p) => e.textContent.startsWith(p))) e.classList.remove("mono");
 }
 const MONO = "Plan rows use the code font only for commands (decision 2026-11-05); prose action lines lose the prototype's mono class.";
 
-function addCancel() {
-  // Cancel during cleanup is required behavior the prototype lacks (spec):
-  // a .row with a .btn under the progress bar.
-  const row = document.createElement("div");
-  row.className = "row";
-  row.innerHTML = '<button class="btn" data-act="cancel">Cancel</button>';
-  document.getElementById("sheet").appendChild(row);
-}
 
 function openSheet(html) {
   // The prototype's own openSheet(): a .scrim with a focused .sheet dialog.
@@ -207,7 +199,7 @@ export const ENTRIES = [
   // Slice 2: cleanup sheets and the Logbook (task 4.7). Sheets at desktop and phone widths.
   {
     id: "cleanup-confirm-ack", surface: "Cleanup", state: "Remove now on a Docker volume, acknowledgment ticked", sizes: [DESKTOP, PHONE], query: "",
-    ...both([removeNow("d-vol"), sheetAck("d-vol")]), clip: SHEET,
+    ...both([{ click: "#l-x-d-vol" }, removeNow("d-vol"), sheetAck("d-vol")]), clip: SHEET,
   },
   {
     id: "cleanup-confirm-pile", surface: "Cleanup", state: "Toss: confirmation for the pile (4 crates)", sizes: [DESKTOP, PHONE], query: "",
@@ -218,16 +210,23 @@ export const ENTRIES = [
     ref: [goal("all"), act("confirm"), evalRef(monoOnlyForCommands)], impl: [goal("all"), act("confirm")], clip: SHEET, supplemental: true, note: MONO,
   },
   {
-    id: "cleanup-progress", surface: "Cleanup", state: "Tossing crates: first of 4 done, with Cancel", sizes: [DESKTOP, PHONE], query: "hold=1",
-    ref: [act("confirm"), act("run"), { clockRun: 60 }, evalRef(addCancel)], impl: [act("confirm"), act("run")], clip: SHEET, supplemental: true,
-    note: "The prototype's progress sheet one item in (its clock advanced 60 ms), plus the Cancel button the spec requires (a .row with a .btn).",
+    id: "cleanup-progress", surface: "Cleanup", state: "Tossing crates: the 3D deck, first of 4 tossed, with Stop after this one", sizes: [DESKTOP, PHONE], query: "hold=1",
+    ref: [act("confirm"), act("run"), { clockRun: 60 }], impl: [act("confirm"), act("run")], clip: SHEET,
   },
   {
-    id: "cleanup-result", surface: "Cleanup", state: "Much better! after tossing the pile, with the Docker Desktop note", sizes: [DESKTOP, PHONE], query: "",
+    id: "cleanup-result", surface: "Cleanup", state: "Done, mostly: the Docker build cache could not go (the prototype stages it), with Try 1 again", sizes: [DESKTOP, PHONE], query: "fail=d-cache",
     ...both([act("confirm"), act("run"), finish]), clip: SHEET,
   },
   {
-    id: "cleanup-result-skipped", surface: "Cleanup", state: "Result with a skipped worktree and an item held in the Trash", sizes: [DESKTOP, PHONE], query: "skip=wt-exp",
+    id: "cleanup-result-open", surface: "Cleanup", state: "Result with Tossed opened", sizes: [DESKTOP], query: "fail=d-cache",
+    ...both([act("confirm"), act("run"), finish, { click: "details.res.safe > summary" }]), clip: SHEET,
+  },
+  {
+    id: "cleanup-retry", surface: "Cleanup", state: "Try 1 again: the confirmation for what could not go", sizes: [DESKTOP, PHONE], query: "fail=d-cache",
+    ...both([act("confirm"), act("run"), finish, act("retry")]), clip: SHEET,
+  },
+  {
+    id: "cleanup-result-skipped", surface: "Cleanup", state: "Result with a worktree that stayed on board, an item held in the Trash and one that could not go", sizes: [DESKTOP, PHONE], query: "skip=wt-exp&fail=d-cache",
     ...both([pile("wt-exp"), pile("b-venv"), act("confirm"), act("run"), finish]), clip: SHEET,
   },
   {

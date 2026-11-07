@@ -271,7 +271,7 @@ export function Home({ navigate }: { navigate: View | null }) {
         </div>
 
         <section id="v-tidy" className="two" hidden={tab !== "tidy"}>
-          <QuickQuestions items={suggestions} pile={pile} act={{ add: h.add, takeOut: h.takeOut, decide: h.decide, parts: h.parts, remove: cleanup.fromItems }} />
+          <QuickQuestions items={suggestions} pile={pile} act={{ add: h.add, takeOut: h.takeOut, decide: h.decide, parts: h.parts, remove: cleanup.fromItems, toss: cleanup.fromPile }} />
         </section>
         <section id="v-map" className="two" hidden={tab !== "map"}>
           {map && (
@@ -283,7 +283,7 @@ export function Home({ navigate }: { navigate: View | null }) {
               items={suggestions}
               pile={pile}
               platform={status.platform}
-              act={{ add: h.add, takeOut: h.takeOut, decide: h.decide, parts: h.parts, remove: cleanup.fromItems }}
+              act={{ add: h.add, takeOut: h.takeOut, decide: h.decide, parts: h.parts, remove: cleanup.fromItems, toss: cleanup.fromPile }}
               onResolve={h.resolveSpot}
             />
           )}

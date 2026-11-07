@@ -23,9 +23,10 @@ const STATES = [
   { id: "tray-view", query: "view=tray", root: ".tray-window" },
   // Slice 2: cleanup sheets and the Logbook.
   { id: "cleanup-confirm", query: "", click: ["#cta"], wait: "#go" },
-  { id: "cleanup-confirm-ack", query: "", click: ['details[data-open="grp-Docker"] > summary', '[data-now="d-vol"]'], wait: "#sheet-ack-d-vol" },
+  { id: "cleanup-confirm-ack", query: "", click: ['details[data-open="grp-Docker"] > summary', "#l-x-d-vol", '[data-now="d-vol"]'], wait: "#sheet-ack-d-vol" },
+  { id: "rows-open", query: "", click: ['details[data-open="grp-Projects"] > summary', "#l-x-b-node", "#l-x-wt-pay"] },
   { id: "cleanup-progress", query: "hold=1", click: ["#cta", "#go"], wait: "#run-bar" },
-  { id: "cleanup-result", query: "skip=wt-exp&trash=1", click: ["#cta", "#go"], wait: '#go[data-act="close"]' },
+  { id: "cleanup-result", query: "skip=wt-exp&trash=1&fail=d-cache", click: ["#cta", "#go"], wait: '#go[data-act="close"]' },
   { id: "trash-confirm", query: "trash=2.4", click: ['[data-act="empty"]'], wait: "#go" },
   { id: "logbook", query: "", click: ["#tab-log"], wait: ".log" },
   { id: "logbook-run-details", query: "", click: ["#tab-log", '[data-run="run-2"]'], wait: "#sheet .plan-list" },

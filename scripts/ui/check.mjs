@@ -122,11 +122,13 @@ async function tabStaysInside(p, n = 10) {
   await idle(p);
   const plan = await callsOf(p, "create_plan");
   check("toss: plans the pile by source, sending no item IDs", plan.length === 1 && plan[0].source === "pile" && plan[0].itemIds.length === 0, JSON.stringify(plan));
-  check("toss: the confirmation names the crates", (await sheetTitle(p)) === "Toss 4 crates?", await sheetTitle(p));
-  check("toss: three totals", (await p.textContent(".sum3")).replace(/\s+/g, " ") === "54.0 GBFree right away0.0 GBHeld in the Trash0Cannot be recovered", await p.textContent(".sum3"));
+  check("toss: the confirmation names the items", (await sheetTitle(p)) === "Toss 4 items?", await sheetTitle(p));
+  const sum = await p.textContent(".cf-sum");
+  check("toss: free right away, and what kind of items", sum.includes("54.0 GB free right away") && sum.includes("All rebuildable by their tools") && !sum.includes("cannot be recovered"), sum);
+  check("toss: the button says how much", (await p.textContent("#go")) === "Toss 54.0 GB", await p.textContent("#go"));
   check("toss: commands use the code font, prose actions do not", await p.evaluate(() => {
-    const subs = [...document.querySelectorAll(".plan-list .sub")];
-    return subs.find((e) => e.textContent === "docker builder prune")?.classList.contains("mono") && !subs.find((e) => e.textContent === "Delete the folders")?.classList.contains("mono");
+    const runs = [...document.querySelectorAll(".cf-lines dd")];
+    return runs.find((e) => e.textContent === "docker builder prune")?.classList.contains("mono") && !runs.find((e) => e.textContent === "Delete the folders")?.classList.contains("mono");
   }));
   check("toss: focus moves into the sheet", await inSheet(p));
   check("toss: Tab stays inside the sheet", await tabStaysInside(p));
@@ -141,12 +143,15 @@ async function tabStaysInside(p, n = 10) {
 {
   const { p, ctx } = await page();
   await p.click('details[data-open="grp-Docker"] > summary');
+  check("rows: details are folded until a row is opened", !(await p.$('[data-now="d-vol"]')));
+  await p.click("#l-x-d-vol");
+  check("rows: opening a row shows its details and actions", (await p.getAttribute("#l-x-d-vol", "aria-expanded")) === "true" && !!(await p.$('[data-now="d-vol"]')));
   await p.click('[data-now="d-vol"]');
   await p.waitForSelector("#sheet");
   await idle(p);
   const plan = await callsOf(p, "create_plan");
   check("remove now: plans just that item", plan.length === 1 && plan[0].source === "items" && JSON.stringify(plan[0].itemIds) === '["d-vol"]', JSON.stringify(plan));
-  check("remove now: one crate, Remove it", (await sheetTitle(p)) === "Toss 1 crate?" && (await p.textContent("#go")) === "Remove it");
+  check("remove now: one item, named, with its size on the button", /^Remove .+\?$/.test(await sheetTitle(p)) && /^Remove \d+\.\d GB$/.test(await p.textContent("#go")), `${await sheetTitle(p)} / ${await p.textContent("#go")}`);
   check("remove now: confirm stays disabled until acknowledged", await p.isDisabled("#go"));
   await p.focus("#sheet-ack-d-vol");
   await p.keyboard.press("Space");
@@ -156,7 +161,7 @@ async function tabStaysInside(p, n = 10) {
   await p.keyboard.press("Space");
   check("remove now: unticking disables confirm again", await p.isDisabled("#go"));
   await p.click('[data-act="close"]');
-  check("remove now: Not now closes; focus returns to Remove now", !(await p.$("#sheet")) && (await focused(p)) === "l-now-d-vol", await focused(p));
+  check("remove now: Cancel closes; focus returns to Remove now", !(await p.$("#sheet")) && (await focused(p)) === "l-now-d-vol", await focused(p));
   await ctx.close();
 }
 
@@ -164,7 +169,7 @@ async function tabStaysInside(p, n = 10) {
 {
   const { p, ctx } = await page();
   await p.click('details[data-open="grp-Docker"] > summary');
-  check("remove all here: shows the eligible total", (await p.textContent("#clean-grp-Docker")) === "Remove all here (44.5 GB)", await p.textContent("#clean-grp-Docker"));
+  check("remove all: counts the eligible items", (await p.textContent("#clean-grp-Docker")) === "Remove all 5…" && (await p.textContent("#add-grp-Docker")) === "Add all 5 to the pile (44.5 GB)", await p.textContent("#add-grp-Docker"));
   await p.click("#clean-grp-Docker");
   await p.waitForSelector("#sheet");
   await idle(p);
@@ -183,17 +188,23 @@ async function tabStaysInside(p, n = 10) {
   await idle(p);
   check("progress: the sheet says what it is checking", (await p.textContent("#run-now")) === "Checking node_modules in quiet projects", await p.textContent("#run-now"));
   check("progress: the bar counts crates", (await p.getAttribute("#run-bar", "style")).includes("25%"));
+  check("progress: which one of how many", (await p.textContent("#run-of")) === "1 of 4", await p.textContent("#run-of"));
+  check("progress: the deck shows a crate per item, the first one gone", (await p.$$eval("#deck .cube", (c) => c.length)) === 4 && (await p.getAttribute("#cube-0", "class")) === "cube gone", await p.getAttribute("#cube-0", "class"));
+  check("progress: space freed so far and the tally", (await p.textContent("#run-freed")) === "18.7 GB" && (await p.textContent("#run-tally")) === "1 tossed", `${await p.textContent("#run-freed")} / ${await p.textContent("#run-tally")}`);
   check("progress: the first crate leaves the boat", await p.evaluate(() => document.querySelector('[data-crate="b-node"]')?.classList.contains("crate-fly") && !document.querySelector('[data-crate="d-cache"]')?.classList.contains("crate-fly")));
   check("progress: the boat rises with measured free space", (await p.textContent("#free")) === "31.1", await p.textContent("#free"));
   await p.keyboard.press("Escape");
   await p.mouse.click(5, 5);
   check("progress: Esc and the scrim do nothing while running", (await sheetTitle(p)) === "Tossing crates");
   check("progress: focus stays in the sheet", await inSheet(p));
+  check("progress: Stop says it waits for the item that is running", (await p.textContent('[data-act="cancel"]')) === "Stop after this one");
   await p.click('[data-act="cancel"]');
-  await p.waitForFunction(() => document.getElementById("sheet-title")?.textContent === "Stopped");
+  await p.waitForSelector(".res");
   await idle(p);
   check("cancel: asks the backend to stop", (await callsOf(p, "cancel_run")).length === 1);
-  check("cancel: the result says the rest did not start", (await p.textContent("#sheet")).includes("3 items did not start because you stopped the cleanup."), await p.textContent("#sheet"));
+  const stopped = await p.textContent("#sheet");
+  check("cancel: the result lists what did not start", stopped.includes("Not started") && stopped.includes("You stopped the run before these"), stopped);
+  check("cancel: Try again offers what did not start", (await p.textContent("#retry")) === "Try 3 again", await p.textContent("#retry"));
   await p.click("#go");
   check("cancel: Done closes and focus returns to Toss", !(await p.$("#sheet")) && (await focused(p)) === "cta", await focused(p));
   await ctx.close();
@@ -208,12 +219,13 @@ async function tabStaysInside(p, n = 10) {
   await p.click("#cta");
   await p.waitForSelector("#go");
   await p.click("#go");
-  await p.waitForFunction(() => document.getElementById("sheet-title")?.textContent === "Much better!");
+  await p.waitForFunction(() => document.getElementById("sheet-title")?.textContent === "Done, mostly");
   await idle(p);
   const text = await p.textContent("#sheet");
-  check("result: measured change and new free space", text.includes("I freed 54.0 GB. You now have 66.4 GB free."), text);
-  check("result: skipped item and its reason", text.includes("Worktree old-experiment stayed on board. A new commit appeared after the scan."), text);
-  check("result: Docker Desktop note", text.includes("Docker Desktop may take a while"));
+  check("result: measured change, before and after", text.includes("54.0 GB freed") && text.includes("12.4 GB free before") && text.includes("66.4 GB free now"), text);
+  check("result: what stayed on board, and why", text.includes("Stayed on board") && text.includes("Worktree old-experiment A new commit appeared after the scan."), text);
+  check("result: what went is folded", !(await p.$eval("details.res.safe", (d) => d.open)) && (await p.$eval("details.res.review", (d) => d.open)));
+  check("result: Docker Desktop note", text.includes("Docker Desktop can take a while"));
   check("result: focus is in the sheet", await inSheet(p));
   await p.keyboard.press("Escape");
   await idle(p);
@@ -269,20 +281,39 @@ async function tabStaysInside(p, n = 10) {
 {
   const { p, ctx } = await page("notrash=1");
   await p.click('details[data-open="grp-Projects"] > summary');
+  await p.click("#l-x-b-venv");
   await p.click('[data-now="b-venv"]');
   await p.waitForSelector("#go");
   await p.click("#go");
   await p.waitForSelector('[data-act="permanent"]');
   await idle(p);
   const text = await p.textContent("#sheet");
-  check("no Trash: the item was not removed and says why", text.includes(".venv in data-tools was not removed. Trash unavailable"), text);
+  check("no Trash: the item could not go and says why", text.includes("Could not go") && text.includes(".venv in data-tools") && text.includes("Trash unavailable"), text);
   check("no Trash: nothing is deleted as a fallback", (await callsOf(p, "create_permanent_plan")).length === 0);
   await p.click('[data-act="permanent"]');
   await p.waitForFunction(() => document.getElementById("sheet-title")?.textContent === "Delete 1 item permanently?");
   await idle(p);
   check("no Trash: permanent deletion is a new plan", JSON.stringify(await callsOf(p, "create_permanent_plan")) === JSON.stringify([{ itemIds: ["b-venv"] }]));
-  check("no Trash: it needs its own acknowledgment", (await p.isDisabled("#go")) && (await p.textContent(".sum3")).includes("1Cannot be recovered"));
-  check("no Trash: the code font is not used for prose", !(await p.evaluate(() => document.querySelector(".plan-list .sub").classList.contains("mono"))));
+  check("no Trash: it needs its own acknowledgment", (await p.isDisabled("#go")) && (await p.textContent(".cf-flags")).includes("1 cannot be recovered"));
+  check("no Trash: the code font is not used for prose", !(await p.evaluate(() => document.querySelector(".cf-lines dd").classList.contains("mono"))));
+  await ctx.close();
+}
+
+// A failure: reasons are grouped, and Try again plans only what could not go.
+{
+  const { p, ctx } = await page("fail=d-cache");
+  await p.click("#cta");
+  await p.waitForSelector("#go");
+  await p.click("#go");
+  await p.waitForSelector("#retry");
+  await idle(p);
+  const text = await p.textContent("details.res.risky");
+  check("failure: Could not go names the reason once", text.includes("Could not go") && text.includes("Docker did not answer within 20 seconds"), text);
+  await p.click("#retry");
+  await p.waitForFunction(() => /^Remove .+\?$/.test(document.getElementById("sheet-title")?.textContent ?? ""));
+  await idle(p);
+  const plans = await callsOf(p, "create_plan");
+  check("try again: plans just the item that could not go", plans.length === 2 && plans[1].source === "items" && JSON.stringify(plans[1].itemIds) === '["d-cache"]', JSON.stringify(plans));
   await ctx.close();
 }
 

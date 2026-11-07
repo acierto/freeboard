@@ -17,6 +17,7 @@
 //   skip=<id,...>      these items changed since the scan and are skipped
 //                      (the prototype always skips old-experiment)
 //   notrash=1          moving to the Trash fails, as on a volume without one
+//   fail=<id,...>      these items fail once (the prototype's DEMO_FAIL)
 //
 // Cleanup follows the prototype's `run()`: items run in plan order, Trash
 // items are held in the Trash, the rest free space at once, and a split item
@@ -138,6 +139,9 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
   const holdAt = params.has("hold") ? parseInt(params.get("hold")!, 10) : null;
   const changedIds = new Set((params.get("skip") ?? "").split(",").filter(Boolean));
   const noTrash = params.get("notrash") === "1";
+  // Items that fail once, as the prototype stages the Docker build cache
+  // (its DEMO_FAIL); a retry then succeeds.
+  const failOnce = new Set((params.get("fail") ?? "").split(",").filter(Boolean));
   const resolvedSpots = new Set<string>();
 
   type Item = Suggestion & { need?: string };
@@ -407,6 +411,10 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
         it.skipReason = "A new commit appeared after the scan.";
         continue;
       }
+      if (failOnce.has(pi.suggestionId)) {
+        setItem(r, row, "failed", "Docker did not answer within 20 seconds");
+        continue;
+      }
       if (step.action === "trash" && !r.plan.permanent) {
         if (noTrash) {
           trashFailed.add(step.id);
@@ -427,6 +435,7 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
         if (!it.parts.length) gone.add(it.id);
       } else gone.add(it.id);
     }
+    failOnce.delete(pi.suggestionId);
   }
   function finish(r: Run, state: RunDetail["state"]) {
     const d = r.detail;
