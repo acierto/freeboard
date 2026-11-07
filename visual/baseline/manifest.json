@@ -20,8 +20,8 @@
   "locale": "en-US",
   "timezone": "UTC",
   "adapter": "scripts/visual/lib.mjs referenceHtml(): local fonts, data-theme, host reset (src/styles/reset.css), prototype-only controls hidden (.top-right .sim, .top-right [data-act=\"reset\"], .top > div > .note, .top-right .tray, .top-right [data-act=\"welcome\"])",
-  "acceptedAt": "2026-11-07T14:08:39.645Z",
-  "rationale": "Menu bar window: the status pill keeps the card behind it (supplemental.css), for WCAG AA contrast on the tinted status section.",
+  "acceptedAt": "2026-11-07T16:59:29.253Z",
+  "rationale": "Confirmation items get a Leave it out link so one item needing acknowledgment never blocks the rest (decision 2026-11-07)",
   "entries": {
     "cleanup-confirm-ack--dark--1120x900": {
       "id": "cleanup-confirm-ack",
@@ -105,8 +105,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Plan rows use the code font only for commands (decision 2026-11-05); prose action lines lose the prototype's mono class.",
-      "sha256": "b657f751c584844175795a758c0fd81cb7af94f11eab57ad5121a2f7fbb76bb6"
+      "note": "Plan rows use the code font only for commands (decision 2026-11-05); prose action lines lose the prototype's mono class. Each item has a Leave it out link (decision 2026-11-07); the prototype has none.",
+      "sha256": "5ebf6192f924601f84ee92b809ff746c5e5d36ae82915aa5869f5cf556bf30a0"
     },
     "cleanup-confirm-long--dark--390x844": {
       "id": "cleanup-confirm-long",
@@ -122,8 +122,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Plan rows use the code font only for commands (decision 2026-11-05); prose action lines lose the prototype's mono class.",
-      "sha256": "a12541d0308ca40209c2751c24ffaa27c67e5a0b4cd618d17bad7d5f424d5880"
+      "note": "Plan rows use the code font only for commands (decision 2026-11-05); prose action lines lose the prototype's mono class. Each item has a Leave it out link (decision 2026-11-07); the prototype has none.",
+      "sha256": "8c3b03757ee6f83ff9fa1e3f87f66a18a2dd4c7b5bd06db77bb1bb9849473aa6"
     },
     "cleanup-confirm-long--light--1120x900": {
       "id": "cleanup-confirm-long",
@@ -139,8 +139,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Plan rows use the code font only for commands (decision 2026-11-05); prose action lines lose the prototype's mono class.",
-      "sha256": "3cef09a1d54f685ed7f91452972727e385a1f0c25ce1b2e9ebeb7e3fd2f843b8"
+      "note": "Plan rows use the code font only for commands (decision 2026-11-05); prose action lines lose the prototype's mono class. Each item has a Leave it out link (decision 2026-11-07); the prototype has none.",
+      "sha256": "3a657bbd9d60be0be72569bfa7e0948c39dec900ddd90ed6aca2303167e4d74e"
     },
     "cleanup-confirm-long--light--390x844": {
       "id": "cleanup-confirm-long",
@@ -156,8 +156,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Plan rows use the code font only for commands (decision 2026-11-05); prose action lines lose the prototype's mono class.",
-      "sha256": "89b6582c6f74a33985543af037600897beb5c434d3a112e1f3283bb54e1926c5"
+      "note": "Plan rows use the code font only for commands (decision 2026-11-05); prose action lines lose the prototype's mono class. Each item has a Leave it out link (decision 2026-11-07); the prototype has none.",
+      "sha256": "1eb7a0b4ad8c989cf17634c97a1f74905de13fac10781b6626e125ede5f27df2"
     },
     "cleanup-confirm-pile--dark--1120x900": {
       "id": "cleanup-confirm-pile",
@@ -173,8 +173,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Plan rows use the code font only for commands (decision 2026-11-05); prose action lines lose the prototype's mono class.",
-      "sha256": "a0a8402ae03af141aa276a8857de26f230de7e53f976c69572a0791a1ceb5b48"
+      "note": "Plan rows use the code font only for commands (decision 2026-11-05); prose action lines lose the prototype's mono class. Each item has a Leave it out link (decision 2026-11-07); the prototype has none.",
+      "sha256": "d3e5d30fdcf59df9369fd6f4c05488cba1c10c53e1d3320efb1d6bc3ec2c24eb"
     },
     "cleanup-confirm-pile--dark--390x844": {
       "id": "cleanup-confirm-pile",
@@ -190,8 +190,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Plan rows use the code font only for commands (decision 2026-11-05); prose action lines lose the prototype's mono class.",
-      "sha256": "3ccb79d9b2234b06783b16900a0a8ebcf116695850830a1f1bfa6364e9764930"
+      "note": "Plan rows use the code font only for commands (decision 2026-11-05); prose action lines lose the prototype's mono class. Each item has a Leave it out link (decision 2026-11-07); the prototype has none.",
+      "sha256": "9e3ca8897989917703ae239aeb84e5a7826a1cc2c363f82b892305629b46de90"
     },
     "cleanup-confirm-pile--light--1120x900": {
       "id": "cleanup-confirm-pile",
@@ -207,8 +207,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Plan rows use the code font only for commands (decision 2026-11-05); prose action lines lose the prototype's mono class.",
-      "sha256": "e7d1517146c883cdd26d009773ea5633c64edf7aac6b33979517e86f1beea1ff"
+      "note": "Plan rows use the code font only for commands (decision 2026-11-05); prose action lines lose the prototype's mono class. Each item has a Leave it out link (decision 2026-11-07); the prototype has none.",
+      "sha256": "aca549dfede7d022901fa5dffab278975cdffcf92e926c1f4759cb7ea188fe01"
     },
     "cleanup-confirm-pile--light--390x844": {
       "id": "cleanup-confirm-pile",
@@ -224,8 +224,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Plan rows use the code font only for commands (decision 2026-11-05); prose action lines lose the prototype's mono class.",
-      "sha256": "1589a2edd693bf747bd8b5421ca46e194c273e106a4e057b7634f6dd7c16770e"
+      "note": "Plan rows use the code font only for commands (decision 2026-11-05); prose action lines lose the prototype's mono class. Each item has a Leave it out link (decision 2026-11-07); the prototype has none.",
+      "sha256": "edd1c7776a1b73ec8cc878bee078a672d5ad4224d2b210bb7e3e46b1378d6ede"
     },
     "cleanup-progress--dark--1120x900": {
       "id": "cleanup-progress",

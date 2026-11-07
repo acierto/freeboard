@@ -128,6 +128,22 @@ function monoOnlyForCommands() {
 }
 const MONO = "Plan rows use the code font only for commands (decision 2026-11-05); prose action lines lose the prototype's mono class.";
 
+function leaveOutLinks() {
+  // Each item of a several-item confirmation can be left out (decision
+  // 2026-11-07), so one item needing its own acknowledgment never blocks the
+  // rest. The prototype has no such link; it is added after each item's
+  // content with the prototype's .link.small button.
+  const items = document.querySelectorAll(".cf-item");
+  if (items.length < 2) return;
+  for (const e of items) {
+    const b = document.createElement("button");
+    b.className = "link small cf-leave";
+    b.textContent = "Leave it out";
+    e.append(b);
+  }
+}
+const LEAVE = "Each item has a Leave it out link (decision 2026-11-07); the prototype has none.";
+
 
 function openSheet(html) {
   // The prototype's own openSheet(): a .scrim with a focused .sheet dialog.
@@ -326,11 +342,11 @@ export const ENTRIES = [
   },
   {
     id: "cleanup-confirm-pile", surface: "Cleanup", state: "Toss: confirmation for the pile (4 crates)", sizes: [DESKTOP, PHONE], query: "",
-    ref: [act("confirm"), evalRef(monoOnlyForCommands)], impl: [act("confirm")], clip: SHEET, supplemental: true, note: MONO,
+    ref: [act("confirm"), evalRef(monoOnlyForCommands), evalRef(leaveOutLinks)], impl: [act("confirm")], clip: SHEET, supplemental: true, note: MONO + " " + LEAVE,
   },
   {
     id: "cleanup-confirm-long", surface: "Cleanup", state: "Toss with All I can: 11 crates, the list scrolls and the button stays visible", sizes: [DESKTOP, PHONE], query: "",
-    ref: [goal("all"), act("confirm"), evalRef(monoOnlyForCommands)], impl: [goal("all"), act("confirm")], clip: SHEET, supplemental: true, note: MONO,
+    ref: [goal("all"), act("confirm"), evalRef(monoOnlyForCommands), evalRef(leaveOutLinks)], impl: [goal("all"), act("confirm")], clip: SHEET, supplemental: true, note: MONO + " " + LEAVE,
   },
   {
     id: "cleanup-progress", surface: "Cleanup", state: "Tossing crates: the 3D deck, first of 4 tossed, with Stop after this one", sizes: [DESKTOP, PHONE], query: "hold=1",

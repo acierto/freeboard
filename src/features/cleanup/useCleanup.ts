@@ -24,6 +24,8 @@ export interface Cleanup {
   permanent(ids: string[]): void;
   openTrash(): void;
   ack(itemId: string, on: boolean): void;
+  /** Drop one item from the confirmation; the rest is planned again. */
+  leaveOut(itemId: string): void;
   run(): void;
   replan(): void;
   cancel(): void;
@@ -44,6 +46,8 @@ export function useCleanup(platform: Platform, onChanged: () => void): Cleanup {
   const update = useCallback((fn: (f: Flow | null) => Flow | null) => set(fn(flowRef.current)), [set]);
   // How the open plan was made, so an expired plan can be made again.
   const remake = useRef<(() => Promise<CleanupPlan>) | null>(null);
+  // Whether it came from the pile (Toss) rather than chosen items.
+  const fromPile = useRef(false);
   const changed = useRef(onChanged);
   changed.current = onChanged;
 
@@ -87,9 +91,28 @@ export function useCleanup(platform: Platform, onChanged: () => void): Cleanup {
 
   const c: Cleanup = {
     flow,
-    fromPile: () => open(() => api.createPlanFromPile()),
-    fromItems: (ids) => open(() => api.createPlan(ids)),
-    permanent: (ids) => open(() => api.createPermanentPlan(ids), true),
+    fromPile: () => {
+      fromPile.current = true;
+      open(() => api.createPlanFromPile());
+    },
+    fromItems: (ids) => {
+      fromPile.current = false;
+      open(() => api.createPlan(ids));
+    },
+    leaveOut: (itemId) => {
+      const f = flowRef.current;
+      if (f?.kind !== "confirm") return;
+      const rest = f.plan.items.map((s) => s.id).filter((id) => id !== itemId);
+      if (!rest.length) return set(null);
+      if (f.permanent) return open(() => api.createPermanentPlan(rest), true);
+      // From the pile: take it out of the pile too, so it does not come back.
+      if (fromPile.current) void track(api.takeOutOfPile([itemId])).then(() => open(() => api.createPlanFromPile()), (e) => set({ kind: "error", message: asErr(e).message, platform }));
+      else open(() => api.createPlan(rest));
+    },
+    permanent: (ids) => {
+      fromPile.current = false;
+      open(() => api.createPermanentPlan(ids), true);
+    },
     openTrash: () =>
       void track(api.getTrash()).then(
         (trash) => set({ kind: "trash", trash, busy: false, error: trash.confirmationToken ? null : "There is nothing of mine in the Trash to empty.", platform }),

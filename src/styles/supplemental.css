@@ -37,3 +37,6 @@ html.tray-native, html.tray-native body { background: transparent; }
 /* Menu bar window: the status pill keeps the card behind it, so its text
    meets WCAG AA contrast on the amber and pink tinted status sections. */
 .tb-status .pill { background: var(--card); }
+/* Confirmation: drop one item from the toss (found on a real Mac: an item
+   needing its own acknowledgment blocked the whole toss). */
+.cf-leave { align-self: flex-start; font-size: 13px; }

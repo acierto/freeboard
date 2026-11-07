@@ -229,6 +229,29 @@ async function tabStaysInside(p, n = 10) {
   await ctx.close();
 }
 
+// Toss with one item that needs its own acknowledgment: leaving it out lets
+// the rest go (found on a real Mac: the whole toss was blocked by one item).
+{
+  const { p, ctx } = await page();
+  await p.click('details[data-open="grp-Docker"] > summary');
+  await p.click('[data-pile="d-vol"]');
+  await idle(p);
+  await p.click("#cta");
+  await p.waitForSelector("#sheet");
+  await idle(p);
+  check("leave out: one unacknowledged item blocks the toss", await p.isDisabled("#go"));
+  check("leave out: the sheet says how to go on", (await p.textContent(".cf-hint"))?.includes("leave it out"));
+  const before = await p.$$eval(".cf-item", (l) => l.length);
+  await p.evaluate(() => (window.__FIXTURE_CALLS__ = []));
+  await p.click('[data-leave="d-vol"]');
+  await p.waitForFunction((n) => document.querySelectorAll(".cf-item").length === n - 1, before);
+  await idle(p);
+  check("leave out: it is taken out of the pile", JSON.stringify(await callsOf(p, "take_out_of_pile")) === '[{"itemIds":["d-vol"]}]', JSON.stringify(await callsOf(p, "take_out_of_pile")));
+  check("leave out: the rest is planned again, without it", !(await p.$('[data-leave="d-vol"]')) && (await callsOf(p, "create_plan")).length === 1);
+  check("leave out: the rest can be tossed", !(await p.isDisabled("#go")) && !(await p.$(".cf-hint")));
+  await ctx.close();
+}
+
 // Remove all here: excludes items needing their own confirmation.
 {
   const { p, ctx } = await page();

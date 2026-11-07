@@ -83,6 +83,11 @@ function Confirm({ c, flow }: { c: Cleanup; flow: Extract<Flow, { kind: "confirm
                     {ackText(s)}
                   </label>
                 )}
+                {!one && (
+                  <button className="link small cf-leave" data-leave={s.id} aria-label={`Leave it out: ${s.title}`} onClick={() => c.leaveOut(s.id)}>
+                    Leave it out
+                  </button>
+                )}
               </div>
             );
           })}
@@ -91,6 +96,9 @@ function Confirm({ c, flow }: { c: Cleanup; flow: Extract<Flow, { kind: "confirm
           {SHIELD}
           <span>Each item is checked again just before it goes. Anything that changed since the scan stays put.</span>
         </p>
+        {!acked && !one && (
+          <p className="note cf-hint">Tick the box on each item that cannot be recovered, or leave it out and toss the rest.</p>
+        )}
         {flow.error && (
           <p className="note" role="alert">
             {flow.error.message}
