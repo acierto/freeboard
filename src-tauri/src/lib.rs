@@ -331,7 +331,22 @@ mod shell {
                 let data_dir = app.path().app_data_dir()?;
                 std::fs::create_dir_all(&data_dir)?;
                 init_logging(&data_dir.join("logs"));
-                let store = Arc::new(crate::store::Store::open(&data_dir.join("freeboard.db")).map_err(|e| e.to_string())?);
+                let store = match crate::store::Store::open(&data_dir.join("freeboard.db")) {
+                    Ok(s) => Arc::new(s),
+                    // An older Freeboard meeting data a newer one upgraded:
+                    // say so and quit, instead of crashing at launch (found
+                    // on a real Mac, 2026-11-07: an old copy in Applications).
+                    Err(crate::store::StoreError::TooNew(_)) => {
+                        use tauri_plugin_dialog::{DialogExt, MessageDialogKind};
+                        app.dialog()
+                            .message("A newer version of Freeboard has used this computer, and this older copy can't read its data. Install the latest Freeboard from the website.")
+                            .title("Freeboard is out of date")
+                            .kind(MessageDialogKind::Warning)
+                            .blocking_show();
+                        std::process::exit(0);
+                    }
+                    Err(e) => return Err(e.to_string().into()),
+                };
                 let home = crate::monitor::home_or_root();
                 let core = AppCore::new(CoreConfig {
                     store,
