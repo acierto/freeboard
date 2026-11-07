@@ -143,32 +143,30 @@ const GROWING: [string, string, number][] = [
 ];
 const EXTRA_PLACES = ["npm cache", "Yarn cache", "Bun cache", "Maven repository", "Gradle caches", "Go module cache", "CocoaPods", "Conda environments", "pyenv versions", "Cargo registry", "Turbo and Nx caches", "VS Code old extensions", "Browser caches", "LM Studio models", "Trash", "Log files", "iOS device support", "Mail attachments"];
 
-// "What Risky means here" for the prototype's items, as risk_notes.rs words
-// them: the two the user's description names, and a fallback for the rest.
-function riskNotes(id: string, risk: string, back: string): Pick<Suggestion, "riskWhy" | "safer"> {
-  if (risk === "Safe") return { riskWhy: [], safer: [] };
+// "What Risky means here": the prototype's riskWhy and safer for d-vol and
+// wt-pay; other items use the prototype's one-line fallback (RiskBox).
+function riskNotes(id: string): Pick<Suggestion, "riskWhy" | "safer"> {
   if (id === "d-vol")
     return {
       riskWhy: [
-        "Docker deletes it outright. It does not go to the Trash and cannot be undone.",
-        "Freeboard can\u2019t see inside a volume, so it can\u2019t tell whether the data matters.",
-        "The name suggests it holds a database.",
+        "No undo. Docker deletes a volume outright; it never goes to the Trash.",
+        "Freeboard can\u2019t see inside it, so it can\u2019t tell whether this is the only copy of your billing database.",
+        "The name hints at real data: pgdata is where Postgres keeps its tables.",
       ],
       safer: [
-        { label: "Look inside it", command: "docker run --rm -v billing_pgdata:/data alpine ls -la /data" },
-        { label: "Save a copy to ~/Backups first", command: "mkdir -p ~/Backups && docker run --rm -v billing_pgdata:/data -v ~/Backups:/backup alpine tar czf /backup/billing_pgdata.tgz -C /data ." },
+        { label: "Look inside first", command: "docker run --rm -v billing_pgdata:/v alpine ls -la /v" },
+        { label: "Save a copy, then remove it", command: "docker run --rm -v billing_pgdata:/v -v ~/Backups:/b alpine tar czf /b/billing_pgdata.tgz -C /v ." },
       ],
     };
   if (id === "wt-pay")
     return {
-      riskWhy: ["3 uncommitted files and 2 unpushed commits. Your work may exist only here.", "Freeboard will not remove it until that is no longer true."],
+      riskWhy: ["3 files are changed but not committed. Removing the worktree deletes them.", "2 commits exist only on this computer; they were never pushed."],
       safer: [
-        { label: "See what is only here", command: 'git -C "$HOME/work/web-app/.worktrees/payments-v2" status' },
-        { label: "Push the branch", command: 'git -C "$HOME/work/web-app/.worktrees/payments-v2" push -u origin HEAD' },
+        { label: "See what would be lost", command: "git -C ~/work/web-app/.worktrees/payments-v2 status --short" },
+        { label: "Push the commits", command: "git -C ~/work/web-app/.worktrees/payments-v2 push" },
       ],
     };
-  if (risk === "Risky") return { riskWhy: ["Freeboard can\u2019t prove it is safe to remove.", "It can\u2019t be undone."], safer: [] };
-  return { riskWhy: ["It comes back, but with some effort: " + back.charAt(0).toLowerCase() + back.slice(1)], safer: [] };
+  return { riskWhy: [], safer: [] };
 }
 
 const bytes = (gb: number) => Math.round(gb * G);
@@ -218,7 +216,7 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
       skipReason: null,
       decision: null,
       ackName: extra?.ack ? name.replace(/^Volume /, "") + " volume" : null,
-      ...riskNotes(id, risk, back),
+      ...riskNotes(id),
       need: extra?.need,
     };
   });

@@ -152,14 +152,17 @@ async function tabStaysInside(p, n = 10) {
   check("rows: details are folded until a row is opened", !(await p.$('[data-now="d-vol"]')));
   await p.click("#l-x-d-vol");
   check("rows: opening a row shows its details and actions", (await p.getAttribute("#l-x-d-vol", "aria-expanded")) === "true" && !!(await p.$('[data-now="d-vol"]')));
+  const closed = await p.$eval('[data-risk-box="d-vol"]', (b) => b.open);
+  await p.click('[data-risk-box="d-vol"] > summary');
   const box = await p.$eval('[data-risk-box="d-vol"]', (b) => ({
     open: b.open,
-    on: b.querySelector(".rx-lvl.on b")?.textContent,
+    on: b.querySelector(".rs.on b")?.textContent,
     why: b.querySelectorAll(".rx-why li").length,
-    safer: [...b.querySelectorAll(".rx-safer code")].map((c) => c.textContent),
+    safer: [...b.querySelectorAll(".rx-steps code")].map((c) => c.textContent),
   }));
-  check("risk: a Risky item explains itself, open, with its place on the scale", box.open && box.on === "Risky" && box.why === 3, JSON.stringify(box));
-  check("risk: it says how to keep a copy first", box.safer.length === 2 && box.safer[1].includes("tar czf /backup/billing_pgdata.tgz"), JSON.stringify(box.safer));
+  check("risk: in a row the box starts folded, as the prototype", closed === false);
+  check("risk: a Risky item explains itself, with its place on the scale", box.open && box.on === "Risky" && box.why === 3, JSON.stringify(box));
+  check("risk: it says how to keep a copy first", box.safer.length === 2 && box.safer[1].includes("tar czf /b/billing_pgdata.tgz"), JSON.stringify(box.safer));
   await p.click("#l-x-d-cache");
   check("risk: Safe items have no explanation box", !(await p.$('[data-risk-box="d-cache"]')));
   await p.click('[data-now="d-vol"]');
@@ -380,6 +383,15 @@ async function tabStaysInside(p, n = 10) {
   await idle(p);
   const all = await p.evaluate(() => window.__FIXTURE_CALLS__.find((c) => c.cmd === "resolve_blind_spots")?.args);
   check("map: Scan all sends every open folder in one request", all?.action === "scan_folder" && all.spotIds.length === 7 && !all.spotIds.includes("vms"), JSON.stringify(all));
+  // Places checked: one line, a See all sheet, and a found item opens on the map.
+  const cov = await p.textContent(".scan-card .cov");
+  check("places: one summary line with See all", /^\d+ places checked\d+ had something · \d+ clean/.test(cov) && !!(await p.$("#places-btn")), cov);
+  await p.click("#places-btn");
+  await p.waitForSelector(".pl-sum");
+  check("places: the sheet groups what was found and lists what was clean", (await p.$$(".pl-group")).length >= 3 && (await p.$$(".pl-clean li")).length > 0);
+  await p.click('[data-place="d-vol"]');
+  await idle(p);
+  check("places: a found item opens on the map, already expanded", !(await p.$("#sheet")) && (await p.textContent("#tile-detail h3")) === "Docker" && (await p.getAttribute("#m-x-d-vol", "aria-expanded")) === "true" && !!(await p.$("#m-now-d-vol")));
   await p.click('[data-act="report"]');
   await idle(p);
   await p.waitForSelector("#report-box textarea, #report-box p");

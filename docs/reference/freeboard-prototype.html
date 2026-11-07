@@ -156,6 +156,20 @@ input[type="range"] { accent-color: var(--accent); max-width: 120px; }
 .facts dt { color: var(--muted); } .facts dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
 .facts { margin: 0; }
 .q-actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.riskx { border: 2px solid var(--line); border-radius: 16px; padding: 10px 14px; background: var(--soft); font-size: 14px; }
+.riskx.risky { border-color: color-mix(in srgb, var(--risky) 55%, var(--line)); }
+.riskx.review { border-color: color-mix(in srgb, var(--review) 60%, var(--line)); }
+.riskx summary { cursor: pointer; font-weight: 800; }
+.riskx[open] { display: flex; flex-direction: column; gap: 8px; }
+.rscale { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+.rs { border-radius: 10px; padding: 6px 8px; background: var(--card); border-top: 4px solid currentColor; opacity: .5; line-height: 1.25; min-width: 0; }
+.rs b { display: block; font-size: 13px; color: var(--ink); } .rs span { display: block; font-size: 12px; color: var(--muted); }
+.rs.safe { color: var(--safe); } .rs.review { color: var(--review); } .rs.risky { color: var(--risky); }
+.rs.on { opacity: 1; box-shadow: 0 0 0 2px currentColor inset; }
+.rx-sub { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 800; }
+.rx-why, .rx-steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; }
+.rx-steps li span { display: block; }
+.rx-steps code { display: block; background: var(--card); border-radius: 8px; padding: 4px 8px; margin-top: 2px; }
 .ack { display: flex; gap: 8px; align-items: flex-start; color: var(--risky); font-weight: 800; font-size: 14px; }
 .ack input, .toggle input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--accent); flex: none; }
 details > summary { cursor: pointer; font-weight: 800; }
@@ -336,6 +350,31 @@ details > summary { cursor: pointer; font-weight: 800; }
 .spot.done { border-style: solid; border-color: var(--line); }
 .grow { display: grid; grid-template-columns: minmax(0, 1fr) 72px; gap: 2px 10px; align-items: center; font-size: 14px; }
 .grow i { grid-column: 1 / -1; display: block; height: 8px; border-radius: 99px; background: var(--hull); }
+.scan-card { display: flex; flex-direction: column; gap: 0; padding: 0; overflow: hidden; }
+.scan-card > section { padding: 14px 18px; display: flex; flex-direction: column; gap: 6px; }
+.scan-card > section + section { border-top: 2px solid var(--line); }
+.sc-label { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 800; }
+.scan-card .sc-row { flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; }
+.sc-row > div { display: flex; flex-direction: column; min-width: 0; }
+.sc-row .btn { flex: none; }
+.dots { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 6px; }
+.dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--line); }
+.dots i.hit { background: var(--safe); } .dots i.todo { background: none; box-shadow: 0 0 0 1.5px var(--muted) inset; }
+#report-box:not(:empty) { padding: 0 18px 14px; }
+.st-body.pl { gap: 16px; }
+.pl section { display: flex; flex-direction: column; gap: 6px; }
+.pl-sum { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 14px; color: var(--muted); }
+.pl-sum b { color: var(--ink); font-size: 17px; }
+.pl-h { font-size: 16px; display: flex; justify-content: space-between; }
+.pl-group { border: 2px solid var(--line); border-radius: 14px; overflow: hidden; }
+.pl-gh { display: flex; justify-content: space-between; padding: 6px 12px; background: var(--soft); font-size: 12.5px; font-weight: 800; color: var(--muted); }
+.pl-row { width: 100%; display: grid; grid-template-columns: 10px minmax(0, 1fr) auto 12px; gap: 10px; align-items: center; padding: 8px 12px; border: 0; border-top: 1px solid var(--line); background: none; text-align: left; font-weight: 700; font-size: 14px; }
+.pl-gh + .pl-row { border-top: 0; }
+.pl-row:hover { background: var(--soft); } .pl-go { color: var(--muted); }
+.pl-n { overflow-wrap: anywhere; }
+.pl-clean { list-style: none; margin: 0; padding: 0; columns: 2 170px; column-gap: 16px; font-size: 13.5px; color: var(--muted); }
+.pl-clean li { break-inside: avoid; padding: 2px 0 2px 18px; position: relative; }
+.pl-clean li::before { content: "✓"; position: absolute; left: 0; color: var(--safe); font-weight: 800; }
 .places { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
 .place { font-size: 12.5px; padding: 1px 9px; border-radius: 999px; background: var(--soft); }
 .place.hit { background: var(--t-a); color: var(--t-ink); font-weight: 800; }
@@ -513,12 +552,16 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
     I('d-cache', 'Docker', 'docker', 'Docker build cache', '142 layers', 14.8, 'Last used 23 days ago', 'Safe', 'native', 'docker builder prune', 'No recent build reused these layers.', 'Docker rebuilds them on the next build.'),
     I('d-dangling', 'Docker', 'docker', 'Untagged Docker images', '31 images', 6.2, 'Over 30 days old', 'Safe', 'native', 'docker image prune', 'Old layers with no tag and no container.', 'Rebuild from the Dockerfile.'),
     I('d-slack', 'Docker', 'docker', 'Empty space in Docker’s disk', 'Docker.raw', 19.0, 'Stays empty after pruning', 'Review', 'native', 'Compact the Docker disk image', 'Docker Desktop keeps this space reserved even when nothing uses it. Docker must stop for a moment.', 'Nothing is lost. Docker grows the disk again when needed.'),
-    I('d-vol', 'Docker', 'docker', 'Volume billing_pgdata', 'Not attached to a container', 7.6, 'Last attached 40 days ago', 'Risky', 'native', 'docker volume rm billing_pgdata', 'Nothing uses it now, but it may hold the only copy of this data.', 'It cannot be recovered.', { ack: true, lost: true }),
+    I('d-vol', 'Docker', 'docker', 'Volume billing_pgdata', 'Not attached to a container', 7.6, 'Last attached 40 days ago', 'Risky', 'native', 'docker volume rm billing_pgdata', 'Nothing uses it now, but it may hold the only copy of this data.', 'It cannot be recovered.', { ack: true, lost: true,
+      riskWhy: ['No undo. Docker deletes a volume outright; it never goes to the Trash.', 'Freeboard can’t see inside it, so it can’t tell whether this is the only copy of your billing database.', 'The name hints at real data: pgdata is where Postgres keeps its tables.'],
+      safer: [['Look inside first', 'docker run --rm -v billing_pgdata:/v alpine ls -la /v'], ['Save a copy, then remove it', 'docker run --rm -v billing_pgdata:/v -v ~/Backups:/b alpine tar czf /b/billing_pgdata.tgz -C /v .']] }),
     I('d-pg', 'Docker', 'docker', 'postgres:14 image', 'No container uses it', 3.4, 'Last used 71 days ago', 'Review', 'native', 'docker image rm postgres:14', 'A tagged image no container uses.', 'Run docker pull postgres:14.'),
     I('d-stop', 'Docker', 'docker', 'Stopped containers', '6 containers', 1.1, 'Stopped over 14 days ago', 'Review', 'native', 'docker container rm', 'Their writable layers still take up space.', 'Create them again. Files written inside them are lost.'),
     I('b-node', 'Projects', 'projects', 'node_modules in quiet projects', '~/projects', 18.7, 'Idle for 60+ days', 'Safe', 'delete', 'Delete the folders', 'Every project has a lockfile.', 'Run pnpm install.', { parts: [['web-app', 4.2], ['admin-portal', 3.1], ['mobile-app', 2.6], ['docs-site', 1.7], ['storybook', 1.4], ['landing', 1.1], ['api-client', 0.9], ['scripts', 0.8], ['cli-tools', 0.7], ['demo', 0.6], ['tests-e2e', 0.5], ['poc-graphql', 0.5], ['design-tokens', 0.3], ['sandbox', 0.3]] }),
     I('b-target', 'Projects', 'projects', 'Rust build output', '~/projects/rust-cli/target', 9.2, 'Last built 45 days ago', 'Safe', 'delete', 'Delete the folder', 'Cargo can regenerate this.', 'Run cargo build.'),
-    I('wt-pay', 'Projects', 'projects', 'Worktree payments-v2', '~/work/web-app/.worktrees/payments-v2', 6.9, 'Edited 9 days ago', 'Risky', 'none', 'None', '3 uncommitted files and 2 unpushed commits.', 'Your work exists only here.', { blocked: 'Commit and push it, and I can clean this next time.' }),
+    I('wt-pay', 'Projects', 'projects', 'Worktree payments-v2', '~/work/web-app/.worktrees/payments-v2', 6.9, 'Edited 9 days ago', 'Risky', 'none', 'None', '3 uncommitted files and 2 unpushed commits.', 'Your work exists only here.', { blocked: 'Commit and push it, and I can clean this next time.',
+      riskWhy: ['3 files are changed but not committed. Removing the worktree deletes them.', '2 commits exist only on this computer; they were never pushed.'],
+      safer: [['See what would be lost', 'git -C ~/work/web-app/.worktrees/payments-v2 status --short'], ['Push the commits', 'git -C ~/work/web-app/.worktrees/payments-v2 push']] }),
     I('wt-exp', 'Projects', 'projects', 'Worktree old-experiment', '~/work/web-app/.worktrees/old-experiment', 5.1, 'Last commit 52 days ago', 'Review', 'native', 'git worktree remove', 'No local changes. The branch is pushed but not merged.', 'Run git worktree add with the pushed branch.'),
     I('wt-auth', 'Projects', 'projects', 'Worktree fix-auth', '~/work/api-server/.worktrees/fix-auth', 4.3, 'Merged 34 days ago', 'Review', 'native', 'git worktree remove', 'The branch is merged and has no local changes.', 'Run git worktree add with the same branch.'),
     I('b-venv', 'Projects', 'projects', '.venv in data-tools', '~/projects/data-tools/.venv', 2.4, 'Last used 88 days ago', 'Review', 'trash', 'Move to Trash', 'It may hold packages you installed by hand.', 'Restore it from the Trash.'),
@@ -714,7 +757,7 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
     if (!q) return '<div class="card stack"><h2>All answered</h2><p class="muted">You have no questions left. Your answers are in the crate pile above.</p>' + (laters ? '<button class="btn" data-act="bring-back">Ask me about ' + laters + ' I skipped</button>' : '') + '</div>';
     var acked = !q.ack || S.acks[q.id];
     return '<div class="card q"><div class="row between"><span class="note">' + d.length + ' left, biggest first</span><span class="pill ' + q.risk.toLowerCase() + '">' + q.risk + '</span></div>' +
-      '<h2>' + esc(q.name) + '</h2><div class="q-size num">' + gb(q.size) + '</div><p>' + esc(q.why) + '</p>' +
+      '<h2>' + esc(q.name) + '</h2><div class="q-size num">' + gb(q.size) + '</div><p>' + esc(q.why) + '</p>' + (q.risk !== 'Safe' ? riskBox(q, q.risk === 'Risky') : '') +
       '<dl class="facts"><dt>Where</dt><dd class="mono">' + esc(q.where) + '</dd><dt>Last used</dt><dd>' + esc(q.last) + '</dd><dt>Would run</dt><dd class="mono">' + esc(q.cmd) + '</dd><dt>To get it back</dt><dd>' + esc(q.back) + '</dd></dl>' +
       (q.ack ? '<label class="ack"><input type="checkbox" id="ack-' + q.id + '" data-ack="' + q.id + '"' + (S.acks[q.id] ? ' checked' : '') + '>I understand this cannot be recovered.</label>' : '') +
       partsHTML(q, 'q') + '<div class="q-actions"><button class="btn primary" id="q-toss" data-q="toss"' + (acked ? '' : ' disabled') + '>Add to pile</button><button class="btn" data-q="keep">Keep, don’t ask again</button><button class="btn" data-q="later">Ask me later</button></div></div>';
@@ -734,6 +777,22 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
     return String(t).replace(/(\d+)\+ days/, function (m, d) { d = +d; return d >= 730 ? Math.floor(d / 365) + '+ years' : d >= 365 ? '1+ year' : d >= 60 ? Math.floor(d / 30) + '+ months' : m; });
   }
   var RCLS = { Safe: 'safe', Review: 'review', Risky: 'risky' };
+  var RISK = {
+    Safe: { short: 'Comes back by itself', long: 'Freeboard can show this rebuilds or downloads again on its own. Nothing of yours is lost.' },
+    Review: { short: 'Comes back, with effort', long: 'Nothing is lost for good, but getting it back costs you something: a download, a rebuild, or a trip to the Trash. Worth a glance.' },
+    Risky: { short: 'May not come back', long: 'Freeboard can’t prove this is safe to remove, and removing it can’t be undone. It may be the only copy of something you need.' }
+  };
+  function riskBox(i, open) {
+    var lv = i.risk, why = i.riskWhy || [lv === 'Risky' ? 'It cannot be undone.' : 'To get it back: ' + i.back];
+    var scale = ['Safe', 'Review', 'Risky'].map(function (k) {
+      return '<li class="rs ' + RCLS[k] + (k === lv ? ' on' : '') + '"' + (k === lv ? ' aria-current="true"' : '') + '><b>' + k + '</b><span>' + RISK[k].short + '</span></li>';
+    }).join('');
+    var safer = i.safer ? '<div class="rx-sub">Make it safer first</div><ol class="rx-steps">' + i.safer.map(function (s) {
+      return '<li><span>' + esc(s[0]) + '</span><code class="mono">' + esc(s[1]) + '</code></li>'; }).join('') + '</ol>' : '';
+    return '<details class="riskx ' + RCLS[lv] + '"' + (open ? ' open' : '') + '><summary>What “' + lv + '” means here</summary>' +
+      '<ol class="rscale" aria-label="Risk scale">' + scale + '</ol><p>' + RISK[lv].long + '</p>' +
+      '<div class="rx-sub">Why this one is ' + lv + '</div><ul class="rx-why">' + why.map(function (w) { return '<li>' + esc(w) + '</li>'; }).join('') + '</ul>' + safer + '</details>';
+  }
   function rowHTML(i, ctx, chosen, max) {
     var can = !i.blocked && !S.skipped[i.id], kept = S.kept[i.id], key = ctx + '-' + i.id, open = !!S.expanded[key];
     var box = can && !kept ? '<input type="checkbox" id="' + ctx + '-pile-' + i.id + '" data-pile="' + i.id + '" aria-label="Add ' + esc(i.name) + ' to the pile"' + (chosen[i.id] ? ' checked' : '') + (i.size > 0 ? '' : ' disabled') + '>' : i.blocked ? '<svg class="lockic" viewBox="0 0 12 12" aria-hidden="true"><rect x="1.5" y="5" width="9" height="6.5" rx="1.5" fill="var(--risky)"/><path d="M3.5 5V3.6a2.5 2.5 0 0 1 5 0V5" fill="none" stroke="var(--risky)" stroke-width="1.5"/></svg>' : '<span></span>';
@@ -748,7 +807,7 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
         S.skipped[i.id] ? '<p class="note">It changed after the scan. Scan again to remove it.</p>' :
         '<div class="iactions"><button class="btn primary" id="' + ctx + '-now-' + i.id + '" data-now="' + i.id + '"' + (i.size > 0 ? '' : ' disabled') + '>Remove ' + gb(i.size) + ' now</button><button class="btn" id="' + ctx + '-keep-' + i.id + '" data-keep="' + i.id + '">Keep, don’t suggest</button></div>';
       html += '<div class="idetail"><dl class="facts"><dt>Why</dt><dd>' + esc(i.why) + '</dd><dt>Where</dt><dd class="mono">' + esc(i.where) + '</dd><dt>Would run</dt><dd class="mono">' + esc(cmdFor(i)) + '</dd><dt>To get it back</dt><dd>' + esc(i.back) + '</dd></dl>' +
-        (can && !kept ? partsHTML(i, ctx) : '') + acts + '</div>';
+        (i.risk !== 'Safe' ? riskBox(i, false) : '') + (can && !kept ? partsHTML(i, ctx) : '') + acts + '</div>';
     }
     return html + '</div>';
   }
@@ -809,6 +868,31 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
   function ring(pct) {
     var c = 2 * Math.PI * 34, done = pct >= 99.95;
     return '<svg viewBox="0 0 88 88" role="img" aria-label="' + pct.toFixed(1) + ' percent of used space explained"><circle cx="44" cy="44" r="34" fill="none" stroke="var(--soft)" stroke-width="14"/><circle cx="44" cy="44" r="34" fill="none" stroke="' + (done ? 'var(--safe)' : 'var(--hull)') + '" stroke-width="14" stroke-dasharray="' + (c * pct / 100).toFixed(1) + ' ' + c.toFixed(1) + '" transform="rotate(-90 44 44)"/><g stroke="var(--card)" stroke-width="5"><path d="M44 3v14M44 71v14M3 44h14M71 44h14"/></g></svg>';
+  }
+  function coverageHTML(places) {
+    var hit = places.filter(function (p) { return p.hit; }).length, clean = places.length - hit, notYet = SPOTS.filter(function (s) { return !S.spots[s.id] && s.cause === 'outside'; }).length;
+    var dots = places.map(function (p) { return '<i class="' + (p.hit ? 'hit' : '') + '"></i>'; }).join('') + Array(notYet + 1).join('<i class="todo"></i>');
+    return '<section class="sc-row cov"><div><b class="num">' + places.length + ' places checked</b><span class="note num">' + hit + ' had something · ' + clean + ' clean' + (notYet ? ' · ' + notYet + ' folders not yet' : '') + '</span><span class="dots" aria-hidden="true">' + dots + '</span></div><button class="btn" id="places-btn" data-act="places">See all</button></section>';
+  }
+  function placesSheet() {
+    S.sheet = 'places';
+    var found = ITEMS.filter(function (i) { return (!i.need || S.spots[i.need] === 'scan') && !S.gone[i.id]; });
+    var cleaned = ITEMS.filter(function (i) { return S.gone[i.id]; });
+    var notYet = SPOTS.filter(function (s) { return !S.spots[s.id] && s.cause === 'outside'; });
+    var groups = GROUPS.map(function (g) {
+      var l = found.filter(function (i) { return i.group === g; }).sort(function (a, b) { return b.size - a.size; });
+      if (!l.length) return '';
+      return '<div class="pl-group"><div class="pl-gh"><span>' + esc(g) + '</span><span class="num">' + gb(sum(l)) + '</span></div>' + l.map(function (i) {
+        return '<button class="pl-row" data-place="' + i.id + '"><span class="rdot ' + RCLS[i.risk] + '"></span><span class="pl-n">' + esc(i.name) + '</span><span class="num">' + gb(i.size) + '</span><span class="pl-go" aria-hidden="true">›</span></button>'; }).join('') + '</div>';
+    }).join('');
+    var clean = EXTRA_PLACES.concat(cleaned.map(function (i) { return i.name + ' (tossed)'; }));
+    var total = found.length + clean.length;
+    openSheet('<div class="st-head"><h2 id="sheet-title">' + total + ' places I checked</h2><button class="icon-x" data-act="close" aria-label="Close">&times;</button></div><div class="st-body pl">' +
+      '<div class="pl-sum"><span><b class="num">' + found.length + '</b> had something to remove</span><span><b class="num">' + clean.length + '</b> were clean</span>' + (notYet.length ? '<span><b class="num">' + notYet.length + '</b> folders not looked in yet</span>' : '') + '</div>' +
+      '<section><h3 class="pl-h">Found something <span class="muted num">' + gb(sum(found)) + '</span></h3><p class="note">Tap one to open it on the map.</p>' + groups + '</section>' +
+      '<section><h3 class="pl-h">Looked, nothing to remove</h3><ul class="pl-clean">' + clean.map(function (n) { return '<li>' + esc(n) + '</li>'; }).join('') + '</ul></section>' +
+      (notYet.length ? '<section><h3 class="pl-h">Not looked in yet</h3><p class="note">' + notYet.map(function (s) { return esc(s.label); }).join(', ') + '. <button class="link" data-act="close">Fix it in “Why it isn’t explained”</button></p></section>' : '') +
+      '</div>', 'framed');
   }
   function placesList() {
     var names = ITEMS.filter(function (i) { return !i.need || S.spots[i.need] === 'scan'; }).map(function (i) { return { n: i.name, hit: !S.gone[i.id] }; });
@@ -875,9 +959,9 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
       '<div class="card stack" id="tile-detail">' + detail + '</div></div>';
     var mx = GROWING[0][1], places = placesList();
     var right = '<div class="stack">' + whyCard() +
-      '<div class="card stack"><h3>Growing fastest this week</h3>' + GROWING.map(function (g) { return '<div class="grow"><span>' + esc(g[0]) + '</span><span class="num">+' + g[1].toFixed(1) + ' GB</span><i style="width:' + (g[1] / mx * 100).toFixed(0) + '%"></i></div>'; }).join('') + '</div>' +
-      '<div class="card"><details><summary>' + places.length + ' places I checked</summary><p class="note" style="margin-top:6px">Green means I found something. Grey means I looked and it was clean.</p><div class="places">' + places.map(function (p) { return '<span class="place' + (p.hit ? ' hit' : '') + '">' + esc(p.n) + '</span>'; }).join('') + '</div></details></div>' +
-      '<div class="card stack"><h3>Get a second opinion</h3><p class="note">Copy a summary with sizes and folder names, then ask your AI agent what I missed. File contents are not included.</p><button class="btn" style="align-self:flex-start" data-act="report">Copy disk report</button><div id="report-box"></div></div></div>';
+      '<div class="card scan-card"><section><div class="sc-label">Growing fastest this week</div>' + GROWING.map(function (g) { return '<div class="grow"><span>' + esc(g[0]) + '</span><span class="num">+' + g[1].toFixed(1) + ' GB</span><i style="width:' + (g[1] / mx * 100).toFixed(0) + '%"></i></div>'; }).join('') + '</section>' +
+      coverageHTML(places) +
+      '<section class="sc-row"><div><b>Second opinion</b><span class="note">Copy sizes and folder names for your AI agent. No file contents.</span></div><button class="btn" data-act="report">Copy report</button></section><div id="report-box"></div></div></div>';
     $('v-map').innerHTML = left + right;
   }
   function reportText() {
@@ -1092,6 +1176,7 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
     if (b.dataset.clean) { var c = b.dataset.clean.split(':'); confirmSheet(usable(c[0], c[1])); return; }
     if (b.dataset.add) { var d = b.dataset.add.split(':'); usable(d[0], d[1]).forEach(function (i) { addToPile(i.id); }); renderAll(); return; }
     if (b.dataset.tab) { S.tab = b.dataset.tab; renderHero(); return; }
+    if (b.dataset.place) { var it = byId(b.dataset.place); closeSheet(); S.tab = 'map'; S.tile = it.map; S.expanded['m-' + it.id] = true; renderAll(); var dd = $('tile-detail'); if (dd) dd.scrollIntoView({ block: 'start' }); return; }
     if (b.dataset.tile) { S.tile = b.dataset.tile; renderMap(); var d = $('tile-detail'); if (d && window.innerWidth < 800) d.scrollIntoView({ block: 'nearest' }); return; }
     if (b.dataset.out) { takeOut(b.dataset.out); renderAll(); return; }
     if (b.dataset.q) {
@@ -1124,6 +1209,7 @@ textarea { width: 100%; min-height: 120px; font: 12px/1.4 var(--mono); backgroun
     else if (a === 'toggle-pile') { S.pile = !S.pile; renderHero(); }
     else if (a === 'bring-back') { S.later = {}; renderAll(); }
     else if (a === 'settings') settingsSheet();
+    else if (a === 'places') placesSheet();
     else if (a === 'reset') { S = fresh(); closeSheet(); renderAll(); }
     else if (a === 'empty') {
       Object.keys(S.held).forEach(function (k) { S.tossed += S.held[k]; var m = S.heldBy[k]; S.freedBy[m] = (S.freedBy[m] || 0) + S.held[k]; S.gone[k] = true; delete S.held[k]; });

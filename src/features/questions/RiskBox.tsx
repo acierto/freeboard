@@ -1,79 +1,58 @@
-// "What Risky means here" (decided by the user 2026-11-07): where the item
-// sits on the Safe / Review / Risky scale, why this one sits there, and what
-// to do first to make removing it safer. Open on Risky items, folded on
-// Review, absent on Safe. The commands are only shown; Freeboard never runs
-// them.
-import { useState } from "react";
+// "What Risky means here" (prototype `riskBox()`): where the item sits on the
+// Safe / Review / Risky scale, why this one sits there, and what to do first
+// to make removing it safer. The reasons and commands come from the core
+// (risk_notes.rs); the commands are only shown, Freeboard never runs them.
 import type { Risk, Suggestion } from "../../lib/types";
 
-const LEVELS: { id: Risk; name: string; short: string; long: string }[] = [
-  { id: "safe", name: "Safe", short: "comes back by itself", long: "Its tool downloads or rebuilds it on its own when needed." },
-  { id: "review", name: "Review", short: "comes back, with effort", long: "It comes back, but it takes a download, a rebuild or a restore from the Trash." },
-  {
-    id: "risky",
-    name: "Risky",
-    short: "may not come back",
-    long: "Freeboard can’t prove it is safe to remove, it can’t be undone, and it may be the only copy of something.",
+const RISK: Record<Risk, { name: string; short: string; long: string }> = {
+  safe: { name: "Safe", short: "Comes back by itself", long: "Freeboard can show this rebuilds or downloads again on its own. Nothing of yours is lost." },
+  review: {
+    name: "Review",
+    short: "Comes back, with effort",
+    long: "Nothing is lost for good, but getting it back costs you something: a download, a rebuild, or a trip to the Trash. Worth a glance.",
   },
-];
+  risky: {
+    name: "Risky",
+    short: "May not come back",
+    long: "Freeboard can’t prove this is safe to remove, and removing it can’t be undone. It may be the only copy of something you need.",
+  },
+};
+const ORDER: Risk[] = ["safe", "review", "risky"];
 
-function Command({ label, command }: { label: string; command: string }) {
-  const [copied, setCopied] = useState(false);
-  const copy = () =>
-    navigator.clipboard?.writeText(command).then(
-      () => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 1500);
-      },
-      () => undefined,
-    );
-  return (
-    <li>
-      <span>{label}</span>
-      <span className="rx-cmd">
-        <code className="mono">{command}</code>
-        <button className="mini" onClick={() => void copy()} aria-label={`Copy the command: ${label}`}>
-          {copied ? "Copied" : "Copy"}
-        </button>
-      </span>
-    </li>
-  );
-}
-
-export function RiskBox({ s }: { s: Suggestion }) {
+export function RiskBox({ s, open }: { s: Suggestion; open: boolean }) {
   if (s.risk === "safe") return null;
-  const level = LEVELS.find((l) => l.id === s.risk)!;
+  const lv = RISK[s.risk];
+  // As the prototype, an item without its own reasons still says one thing.
+  const why = s.riskWhy.length ? s.riskWhy : [s.risk === "risky" ? "It cannot be undone." : "To get it back: " + s.recovery];
   return (
-    <details className={`riskx ${s.risk}`} open={s.risk === "risky"} data-risk-box={s.id}>
-      <summary>{`What “${level.name}” means here`}</summary>
-      <div className="rx-scale" role="list" aria-label="Risk levels">
-        {LEVELS.map((l) => (
-          <span key={l.id} role="listitem" className={`rx-lvl ${l.id}${l.id === s.risk ? " on" : ""}`} aria-current={l.id === s.risk ? "true" : undefined}>
-            <b>{l.name}</b>
-            <small>{l.short}</small>
-          </span>
+    <details className={`riskx ${s.risk}`} open={open} data-risk-box={s.id}>
+      <summary>{`What “${lv.name}” means here`}</summary>
+      <ol className="rscale" aria-label="Risk scale">
+        {ORDER.map((k) => (
+          <li key={k} className={k === s.risk ? `rs ${k} on` : `rs ${k}`} aria-current={k === s.risk ? "true" : undefined}>
+            <b>{RISK[k].name}</b>
+            <span>{RISK[k].short}</span>
+          </li>
         ))}
-      </div>
-      <p className="rx-def">{level.long}</p>
-      {s.riskWhy.length > 0 && (
-        <>
-          <b className="rx-h">{`Why this one is ${level.name}`}</b>
-          <ul className="rx-why">
-            {s.riskWhy.map((w) => (
-              <li key={w}>{w}</li>
-            ))}
-          </ul>
-        </>
-      )}
+      </ol>
+      <p>{lv.long}</p>
+      <div className="rx-sub">{`Why this one is ${lv.name}`}</div>
+      <ul className="rx-why">
+        {why.map((w) => (
+          <li key={w}>{w}</li>
+        ))}
+      </ul>
       {s.safer.length > 0 && (
         <>
-          <b className="rx-h">Make it safer first</b>
-          <ul className="rx-safer">
+          <div className="rx-sub">Make it safer first</div>
+          <ol className="rx-steps">
             {s.safer.map((x) => (
-              <Command key={x.command} label={x.label} command={x.command} />
+              <li key={x.command}>
+                <span>{x.label}</span>
+                <code className="mono">{x.command}</code>
+              </li>
             ))}
-          </ul>
-          <p className="rx-note">Run these in Terminal yourself. Freeboard never runs them.</p>
+          </ol>
         </>
       )}
     </details>

@@ -6,7 +6,8 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { api } from "../../lib/api";
 import { track } from "../../lib/useBusy";
-import { gb, plural } from "../../lib/format";
+import { GROUPS, gb, plural } from "../../lib/format";
+import { Sheet } from "../../components/Sheet";
 import type { AreaGrowth, BlindSpot, BlindSpotAction, DiskMap, PileState, PlaceChecked, Platform, Suggestion } from "../../lib/types";
 import { GroupActions, Row, type Choices } from "../questions/Questions";
 import { GB, causesOf, coverText, coverage, defaultTile, ringDash, splitAreas, squarify, tileClass, tilesOf, type Cause } from "./mapModel";
@@ -123,7 +124,7 @@ function Treemap({ map, selected, onSelect }: { map: DiskMap; selected: string; 
   );
 }
 
-function Detail({ map, tile, items, spots, chosen, act }: { map: DiskMap; tile: string; items: Suggestion[]; spots: BlindSpot[]; chosen: Set<string>; act: Choices }) {
+function Detail({ map, tile, items, spots, chosen, act, focus }: { map: DiskMap; tile: string; items: Suggestion[]; spots: BlindSpot[]; chosen: Set<string>; act: Choices; focus: { id: string; n: number } | null }) {
   const tiles = tilesOf(map);
   const t = tiles.find((x) => x.id === tile) ?? tiles[0];
   const size = t.v * GB;
@@ -157,7 +158,8 @@ function Detail({ map, tile, items, spots, chosen, act }: { map: DiskMap; tile: 
       <>
         <GroupActions items={inside} slug={"map-" + t.id} act={act} />
         {(blocked.length > 1 ? inside.filter((s) => !s.blockedReason) : inside).map((s) => (
-          <Row key={s.id} s={s} ctx="m" chosen={chosen} act={act} max={inside[0]?.sizeBytes ?? 0} />
+          // A row opened from Places checked starts expanded (a new key remounts it).
+          <Row key={focus?.id === s.id ? `${s.id}#${focus.n}` : s.id} s={s} ctx="m" chosen={chosen} act={act} max={inside[0]?.sizeBytes ?? 0} startOpen={focus?.id === s.id} />
         ))}
         {/* More than one protected item share one folded row, as under
             Quick questions (a real disk had 139; found by the user). */}
@@ -334,8 +336,8 @@ function Growing({ growth }: { growth: AreaGrowth[] }) {
   const top = growth.filter((g) => g.bytes > 0).slice(0, 4);
   const mx = top[0]?.bytes ?? 1;
   return (
-    <div className="card stack">
-      <h3>Growing fastest this week</h3>
+    <section>
+      <div className="sc-label">Growing fastest this week</div>
       {top.length ? (
         top.map((g) => (
           <div className="grow" key={g.id}>
@@ -347,32 +349,127 @@ function Growing({ growth }: { growth: AreaGrowth[] }) {
       ) : (
         <p className="muted">I need a few days of scans to see what is growing.</p>
       )}
-    </div>
+    </section>
   );
 }
 
-function Places({ places }: { places: PlaceChecked[] }) {
-  const off = places.some((p) => p.state === "unavailable");
+/** Folders outside the scan list that are still open blind spots. */
+const notYetOf = (spots: BlindSpot[]) => spots.filter((s) => s.kind === "unscanned_folder" && s.state === "open");
+
+/** Places checked as one line with a dot strip (prototype `coverageHTML`). */
+function Coverage({ places, spots, onOpen }: { places: PlaceChecked[]; spots: BlindSpot[]; onOpen: () => void }) {
+  const hit = places.filter((p) => p.state === "found").length;
+  const off = places.filter((p) => p.state === "unavailable").length;
+  const clean = places.length - hit - off;
+  const notYet = notYetOf(spots).length;
+  const parts = [`${hit} had something`, `${clean} clean`];
+  if (off) parts.push(`${off} could not check`);
+  if (notYet) parts.push(`${notYet} folders not yet`);
   return (
-    <div className="card">
-      <details data-open="places">
-        <summary>{`${places.length} places I checked`}</summary>
-        <p className="note" style={{ marginTop: 6 }}>
-          {"Green means I found something. Grey means I looked and it was clean." + (off ? " Dashed means I could not look." : "")}
-        </p>
-        <div className="places">
+    <section className="sc-row cov">
+      <div>
+        <b className="num">{`${places.length} places checked`}</b>
+        <span className="note num">{parts.join(" \u00b7 ")}</span>
+        <span className="dots" aria-hidden="true">
           {places.map((p) => (
-            <span className={"place" + (p.state === "found" ? " hit" : p.state === "unavailable" ? " off" : "")} key={p.detector}>
-              {p.state === "unavailable" ? `${p.label} (could not check)` : p.label}
-            </span>
+            <i key={p.detector} className={p.state === "found" ? "hit" : p.state === "unavailable" ? "todo" : ""}></i>
           ))}
-        </div>
-      </details>
-    </div>
+          {Array.from({ length: notYet }, (_, n) => (
+            <i key={"todo" + n} className="todo"></i>
+          ))}
+        </span>
+      </div>
+      <button className="btn" id="places-btn" data-act="places" onClick={onOpen}>
+        See all
+      </button>
+    </section>
   );
 }
 
-function Report() {
+/** Every place checked (prototype `placesSheet()`): what had something,
+ * grouped by area, what was clean, and the folders not looked in yet. */
+function PlacesSheet({ places, items, spots, onGo, onClose }: { places: PlaceChecked[]; items: Suggestion[]; spots: BlindSpot[]; onGo: (s: Suggestion) => void; onClose: () => void }) {
+  const clean = places.filter((p) => p.state === "clean").map((p) => p.label);
+  const off = places.filter((p) => p.state === "unavailable").map((p) => p.label);
+  const notYet = notYetOf(spots);
+  const total = items.length + clean.length;
+  const sum = (l: Suggestion[]) => l.reduce((t, s) => t + s.sizeBytes, 0);
+  return (
+    <Sheet title={`${total} places I checked`} onClose={onClose} className="framed" closeLabel="Close">
+      <div className="st-body pl">
+        <div className="pl-sum">
+          <span>
+            <b className="num">{items.length}</b> had something to remove
+          </span>
+          <span>
+            <b className="num">{clean.length}</b> were clean
+          </span>
+          {notYet.length > 0 && (
+            <span>
+              <b className="num">{notYet.length}</b> folders not looked in yet
+            </span>
+          )}
+        </div>
+        <section>
+          <h3 className="pl-h">
+            {"Found something "}
+            <span className="muted num">{gb(sum(items))}</span>
+          </h3>
+          <p className="note">Tap one to open it on the map.</p>
+          {GROUPS.map(({ id, label }) => {
+            const l = items.filter((s) => s.group === id).sort((a, b) => b.sizeBytes - a.sizeBytes);
+            if (!l.length) return null;
+            return (
+              <div className="pl-group" key={id}>
+                <div className="pl-gh">
+                  <span>{label}</span>
+                  <span className="num">{gb(sum(l))}</span>
+                </div>
+                {l.map((s) => (
+                  <button className="pl-row" data-place={s.id} key={s.id} onClick={() => onGo(s)}>
+                    <span className={`rdot ${s.risk}`}></span>
+                    <span className="pl-n">{s.title}</span>
+                    <span className="num">{gb(s.sizeBytes)}</span>
+                    <span className="pl-go" aria-hidden="true">
+                      ›
+                    </span>
+                  </button>
+                ))}
+              </div>
+            );
+          })}
+        </section>
+        <section>
+          <h3 className="pl-h">Looked, nothing to remove</h3>
+          <ul className="pl-clean">
+            {clean.map((n) => (
+              <li key={n}>{n}</li>
+            ))}
+          </ul>
+        </section>
+        {off.length > 0 && (
+          <section>
+            <h3 className="pl-h">Could not check</h3>
+            <p className="note">{`${off.join(", ")}. The tool did not answer; I will try again on the next scan.`}</p>
+          </section>
+        )}
+        {notYet.length > 0 && (
+          <section>
+            <h3 className="pl-h">Not looked in yet</h3>
+            <p className="note">
+              {`${notYet.map((s) => s.location).join(", ")}. `}
+              <button className="link" data-act="close" onClick={onClose}>
+                {"Fix it in \u201cWhy it isn\u2019t explained\u201d"}
+              </button>
+            </p>
+          </section>
+        )}
+      </div>
+    </Sheet>
+  );
+}
+
+function SecondOpinion() {
   const [box, setBox] = useState<{ copied: true } | { text: string } | null>(null);
   const area = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
@@ -389,17 +486,21 @@ function Report() {
     else setBox({ text });
   };
   return (
-    <div className="card stack">
-      <h3>Get a second opinion</h3>
-      <p className="note">Copy a summary with sizes and folder names, then ask your AI agent what I missed. File contents are not included.</p>
-      <button className="btn" style={{ alignSelf: "flex-start" }} data-act="report" onClick={() => void copy()}>
-        Copy disk report
-      </button>
+    <>
+      <section className="sc-row">
+        <div>
+          <b>Second opinion</b>
+          <span className="note">Copy sizes and folder names for your AI agent. No file contents.</span>
+        </div>
+        <button className="btn" data-act="report" onClick={() => void copy()}>
+          Copy report
+        </button>
+      </section>
       <div id="report-box">
         {box && "copied" in box && <p className="note">Copied. Paste it into your agent.</p>}
         {box && "text" in box && <textarea id="report-text" className="report-text" aria-label="Disk report" readOnly value={box.text} ref={area} />}
       </div>
-    </div>
+    </>
   );
 }
 
@@ -417,6 +518,15 @@ export interface MapProps {
 
 export function DiskMapView({ map, spots, places, growth, items, pile, platform, act, onResolve }: MapProps) {
   const [tile, setTile] = useState<string | null>(null);
+  const [placesOpen, setPlacesOpen] = useState(false);
+  const [focus, setFocus] = useState<{ id: string; n: number } | null>(null);
+  // Places checked: open the item on the map, already expanded.
+  const go = (s: Suggestion) => {
+    setPlacesOpen(false);
+    setTile(s.mapArea);
+    setFocus((f) => ({ id: s.id, n: (f?.n ?? 0) + 1 }));
+    setTimeout(() => document.getElementById("tile-detail")?.scrollIntoView({ block: "start" }), 0);
+  };
   const selected = tile ?? defaultTile(map, items);
   const chosen = new Set(pile.itemIds);
   const cover = coverText(map);
@@ -439,14 +549,17 @@ export function DiskMapView({ map, spots, places, growth, items, pile, platform,
           <CoverNotes map={map} platform={platform} />
           <Treemap map={map} selected={selected} onSelect={select} />
         </div>
-        <Detail map={map} tile={selected} items={items} spots={spots} chosen={chosen} act={act} />
+        <Detail map={map} tile={selected} items={items} spots={spots} chosen={chosen} act={act} focus={focus} />
       </div>
       <div className="stack">
         <WhyCard map={map} spots={spots} onResolve={onResolve} />
-        <Growing growth={growth} />
-        <Places places={places} />
-        <Report />
+        <div className="card scan-card">
+          <Growing growth={growth} />
+          <Coverage places={places} spots={spots} onOpen={() => setPlacesOpen(true)} />
+          <SecondOpinion />
+        </div>
       </div>
+      {placesOpen && <PlacesSheet places={places} items={items} spots={spots} onGo={go} onClose={() => setPlacesOpen(false)} />}
     </>
   );
 }

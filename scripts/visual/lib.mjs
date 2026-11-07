@@ -9,7 +9,7 @@ import { chromium } from "@playwright/test";
 export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 export const PROTOTYPE = join(ROOT, "docs/reference/freeboard-prototype.html");
 /** SHA-256 recorded in docs/reference/README.md. */
-export const PROTOTYPE_SHA256 = "3c90b8fd031962ab76f30c63696242b3b4421ebe21fc41916e66df789dc35a8f";
+export const PROTOTYPE_SHA256 = "d38593d8df51f68b58fe64a961aed4819a234ee44b26e8097189bc983d5c946b";
 export const FIXED_TIME = Date.parse("2026-11-04T12:00:00Z");
 export const BASELINE_DIR = join(ROOT, "visual/baseline");
 export const TOLERANCE_FILE = join(ROOT, "visual/tolerances.json");

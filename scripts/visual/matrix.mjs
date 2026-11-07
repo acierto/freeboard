@@ -98,7 +98,7 @@ const UNTRACED =
   "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).";
 const mapEntry = (id, state, steps) => ({ id, surface: "Disk map", state, sizes: [DESKTOP, MID, PHONE], query: "", ref: [tab("map"), ...steps, evalRef(hideClippedLabels), evalRef(untracedCause)], impl: [tab("map"), ...steps], clip: MAP, supplemental: true, note: UNTRACED });
 const TILES = ["projects", "docker", "caches", "files", "mobile", "apps", "system", "unknown", "browser", "fonts"];
-const PLACES = { click: "#v-map .card > details > summary" };
+const PLACES = { click: "#places-btn" };
 
 function trayWindow() {
   // The tray view runs in its own small window (decision 2026-11-06). Move the
@@ -177,6 +177,18 @@ function runDetailsSheet(open) {
       '<div class="row"><button class="btn primary" id="go" data-act="close">Done</button></div>',
   );
 }
+function biggestGroupFirst() {
+  // "Everything I found" lists the biggest group first (decided by the user
+  // 2026-11-07); the prototype keeps its fixed order.
+  const gb = (d) => parseFloat(d.querySelector("summary .num").textContent);
+  const groups = [...document.querySelectorAll("#v-tidy details.grp")];
+  if (!groups.length) return;
+  const parent = groups[0].parentNode, after = groups[groups.length - 1].nextSibling;
+  groups.sort((a, b) => gb(b) - gb(a)).forEach((g) => parent.insertBefore(g, after));
+}
+const SCALE = "The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.";
+const BIGGEST = "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way.";
+
 // ---- settings ------------------------------------------------------------------
 
 function settingsWording() {
@@ -214,7 +226,23 @@ export const ENTRIES = [
   mapEntry("map-why-more", "Why card: Show 4 more folders", [{ click: '[data-why-more="outside"]' }]),
   mapEntry("map-scan-all", "Why card: Scan all 8, the fixed list opened", [{ click: "#all-outside" }, { click: "#why .fixed-list > summary" }]),
   mapEntry("map-spots-all", "Every fixable blind spot resolved, Your files selected", [{ click: "#all-outside" }, spot("access"), spot("mystery"), tile("files")]),
-  mapEntry("map-places", "Places I checked opened", [PLACES]),
+  {
+    id: "map-places", surface: "Disk map", state: "Places checked: the See all sheet", sizes: [DESKTOP, PHONE], query: "",
+    ...both([tab("map"), PLACES]), clip: SHEET,
+  },
+  mapEntry("map-place-go", "Places checked: a found item opened on the map, already expanded", [PLACES, { click: '[data-place="d-vol"]' }]),
+  {
+    id: "risk-question", surface: "Quick questions", state: "What \u201cReview\u201d means here, opened on the question card", sizes: [DESKTOP, PHONE], query: "",
+    ...both([{ click: "#v-tidy .q .riskx > summary" }]), clip: ["#v-tidy .q"], supplemental: true, note: SCALE,
+  },
+  {
+    id: "risk-row-risky", surface: "Quick questions", state: "A Risky volume opened, its risk box open with reasons and commands", sizes: [DESKTOP, PHONE], query: "",
+    ref: [{ click: 'details[data-open="grp-Docker"] > summary' }, { click: "#l-x-d-vol" }, { click: ".irow:has(#l-x-d-vol) .riskx > summary" }, evalRef(biggestGroupFirst)], impl: [{ click: 'details[data-open="grp-Docker"] > summary' }, { click: "#l-x-d-vol" }, { click: ".irow:has(#l-x-d-vol) .riskx > summary" }], clip: [".irow:has(#l-x-d-vol)"], supplemental: true, note: BIGGEST + " " + SCALE,
+  },
+  {
+    id: "risk-row-blocked", surface: "Quick questions", state: "A protected worktree opened, its risk box open", sizes: [DESKTOP, PHONE], query: "",
+    ref: [{ click: 'details[data-open="grp-Projects"] > summary' }, { click: "#l-x-wt-pay" }, { click: ".irow:has(#l-x-wt-pay) .riskx > summary" }, evalRef(biggestGroupFirst)], impl: [{ click: 'details[data-open="grp-Projects"] > summary' }, { click: "#l-x-wt-pay" }, { click: ".irow:has(#l-x-wt-pay) .riskx > summary" }], clip: [".irow:has(#l-x-wt-pay)"], supplemental: true, note: BIGGEST + " " + SCALE,
+  },
   mapEntry("map-report", "Disk report shown in the copy-by-hand box", [act("report")]),
   {
     id: "tray-view", surface: "Tray", state: "Tray view, Low", sizes: [[312, 260]], query: "view=tray",

@@ -48,6 +48,7 @@ function Question({ items, pile, act }: { items: Suggestion[]; pile: PileState; 
       <h2>{q.title}</h2>
       <div className="q-size num">{gb(q.sizeBytes)}</div>
       <p>{q.reason}</p>
+      <RiskBox s={q} open={q.risk === "risky"} />
       <dl className="facts">
         <dt>Where</dt>
         <dd className="mono">{q.location}</dd>
@@ -58,7 +59,6 @@ function Question({ items, pile, act }: { items: Suggestion[]; pile: PileState; 
         <dt>To get it back</dt>
         <dd>{q.recovery}</dd>
       </dl>
-      <RiskBox s={q} />
       {q.needsConfirmation && (
         <label className="ack">
           <input type="checkbox" id={`ack-${q.id}`} data-ack={q.id} checked={!!acks[q.id]} onChange={(e) => setAcks((a) => ({ ...a, [q.id]: e.target.checked }))} />
@@ -71,7 +71,7 @@ function Question({ items, pile, act }: { items: Suggestion[]; pile: PileState; 
           Add to pile
         </button>
         <button className="btn" data-q="keep" onClick={() => act.decide(q.id, "keep")}>
-          Keep, don{"’"}t ask again
+          {"Keep, don\u2019t ask again"}
         </button>
         <button className="btn" data-q="later" onClick={() => act.decide(q.id, "later")}>
           Ask me later
@@ -98,8 +98,8 @@ const LOCK = (
 
 /** One quiet line per item; the details, choices and actions open on
  * demand (prototype `rowHTML`). `max` scales the size bar. */
-export function Row({ s, ctx, chosen, act, max }: { s: Suggestion; ctx: string; chosen: Set<string>; act: Choices; max: number }) {
-  const [open, setOpen] = useState(false);
+export function Row({ s, ctx, chosen, act, max, startOpen = false }: { s: Suggestion; ctx: string; chosen: Set<string>; act: Choices; max: number; startOpen?: boolean }) {
+  const [open, setOpen] = useState(startOpen);
   const can = !s.blockedReason && !s.skipReason && s.action !== "none";
   const kept = s.decision === "keep";
   const on = s.parts.filter((p) => p.selected).length;
@@ -155,7 +155,7 @@ export function Row({ s, ctx, chosen, act, max }: { s: Suggestion; ctx: string; 
             <dt>To get it back</dt>
             <dd>{s.recovery}</dd>
           </dl>
-          <RiskBox s={s} />
+          <RiskBox s={s} open={false} />
           {can && !kept && <Parts item={s} ctx={ctx} onChange={(ids) => act.parts(s.id, ids)} />}
           {s.blockedReason ? (
             <p className="note">{s.blockedReason}</p>
@@ -174,7 +174,7 @@ export function Row({ s, ctx, chosen, act, max }: { s: Suggestion; ctx: string; 
                   {`Remove ${gb(s.sizeBytes)} now`}
                 </button>
                 <button className="btn" id={`${ctx}-keep-${s.id}`} data-keep={s.id} onClick={() => act.decide(s.id, "keep")}>
-                  Keep, don{"’"}t suggest
+                  {"Keep, don\u2019t suggest"}
                 </button>
               </div>
             )

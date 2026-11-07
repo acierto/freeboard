@@ -10,6 +10,8 @@ A third revision the same day (`freeboard-prototype-1.html`) redesigned the item
 
 A fourth revision (`freeboard-prototype-2.html`) redesigned the disk map's right column (a Why-not-explained card grouping blind spots by cause, each with a fix) and listed areas under 3% as chips under the map.
 
+A fifth revision (`freeboard-prototype-3.html`, the prototype's Version 15) added the “What Risky means here” box and folded Growing fastest, Places checked (with a See all sheet) and the second opinion into one card.
+
 - `FREEBOARD_SPEC.md`: product behavior, safety invariants, detector inventory, disk accounting, pile rules, API contract, milestones and acceptance criteria.
 - `freeboard-prototype.html`: visual and interaction reference (Dinghy, the pile, Quick questions, Disk map, Logbook). Its data, cleanup and blind-spot results are simulations.
 
@@ -20,4 +22,4 @@ Prototype-only parts that must not ship: example data, **Pretend free space**, *
 ## Integrity
 
 - `FREEBOARD_SPEC.md` SHA-256: `98bbfcaca7a0bf7a116bc9a89c27c05739c9566e6ee30d3ff16ff91d9a3458c4`
-- `freeboard-prototype.html` SHA-256: `3c90b8fd031962ab76f30c63696242b3b4421ebe21fc41916e66df789dc35a8f`
+- `freeboard-prototype.html` SHA-256: `d38593d8df51f68b58fe64a961aed4819a234ee44b26e8097189bc983d5c946b`
