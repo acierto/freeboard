@@ -93,6 +93,10 @@ pub struct DiskMap {
     /// macOS: purgeable space and local snapshots, reported separately.
     pub purgeable_bytes: Option<u64>,
     pub snapshot_count: Option<u32>,
+    /// macOS: the last measurement had Full Disk Access, so it also walked
+    /// the system places; what stays untraced is only macOS's own.
+    #[serde(default)]
+    pub system_measured: bool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -376,6 +380,7 @@ pub fn build(i: &BuildInput) -> DiskMap {
         measured_at: i.measurement.map(|m| iso(m.at)),
         purgeable_bytes: i.purgeable_bytes,
         snapshot_count: i.snapshot_count,
+        system_measured: i.platform == "macos" && i.measurement.is_some_and(|m| m.full_disk_access == Some(true)),
     }
 }
 

@@ -303,6 +303,9 @@ function CauseBlock({ c, onResolve }: { c: Cause; onResolve: Resolve }) {
  * `whyCard`). Replaces one dashed card per blind spot. */
 function WhyCard({ map, spots, onResolve, platform }: { map: DiskMap; spots: BlindSpot[]; onResolve: Resolve; platform: Platform }) {
   const { causes, left } = causesOf(map, spots, platform);
+  // Not traced has no fix of its own: say so instead of promising one.
+  const untraced = causes.some((c) => c.id === "untraced" && c.bytes > 0);
+  const fixable = causes.some((c) => c.open.length > 0);
   if (left < 0.05 * GB && !causes.some((c) => c.open.length))
     return (
       <div className="card stack why" id="why">
@@ -316,7 +319,7 @@ function WhyCard({ map, spots, onResolve, platform }: { map: DiskMap; spots: Bli
   return (
     <div className="card stack why" id="why">
       <h3>{`Why ${gb(left)} isn\u2019t explained`}</h3>
-      <p className="lede">{"None of it is lost. I just can\u2019t see inside it yet. Each part below has a fix."}</p>
+      <p className="lede">{untraced ? "None of it is lost. I just can\u2019t see inside it yet." + (fixable ? " The parts with a button below have a fix." : "") : "None of it is lost. I just can\u2019t see inside it yet. Each part below has a fix."}</p>
       <div className="wbar" aria-hidden="true">
         {causes
           .filter((c) => c.bytes > 0)
@@ -327,7 +330,7 @@ function WhyCard({ map, spots, onResolve, platform }: { map: DiskMap; spots: Bli
       {causes.map((c) => (
         <CauseBlock key={c.id} c={c} onResolve={onResolve} />
       ))}
-      <p className="why-foot">Fix them all and the map reaches 100%. Nothing here is removed, it only gets measured.</p>
+      <p className="why-foot">{untraced ? (fixable ? "Fixing them brings the map closer to 100%. " : "") + "Nothing here is removed, it only gets measured." : "Fix them all and the map reaches 100%. Nothing here is removed, it only gets measured."}</p>
     </div>
   );
 }

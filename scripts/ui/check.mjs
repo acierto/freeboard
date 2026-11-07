@@ -404,6 +404,26 @@ async function tabStaysInside(p, n = 10) {
   await ctx.close();
 }
 
+// Disk map, Why card: Not traced has no fix, so the card never promises one;
+// with Full Disk Access it names what is left as macOS's own.
+{
+  const { p, ctx } = await page();
+  await p.click("#tab-map");
+  await idle(p);
+  const lede = await p.textContent("#why .lede");
+  check("why: with a part that has no fix, the card does not promise one for each", !lede.includes("Each part below has a fix") && lede.includes("The parts with a button"), lede);
+  check("why: without access, Not traced blames Library", (await p.textContent("#why")).includes("Not traced to a folder"));
+  await ctx.close();
+}
+{
+  const { p, ctx } = await page("fda=1");
+  await p.click("#tab-map");
+  await idle(p);
+  const why = await p.textContent("#why");
+  check("why: with Full Disk Access, what is left is kept by macOS", why.includes("Kept by macOS") && why.includes("Even Full Disk Access does not reach it") && !why.includes("Not traced to a folder"), why);
+  await ctx.close();
+}
+
 // Disk map: tiles are real buttons reachable by keyboard; Enter selects one;
 // blind spots and the report go to the backend by ID only.
 {

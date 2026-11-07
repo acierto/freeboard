@@ -193,8 +193,13 @@ const sizeOf = (s: BlindSpot) => s.sizeBytes ?? 0;
 /** The Why-not-explained card's causes, in the prototype's order. What no
  * blind spot accounts for is shown honestly as "Not traced to a folder". */
 /** Platform wording: Library and Full Disk Access are macOS ideas. */
-function causeText(id: Cause["id"], platform: Platform): [title: string, why: string, c: string, est: boolean] {
+function causeText(id: Cause["id"], platform: Platform, systemMeasured = false): [title: string, why: string, c: string, est: boolean] {
   const [title, why, c, est] = CAUSE_TEXT[id];
+  // With Full Disk Access the system places are walked too; what is left is
+  // only macOS's own (found on a real Mac, 2026-11-07: access granted, yet the
+  // card still blamed Library).
+  if (platform === "macos" && id === "untraced" && systemMeasured)
+    return ["Kept by macOS", "Space only macOS itself may open, such as Spotlight\u2019s index, other accounts on this Mac and system records. Even Full Disk Access does not reach it, so I can\u2019t say which folder holds it.", c, est];
   if (platform === "macos") return [title, why, c, est];
   if (id === "untraced")
     return [title, platform === "windows" ? "Space in places I do not walk, such as AppData and system folders. I can\u2019t say which folder holds it." : "Space in places I do not walk, such as system folders outside your home. I can\u2019t say which folder holds it.", c, est];
@@ -205,7 +210,7 @@ function causeText(id: Cause["id"], platform: Platform): [title: string, why: st
 export function causesOf(map: DiskMap, spots: BlindSpot[], platform: Platform = "macos"): { causes: Cause[]; left: number } {
   const order: Cause["id"][] = ["outside", "locked", "untraced", "strange", "tools"];
   const causes = order.map((id): Cause => {
-    const [title, why, c, est] = causeText(id, platform);
+    const [title, why, c, est] = causeText(id, platform, map.systemMeasured);
     const mine = spots.filter((s) => CAUSE_OF[s.kind] === id);
     const open = mine.filter((s) => s.state === "open").sort((a, b) => sizeOf(b) - sizeOf(a));
     return { id, title, why, c, est, open, fixed: mine.filter((s) => s.state !== "open"), bytes: open.reduce((t, s) => t + sizeOf(s), 0) };

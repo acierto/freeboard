@@ -93,9 +93,18 @@ function untracedCause() {
     c.querySelector(".fixed-list")?.remove();
   }
   for (const r of document.querySelectorAll("#tile-detail .detail-row > span:first-child")) if (r.textContent === "Kept by macOS for itself") r.textContent = title;
+  // Not traced has no fix, so the card no longer promises one for each part
+  // (decision 2026-11-07, found on a real Mac).
+  if (document.querySelector('#why .cause .sw[style*="--t-h"]')) {
+    const fixable = !!document.querySelector("#why .fix-list .fix");
+    const lede = document.querySelector("#why .lede");
+    if (lede) lede.textContent = "None of it is lost. I just can\u2019t see inside it yet." + (fixable ? " The parts with a button below have a fix." : "");
+    const foot = document.querySelector("#why .why-foot");
+    if (foot) foot.textContent = (fixable ? "Fixing them brings the map closer to 100%. " : "") + "Nothing here is removed, it only gets measured.";
+  }
 }
 const UNTRACED =
-  "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).";
+  "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).";
 const mapEntry = (id, state, steps) => ({ id, surface: "Disk map", state, sizes: [DESKTOP, MID, PHONE], query: "", ref: [tab("map"), ...steps, evalRef(hideClippedLabels), evalRef(untracedCause)], impl: [tab("map"), ...steps], clip: MAP, supplemental: true, note: UNTRACED });
 const TILES = ["projects", "docker", "caches", "files", "mobile", "apps", "system", "unknown", "browser", "fonts"];
 const PLACES = { click: "#places-btn" };

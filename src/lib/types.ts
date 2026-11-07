@@ -106,6 +106,9 @@ export interface DiskMap {
   /** macOS: purgeable space and local snapshots, reported separately. */
   purgeableBytes: number | null;
   snapshotCount: number | null;
+  /** macOS: the last measurement had Full Disk Access and walked the system
+   * places too; what stays untraced is only macOS's own. */
+  systemMeasured: boolean;
 }
 
 export type BlindSpotKind = "unscanned_folder" | "needs_permission" | "unknown_files" | "tool_unavailable";

@@ -20,8 +20,8 @@
   "locale": "en-US",
   "timezone": "UTC",
   "adapter": "scripts/visual/lib.mjs referenceHtml(): local fonts, data-theme, host reset (src/styles/reset.css), prototype-only controls hidden (.top-right .sim, .top-right [data-act=\"reset\"], .top > div > .note, .top-right .tray, .top-right [data-act=\"welcome\"])",
-  "acceptedAt": "2026-11-07T16:59:29.253Z",
-  "rationale": "Confirmation items get a Leave it out link so one item needing acknowledgment never blocks the rest (decision 2026-11-07)",
+  "acceptedAt": "2026-11-07T17:22:33.534Z",
+  "rationale": "Why card: Not traced has no fix, so the lede and footer no longer promise one for each part (decision 2026-11-07)",
   "entries": {
     "cleanup-confirm-ack--dark--1120x900": {
       "id": "cleanup-confirm-ack",
@@ -1159,8 +1159,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "e8dc9ed12844582b713b5cc1ff179d3a772271b13dedd77be79d010c8c9d260f"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "e6266c9ae538d37e54820226e4b3c4121fc5e505003f3ca2bcb1e2ea8175d1e5"
     },
     "map-default--dark--390x844": {
       "id": "map-default",
@@ -1176,8 +1176,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "b9670100c3dd104718b23277c4e670d424727742659df068422db022cc0a7e3a"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "6e7c07807b7bbd7575bf69e9ad850ce3067416adb5aa9583c0feb228a54e07fd"
     },
     "map-default--dark--760x900": {
       "id": "map-default",
@@ -1193,8 +1193,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "24a8b4623dc24edc508ecd169fb5bf4fc2ec7c031e06d859e8581bee5162d8dc"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "c3897ec766de5aab159e9cb328867c8d75b9065cacd2a80979bb1f975e9ba593"
     },
     "map-default--light--1120x900": {
       "id": "map-default",
@@ -1210,8 +1210,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "931663b4bdb02c122edee492b6cab7d6bf86e1d268685db11f70526e7a1173ee"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "8ef20692e94af90bdbb5c187c45703106670e056bee9b834d191ea28cb766c35"
     },
     "map-default--light--390x844": {
       "id": "map-default",
@@ -1227,8 +1227,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "d9e6b207c5bc3ec115d45be0fefd5d5ded39544d0edead70a221678e507b99f3"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "5cd96fdf1e38aa2dc1138cdd8c4ae1cde202a3fe33ab84d085a5f5298f8fdffa"
     },
     "map-default--light--760x900": {
       "id": "map-default",
@@ -1244,8 +1244,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "b92e73ecb684ef1869b1eecf21c4b91889e72ae3aacea905ae6c9c14ec80cbbb"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "96ac81a29d7a65c6870cf923a42f24f595ce51c0306c6ab8b1ab48e9c10e7af5"
     },
     "map-place-go--dark--1120x900": {
       "id": "map-place-go",
@@ -1261,8 +1261,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "af4f1a5502ff3ad899d74b0871c7f4fc3b1477512d3c71773199de1a504cd0bf"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "aadee13b4241625977dae373400166e184f769bb89f79195050dc4de01b9f938"
     },
     "map-place-go--dark--390x844": {
       "id": "map-place-go",
@@ -1278,8 +1278,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "ae16f29375660bb8186c6e67376a1e0fadb428d19e92d2c91acf676893db9651"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "61749e3d319c626a7da56fe58d04e8e37c20689767d999e589dfa092cd2a5a89"
     },
     "map-place-go--dark--760x900": {
       "id": "map-place-go",
@@ -1295,8 +1295,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "2c03980d8daed061f8f388879ce5bf1df8e64876ba8d88a5367d5838867c7050"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "f5f79ae0d8254425f5133e0d1fe32cf5ef7637c15768c807dd05d076e68d0d9c"
     },
     "map-place-go--light--1120x900": {
       "id": "map-place-go",
@@ -1312,8 +1312,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "03705e483ca8d6cac13758d37a4fa21c5a76f95d0edbbe474034977a327d8f5d"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "49da3104757d2f026b957240b9b46c11123eb8b72ea52a19852f3edd174f07a3"
     },
     "map-place-go--light--390x844": {
       "id": "map-place-go",
@@ -1329,8 +1329,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "59f0e8bd885fe09d42e91aff3a18efc1432117f015ab652db86b8a989b561b64"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "9b6121090fc54cfa1eb44d91d2839720e4af0f4ba0c526565ee5f3b52ae5595b"
     },
     "map-place-go--light--760x900": {
       "id": "map-place-go",
@@ -1346,8 +1346,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "150b1e3419c2f3473af6145c2c69237ca4d514c73416f42d1922286fed31c61c"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "3d628d43bf1c7f87fc16cc324c4944fab79f74d4b7c2923f2023607a08bbd30b"
     },
     "map-places--dark--1120x900": {
       "id": "map-places",
@@ -1431,8 +1431,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "73e404fc8647b64ab54c683eb3da04313f82f12710e0a8f6a2eb7e340c6065d4"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "165e62beb02007e437a377a7e999f4660c41735976f7b99b8abeb88d0083f675"
     },
     "map-report--dark--390x844": {
       "id": "map-report",
@@ -1448,8 +1448,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "1eb5e20352a4273568c4668a6d920b6bb68fb30f59753b55140d439a482835e6"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "f40817df7584ecd6321deab97e59bc472d681821c1d20451cea9693bea8a30c5"
     },
     "map-report--dark--760x900": {
       "id": "map-report",
@@ -1465,8 +1465,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "312bd490ecb5e8400610969e2eb9f54bcfdd0b3984147d2206f1aa7baf8cb343"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "a1a03ff007732014e4ba16c26318132491f63531eaf625aad33b3467141590f0"
     },
     "map-report--light--1120x900": {
       "id": "map-report",
@@ -1482,8 +1482,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "4d3ddbd027d614d5d5fb4a03d1429bfc397db05009f7e288c591ab243448f65e"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "6fa2b3c1b215876b241cf8dc66010d5054b61a8c22843fd66e0b0a4d83902235"
     },
     "map-report--light--390x844": {
       "id": "map-report",
@@ -1499,8 +1499,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "6e33e31ff5bb0445f9d906cff77e7088db3157ad030036a89669c4b2af76a474"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "3797f2dcf05595081f6c3484b36f76ce9075b792ee8c49e843b021de9aba4b8a"
     },
     "map-report--light--760x900": {
       "id": "map-report",
@@ -1516,8 +1516,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "53865aa94bd2c4838a37e829d6e0af3c49d2263a911a4d02bb8721db387c0260"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "8865e3d0f33c17bc3d0141bbac0a6005bde6e78b55f6d89258a59d26c09b81bb"
     },
     "map-scan-all--dark--1120x900": {
       "id": "map-scan-all",
@@ -1533,8 +1533,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "1bc83193d7dad567118adbd0df54728844baab742fa9bdf976ae1389506e9365"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "f964fc74bb2ecf699da28fc6e14b86d247bbbca1f8015424ff9fa441bda865be"
     },
     "map-scan-all--dark--390x844": {
       "id": "map-scan-all",
@@ -1550,8 +1550,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "5d4a097043bb8d20684e864a1c20893f8302fa89204f37d8d16952167de5f2db"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "812a3f9cef3526f9efcb081ad0eb8dbf70f08689f886d5450f4c084f186f02eb"
     },
     "map-scan-all--dark--760x900": {
       "id": "map-scan-all",
@@ -1567,8 +1567,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "2af2a0163bb018945ea9c9226b80321e91c59b1e894c5f08c0bc6060eff23990"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "ff0f66650a7134524d4659b7729a68a47a239217942955fe3c70a29a4637bd55"
     },
     "map-scan-all--light--1120x900": {
       "id": "map-scan-all",
@@ -1584,8 +1584,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "abc1be9a1e4a9db97bd7dd9ced5df18e18716f8e0ae04633375741c177b2a06b"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "6ffa9875f5a2ca8b4f773c058fb9371186950d143179276f803c3230913d08b1"
     },
     "map-scan-all--light--390x844": {
       "id": "map-scan-all",
@@ -1601,8 +1601,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "41ed8216cc344874d61f8e389acd23ce48aead314779b6736154dfa2f7522624"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "5575998061bd43ff910ee072f3eeb6ebc15f66e301f10fd0558041878c0f43a6"
     },
     "map-scan-all--light--760x900": {
       "id": "map-scan-all",
@@ -1618,8 +1618,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "b8cacb670274a2d5473c373644d5478b7fd88d100ff4014035690623b2e7879a"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "1f5de800fcab39fbebd45ec0e507271cbf74a5ee0ff7a5c16a7c2ff03ed378cf"
     },
     "map-spot-access--dark--1120x900": {
       "id": "map-spot-access",
@@ -1635,8 +1635,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "c4d67cf990e7e351e02157f2354b639a18ec1a87db152fc1a4eea54bb9a062b9"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "c153b4fbe62408b6e8fcc7b780297eeaf504027452a27ca401684b78baefd377"
     },
     "map-spot-access--dark--390x844": {
       "id": "map-spot-access",
@@ -1652,8 +1652,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "f9550e950ed01f3e7ae6c3395cbee6c3de34d36f02e8cbdbb6cdf9550feba74e"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "3b9b2889fc03d2f5c5dfb5fb2cf8292b00178d3395df80e1f2dcfab9f0ef7c33"
     },
     "map-spot-access--dark--760x900": {
       "id": "map-spot-access",
@@ -1669,8 +1669,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "0eededd93fdf7790b9f55e76af59d1c972f3bb0395827894fa153a96b123cd91"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "1e7dfa1fedc945fb3aa9ce99d79c2916e1539d54840f6e731e5b78df70862e7a"
     },
     "map-spot-access--light--1120x900": {
       "id": "map-spot-access",
@@ -1686,8 +1686,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "c17c169fc40657f634654bfc0f0ac621d2af633192d80d20376bbc65d91e1e88"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "2d1528918b1f3c974ce7fc931d0bfb76878f1bf85e0219dc8299d4db28da5698"
     },
     "map-spot-access--light--390x844": {
       "id": "map-spot-access",
@@ -1703,8 +1703,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "518a4f59d2b916b0b6f2fb7a0643c3cf1f9a773cefb541bbfa80cd898406bc5b"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "e2b62c0c9ec1778d767fbed8f669a44a0c8d603c8fb05230a206d65fb8280300"
     },
     "map-spot-access--light--760x900": {
       "id": "map-spot-access",
@@ -1720,8 +1720,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "627ef08a55ef5297a39fb348505537c4a559f99d2ce01143813a92a4f6eb830e"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "1bd70e9614e3c9ce2c818d7ecbdac9432d5eb570b9d293e61843e76860e18817"
     },
     "map-spot-archive--dark--1120x900": {
       "id": "map-spot-archive",
@@ -1737,8 +1737,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "4e946288c3c2946248a36fac9a1e03d3cb9f98f768f6de2b044a147a2584fc84"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "e8a708f673558fa72a1da07ee111a05cd3974df1070725d519790cbda2b2e6ab"
     },
     "map-spot-archive--dark--390x844": {
       "id": "map-spot-archive",
@@ -1754,8 +1754,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "783ceba7f35795701a90d64b6978eff1726a2100a8432fdf71a01b6f2ca0b74a"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "25b7a470f05c89ffb405742430cab509fb55bc737bfee79d4f5b0e0eb06c89ff"
     },
     "map-spot-archive--dark--760x900": {
       "id": "map-spot-archive",
@@ -1771,8 +1771,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "1770521883d0525c55d37e0bb83bb3cf0e4e96e4057d1e45e5ef99bbe98a7aeb"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "096eaaf7f6e4251328d485e36dfec64dad939f77c784e2554f7dcb35bfb13a1c"
     },
     "map-spot-archive--light--1120x900": {
       "id": "map-spot-archive",
@@ -1788,8 +1788,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "0f071e8d62d108ccc1ee878178b0ce1510d5531229e2acb0025fc2939052c34b"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "ab4ddff7f713033a23b51cc541d8e1dd255a98f97d78256b5e06da8da76bc2d8"
     },
     "map-spot-archive--light--390x844": {
       "id": "map-spot-archive",
@@ -1805,8 +1805,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "b2159df9faa9ea363484d05791d7ddf68fe5d6870ebd6adcb2f20d7899bf0172"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "291a737ac909b60d9aed63507b6bfa6acc6feb850851bf7c1c1a23be6621e646"
     },
     "map-spot-archive--light--760x900": {
       "id": "map-spot-archive",
@@ -1822,8 +1822,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "257408386fc1eb67afebf8a80bb8cede3336ed5b2551162a8aa0665cc2ab99a4"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "7ba3bf504da9a8bd021b5ea6905f31a19758973ac81686469f0c478f53ec9620"
     },
     "map-spot-comfy--dark--1120x900": {
       "id": "map-spot-comfy",
@@ -1839,8 +1839,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "8ecb7ad822b6cf9ba9ff7358f4a254d8fe6acc6444b3346e1639dc9f4f16c7b1"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "fbe597fd397339079fb15864edbe5356789e47c2f4e0e4cbc27fe0128dbf96bf"
     },
     "map-spot-comfy--dark--390x844": {
       "id": "map-spot-comfy",
@@ -1856,8 +1856,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "d0e092adbf6a68f096c914573e14899eba18890b5d42a5e7081f2e86475745f7"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "75d76f75717b5747547dd7cb0e5fa5b0183a6ce9e598219381d72d979576b3a2"
     },
     "map-spot-comfy--dark--760x900": {
       "id": "map-spot-comfy",
@@ -1873,8 +1873,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "2c37388925226f7c2c092b67aac9daece096b87ce0e41673b322d2accdef4403"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "7d35c143959f9df4838fa88e7f5dbd924e12f2b9e76fc03ab80d1eac6715a1bf"
     },
     "map-spot-comfy--light--1120x900": {
       "id": "map-spot-comfy",
@@ -1890,8 +1890,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "912a85a192bc9baf656e4e8030e9883b9d8d616ed9412627dcc177241af3ee85"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "2ddb1e2dfec8614d775457ffd593578e36d1dea744623f43e937957900a8d15a"
     },
     "map-spot-comfy--light--390x844": {
       "id": "map-spot-comfy",
@@ -1907,8 +1907,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "c4eff98ba1c3fef24b90f4cbf510d68f94c5320714a868d37958192591d23931"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "8a334a7a09a7ddf148e2546a7db5908fe311075dfc0ec732b63d0559b4466a3a"
     },
     "map-spot-comfy--light--760x900": {
       "id": "map-spot-comfy",
@@ -1924,8 +1924,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "8fef557e53bd255d7a14017d9f1cb831f641aa154a91f593d2653e89043537b4"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "da2fb49854d7a2013a6aa0147e463d73178f8a31c14bc84d4e143b73af23beef"
     },
     "map-spot-mystery--dark--1120x900": {
       "id": "map-spot-mystery",
@@ -1941,8 +1941,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "805481d6c82c2431496ef517a93fee75b48724abc3f02ebc78f61ed9ba4b238b"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "2585e648977f09e68fe6b47066675bcba52c8d42b07082dd6412d4c8e7f41d4e"
     },
     "map-spot-mystery--dark--390x844": {
       "id": "map-spot-mystery",
@@ -1958,8 +1958,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "66e6277ec995c8b0cfbf535ef7b3823a6c700cb487e2338b8f1de4f8f3840b7a"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "8236801e59149160b5d539a75d2a484a3c81a8ca71301ec679c8b0f47d64b598"
     },
     "map-spot-mystery--dark--760x900": {
       "id": "map-spot-mystery",
@@ -1975,8 +1975,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "e080335c2d2512e8c3adf8c401ba113e809168de4633d0780daf270432b2af2a"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "6ea990a672dbca3ac5094d2c522e129b375397dade9a994d441ec1e43dae548f"
     },
     "map-spot-mystery--light--1120x900": {
       "id": "map-spot-mystery",
@@ -1992,8 +1992,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "d9a23ef934a5ffc2e674bd4b01a81fef061bab354da0071e1f68afb4dcc2c35e"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "77ed987737ca713405e4d42df82b24b1e7c1425e6be7162cfd3435f878909029"
     },
     "map-spot-mystery--light--390x844": {
       "id": "map-spot-mystery",
@@ -2009,8 +2009,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "af063205355f6c50882b60ad99eca9f8b4158ef47153ce9b7cdf8bcb9d99fe33"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "8b9f87a1d7a7f016a4ead50467f588336e91adc2ad9544e33df6cc9f673724c8"
     },
     "map-spot-mystery--light--760x900": {
       "id": "map-spot-mystery",
@@ -2026,8 +2026,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "0888a8d1fabbf55e1d5fe87e60cda3d09f0e6b7cdc51c82613a1b9c5c741f2b0"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "96c8d266357c4175f20ea86556699e5d1b5d8b6d729365a5c22c92d564cff3ec"
     },
     "map-spot-skip--dark--1120x900": {
       "id": "map-spot-skip",
@@ -2043,8 +2043,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "917127b55bb8c3e4c0fe3bbaaea9a4281666e739cc88e90675885208fdc297ca"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "29ea62ca0474572e0f06a20882bd94293671a3f497dc7f3e73568c843ccc074b"
     },
     "map-spot-skip--dark--390x844": {
       "id": "map-spot-skip",
@@ -2060,8 +2060,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "8acd01f66b19311729e578356afa17099d279f6e537ddf640600a6c48d5d2c83"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "3ec99680e37f7da257b901addb7491acee506c0e4453519266d2681a3f12ed3a"
     },
     "map-spot-skip--dark--760x900": {
       "id": "map-spot-skip",
@@ -2077,8 +2077,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "47c2449ced37747db5e5044d3c6fa6286f6c917dc23a0d6fa4c5ebd91dd301f3"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "097ec28179c6e36b991a2a2fec6858556fd0f74b5410f5604c6d6d9987ace7ad"
     },
     "map-spot-skip--light--1120x900": {
       "id": "map-spot-skip",
@@ -2094,8 +2094,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "f4e6b5d5e2978f51aff25c579882de6e46064f8072197cf673ed8b1088c7ddd5"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "734e487a1a9a7a2b2e8ad946557f651b53d7db45cc3656b7809a0eb68e01f59f"
     },
     "map-spot-skip--light--390x844": {
       "id": "map-spot-skip",
@@ -2111,8 +2111,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "52e79ae8b51d40cd0f03759583b2236ea8241d23fda62311d59ed720977e89bd"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "c8d8d3e469cbe558b32bdeffc6473e7f011703a567dd8d7c4b28a7801b9039f5"
     },
     "map-spot-skip--light--760x900": {
       "id": "map-spot-skip",
@@ -2128,8 +2128,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "73e29efe39efda7ccca1702ce6cc91d553d57c6b84eac1e6f88d968f8e857acf"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "8694b10baa3696a60713e4a30ff73cf255b24f299fe3becbf531b62058522b7f"
     },
     "map-spots-all--dark--1120x900": {
       "id": "map-spots-all",
@@ -2145,8 +2145,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "39527bae4bb0bd842e790435250d1740b77e02b39865ce1e55e504bc8d49066d"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "3278a07ff1a55d282ca9acfebe2ab4691e4266e62a9a7f53e119d13b8bb2baae"
     },
     "map-spots-all--dark--390x844": {
       "id": "map-spots-all",
@@ -2162,8 +2162,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "9cbee6cf2f53722c18e4b606f0980ade406a4321426b64a4e0e45c8cc1bac06b"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "a646f0545c86a4ba3e4faec94cc161f78762d2569f3a3be2f80aa4fbf9e05e36"
     },
     "map-spots-all--dark--760x900": {
       "id": "map-spots-all",
@@ -2179,8 +2179,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "4999f945cbafc7bdbcfa4fb79e56ccc79c2789ceab0fbe368a13418f9615cd67"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "01898875f9add0352d5a6f2de792572659b9ca112c6d65fc642eb274d1083d61"
     },
     "map-spots-all--light--1120x900": {
       "id": "map-spots-all",
@@ -2196,8 +2196,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "b5c45b90435bc6d31b8f783ff2971bd75aea40e74858fe14f61be107ad718c2f"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "9f9b158486b14caff2c85fb57566e418463618cf617687c1ab85ab4003003609"
     },
     "map-spots-all--light--390x844": {
       "id": "map-spots-all",
@@ -2213,8 +2213,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "1b3e4f375e71f42d317e02dd00e0c25666bdb6733ebfe8361b18fecd5998baf8"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "e5d35b9cb4ecafc551699abc16cdd28134d15ffcdcb85ea3beb8f4310823f828"
     },
     "map-spots-all--light--760x900": {
       "id": "map-spots-all",
@@ -2230,8 +2230,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "35398b893a913522dceb3ff4482c0868f31730eaaedd47dd0fb7dda8fff8b368"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "5723a81060d013ab78410e3d5a4181e36091f0c5de8639000c491ac4ca044ddc"
     },
     "map-tile-apps--dark--1120x900": {
       "id": "map-tile-apps",
@@ -2247,8 +2247,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "f47cc5dba7b4b77bd69871586c8701f94ec143847e5254fd16fdeb2bdf0047a8"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "92798f4d2fd6dcbe7aaab0c1dcb7bd5e07cc120461f2a55a81e4894910206263"
     },
     "map-tile-apps--dark--390x844": {
       "id": "map-tile-apps",
@@ -2264,8 +2264,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "2d8f5fe97839a8db3ac5be04e9955b594a65b9178d050670a377728d0fb5724d"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "5142a186a31d94332761e70338d2f5670daf167502ecdf593baa87187d88c91a"
     },
     "map-tile-apps--dark--760x900": {
       "id": "map-tile-apps",
@@ -2281,8 +2281,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "8d9d82e40cf04a4316bbd550f280cd918be4a42e19c9b802c180985e75017e51"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "c0a8e87d8f92c693f8802ee52b24aad45853c8316ce8303c13d86a01d67acf76"
     },
     "map-tile-apps--light--1120x900": {
       "id": "map-tile-apps",
@@ -2298,8 +2298,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "673d01f99e17bc65b5ad436ad6c6ac0a3765f7059e3d0a01eb3bb89e2275b6c0"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "574bc3a9d98a4813314c7e0188a45994af73792065663d1a74ef141bb14d76ee"
     },
     "map-tile-apps--light--390x844": {
       "id": "map-tile-apps",
@@ -2315,8 +2315,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "54cdbadfa12109c960c3bbce42495dd1f0e10893e0d9dd1e5a8c054c78a04094"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "ec00cd6c2eb1d160da990e12efeae208c3656f8c7d98e21642b11cb093b8deef"
     },
     "map-tile-apps--light--760x900": {
       "id": "map-tile-apps",
@@ -2332,8 +2332,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "e14eb1eb969594f0f5e8a3c49dc71a27f7243fe797331f98b87007be7801f1f5"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "54e07b6884ffa8fcc12c736178b8fea4ae2589703b47eea4283418490f234ab5"
     },
     "map-tile-browser--dark--1120x900": {
       "id": "map-tile-browser",
@@ -2349,8 +2349,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "ae7f2f31a37c89a68eaa9ea5c733de115d715445f022224096256b00038a4f30"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "c76217487a43bafdcf44f741b7683fa8ec7b96093c8b51c68c2955c6fadb5571"
     },
     "map-tile-browser--dark--390x844": {
       "id": "map-tile-browser",
@@ -2366,8 +2366,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "febacf39d92982fa285dcb8288a78d8c634262da2a3d0c905328e29c377cd825"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "b89c83ca2364d7e62ee0f40489e12925f689244e6e82d99852ce8bc67c9f23a0"
     },
     "map-tile-browser--dark--760x900": {
       "id": "map-tile-browser",
@@ -2383,8 +2383,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "e9a3771cb4d60f258e4cfb4e35a6331c9bc772f85bbbb29e173e5e4875245439"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "605e4d7126407ea26448437ea3489d43088d03eed38bd24ef7abb6e9afab21ca"
     },
     "map-tile-browser--light--1120x900": {
       "id": "map-tile-browser",
@@ -2400,8 +2400,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "9e7229da5dc901bb99e3752b43dec8e9408f4b07ba92214d1677f14224318130"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "a26641f9df1fa8e9eb210094daa9437ab107310419ce55a0f291c8fb59fb432a"
     },
     "map-tile-browser--light--390x844": {
       "id": "map-tile-browser",
@@ -2417,8 +2417,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "9cc8118bbeaf5cedbec790caae464961eb7d2ca42962964b64e81c0058e7e07b"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "a40b2b9ded41f71c4b8f11621d61fe8cb7aa8aa91d8bc5c2ea4b90b4d4517b18"
     },
     "map-tile-browser--light--760x900": {
       "id": "map-tile-browser",
@@ -2434,8 +2434,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "68c00b7a1f610256366082acf321d8742a0b9cb38361b9f7b983f8d255d423bc"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "7446e4056c23aa997dbeb9579e90356b5e7d1ec3169760ba670d9b160c2b8b09"
     },
     "map-tile-caches--dark--1120x900": {
       "id": "map-tile-caches",
@@ -2451,8 +2451,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "9e4ad36ae2c6b245068004cf046ebd5e19e69cc0406ed61e6b77e1801c5ed874"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "d33faa2c89e679987bc6b7a2b9a5fda220742d54e59f605773f02cc6708e8e4b"
     },
     "map-tile-caches--dark--390x844": {
       "id": "map-tile-caches",
@@ -2468,8 +2468,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "c558bdedb8af5408e1cdb4d8fae26c76ce2242fc71dedc5db903164e976c19a9"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "3adcf213eef4c0066f5656058fc353e93c7ff1c8fbbd457cb39a5fc380faf40d"
     },
     "map-tile-caches--dark--760x900": {
       "id": "map-tile-caches",
@@ -2485,8 +2485,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "6b9bf32a6b0a53e3a5a004576aebfbbe3f8cff34d44ac907f5dc7188a193a816"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "8f2254c424b8da61b2f67cbb9c47173e0c1d07e76890e06cba10c3f7a870f654"
     },
     "map-tile-caches--light--1120x900": {
       "id": "map-tile-caches",
@@ -2502,8 +2502,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "eac1553572c5bf70cc5df6b33a4bc2003d1ee8a7f1304f2a03328e4e0d53ecd9"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "eef54a1098aee6afbe8d3b801755db07374096427ab012c4429ebf37e600f1e9"
     },
     "map-tile-caches--light--390x844": {
       "id": "map-tile-caches",
@@ -2519,8 +2519,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "929e0de6328da514ce26dbc3019614e05ebf485ba99a0a913036df163312e14e"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "f7d787d0d349e60cc4bcae9836d65d249f3922c9cf7b4d9ee648496fe5b815a7"
     },
     "map-tile-caches--light--760x900": {
       "id": "map-tile-caches",
@@ -2536,8 +2536,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "fb08d26f4d78c7e7232d0bfa0f03629a903e1bc5d747170b70be5c4e2338f710"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "24d392f104e568c045ca63ff9b9c43075ddb6bc64b235dfd79700ef634c56610"
     },
     "map-tile-docker--dark--1120x900": {
       "id": "map-tile-docker",
@@ -2553,8 +2553,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "e165dc99757989da529085cac31ee002cf5045eb734a077e561b69ef502134e8"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "d9ea68e038193bcf353cfc1eb05c47b20d0b4cd117adf6da223633ff1d362e9a"
     },
     "map-tile-docker--dark--390x844": {
       "id": "map-tile-docker",
@@ -2570,8 +2570,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "a5a30fc9ffe68fcd273c41b01e94c0f553eb7b8fb9d2e503418e74a4074f0331"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "f81597b6647d91f906da6130b08d46acf8bdb200576201d93125f1c96f7d3dea"
     },
     "map-tile-docker--dark--760x900": {
       "id": "map-tile-docker",
@@ -2587,8 +2587,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "9d9a67a02067d31115a6f78a6f22f11b7856e1a6dbc960dab95528f463e1a91a"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "5202f2a64aef4919e80353a6d88748831e92cc51119fe6b34c0a5788e185230f"
     },
     "map-tile-docker--light--1120x900": {
       "id": "map-tile-docker",
@@ -2604,8 +2604,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "53ab6b3a1dea96c6c9c51d1579206d6de68fa20a0ee85d91abef95a8d99b6385"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "ee7661974285bb1b6594709f2cf9424748c36453d6a8332965b7f17b61d3b6c1"
     },
     "map-tile-docker--light--390x844": {
       "id": "map-tile-docker",
@@ -2621,8 +2621,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "49aa848cfde73ed5aa2ef4c892355f816a44c3c6be660a321e61da0775e448e7"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "4d8430a147719f39d694d1faa5f87021fc663ebd4273c9333be37099a2f9e544"
     },
     "map-tile-docker--light--760x900": {
       "id": "map-tile-docker",
@@ -2638,8 +2638,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "4a3868a82350b26cc1835922d237bf2bbb103d85c3796adc73cb52a75531e60a"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "87f9529abc89db84a239e2c2e8ca1a7fccb692e086ab1fe65e70022eae004658"
     },
     "map-tile-files--dark--1120x900": {
       "id": "map-tile-files",
@@ -2655,8 +2655,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "3dc899bf7b0cadd070bfda8d32764824c3214d0152c0251388c9583354d8ae31"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "7bc7d47761c09749d480d30cf3903730d9deba056ea3636b8d483fcb063893d8"
     },
     "map-tile-files--dark--390x844": {
       "id": "map-tile-files",
@@ -2672,8 +2672,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "1a7b6d14e815f0659135eced3a3078a27bfd43637c37f844b3676da5342782fb"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "23e39244b1c7b72c3e252969ee494cf5800ba0d153934a6c7472bf4a09a63f3c"
     },
     "map-tile-files--dark--760x900": {
       "id": "map-tile-files",
@@ -2689,8 +2689,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "0d61dc4adb12b0f11ab6fda4cfd0b83e656bf88aa2404674067803eca12e754c"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "44eee34a4e745dfba6c56fbfbaae8dc63dbec521ed61bde001ff9f253f59ba4a"
     },
     "map-tile-files--light--1120x900": {
       "id": "map-tile-files",
@@ -2706,8 +2706,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "be149f9a061c27e634253958dd577b28a3767b788cdf548e5e90a7a0cbf51343"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "d516e94fe06b0f25fea8779d85a045133d0e7246815a88a23d5985337e222618"
     },
     "map-tile-files--light--390x844": {
       "id": "map-tile-files",
@@ -2723,8 +2723,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "389c9cfe053f0ecdf0c528d35a23f99d4b0891f26f093e00f4a87413e16b8f28"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "a9e89a1a95d1effd57b09198849986ec67e0eafc1be4a0a20a39da3007e6964b"
     },
     "map-tile-files--light--760x900": {
       "id": "map-tile-files",
@@ -2740,8 +2740,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "e70b6eda7a03383351130e453667a357c1b86eb3a137bf20825f145cf4605baf"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "4c7b823686f455136e02dc8ce110dad6b7c19f7d728c2dd3505b7e0e550096c1"
     },
     "map-tile-fonts--dark--1120x900": {
       "id": "map-tile-fonts",
@@ -2757,8 +2757,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "cf83ef3ef7879df5654b573746a7ca209d120b993b1aa7e571489145d695006c"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "58c855b6e42233d597c3edcbc6223aad7c6af8f971559ce2261a737a930ab72e"
     },
     "map-tile-fonts--dark--390x844": {
       "id": "map-tile-fonts",
@@ -2774,8 +2774,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "08f9717e841debad2adf276e87b4df384e3feb93996551eff6a6d8617cb6a2db"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "73307ead6b7810cd25efebb31524fa5f1ad36533d19d46c2e57c42d59c1b4076"
     },
     "map-tile-fonts--dark--760x900": {
       "id": "map-tile-fonts",
@@ -2791,8 +2791,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "e4342fbaa9b4ce2318a54f61e08c85fc23199f23a6d604dc403e65e52e8fb1f5"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "32e89014ff6b825ffb9fe343e19cb12398a5e653c9e22885f073c7b0ac2f1f17"
     },
     "map-tile-fonts--light--1120x900": {
       "id": "map-tile-fonts",
@@ -2808,8 +2808,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "762174414e3f6d3ed0cd1fd82b8350f4b01c738e0dc3a94a85659d86479b9fc9"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "5ed231e51e932bb1fadda301f720ef58983d72e595b2b5214e523f4abf632fbf"
     },
     "map-tile-fonts--light--390x844": {
       "id": "map-tile-fonts",
@@ -2825,8 +2825,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "bebd62eb5fbe2a9e764537fb313d3a5f3774a2eacd86608e98327a5c696b008e"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "006ccfa57a05db6949719561e781cc15b51760bce3607403fb419983fd1ed52d"
     },
     "map-tile-fonts--light--760x900": {
       "id": "map-tile-fonts",
@@ -2842,8 +2842,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "d1933bb0b76f028fc0239483d198370de096bd350a4f7213a7ffe65d0bc1d702"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "48d885c8567421cc6fdf6ddb57ec17df4b6eeeb015851faa6935d4e2fffc712d"
     },
     "map-tile-mobile--dark--1120x900": {
       "id": "map-tile-mobile",
@@ -2859,8 +2859,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "68c94d5d09b017328e117c6aca98bb578c020b34e019f7d818270348abb6e936"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "32a19d1363c9325032d703ea78c547bc5c3d26210ce58c5684ccdd0aef8086e9"
     },
     "map-tile-mobile--dark--390x844": {
       "id": "map-tile-mobile",
@@ -2876,8 +2876,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "fe539fa2d5846f9bca307af45338ea17106ab89a8452d488f50aebe74bbca865"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "82cd433e3d0bf1c8e9bca1e3aed28d06688f75f0df789cb976a178964e077152"
     },
     "map-tile-mobile--dark--760x900": {
       "id": "map-tile-mobile",
@@ -2893,8 +2893,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "726cb3da364f3979272af6f1036591e0cb0a2f5fa211ee0cccf6b256c5c66e3a"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "474f38532bcf74f33d4e09b6af7a9b4bb25bc1369afd1198d72a576760c52031"
     },
     "map-tile-mobile--light--1120x900": {
       "id": "map-tile-mobile",
@@ -2910,8 +2910,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "37b118ccfb25badf8f77b7fc7251993f4296aebbfa103c7012f74bc539ec7a0b"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "281b1e58c14f1956653bd92a8109c1b9e9bae511dd8698f2ee931d5a1ad3159f"
     },
     "map-tile-mobile--light--390x844": {
       "id": "map-tile-mobile",
@@ -2927,8 +2927,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "7cf4a220f33faa00644df6644524084eb2e2f4a13197f2effc13cca41199b56f"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "a738a0a05f5be6f232501832713e7851f3992f7e66cb1408caa6049248ac2b7f"
     },
     "map-tile-mobile--light--760x900": {
       "id": "map-tile-mobile",
@@ -2944,8 +2944,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "3737faa3f8c645c89dae31fe548c27c19d263e3f9f9d5214910965146a8c3297"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "ed7873b705455191462bd1f553cc8142c992e1a10442f7ee9fc76e9d2fde5b12"
     },
     "map-tile-projects--dark--1120x900": {
       "id": "map-tile-projects",
@@ -2961,8 +2961,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "2129b95efb4bb4097ddae0e5b527f4913f22cf0a97dfdb0be766e4356fc01376"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "ef91fe8fe2b74b6517b77494cf6263ead400e7d1dc2653d62f718b65040a22fc"
     },
     "map-tile-projects--dark--390x844": {
       "id": "map-tile-projects",
@@ -2978,8 +2978,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "9af851d9e507af190b79f39caa9966d59cd0bacac42bd8ada046b6595132adb4"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "1a1009221de404c8b3cda76c170858ec297b4d355b7e0d9407344b75e76582e4"
     },
     "map-tile-projects--dark--760x900": {
       "id": "map-tile-projects",
@@ -2995,8 +2995,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "4069fab3593f2b2a938e4b059a552d7e4ce7ad7025770c2b2d2e7fdb524dcdc1"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "03c102371bdaace592dc0d1e9d915850bc93a3e23aadd7555b4424c13889213d"
     },
     "map-tile-projects--light--1120x900": {
       "id": "map-tile-projects",
@@ -3012,8 +3012,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "68ebb298e6662c6edcc4c433175f1a1601752e8afbc2c7592495fc78002c0307"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "39ffa564751fc4eca9b8ccf9bab31523126c5cec5ec6424a1657eb213124db0f"
     },
     "map-tile-projects--light--390x844": {
       "id": "map-tile-projects",
@@ -3029,8 +3029,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "70509f5576440dc7f523b80c20a6d7c2706688c8f43ee727d6ca512b976aa356"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "fe34b5a40dea6e2acf6944cb24e845969a4ded8fba7a84f2e93c34019fd494bf"
     },
     "map-tile-projects--light--760x900": {
       "id": "map-tile-projects",
@@ -3046,8 +3046,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "8757a28853ab737d734f32ef4017ad68e0807baeaa154edda600f6593556f1f5"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "67d166b1465ee7620be08efcc22cc9140d1e083ecfddb531950e9ebadd84eaa8"
     },
     "map-tile-system--dark--1120x900": {
       "id": "map-tile-system",
@@ -3063,8 +3063,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "113437d8227019994fa7ed3945fe9f8d19a0bbe9c1caf4e6aa52cc292bdf66fd"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "28e31c5c8b805a3e8d71d446300b79087ab7494034bfe3f81750b40e1fce6437"
     },
     "map-tile-system--dark--390x844": {
       "id": "map-tile-system",
@@ -3080,8 +3080,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "4aeef4a8914283dfd8a3477dc58b7fb0bae4fc00d5ca601c429b6d78e79c6e47"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "4ab43996fd01ee950859252a09959584ec3f5e69db138f899bd1ce41580fb16c"
     },
     "map-tile-system--dark--760x900": {
       "id": "map-tile-system",
@@ -3097,8 +3097,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "6bbf23c9c0026961a1bd83754381e77248a4e75142cc2063d96d69afd134401e"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "4d4dead3c366d775970db966495dbc46a2bab3663e9841633d866c028e460478"
     },
     "map-tile-system--light--1120x900": {
       "id": "map-tile-system",
@@ -3114,8 +3114,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "a620ec8701c397fbbaff0fb69952113d0327f716f6df631ccefc4157e3d5a507"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "c095730de4f2d5663a69c6f7f4307fd294ba77384e7dd3fe840dc66db030841c"
     },
     "map-tile-system--light--390x844": {
       "id": "map-tile-system",
@@ -3131,8 +3131,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "d7b193355cd8d81efc2406f33ad4451e9d8a89003d71855483bd4da896c7b5b2"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "a876e35cf45cb3eec5884adc8505e22e3a9e2daf60d15676a9683167d3e1573b"
     },
     "map-tile-system--light--760x900": {
       "id": "map-tile-system",
@@ -3148,8 +3148,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "22d3c9a562b12b100170c459eb32edc019be623824b8a616154766feb123e08e"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "75eabb0663131903a2f15a5f2dea862acfec879837023239ee771a7064e6a731"
     },
     "map-tile-unknown--dark--1120x900": {
       "id": "map-tile-unknown",
@@ -3165,8 +3165,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "1b76ad3df420a7ece52d77540cf6ec3c911693440541e8338a7bf4abb54b7dbf"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "b28b4d87a3dd922fe86cacfa2d3bb992f7d77c98c5514751846b93dbb69ee038"
     },
     "map-tile-unknown--dark--390x844": {
       "id": "map-tile-unknown",
@@ -3182,8 +3182,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "6a8c287581925a86a67871769a571b7a658fb89fe5d2dcac42538bc8c4b041fa"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "895ff6c10d9355ef9b529c59d99751f60b75758a252c7837317a83427165f601"
     },
     "map-tile-unknown--dark--760x900": {
       "id": "map-tile-unknown",
@@ -3199,8 +3199,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "43194e27a3ee3de68cc643b6cfbb53e85d105af2f7b69aad592df9e3100ce5e3"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "ccf875a89a6cbebfc619e9235fcc217aad5ee4ad923544f85952be0fcf1edc02"
     },
     "map-tile-unknown--light--1120x900": {
       "id": "map-tile-unknown",
@@ -3216,8 +3216,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "ff3b6dc07a64d38f0f0fd204bd4a4f7cdaf6ecb839a862612e952e3edf7e288b"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "3108ff2d4eceb2fbaa5624967f699c41f15d58e5ccb3eb641c26326db6c85438"
     },
     "map-tile-unknown--light--390x844": {
       "id": "map-tile-unknown",
@@ -3233,8 +3233,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "cffe5f2bb7605b35240b246e81e818eb6fd3fdc9aefe1a25bf7210c0889d5d0e"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "83e4f577c3309240040448cb4c38c031c2b9885a7cbd4ee94923ed85cb811271"
     },
     "map-tile-unknown--light--760x900": {
       "id": "map-tile-unknown",
@@ -3250,8 +3250,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "8ef505610f4308ec1ac2ac7f431acfc5e8a68e588f6be3a1861944406d0ee416"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "6e421cf82a01fab997a73076e8b245388824fd511cfbdbb2fbfd63f4b6bcd857"
     },
     "map-why-more--dark--1120x900": {
       "id": "map-why-more",
@@ -3267,8 +3267,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "7abdb6a0116ce1e16df951280abb31ec510257c87e20a059de7edfa17788c9fe"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "59705d338e7e81314a36082215baecd107a2309e1b9e90fa30dc318ab95dceca"
     },
     "map-why-more--dark--390x844": {
       "id": "map-why-more",
@@ -3284,8 +3284,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "7f16c80e7d33f1dbfda9c5cc4ecb71497b6ca2fd89170a0a3d9c5c5a329abff8"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "c10370971529201517836b753c68ecfabe93506139d2669ebb0405285daf0bf7"
     },
     "map-why-more--dark--760x900": {
       "id": "map-why-more",
@@ -3301,8 +3301,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "c508da242928e85aacad82490bd203b8cde07442722016b4d72834e10c8de30d"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "51a8adbbc2316ad2a89fe2455ccfdb132981e8d930b3873fe7e3e4cf9b7bba06"
     },
     "map-why-more--light--1120x900": {
       "id": "map-why-more",
@@ -3318,8 +3318,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "07198e12ead2a73cb0a4b36b1c439deab78979bef7af1037c29e188555d726a1"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "d8b04c87bf9789c0bf340caeadd957517340961ded7d09a97cae621531c294a4"
     },
     "map-why-more--light--390x844": {
       "id": "map-why-more",
@@ -3335,8 +3335,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "40763d776d6dc4e6902f5bc38a5d5918ae5045ee3840a4d407a745663fa9c04a"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "cf4479fad6c4b9ce751061a7c211d5caf6cb92b18ad2f0c5eb1b3d5549851eaa"
     },
     "map-why-more--light--760x900": {
       "id": "map-why-more",
@@ -3352,8 +3352,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
-      "sha256": "9c5558c50234ac8b930a9f11f95ffde44f25a5dd4e8951c50b4563a34894fb8c"
+      "note": "The prototype's system-data cause has a Measure button the app cannot offer honestly; the app shows that space as \"Not traced to a folder\" with its reason and no fix. Because that part has no fix, the card's lede and footer no longer promise one for each part. A tile label the prototype would cut off is hidden (`.tile.tiny-fit`).",
+      "sha256": "dcd70ae70de204be87085cfddeadb64743706ee38409e92f055b2abf6a03f189"
     },
     "risk-question--dark--1120x900": {
       "id": "risk-question",

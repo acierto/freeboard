@@ -344,6 +344,7 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
       measuredAt: "2026-11-04T11:42:00Z",
       purgeableBytes: null,
       snapshotCount: null,
+      systemMeasured: params.get("fda") === "1",
     };
   };
   const blindSpots = (): BlindSpot[] =>

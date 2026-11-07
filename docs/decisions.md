@@ -297,3 +297,13 @@ The user's prototype Version 17 and the matching spec sections ("First-run setup
 ## 2026-11-07: Leave one item out of a toss
 
 Found on a real Mac: a pile with an item that cannot be recovered (unnamed Docker volumes) kept the whole Toss disabled until that item was acknowledged, so the other items could not go without it. Each item of a several-item confirmation now has **Leave it out**. From the pile, the item is taken out of the pile and the rest is planned again; from chosen items (or a permanent plan), a new plan is made with the rest. While an acknowledgment is missing, the sheet says "Tick the box on each item that cannot be recovered, or leave it out and toss the rest." The backend rule is unchanged: a plan runs only when every item needing acknowledgment is acknowledged.
+- 2026-11-07: Baselines regenerated from `docs/reference/freeboard-prototype.html` (SHA-256 `190be983f4d2…`, chromium 156.0.8078.4, 226 captures). Rationale: Why card: Not traced has no fix, so the lede and footer no longer promise one for each part (decision 2026-11-07)
+
+## 2026-11-07: Full Disk Access walks the system places too
+
+Found on a real Mac: with Full Disk Access granted and every blind spot fixed, 115.2 GB stayed "Not traced to a folder", described as "app data in Library and system folders", while the card promised "Each part below has a fix".
+
+- With Full Disk Access the deep scan also measures the system `/Library` (Apps and tools), `/private/var/vm`, `/private/var/db` and `/private/var/log` (System), and the person's own temporary and cache folders under `/private/var/folders` (`$TMPDIR` and `DARWIN_USER_CACHE_DIR`, Caches). Without access these stay unread, as before, so nothing can ask the person.
+- The `X` folder next to them is never walked: apps keep code-sign copies of themselves there (on the developer's Mac, 286 copies of Chrome, which `du` counts as 521 GB). They are APFS clones sharing blocks with the app, so walking them would count the same blocks once per copy.
+- The map reports `systemMeasured`. When it is true, the untraced part is called "Kept by macOS": what only macOS may open (Spotlight's index, other accounts, system records), which even Full Disk Access does not reach.
+- Not traced has no fix, so when it is shown the card says "The parts with a button below have a fix" (or nothing, when no part has one) instead of "Each part below has a fix", and the footer drops "Fix them all and the map reaches 100%".

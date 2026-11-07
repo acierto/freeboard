@@ -301,7 +301,7 @@ fn vm_disk_paths(home: &Path, platform: &str) -> Vec<(PathBuf, &'static str)> {
 }
 
 /// System locations outside home on the home volume: (absolute path, area).
-fn outside_rules(home: &Path, platform: &str) -> Vec<(PathBuf, &'static str)> {
+fn outside_rules(home: &Path, platform: &str, full_disk_access: bool) -> Vec<(PathBuf, &'static str)> {
     let mut v = Vec::new();
     let mut add_children = |root: &Path, map: &dyn Fn(&str) -> Option<&'static str>| {
         if let Ok(rd) = std::fs::read_dir(root) {
@@ -330,6 +330,25 @@ fn outside_rules(home: &Path, platform: &str) -> Vec<(PathBuf, &'static str)> {
             v.push((data.join("Users/Shared"), "files"));
             // Simulator runtimes installed by Xcode.
             v.push((data.join("Library/Developer/CoreSimulator"), "mobile"));
+            // With Full Disk Access nothing here can ask the person, so the
+            // system-wide places are measured too (found on a real Mac,
+            // 2026-11-07: access granted, yet 115 GB stayed "not traced").
+            // What only macOS itself may open (Spotlight's index, other
+            // accounts) is still left out and said so.
+            if full_disk_access {
+                v.push((data.join("Library"), "apps"));
+                for rel in ["private/var/vm", "private/var/db", "private/var/log", "private/var/logs"] {
+                    v.push((data.join(rel), "system"));
+                }
+                // The person's own temporary and cache folders under
+                // /private/var/folders. Not its X folder: apps keep code-sign
+                // copies of themselves there (Chrome hundreds), APFS clones
+                // sharing blocks with the app, which a walk would count again
+                // for every copy.
+                for p in user_dirs() {
+                    v.push((p, "caches"));
+                }
+            }
         }
         "linux" => {
             let home_top = home.components().nth(1).map(|c| c.as_os_str().to_string_lossy().into_owned());
@@ -356,6 +375,31 @@ fn outside_rules(home: &Path, platform: &str) -> Vec<(PathBuf, &'static str)> {
         _ => {}
     }
     v
+}
+
+/// macOS: the person's own temporary and cache folders (`$TMPDIR` and
+/// `DARWIN_USER_CACHE_DIR`), on the Data volume.
+#[cfg(target_os = "macos")]
+fn user_dirs() -> Vec<PathBuf> {
+    let read = |name: libc::c_int| -> Option<PathBuf> {
+        let mut buf = vec![0u8; 1024];
+        // SAFETY: the buffer is valid for its length; confstr writes a
+        // NUL-terminated string of at most that length.
+        let n = unsafe { libc::confstr(name, buf.as_mut_ptr() as *mut libc::c_char, buf.len()) };
+        if n == 0 || n > buf.len() {
+            return None;
+        }
+        let s = String::from_utf8_lossy(&buf[..n - 1]).trim_end_matches('/').to_string();
+        let p = std::fs::canonicalize(&s).ok()?;
+        // /private/var/... lives on the Data volume.
+        Some(Path::new("/System/Volumes/Data").join(p.strip_prefix("/").ok()?))
+    };
+    [libc::_CS_DARWIN_USER_TEMP_DIR, libc::_CS_DARWIN_USER_CACHE_DIR].into_iter().filter_map(read).collect()
+}
+
+#[cfg(not(target_os = "macos"))]
+fn user_dirs() -> Vec<PathBuf> {
+    Vec::new()
 }
 
 fn depth(p: &Path) -> usize {
@@ -544,7 +588,7 @@ pub fn measure(env: &MeasureEnv, claims: &[Claim]) -> Measurement {
     }
 
     if env.outside_home {
-        for (p, area) in outside_rules(&home, env.platform) {
+        for (p, area) in outside_rules(&home, env.platform, fda == Some(true)) {
             if exists_dir_or_file(&p) && !excluded(&p) && !p.starts_with(&home) && !home.starts_with(&p) {
                 push(&mut rules, p, area, Kind::Fixed);
             }
@@ -603,4 +647,23 @@ pub fn measure(env: &MeasureEnv, claims: &[Claim]) -> Measurement {
     out.unscanned.sort_by(|a, b| b.bytes.cmp(&a.bytes).then(a.path.cmp(&b.path)));
     out.unknown.sort_by(|a, b| b.bytes.cmp(&a.bytes).then(a.path.cmp(&b.path)));
     out
+}
+
+#[cfg(all(test, target_os = "macos"))]
+mod fda_tests {
+    use super::*;
+
+    #[test]
+    fn full_disk_access_adds_system_places_but_never_code_sign_copies() {
+        let home = std::env::var("HOME").map(PathBuf::from).unwrap();
+        let without: Vec<PathBuf> = outside_rules(&home, "macos", false).into_iter().map(|(p, _)| p).collect();
+        let with = outside_rules(&home, "macos", true);
+        let data = Path::new("/System/Volumes/Data");
+        assert!(!without.contains(&data.join("Library")) && !without.iter().any(|p| p.starts_with(data.join("private"))));
+        assert!(with.iter().any(|(p, a)| p == &data.join("Library") && *a == "apps"));
+        assert!(with.iter().any(|(p, a)| p == &data.join("private/var/vm") && *a == "system"));
+        let own: Vec<&PathBuf> = with.iter().filter(|(p, _)| p.starts_with(data.join("private/var/folders"))).map(|(p, _)| p).collect();
+        assert_eq!(own.len(), 2, "{own:?}");
+        assert!(own.iter().all(|p| p.ends_with("T") || p.ends_with("C")), "{own:?}");
+    }
 }
