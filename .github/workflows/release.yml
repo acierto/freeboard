@@ -76,6 +76,11 @@ jobs:
           cargo test --no-default-features --locked
       - name: Build installers
         run: npx tauri build ${{ matrix.args }}
+      - name: DMG window layout (background and icon positions)
+        # Tauri arranges the DMG window through Finder, which does not run on
+        # CI; scripts/macos/dmg-layout.sh adds the layout saved from a Mac build.
+        if: runner.os == 'macOS'
+        run: scripts/macos/dmg-layout.sh "$(ls src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg | head -1)"
       - name: Collect with fixed names
         shell: bash
         run: |
