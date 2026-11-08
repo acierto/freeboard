@@ -130,7 +130,7 @@ impl Acknowledged {
     }
 }
 
-const PROGRAMS: &[&str] = &["docker", "git", "pnpm", "pip", "pip3", "brew", "xcrun", "npm", "lsof", "ps", "tmutil", "ollama", "rustup"];
+const PROGRAMS: &[&str] = &["docker", "git", "pnpm", "pip", "pip3", "brew", "xcrun", "npm", "lsof", "ps", "tmutil", "ollama", "rustup", "mdls"];
 
 fn is_force_flag(a: &str) -> bool {
     if a == "--force" || a.starts_with("--force=") || a == "-f" {
@@ -223,6 +223,18 @@ fn read_only_allowed(cmd: &Cmd) -> bool {
         "npm" => starts(&a, &["config", "get", "cache"]) || starts(&a, &["--version"]),
         "tmutil" => a.len() == 2 && a[0] == "listlocalsnapshots",
         "rustup" => a == ["toolchain", "list"] || a == ["--version"],
+        // Spotlight attributes only: `-name kMDItem...` pairs, then absolute
+        // paths. Never `-plist <file>`, which writes a file.
+        "mdls" => {
+            let names = a.iter().take_while(|x| x.starts_with('-')).count();
+            let mut i = 0;
+            let mut ok = names > 0;
+            while i < a.len() && a[i].starts_with('-') {
+                ok &= a[i] == "-name" && a.get(i + 1).is_some_and(|n| n.starts_with("kMDItem"));
+                i += 2;
+            }
+            ok && i < a.len() && a[i..].iter().all(|p| p.starts_with('/'))
+        }
         "lsof" => true,
         "ps" => true,
         _ => false,

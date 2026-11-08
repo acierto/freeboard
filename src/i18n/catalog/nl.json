@@ -537,5 +537,18 @@
   "This is your newest Node version now.": "Dit is nu je nieuwste Node-versie.",
   "This toolchain is gone already.": "Deze toolchain is al weg.",
   "This toolchain is your default or active one now.": "Deze toolchain is nu je standaard- of actieve toolchain.",
-  "Unknown tool detector.": "Onbekende tooldetector."
+  "Unknown tool detector.": "Onbekende tooldetector.",
+  "{0} apps": "{0} apps",
+  "an application is only ever moved to the Trash": "een app wordt alleen ooit naar de prullenmand verplaatst",
+  "Apps not opened for a year": "Apps die een jaar niet zijn geopend",
+  "Freeboard couldn't check whether the app is open.": "Freeboard kon niet controleren of de app open is.",
+  "macOS no longer reports when this app was last opened.": "macOS meldt niet meer wanneer deze app voor het laatst is geopend.",
+  "macOS records that you have not opened these apps for 12 months or more. Their settings and documents stay where they are.": "macOS houdt bij dat je deze apps 12 maanden of langer niet hebt geopend. Hun instellingen en documenten blijven waar ze zijn.",
+  "not an application bundle": "geen app-bundel",
+  "Restore them from the Trash, or install them again.": "Zet ze terug uit de prullenmand, of installeer ze opnieuw.",
+  "Spotlight's mdls tool is not available.": "Het mdls-hulpmiddel van Spotlight is niet beschikbaar.",
+  "system application": "systeemapp",
+  "The app is open. Quit it, then scan again.": "De app is open. Sluit hem af en scan opnieuw.",
+  "The app was opened after the scan.": "De app is na de scan geopend.",
+  "The app was replaced or moved after the scan.": "De app is na de scan vervangen of verplaatst."
 }

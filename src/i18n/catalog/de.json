@@ -549,5 +549,18 @@
   "This is your newest Node version now.": "Das ist jetzt deine neueste Node-Version.",
   "This toolchain is gone already.": "Diese Toolchain ist bereits weg.",
   "This toolchain is your default or active one now.": "Diese Toolchain ist jetzt deine Standard- oder aktive.",
-  "Unknown tool detector.": "Unbekannter Werkzeug-Detektor."
+  "Unknown tool detector.": "Unbekannter Werkzeug-Detektor.",
+  "{0} apps": "{0} Apps",
+  "an application is only ever moved to the Trash": "eine App wird immer nur in den Papierkorb gelegt",
+  "Apps not opened for a year": "Apps, die seit einem Jahr nicht geöffnet wurden",
+  "Freeboard couldn't check whether the app is open.": "Freeboard konnte nicht prüfen, ob die App geöffnet ist.",
+  "macOS no longer reports when this app was last opened.": "macOS meldet nicht mehr, wann diese App zuletzt geöffnet wurde.",
+  "macOS records that you have not opened these apps for 12 months or more. Their settings and documents stay where they are.": "macOS verzeichnet, dass du diese Apps seit 12 Monaten oder länger nicht geöffnet hast. Ihre Einstellungen und Dokumente bleiben, wo sie sind.",
+  "not an application bundle": "kein App-Bundle",
+  "Restore them from the Trash, or install them again.": "Stelle sie aus dem Papierkorb wieder her oder installiere sie erneut.",
+  "Spotlight's mdls tool is not available.": "Das Spotlight-Werkzeug mdls ist nicht verfügbar.",
+  "system application": "System-App",
+  "The app is open. Quit it, then scan again.": "Die App ist geöffnet. Beende sie und scanne dann erneut.",
+  "The app was opened after the scan.": "Die App wurde nach dem Scan geöffnet.",
+  "The app was replaced or moved after the scan.": "Die App wurde nach dem Scan ersetzt oder verschoben."
 }

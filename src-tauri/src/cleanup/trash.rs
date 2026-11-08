@@ -172,7 +172,7 @@ impl TrashBackend for DirTrash {
         if !self.available {
             return Err("this volume has no Trash".into());
         }
-        let now = guard.check(&checked.path).map_err(|e| e.to_string())?;
+        let now = guard.recheck(checked).map_err(|e| e.to_string())?;
         if now.canonical != checked.canonical || now.id != checked.id {
             return Err("changed".into());
         }

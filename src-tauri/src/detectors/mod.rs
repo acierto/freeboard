@@ -5,6 +5,7 @@
 
 pub mod ai;
 pub mod app_caches;
+pub mod apps;
 pub mod caches;
 pub mod common;
 pub mod docker;
@@ -51,6 +52,7 @@ pub fn all() -> Vec<Box<dyn Detector>> {
         Box::new(ai::LmStudio),
         Box::new(tools::NodeVersions),
         Box::new(tools::RustToolchains),
+        Box::new(apps::UnusedApps),
         Box::new(files::Installers),
         Box::new(files::WindowsTemp),
     ]
@@ -91,6 +93,8 @@ pub fn probe_with(finding: &Finding, ctx: &ScanContext, guard: &Guard) -> Probe 
         mobile::probe(finding, ctx, guard)
     } else if det.starts_with("tools.") {
         tools::probe(finding, ctx, guard)
+    } else if det == apps::UNUSED {
+        apps::probe(finding, ctx, guard)
     } else if det.starts_with("ai.") {
         ai::probe(finding, ctx, guard)
     } else if det.starts_with("files.") {

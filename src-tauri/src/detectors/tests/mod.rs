@@ -19,6 +19,8 @@ mod ai;
 #[cfg(unix)]
 mod app_caches;
 #[cfg(unix)]
+pub(crate) mod apps;
+#[cfg(unix)]
 mod caches;
 #[cfg(unix)]
 mod docker;

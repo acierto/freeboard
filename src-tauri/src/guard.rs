@@ -43,6 +43,8 @@ pub struct CheckedPath {
     pub canonical: PathBuf,
     pub is_link: bool,
     pub id: Option<FileId>,
+    /// Passed `check_unused_app`: may only be moved to the Trash.
+    pub app_bundle: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -52,6 +54,9 @@ pub struct Guard {
     exact: Vec<PathBuf>,
     /// Subtrees whose contents may never be touched.
     subtree: Vec<PathBuf>,
+    /// The folders whose top-level app bundles `check_unused_app` allows
+    /// (macOS `/Applications` and `~/Applications`; empty elsewhere).
+    app_dirs: Vec<PathBuf>,
 }
 
 fn canon_or_self(p: &Path) -> PathBuf {
@@ -87,7 +92,18 @@ impl Guard {
         subtree.push(home.join(".ssh"));
         subtree.push(home.join(".gnupg"));
         exact.extend(extra_protected.iter().cloned());
-        Guard::new(home, exact, subtree)
+        let g = Guard::new(home, exact, subtree);
+        if cfg!(target_os = "macos") {
+            g.with_app_dirs(&[PathBuf::from("/Applications"), home.join("Applications")])
+        } else {
+            g
+        }
+    }
+
+    /// Allow the unused-app exception for top-level bundles in these folders.
+    pub fn with_app_dirs(mut self, dirs: &[PathBuf]) -> Guard {
+        self.app_dirs = dirs.iter().map(|d| canon_or_self(d)).collect();
+        self
     }
 
     pub fn new(home: &Path, exact: Vec<PathBuf>, subtree: Vec<PathBuf>) -> Guard {
@@ -99,7 +115,7 @@ impl Guard {
             }
             out
         };
-        Guard { home: canon_or_self(home), exact: canon(exact), subtree: canon(subtree) }
+        Guard { home: canon_or_self(home), exact: canon(exact), subtree: canon(subtree), app_dirs: Vec::new() }
     }
 
     pub fn home(&self) -> &Path {
@@ -181,7 +197,7 @@ impl Guard {
         }
         let is_link = platform::is_link_meta(&canonical, &meta);
         let id = platform::file_id(&canonical, &meta);
-        Ok(CheckedPath { path: path.to_path_buf(), canonical, is_link, id })
+        Ok(CheckedPath { path: path.to_path_buf(), canonical, is_link, id, app_bundle: false })
     }
 
     /// Check a linked Git worktree before `git worktree remove`.
@@ -232,7 +248,47 @@ impl Guard {
             return Err(GuardError::Protected(r));
         }
         let id = platform::file_id(&canonical, &meta);
-        Ok(CheckedPath { path: path.to_path_buf(), canonical, is_link: false, id })
+        Ok(CheckedPath { path: path.to_path_buf(), canonical, is_link: false, id, app_bundle: false })
+    }
+
+    /// Check an unused app before moving it to the Trash (decision
+    /// 2026-11-06, `apps.unused`): the one exception to protected application
+    /// directories. Allowed only for a real `.app` bundle folder directly
+    /// inside one of the guard's app folders (macOS `/Applications` or
+    /// `~/Applications`), never a link, never a system app's bundle, never
+    /// anything inside a bundle, and never the app folder itself. The result
+    /// may only be moved to the Trash (`remove` refuses it).
+    pub fn check_unused_app(&self, path: &Path) -> Result<CheckedPath, GuardError> {
+        if self.app_dirs.is_empty() {
+            return Err(GuardError::Protected("application bundle".into()));
+        }
+        let canonical = Self::canonical_of(path)?;
+        let meta = fs::symlink_metadata(&canonical).map_err(|_| GuardError::Missing)?;
+        if platform::is_link_meta(&canonical, &meta) || !meta.is_dir() {
+            return Err(GuardError::Protected("not an application bundle".into()));
+        }
+        let name = canonical.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
+        let parent = canonical.parent().ok_or_else(|| GuardError::Protected("filesystem root".into()))?;
+        if !name.to_lowercase().ends_with(".app") || name.len() <= 4 || !self.app_dirs.iter().any(|d| norm_case(d) == norm_case(parent)) {
+            return Err(GuardError::Protected("application bundle".into()));
+        }
+        if canonical.components().any(|c| matches!(c, Component::Normal(n) if n == ".git")) {
+            return Err(GuardError::Protected(".git directory or file".into()));
+        }
+        if starts_with_ci(&canonical, Path::new("/System")) {
+            return Err(GuardError::Protected("system application".into()));
+        }
+        let id = platform::file_id(&canonical, &meta);
+        Ok(CheckedPath { path: path.to_path_buf(), canonical, is_link: false, id, app_bundle: true })
+    }
+
+    /// Check a path again right before acting, by the rule it first passed.
+    pub fn recheck(&self, checked: &CheckedPath) -> Result<CheckedPath, GuardError> {
+        if checked.app_bundle {
+            self.check_unused_app(&checked.path)
+        } else {
+            self.check(&checked.path)
+        }
     }
 
     fn protected_reason_except_repo_root(&self, canonical: &Path) -> Option<String> {
@@ -282,6 +338,9 @@ impl Guard {
     /// removed as a link. Directories are removed bottom-up; any `.git` entry
     /// inside the tree aborts before anything is deleted.
     pub fn remove(&self, checked: &CheckedPath) -> Result<u64, GuardError> {
+        if checked.app_bundle {
+            return Err(GuardError::Protected("an application is only ever moved to the Trash".into()));
+        }
         // Re-check right before acting.
         let now = self.check(&checked.path)?;
         if now.canonical != checked.canonical || now.id != checked.id {
@@ -307,7 +366,7 @@ impl Guard {
     /// Move a checked path to the platform Trash. Returns Err when no usable
     /// Trash exists; callers must then stop the item (never fall back silently).
     pub fn move_to_trash(&self, checked: &CheckedPath) -> Result<(), GuardError> {
-        let now = self.check(&checked.path)?;
+        let now = self.recheck(checked)?;
         if now.canonical != checked.canonical || now.id != checked.id {
             return Err(GuardError::Moved);
         }
@@ -442,6 +501,51 @@ mod tests {
         fs::create_dir_all(&wt).unwrap();
         fs::write(wt.join(".git"), b"gitdir: /elsewhere").unwrap();
         assert!(matches!(f.guard.check(&wt), Err(GuardError::Protected(_))));
+    }
+
+    #[test]
+    #[cfg(unix)]
+    fn unused_app_exception_is_narrow() {
+        let f = fx();
+        let apps = f.root.join("home/Applications");
+        let app = apps.join("Old Tool.app");
+        fs::create_dir_all(app.join("Contents/MacOS")).unwrap();
+        fs::write(app.join("Contents/MacOS/tool"), b"x").unwrap();
+        // Without app folders (Linux, Windows, or a guard built without them)
+        // nothing passes.
+        assert!(f.guard.check_unused_app(&app).is_err());
+        let g = f.guard.clone().with_app_dirs(std::slice::from_ref(&apps));
+        // Positive: a top-level bundle in an app folder, Trash only.
+        let c = g.check_unused_app(&app).unwrap();
+        assert!(c.app_bundle);
+        assert!(matches!(g.remove(&c), Err(GuardError::Protected(_))), "never deleted permanently");
+        assert!(app.exists());
+        // The normal check still protects every bundle.
+        assert!(matches!(g.check(&app), Err(GuardError::Protected(r)) if r == "application bundle"));
+        // Negative: inside a bundle, the app folder itself, a link, a bundle
+        // elsewhere, a nested bundle, a file named .app, a system path.
+        assert!(g.check_unused_app(&app.join("Contents")).is_err());
+        assert!(g.check_unused_app(&apps).is_err());
+        let link = apps.join("Linked.app");
+        std::os::unix::fs::symlink(&app, &link).unwrap();
+        assert!(g.check_unused_app(&link).is_err());
+        let elsewhere = f.root.join("home/projects/Other.app");
+        fs::create_dir_all(&elsewhere).unwrap();
+        assert!(g.check_unused_app(&elsewhere).is_err());
+        let nested = app.join("Contents/Helpers/Helper.app");
+        fs::create_dir_all(&nested).unwrap();
+        assert!(g.check_unused_app(&nested).is_err());
+        fs::write(apps.join("Note.app"), b"not a bundle").unwrap();
+        assert!(g.check_unused_app(&apps.join("Note.app")).is_err());
+        assert!(g.check_unused_app(&apps.join(".app")).is_err());
+        assert!(g.check_unused_app(&apps.join("Missing.app")).is_err());
+        let g_sys = f.guard.clone().with_app_dirs(&[PathBuf::from("/System/Applications")]);
+        assert!(g_sys.check_unused_app(Path::new("/System/Applications/Calculator.app")).is_err());
+        // A bundle swapped for a link after the check fails the recheck.
+        let c = g.check_unused_app(&app).unwrap();
+        fs::rename(&app, apps.join("moved")).unwrap();
+        std::os::unix::fs::symlink(apps.join("moved"), &app).unwrap();
+        assert!(g.recheck(&c).is_err());
     }
 
     #[test]

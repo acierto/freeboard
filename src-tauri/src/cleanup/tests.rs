@@ -1137,3 +1137,43 @@ fn a_permanent_plan_covers_only_parts_whose_trash_move_failed() {
     assert!(!e.fx.home.join("projects/ml/.venv").exists());
     assert!(e.fx.home.join("projects/ml/requirements.txt").exists());
 }
+
+// ----- unused apps (the guard's narrow app exception) ----------------------
+
+#[test]
+#[cfg(target_os = "macos")]
+fn unused_app_goes_to_the_trash_only_after_its_acknowledgment() {
+    let mut fx = Fx::new();
+    fx.platform = "macos";
+    let app = crate::detectors::tests::apps::app(&fx, "Applications", "Old Tool", "com.example.tool", Some(500));
+    let e = env_with(fx, true);
+    let o = e.fx.with_ctx(ScanKind::Quick, |ctx| run_scan(ctx, &[Box::new(crate::detectors::apps::UnusedApps) as Box<dyn crate::scan::Detector>]));
+    e.store.replace_findings("scan", &o.findings).unwrap();
+    let id = o.findings[0].suggestion.id.clone();
+    let p = e.plan(std::slice::from_ref(&id));
+    assert_eq!(e.engine.run_plan_blocking(&p.id, NOW), Err(CleanupError::NeedsAcknowledgment));
+    assert!(app.exists());
+    e.engine.acknowledge_item(&p.id, &id, NOW).unwrap();
+    let r = e.run(&p);
+    assert_eq!(e.item(&r, &id).state, ItemState::MovedToTrash, "{:?}", r.items);
+    assert!(!app.exists() && e.trash_dir.join("Old Tool.app").exists());
+}
+
+#[test]
+#[cfg(target_os = "macos")]
+fn unused_app_is_never_deleted_permanently() {
+    let mut fx = Fx::new();
+    fx.platform = "macos";
+    let app = crate::detectors::tests::apps::app(&fx, "Applications", "Old Tool", "com.example.tool", Some(500));
+    let e = env_with(fx, true);
+    let o = e.fx.with_ctx(ScanKind::Quick, |ctx| run_scan(ctx, &[Box::new(crate::detectors::apps::UnusedApps) as Box<dyn crate::scan::Detector>]));
+    // The same item, altered to a permanent delete: refused by the guard.
+    let mut f = o.findings[0].clone();
+    f.suggestion.action = Action::Delete;
+    f.suggestion.needs_confirmation = false;
+    e.store.replace_findings("scan", &[f.clone()]).unwrap();
+    let p = e.plan(std::slice::from_ref(&f.suggestion.id));
+    let r = e.run(&p);
+    assert_ne!(e.item(&r, &f.suggestion.id).state, ItemState::Done);
+    assert!(app.exists());
+}

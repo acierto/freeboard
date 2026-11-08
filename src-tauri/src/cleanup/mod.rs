@@ -640,7 +640,14 @@ impl CleanupEngine {
             (Target::Paths { paths }, Action::Trash) if !job.snapshot.permanent => {
                 let mut moved = 0;
                 for p in paths {
-                    let checked = match self.guard.check(Path::new(p)) {
+                    // Unused apps pass the guard's narrow app exception, and
+                    // only ever on the way to the Trash (decision 2026-11-06).
+                    let checked = if s.detector == crate::detectors::apps::UNUSED {
+                        self.guard.check_unused_app(Path::new(p))
+                    } else {
+                        self.guard.check(Path::new(p))
+                    };
+                    let checked = match checked {
                         Ok(c) => c,
                         Err(e) => return (ItemState::Failed, Some(format!("Refused: {e}."))),
                     };

@@ -740,6 +740,7 @@ pub fn detector_label(id: &str) -> String {
         "ai.lm_studio" => "LM Studio models",
         "tools.node_versions" => "Node versions",
         "tools.rust_toolchains" => "Rust toolchains",
+        "apps.unused" => "Apps not opened for a year",
         "files.installers" => "Installers in Downloads",
         "files.windows_temp" => "Windows temp files",
         other => other,
