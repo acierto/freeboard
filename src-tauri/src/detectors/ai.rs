@@ -115,9 +115,12 @@ fn blob_path(models: &Path, digest: &str) -> PathBuf {
     models.join("blobs").join(digest.replace(':', "-"))
 }
 
-/// When a model was last pulled or read: its manifest and its layers.
+/// When a model was last pulled or read: its manifest's change time and its
+/// layers' access and change times. Freeboard reads the manifest itself, and
+/// on Linux (relatime) that read moves its access time, so only the layers'
+/// access times count; Freeboard only ever `stat`s those.
 fn ollama_last_used(models: &Path, m: &OllamaModel) -> Option<i64> {
-    let mut t = touched(&std::fs::metadata(&m.manifest).ok()?);
+    let mut t = platform::modified_secs(&std::fs::metadata(&m.manifest).ok()?);
     for (d, _) in &m.layers {
         if let Ok(meta) = std::fs::metadata(blob_path(models, d)) {
             t = t.max(touched(&meta));

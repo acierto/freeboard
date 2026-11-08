@@ -111,8 +111,24 @@ pub fn walk_files(ctx: &ScanContext, roots: &[PathBuf], min: u64) -> (Vec<FileEn
 
 pub struct Duplicates;
 
+/// Open for reading without moving the file's access time where the system
+/// allows it (Linux `O_NOATIME`, for files the person owns), so hashing a
+/// video never makes it look recently opened to `files.large_media`. macOS
+/// has no such flag; there a hashed file can only look more recently used,
+/// which suggests less, never more.
+fn open_quietly(p: &Path) -> Option<std::fs::File> {
+    #[cfg(target_os = "linux")]
+    {
+        use std::os::unix::fs::OpenOptionsExt;
+        if let Ok(f) = std::fs::OpenOptions::new().read(true).custom_flags(libc::O_NOATIME).open(p) {
+            return Some(f);
+        }
+    }
+    std::fs::File::open(p).ok()
+}
+
 fn hash_file(p: &Path, limit: Option<usize>) -> Option<String> {
-    let mut f = std::fs::File::open(p).ok()?;
+    let mut f = open_quietly(p)?;
     let mut h = blake3::Hasher::new();
     let mut buf = vec![0u8; 256 * 1024];
     let mut left = limit.unwrap_or(usize::MAX);
