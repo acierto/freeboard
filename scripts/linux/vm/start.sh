@@ -1,18 +1,27 @@
 #!/usr/bin/env bash
 # Start the disposable Freeboard Linux test VM with QEMU (HVF acceleration).
 #   scripts/linux/vm/start.sh            create on first run, then boot
-# VM files live in ~/Downloads/freeboard-vm/. SSH: ssh -p 2222 -i ~/.ssh/freeboard_vm dev@127.0.0.1
-# QMP control socket: ~/Downloads/freeboard-vm/qmp.sock (screenshots and input from the host).
+# VM files live in ~/soft/vms/freeboard-linux/. SSH: ssh -p 2222 -i ~/.ssh/freeboard_vm dev@127.0.0.1
+# QMP control socket: ~/soft/vms/freeboard-linux/qmp.sock (screenshots and input from the host).
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
-V="$HOME/Downloads/freeboard-vm"
+V="${VMS_DIR:-$HOME/soft/vms}/freeboard-linux"
 KEY="$HOME/.ssh/freeboard_vm"
 FW=/opt/local/share/qemu/edk2-aarch64-code.fd
 QEMU=/opt/local/bin/qemu-system-aarch64
 IMG=/opt/local/bin/qemu-img
 [ -f "$KEY" ] || ssh-keygen -q -t ed25519 -N "" -C freeboard-vm -f "$KEY"
+# Ubuntu's minimal cloud image (about 220 MB, the smallest official one);
+# cloud-init adds the minimal GNOME desktop on first boot.
+BASE=ubuntu-24.04-minimal-cloudimg-arm64.img
+URL=https://cloud-images.ubuntu.com/minimal/releases/noble/release
+mkdir -p "$V"
+if [ ! -f "$V/$BASE" ]; then
+  curl -fL -o "$V/$BASE.part" "$URL/$BASE"
+  (cd "$V" && curl -fsSL "$URL/SHA256SUMS" | grep " \*\?$BASE\$" | sed "s/$BASE.part/$BASE/" > "$BASE.sha256" && mv "$BASE.part" "$BASE" && shasum -a 256 -c "$BASE.sha256")
+fi
 if [ ! -f "$V/disk.qcow2" ]; then
-  "$IMG" create -f qcow2 -F qcow2 -b "$V/ubuntu-24.04-server-cloudimg-arm64.img" "$V/disk.qcow2" 40G
+  "$IMG" create -f qcow2 -F qcow2 -b "$V/$BASE" "$V/disk.qcow2" 40G
   truncate -s 64M "$V/vars.fd"
   mkdir -p "$V/seed"
   sed "s|__SSH_PUBKEY__|$(cat "$KEY.pub")|" "$HERE/user-data" > "$V/seed/user-data"
