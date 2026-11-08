@@ -1166,7 +1166,7 @@ dependencies = [
 
 [[package]]
 name = "freeboard"
-version = "1.4.0"
+version = "1.5.0"
 dependencies = [
  "blake3",
  "chrono",
