@@ -36,6 +36,8 @@ mod projects;
 #[cfg(unix)]
 mod scan;
 #[cfg(unix)]
+mod system;
+#[cfg(unix)]
 mod tools;
 
 /// Test clock: 2026-11-04T00:00:00Z.
@@ -306,8 +308,12 @@ pub fn tree(root: &Path) -> BTreeMap<String, String> {
                 stack.push(p.clone());
                 format!("dir|{mt}")
             } else {
-                let data = std::fs::read(&p).unwrap_or_default();
-                format!("file|{}|{mt}|{}", m.len(), &crate::detectors::common::hash_hex(&String::from_utf8_lossy(&data))[..16])
+                // Streamed: fixtures hold sparse files of hundreds of MB.
+                let mut h = blake3::Hasher::new();
+                if let Ok(f) = std::fs::File::open(&p) {
+                    let _ = h.update_reader(f);
+                }
+                format!("file|{}|{mt}|{}", m.len(), &h.finalize().to_hex()[..16])
             };
             out.insert(rel, desc);
         }

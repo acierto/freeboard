@@ -582,5 +582,26 @@
   "The video was opened after the scan.": "Das Video wurde nach dem Scan geöffnet.",
   "Video files of 500 MB or more that you have not opened for 6 months. They may be the only copy.": "Videodateien ab 500 MB, die du seit 6 Monaten nicht geöffnet hast. Es kann die einzige Kopie sein.",
   "Your folders": "Deine Ordner",
-  "Your scan folders": "Deine Scan-Ordner"
+  "Your scan folders": "Deine Scan-Ordner",
+  "{n} temporary item{0} that no running app has open and that have not changed for {STALE_DAYS} days.": {
+    "one": "{n} temporäres Objekt, das keine laufende App geöffnet hat und das sich seit {STALE_DAYS} Tagen nicht geändert hat.",
+    "other": "{n} temporäre Objekte, die keine laufende App geöffnet hat und die sich seit {STALE_DAYS} Tagen nicht geändert haben."
+  },
+  "{n} Time Machine local snapshots": "{n} lokale Time-Machine-Schnappschüsse",
+  "An app is using these files now.": "Eine App verwendet diese Dateien jetzt.",
+  "Freeboard couldn't check which temporary files apps still use.": "Freeboard konnte nicht prüfen, welche temporären Dateien Apps noch verwenden.",
+  "Freeboard couldn't confirm your newest Time Machine backup, so local snapshots are left alone.": "Freeboard konnte dein neuestes Time-Machine-Backup nicht bestätigen, daher bleiben lokale Schnappschüsse unberührt.",
+  "Leftover temporary files": "Übrig gebliebene temporäre Dateien",
+  "Local copies Time Machine keeps on this disk. A newer backup on your backup disk already has these files.": "Lokale Kopien, die Time Machine auf dieser Festplatte behält. Ein neueres Backup auf deiner Backup-Festplatte enthält diese Dateien bereits.",
+  "Not recoverable, but the newer backup on your backup disk has the same files.": "Nicht wiederherstellbar, aber das neuere Backup auf deiner Backup-Festplatte hat dieselben Dateien.",
+  "Older than your newest backup": "Älter als dein neuestes Backup",
+  "Restore them from the Trash.": "Stelle sie aus dem Papierkorb wieder her.",
+  "Snapshot of {0}": "Schnappschuss vom {0}",
+  "Temporary files apps left behind": "Temporäre Dateien, die Apps zurückgelassen haben",
+  "There is no newer backup than this snapshot any more.": "Es gibt kein neueres Backup als diesen Schnappschuss mehr.",
+  "Time Machine could not list its local snapshots.": "Time Machine konnte seine lokalen Schnappschüsse nicht auflisten.",
+  "Time Machine local snapshots": "Lokale Time-Machine-Schnappschüsse",
+  "Unchanged for {STALE_DAYS}+ days, not in use": "Seit {STALE_DAYS}+ Tagen unverändert, nicht in Gebrauch",
+  "Unknown system detector.": "Unbekannter System-Detektor.",
+  "Your temporary folder": "Dein temporärer Ordner"
 }

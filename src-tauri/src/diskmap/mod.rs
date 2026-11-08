@@ -744,6 +744,8 @@ pub fn detector_label(id: &str) -> String {
         "files.installers" => "Installers in Downloads",
         "files.windows_temp" => "Windows temp files",
         "files.duplicates" => "Duplicate files",
+        "system.snapshots" => "Time Machine local snapshots",
+        "system.stale_temp" => "Leftover temporary files",
         "files.large_media" => "Large videos",
         other => other,
     }

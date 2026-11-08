@@ -567,5 +567,26 @@
   "The video was opened after the scan.": "El vídeo se abrió después del análisis.",
   "Video files of 500 MB or more that you have not opened for 6 months. They may be the only copy.": "Archivos de vídeo de 500 MB o más que no has abierto en 6 meses. Puede que sean la única copia.",
   "Your folders": "Tus carpetas",
-  "Your scan folders": "Tus carpetas de análisis"
+  "Your scan folders": "Tus carpetas de análisis",
+  "{n} temporary item{0} that no running app has open and that have not changed for {STALE_DAYS} days.": {
+    "one": "{n} elemento temporal que ninguna app abierta usa y que no ha cambiado en {STALE_DAYS} días.",
+    "other": "{n} elementos temporales que ninguna app abierta usa y que no han cambiado en {STALE_DAYS} días."
+  },
+  "{n} Time Machine local snapshots": "{n} instantáneas locales de Time Machine",
+  "An app is using these files now.": "Una app está usando estos archivos ahora.",
+  "Freeboard couldn't check which temporary files apps still use.": "Freeboard no pudo comprobar qué archivos temporales siguen usando las apps.",
+  "Freeboard couldn't confirm your newest Time Machine backup, so local snapshots are left alone.": "Freeboard no pudo confirmar tu copia de Time Machine más reciente, así que las instantáneas locales se dejan como están.",
+  "Leftover temporary files": "Archivos temporales sobrantes",
+  "Local copies Time Machine keeps on this disk. A newer backup on your backup disk already has these files.": "Copias locales que Time Machine guarda en este disco. Una copia más reciente en tu disco de copias ya tiene estos archivos.",
+  "Not recoverable, but the newer backup on your backup disk has the same files.": "No se puede recuperar, pero la copia más reciente en tu disco de copias tiene los mismos archivos.",
+  "Older than your newest backup": "Más antigua que tu copia más reciente",
+  "Restore them from the Trash.": "Restáuralos desde la papelera.",
+  "Snapshot of {0}": "Instantánea del {0}",
+  "Temporary files apps left behind": "Archivos temporales que dejaron las apps",
+  "There is no newer backup than this snapshot any more.": "Ya no hay ninguna copia más reciente que esta instantánea.",
+  "Time Machine could not list its local snapshots.": "Time Machine no pudo listar sus instantáneas locales.",
+  "Time Machine local snapshots": "Instantáneas locales de Time Machine",
+  "Unchanged for {STALE_DAYS}+ days, not in use": "Sin cambios en {STALE_DAYS}+ días, sin usar",
+  "Unknown system detector.": "Detector del sistema desconocido.",
+  "Your temporary folder": "Tu carpeta temporal"
 }

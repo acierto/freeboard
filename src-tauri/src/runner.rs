@@ -221,7 +221,7 @@ fn read_only_allowed(cmd: &Cmd) -> bool {
         "brew" => starts(&a, &["--cache"]) || starts(&a, &["--version"]) || (starts(&a, &["cleanup"]) && (has_dry_run(&a))),
         "xcrun" => starts(&a, &["simctl", "list"]),
         "npm" => starts(&a, &["config", "get", "cache"]) || starts(&a, &["--version"]),
-        "tmutil" => a.len() == 2 && a[0] == "listlocalsnapshots",
+        "tmutil" => (a.len() == 2 && a[0] == "listlocalsnapshots") || a == ["latestbackup"],
         "rustup" => a == ["toolchain", "list"] || a == ["--version"],
         // Spotlight attributes only: `-name kMDItem...` pairs, then absolute
         // paths. Never `-plist <file>`, which writes a file.
@@ -265,6 +265,9 @@ fn action_allowed(cmd: &Cmd) -> bool {
         "pip" | "pip3" => a == ["cache", "purge"],
         "brew" => a == ["cleanup"],
         // One model by name; `ollama rm` takes several, but each part runs alone.
+        // One local snapshot by its date, never a mount point (which would
+        // delete every snapshot on it).
+        "tmutil" => a.len() == 2 && a[0] == "deletelocalsnapshots" && crate::detectors::system::safe_date(a[1]),
         // One toolchain by name per part.
         "rustup" => a.len() == 3 && a[..2] == ["toolchain", "uninstall"] && crate::detectors::tools::safe_toolchain(a[2]),
         "ollama" => a.len() == 2 && a[0] == "rm" && crate::detectors::ai::safe_model_name(a[1]),

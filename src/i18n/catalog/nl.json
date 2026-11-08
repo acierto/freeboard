@@ -570,5 +570,26 @@
   "The video was opened after the scan.": "De video is na de scan geopend.",
   "Video files of 500 MB or more that you have not opened for 6 months. They may be the only copy.": "Videobestanden van 500 MB of meer die je 6 maanden niet hebt geopend. Het kan de enige kopie zijn.",
   "Your folders": "Je mappen",
-  "Your scan folders": "Je scanmappen"
+  "Your scan folders": "Je scanmappen",
+  "{n} temporary item{0} that no running app has open and that have not changed for {STALE_DAYS} days.": {
+    "one": "{n} tijdelijk item dat geen draaiende app open heeft en dat {STALE_DAYS} dagen niet is gewijzigd.",
+    "other": "{n} tijdelijke items die geen draaiende app open heeft en die {STALE_DAYS} dagen niet zijn gewijzigd."
+  },
+  "{n} Time Machine local snapshots": "{n} lokale Time Machine-momentopnamen",
+  "An app is using these files now.": "Een app gebruikt deze bestanden nu.",
+  "Freeboard couldn't check which temporary files apps still use.": "Freeboard kon niet controleren welke tijdelijke bestanden apps nog gebruiken.",
+  "Freeboard couldn't confirm your newest Time Machine backup, so local snapshots are left alone.": "Freeboard kon je nieuwste Time Machine-reservekopie niet bevestigen, dus lokale momentopnamen blijven staan.",
+  "Leftover temporary files": "Achtergebleven tijdelijke bestanden",
+  "Local copies Time Machine keeps on this disk. A newer backup on your backup disk already has these files.": "Lokale kopieën die Time Machine op deze schijf bewaart. Een nieuwere reservekopie op je reservekopieschijf heeft deze bestanden al.",
+  "Not recoverable, but the newer backup on your backup disk has the same files.": "Niet terug te halen, maar de nieuwere reservekopie op je reservekopieschijf heeft dezelfde bestanden.",
+  "Older than your newest backup": "Ouder dan je nieuwste reservekopie",
+  "Restore them from the Trash.": "Zet ze terug uit de prullenmand.",
+  "Snapshot of {0}": "Momentopname van {0}",
+  "Temporary files apps left behind": "Tijdelijke bestanden die apps hebben achtergelaten",
+  "There is no newer backup than this snapshot any more.": "Er is geen reservekopie meer die nieuwer is dan deze momentopname.",
+  "Time Machine could not list its local snapshots.": "Time Machine kon zijn lokale momentopnamen niet opsommen.",
+  "Time Machine local snapshots": "Lokale Time Machine-momentopnamen",
+  "Unchanged for {STALE_DAYS}+ days, not in use": "{STALE_DAYS}+ dagen ongewijzigd, niet in gebruik",
+  "Unknown system detector.": "Onbekende systeemdetector.",
+  "Your temporary folder": "Je tijdelijke map"
 }

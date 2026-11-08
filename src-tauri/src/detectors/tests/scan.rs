@@ -55,6 +55,18 @@ fn world(fx: &mut Fx) -> PathBuf {
         fx.write(&format!(".rustup/toolchains/{t}/bin/rustc"), &vec![1u8; 4096]);
     }
     fx.tool("rustup", "echo 'stable-aarch64-apple-darwin (default)'; echo '1.70.0-aarch64-apple-darwin'");
+    let dup: Vec<u8> = (0..1_200_000u32).map(|i| (i % 251) as u8).collect();
+    fx.write("projects/photos-a/pic.raw", &dup);
+    fx.write("projects/photos-b/pic.raw", &dup);
+    let video = fx.write("Downloads/old-talk.mp4", &vec![1u8; 8192]);
+    std::fs::File::options().write(true).open(&video).unwrap().set_len(600_000_000).unwrap();
+    let mdls = fx.root.join("mdls");
+    std::fs::create_dir_all(&mdls).unwrap();
+    std::fs::write(mdls.join("Old Tool.app"), "kMDItemCFBundleIdentifier = \"com.example.tool\"\nkMDItemLastUsedDate       = 2024-01-01 00:00:00 +0000\n").unwrap();
+    fx.write("Applications/Old Tool.app/Contents/MacOS/tool", &vec![1u8; 4096]);
+    fx.tool("mdls", &format!("shift 4; for p in \"$@\"; do cat '{}'/\"$(basename \"$p\")\" || exit 1; done", mdls.display()));
+    fx.tool("tmutil", "case \"$1\" in listlocalsnapshots) printf 'Snapshots for disk /:\\ncom.apple.TimeMachine.2026-10-01-101010.local\\n';; latestbackup) echo /Volumes/B/2026-11-01-101010.backup;; esac");
+    fx.write("tmp/leftover.dat", &vec![1u8; 4096]);
 
     // Traps: a link into a precious tree outside the scan roots, a link
     // loop, and an excluded folder containing a valid project.
@@ -62,6 +74,14 @@ fn world(fx: &mut Fx) -> PathBuf {
     std::fs::create_dir_all(precious.join("node_modules/x")).unwrap();
     std::fs::write(precious.join("package.json"), b"{}").unwrap();
     std::fs::write(precious.join("package-lock.json"), b"{}").unwrap();
+    // Copies of the duplicate files and a big video behind the link trap: a
+    // walk that followed links would offer them.
+    let dup: Vec<u8> = (0..1_200_000u32).map(|i| (i % 251) as u8).collect();
+    std::fs::write(precious.join("pic.raw"), &dup).unwrap();
+    std::fs::write(precious.join("pic copy.raw"), &dup).unwrap();
+    let pv = precious.join("film.mp4");
+    std::fs::write(&pv, vec![1u8; 8192]).unwrap();
+    std::fs::File::options().write(true).open(&pv).unwrap().set_len(600_000_000).unwrap();
     std::os::unix::fs::symlink(&precious, fx.home.join("projects/trap")).unwrap();
     std::os::unix::fs::symlink(fx.home.join("projects"), fx.home.join("projects/web/loop")).unwrap();
     std::os::unix::fs::symlink(&precious, fx.home.join("projects/web/node_modules/escape")).unwrap();
@@ -69,6 +89,9 @@ fn world(fx: &mut Fx) -> PathBuf {
     fx.settings.exclusions = vec![fx.home.join("projects/excluded").to_string_lossy().to_string()];
     age(&fx.home, 120);
     age(&precious, 120);
+    // Videos count as old after 6 months.
+    age(&fx.home.join("Downloads/old-talk.mp4"), 200);
+    age(&precious.join("film.mp4"), 200);
     precious
 }
 
@@ -139,6 +162,11 @@ fn every_detector_runs_and_contract_is_complete() {
         "mobile.android_avd",
         "tools.node_versions",
         "tools.rust_toolchains",
+        "apps.unused",
+        "files.duplicates",
+        "files.large_media",
+        "system.snapshots",
+        "system.stale_temp",
         "files.installers",
     ] {
         assert!(ids.contains(id), "missing {id}: {ids:?}");

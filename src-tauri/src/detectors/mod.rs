@@ -14,6 +14,7 @@ pub mod files;
 pub mod git;
 pub mod mobile;
 pub mod projects;
+pub mod system;
 pub mod tools;
 
 #[cfg(test)]
@@ -58,6 +59,8 @@ pub fn all() -> Vec<Box<dyn Detector>> {
         Box::new(files::WindowsTemp),
         Box::new(dupes::Duplicates),
         Box::new(dupes::LargeMedia),
+        Box::new(system::Snapshots),
+        Box::new(system::StaleTemp),
     ]
 }
 
@@ -98,6 +101,8 @@ pub fn probe_with(finding: &Finding, ctx: &ScanContext, guard: &Guard) -> Probe 
         tools::probe(finding, ctx, guard)
     } else if det == apps::UNUSED {
         apps::probe(finding, ctx, guard)
+    } else if det.starts_with("system.") {
+        system::probe(finding, ctx, guard)
     } else if det.starts_with("ai.") {
         ai::probe(finding, ctx, guard)
     } else if det == dupes::DUPLICATES || det == dupes::LARGE_MEDIA {
