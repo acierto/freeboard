@@ -565,5 +565,17 @@
   "wt.sort": "Jetzt ordnen",
   "wt.sorting": "Scan läuft…",
   "wt.ack1": "Mir ist klar, dass diese 1 Datei endgültig weg ist. Lass ihn mich auswählen.",
-  "wt.ackN": "Mir ist klar, dass diese {n} Dateien endgültig weg sind. Lass ihn mich auswählen."
+  "wt.ackN": "Mir ist klar, dass diese {n} Dateien endgültig weg sind. Lass ihn mich auswählen.",
+  "k.title": "Halte mich ordentlich",
+  "k.note": "Optional. Jede Regel betrifft nur sichere Einträge, und jeder Lauf steht im Logbuch.",
+  "k.caches": "Paket-Caches älter als 30 Tage leeren, wenn der Platz knapp ist",
+  "k.docker": "Jede Woche den ungenutzten Docker-Build-Cache leeren",
+  "k.removes": "Wenn sie läuft, entfernt sie: {x}.",
+  "k.only": "Nur als sicher markierte Einträge, nie etwas, das du behalten wolltest. Jeder Lauf steht im Logbuch.",
+  "k.turnon": "Einschalten",
+  "k.cancel": "Abbrechen",
+  "k.lastdone": "Der letzte Lauf hat {x} freigegeben.",
+  "k.lastnothing": "Der letzte Lauf fand nichts zu leeren.",
+  "k.lastfailed": "Der letzte Lauf wurde gestoppt. Das Logbuch sagt, warum.",
+  "lg.rule": "Halte mich ordentlich: {x}"
 }

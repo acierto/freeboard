@@ -565,5 +565,17 @@
   "wt.sort": "Nu sorteren",
   "wt.sorting": "Scannen…",
   "wt.ack1": "Ik begrijp dat dit ene bestand voorgoed weg is. Laat me hem selecteren.",
-  "wt.ackN": "Ik begrijp dat deze {n} bestanden voorgoed weg zijn. Laat me hem selecteren."
+  "wt.ackN": "Ik begrijp dat deze {n} bestanden voorgoed weg zijn. Laat me hem selecteren.",
+  "k.title": "Houd me netjes",
+  "k.note": "Optioneel. Elke regel gaat alleen over veilige items, en elke run staat in het logboek.",
+  "k.caches": "Pakketcaches ouder dan 30 dagen wissen als de ruimte laag is",
+  "k.docker": "Elke week de ongebruikte Docker-buildcache wissen",
+  "k.removes": "Als hij draait, verwijdert hij: {x}.",
+  "k.only": "Alleen items die als veilig zijn gemarkeerd, nooit iets dat je wilde houden. Elke run staat in het logboek.",
+  "k.turnon": "Aanzetten",
+  "k.cancel": "Annuleren",
+  "k.lastdone": "Laatste run maakte {x} vrij.",
+  "k.lastnothing": "Laatste run vond niets om te wissen.",
+  "k.lastfailed": "Laatste run is gestopt. Het logboek zegt waarom.",
+  "lg.rule": "Houd me netjes: {x}"
 }

@@ -77,7 +77,7 @@ Implement one group at a time. Each exit gate must pass on macOS, Linux and Wind
 
 ## 6. Keep me tidy and release
 
-- [ ] 6.1 Implement `rules/`: both rules, off by default, rule-sourced plans through `cleanup::run`, low priority, `tidy_rule_ran`, and Logbook records. Verify the off-by-default, kept-item, Review-in-scope and weekly-run tests.
+- [x] 6.1 Implement `rules/`: both rules, off by default, rule-sourced plans through `cleanup::run`, low priority, `tidy_rule_ran`, and Logbook records. Verify the off-by-default, kept-item, Review-in-scope and weekly-run tests.
 - [ ] 6.2 Wire the Keep me tidy toggles with the "what it will remove" statement. Verify the UI test, the visual entry and the real app.
 - [ ] 6.3 Add the just-in-time permission flow (macOS Full Disk Access from its blind spot). Verify the no-early-prompt test.
 - [ ] 6.4 Complete the Settings sheet (scan schedule, startup, notifications, battery, extra volumes). Verify validation and visual entries.

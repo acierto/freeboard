@@ -498,6 +498,37 @@ impl Store {
             != 0
     }
 
+    /// Turn a rule on or off (`set_tidy_rule`).
+    pub fn set_tidy_rule(&self, rule_id: &str, enabled: bool, now: i64) -> Result<(), StoreError> {
+        self.conn().execute(
+            "INSERT INTO tidy_rules(rule_id, enabled, at) VALUES (?1, ?2, ?3) ON CONFLICT(rule_id) DO UPDATE SET enabled = excluded.enabled, at = excluded.at",
+            params![rule_id, enabled as i64, now],
+        )?;
+        Ok(())
+    }
+
+    /// Record one rule run (kept 1 year, see `prune`).
+    pub fn insert_tidy_run(&self, id: &str, rule_id: &str, run_id: Option<&str>, at: i64, result: &str, bytes_freed: i64) -> Result<(), StoreError> {
+        self.conn().execute(
+            "INSERT INTO tidy_runs(id, rule_id, run_id, at, result, bytes_freed) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+            params![id, rule_id, run_id, at, result, bytes_freed],
+        )?;
+        Ok(())
+    }
+
+    /// The newest run of a rule: (at, result, bytes freed).
+    pub fn last_tidy_run(&self, rule_id: &str) -> Option<(i64, String, i64)> {
+        self.conn()
+            .query_row(
+                "SELECT at, result, bytes_freed FROM tidy_runs WHERE rule_id = ?1 ORDER BY at DESC, rowid DESC LIMIT 1",
+                [rule_id],
+                |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
+            )
+            .optional()
+            .ok()
+            .flatten()
+    }
+
     // ----- retention ------------------------------------------------------
 
     /// Apply source retention rules relative to `now`.

@@ -23,6 +23,7 @@
   "Xcode DerivedData",
   "docker ps -a --filter status=exited",
   "echo 'Snapshots for disk /:'; echo com.apple.TimeMachine.2026-11-04-101010.local",
+  "failed: {e}",
   "git clean is banned",
   "handled above",
   "iCloud Drive",

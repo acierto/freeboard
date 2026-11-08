@@ -4,9 +4,11 @@
 import { isWorktree } from "../worktrees/worktreesModel";
 import { areaName, t } from "../../i18n";
 import { itemName, tb } from "../../i18n/backend";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { api, errorText } from "../../lib/api";
+import { track } from "../../lib/useBusy";
 import { GROUPS, RISK_LABEL, gb } from "../../lib/format";
-import type { ItemDecision, PileState, Suggestion } from "../../lib/types";
+import type { ItemDecision, PileState, Suggestion, TidyRule, TidyRuleId } from "../../lib/types";
 import { questionDeck } from "../home/homeModel";
 import { age, cmdFor } from "../cleanup/cleanupModel";
 import { Parts } from "./Parts";
@@ -305,6 +307,65 @@ function Everything({ items, pile, chosen, act }: { items: Suggestion[]; pile: P
         })}
         <PileBar pile={pile} act={act} />
       </div>
+      <KeepMeTidy />
+    </div>
+  );
+}
+
+const RULE_LABEL: Record<TidyRuleId, string> = { package_caches: "k.caches", docker_build_cache: "k.docker" };
+
+/** Keep me tidy (prototype, end of `everything()`): two rules, off until
+ * turned on. Turning one on first says exactly what it will remove
+ * (spec "Keep me tidy rules"); only then is it saved. */
+function KeepMeTidy() {
+  const [rules, setRules] = useState<TidyRule[] | null>(null);
+  const [asking, setAsking] = useState<TidyRuleId | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    track(api.getTidyRules()).then(setRules, (e) => setError(errorText(e)));
+  }, []);
+  const save = (id: TidyRuleId, on: boolean) => {
+    setAsking(null);
+    track(api.setTidyRule(id, on)).then(setRules, (e) => setError(errorText(e)));
+  };
+  return (
+    <div className="card stack" id="keep-tidy">
+      <h3>{t("k.title")}</h3>
+      <p className="note">{t("k.note")}</p>
+      {(rules ?? []).map((r) => (
+        <div key={r.id} className="stack" style={{ gap: 6 }}>
+          <label className="toggle">
+            <input
+              type="checkbox"
+              id={r.id === "package_caches" ? "auto-caches" : "auto-docker"}
+              data-auto={r.id}
+              checked={r.enabled || asking === r.id}
+              onChange={(e) => (e.target.checked ? setAsking(r.id) : asking === r.id ? setAsking(null) : save(r.id, false))}
+            />
+            <span>{t(RULE_LABEL[r.id])}</span>
+          </label>
+          {asking === r.id && (
+            <div className="tidy-ask" role="group" aria-label={t(RULE_LABEL[r.id])} data-supplemental="tidy-confirm">
+              <p className="note">{t("k.removes", { x: r.removes.map((d) => tb(d)).join(", ") })}</p>
+              <p className="note">{t("k.only")}</p>
+              <div className="row" style={{ gap: 8 }}>
+                <button className="btn primary" data-act="tidy-on" onClick={() => save(r.id, true)}>
+                  {t("k.turnon")}
+                </button>
+                <button className="btn" data-act="tidy-cancel" onClick={() => setAsking(null)}>
+                  {t("k.cancel")}
+                </button>
+              </div>
+            </div>
+          )}
+          {r.enabled && r.lastRunAt && (
+            <p className="note" data-supplemental="tidy-last">
+              {r.lastResult === "done" ? t("k.lastdone", { x: gb(Math.max(0, r.lastBytesFreed ?? 0)) }) : r.lastResult === "nothing" ? t("k.lastnothing") : t("k.lastfailed")}
+            </p>
+          )}
+        </div>
+      ))}
+      {error && <p className="muted">{tb(error)}</p>}
     </div>
   );
 }

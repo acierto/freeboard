@@ -565,5 +565,17 @@
   "wt.sort": "Ordenarlos ahora",
   "wt.sorting": "Escaneando…",
   "wt.ack1": "Entiendo que este archivo se perderá para siempre. Déjame seleccionarlo.",
-  "wt.ackN": "Entiendo que estos {n} archivos se perderán para siempre. Déjame seleccionarlo."
+  "wt.ackN": "Entiendo que estos {n} archivos se perderán para siempre. Déjame seleccionarlo.",
+  "k.title": "Mantenme ordenado",
+  "k.note": "Opcional. Cada regla solo cubre elementos seguros, y cada ejecución aparece en el registro.",
+  "k.caches": "Vaciar las cachés de paquetes de más de 30 días cuando quede poco espacio",
+  "k.docker": "Vaciar cada semana la caché de compilación de Docker sin usar",
+  "k.removes": "Cuando se ejecuta, elimina: {x}.",
+  "k.only": "Solo elementos marcados como seguros, nunca nada que hayas decidido conservar. Cada ejecución aparece en el registro.",
+  "k.turnon": "Activar",
+  "k.cancel": "Cancelar",
+  "k.lastdone": "La última ejecución liberó {x}.",
+  "k.lastnothing": "La última ejecución no encontró nada que vaciar.",
+  "k.lastfailed": "La última ejecución se detuvo. El registro dice por qué.",
+  "lg.rule": "Mantenme ordenado: {x}"
 }

@@ -649,6 +649,31 @@ async function tabStaysInside(p, n = 10) {
   await ctx.close();
 }
 
+// Keep me tidy (spec "Keep me tidy rules"): both off; turning one on first
+// says exactly what it removes, and only Turn on saves it.
+{
+  const { p, ctx } = await page();
+  await p.click("#tab-tidy");
+  await p.waitForSelector("#keep-tidy #auto-caches");
+  check("tidy: both rules are off", !(await p.isChecked("#auto-caches")) && !(await p.isChecked("#auto-docker")));
+  await p.evaluate(() => (window.__FIXTURE_CALLS__ = []));
+  await p.click("#auto-caches");
+  const says = await p.textContent("#keep-tidy .tidy-ask");
+  check("tidy: turning on lists what it removes before saving", says.includes("pnpm store, pip cache, npm cache, Homebrew cache") && !(await calls(p)).includes("set_tidy_rule"), says);
+  await p.click('[data-act="tidy-cancel"]');
+  check("tidy: Cancel leaves it off", !(await p.isChecked("#auto-caches")) && !(await calls(p)).includes("set_tidy_rule") && !(await p.$("#keep-tidy .tidy-ask")));
+  await p.click("#auto-docker");
+  await p.click('[data-act="tidy-on"]');
+  await idle(p);
+  const set = (await p.evaluate(() => window.__FIXTURE_CALLS__)).filter((c) => c.cmd === "set_tidy_rule");
+  check("tidy: Turn on saves that rule only", set.length === 1 && JSON.stringify(set[0].args) === '{"ruleId":"docker_build_cache","enabled":true}' && (await p.isChecked("#auto-docker")), JSON.stringify(set));
+  await p.click("#auto-docker");
+  await idle(p);
+  const off = (await p.evaluate(() => window.__FIXTURE_CALLS__)).filter((c) => c.cmd === "set_tidy_rule");
+  check("tidy: turning off saves at once", off.length === 2 && off[1].args.enabled === false && !(await p.isChecked("#auto-docker")));
+  await ctx.close();
+}
+
 await browser.close();
 server.close();
 for (const r of results) console.log(`${r.ok ? "PASS" : "FAIL"}  ${r.name}${r.ok || !r.detail ? "" : "  (" + r.detail + ")"}`);

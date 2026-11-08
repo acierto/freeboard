@@ -531,6 +531,9 @@ pub struct RunSummary {
     #[serde(default)]
     pub removed: u32,
     pub state: String,
+    /// The Keep me tidy rule that ran it; None for a cleanup the user confirmed.
+    #[serde(default)]
+    pub rule: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -570,6 +573,7 @@ pub const EV_CLEANUP_FINISHED: &str = "cleanup_finished";
 pub const EV_PILE_CHANGED: &str = "pile_changed";
 pub const EV_DISK_MAP_CHANGED: &str = "disk_map_changed";
 pub const EV_BLIND_SPOTS_CHANGED: &str = "blind_spots_changed";
+pub const EV_TIDY_RULE_RAN: &str = "tidy_rule_ran";
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

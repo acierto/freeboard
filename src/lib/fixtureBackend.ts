@@ -25,7 +25,7 @@ import { firstSupported, type LanguagePref } from "../i18n";
 // cleaned in part keeps its other parts listed.
 
 import type { Backend } from "./api";
-import type { AppStatus, BlindSpot, CleanupPlan, DiskMap, EventMap, Goal, Group, PileState, PlaceChecked, Platform, RunDetail, RunItem, RunSummary, Settings, Suggestion, WorktreesView, WtStatus } from "./types";
+import type { AppStatus, BlindSpot, CleanupPlan, DiskMap, EventMap, Goal, Group, PileState, PlaceChecked, Platform, RunDetail, RunItem, RunSummary, Settings, Suggestion, TidyRule, WorktreesView, WtStatus } from "./types";
 
 export const FIXTURE_MARKER = "FREEBOARD_FIXTURE_BACKEND";
 const G = 1e9;
@@ -641,7 +641,14 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
     skipped: d.skipped,
     removed: new Set(d.items.filter((i) => i.state === "done" || i.state === "moved_to_trash").map((i) => i.parentId ?? i.itemId)).size,
     state: d.state,
+    rule: null,
   });
+
+  // Keep me tidy: both off, as on a fresh install (spec "Default settings").
+  let tidy: TidyRule[] = [
+    { id: "package_caches", enabled: false, removes: ["pnpm store", "pip cache", "npm cache", "Homebrew cache"], lastRunAt: null, lastResult: null, lastBytesFreed: null },
+    { id: "docker_build_cache", enabled: false, removes: ["Docker build cache"], lastRunAt: null, lastResult: null, lastBytesFreed: null },
+  ];
 
   // Prototype SAMPLE_LOG: Oct 28 (7 crates, 21.4 GB, 1.2 GB in the Trash) and
   // Oct 12 (11 crates, 34.9 GB, 1 skipped), with made-up run details.
@@ -932,6 +939,11 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
       page: 0,
       hasMore: false,
     }),
+    get_tidy_rules: () => tidy,
+    set_tidy_rule: (a) => {
+      tidy = tidy.map((r) => (r.id === a.ruleId ? { ...r, enabled: !!a.enabled } : r));
+      return tidy;
+    },
     set_notifications_paused: (a) => a.paused,
     close_tray_view: () => undefined,
     review_pile: () => undefined,

@@ -565,5 +565,17 @@
   "wt.sort": "Les classer maintenant",
   "wt.sorting": "Analyse…",
   "wt.ack1": "Je comprends que ce fichier sera perdu pour de bon. Laissez-moi le sélectionner.",
-  "wt.ackN": "Je comprends que ces {n} fichiers seront perdus pour de bon. Laissez-moi le sélectionner."
+  "wt.ackN": "Je comprends que ces {n} fichiers seront perdus pour de bon. Laissez-moi le sélectionner.",
+  "k.title": "Garde-moi en ordre",
+  "k.note": "Facultatif. Chaque règle ne couvre que des éléments sûrs, et chaque passage figure dans le journal.",
+  "k.caches": "Vider les caches de paquets de plus de 30 jours quand l'espace est bas",
+  "k.docker": "Vider chaque semaine le cache de build Docker inutilisé",
+  "k.removes": "Quand elle s'exécute, elle supprime : {x}.",
+  "k.only": "Uniquement les éléments marqués sûrs, jamais ce que vous avez choisi de garder. Chaque passage figure dans le journal.",
+  "k.turnon": "Activer",
+  "k.cancel": "Annuler",
+  "k.lastdone": "Le dernier passage a libéré {x}.",
+  "k.lastnothing": "Le dernier passage n'a rien trouvé à vider.",
+  "k.lastfailed": "Le dernier passage s'est arrêté. Le journal indique pourquoi.",
+  "lg.rule": "Garde-moi en ordre : {x}"
 }

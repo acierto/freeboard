@@ -12,6 +12,7 @@ pub mod guard;
 pub mod i18n;
 pub mod model;
 pub mod risk_notes;
+pub mod rules;
 pub mod monitor;
 pub mod platform;
 pub mod runner;
@@ -409,6 +410,8 @@ mod shell {
                 crate::commands::get_places_checked,
                 crate::commands::get_growth,
                 crate::commands::create_disk_report,
+                crate::commands::get_tidy_rules,
+                crate::commands::set_tidy_rule,
                 crate::commands::get_settings,
                 crate::commands::update_settings,
                 crate::commands::add_folder,

@@ -349,6 +349,22 @@ export interface RunSummary {
   /** Crates removed or moved to the Trash, at least in part. */
   removed: number;
   state: string;
+  /** The Keep me tidy rule that ran it; null for a cleanup you confirmed. */
+  rule?: TidyRuleId | null;
+}
+
+export type TidyRuleId = "package_caches" | "docker_build_cache";
+
+/** A Keep me tidy rule (spec "Keep me tidy rules"). */
+export interface TidyRule {
+  id: TidyRuleId;
+  enabled: boolean;
+  /** What it removes, as places-checked names ("pnpm store"). */
+  removes: string[];
+  lastRunAt: string | null;
+  /** "done", "nothing" or "failed: <reason>". */
+  lastResult: string | null;
+  lastBytesFreed: number | null;
 }
 
 export interface LogbookPage {

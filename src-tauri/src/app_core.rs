@@ -590,6 +590,66 @@ impl AppCore {
         }
         if !canceled {
             self.map_changed(true);
+            self.run_tidy_rules();
+        }
+    }
+
+    // ----- Keep me tidy rules (spec "Keep me tidy rules", design D7) --------
+
+    pub fn get_tidy_rules(&self) -> CmdResult<Vec<crate::rules::TidyRule>> {
+        Ok(crate::rules::RULES
+            .iter()
+            .map(|r| {
+                let last = self.store.last_tidy_run(r.id);
+                crate::rules::TidyRule {
+                    id: r.id.into(),
+                    enabled: self.store.tidy_rule_enabled(r.id),
+                    removes: r.detectors.iter().map(|d| diskmap::detector_label(d)).collect(),
+                    last_run_at: last.as_ref().and_then(|l| crate::detectors::common::rfc3339(l.0)),
+                    last_result: last.as_ref().map(|l| l.1.clone()),
+                    last_bytes_freed: last.map(|l| l.2),
+                }
+            })
+            .collect())
+    }
+
+    pub fn set_tidy_rule(&self, rule: crate::rules::TidyRuleId, enabled: bool) -> CmdResult<Vec<crate::rules::TidyRule>> {
+        self.store.set_tidy_rule(rule.as_str(), enabled, self.now())?;
+        self.get_tidy_rules()
+    }
+
+    /// Run every rule that is on and due, one after the other, at low
+    /// priority, through the cleanup engine's rule-sourced plans. A rule that
+    /// finds nothing still records that it looked, so it waits its interval.
+    pub fn run_tidy_rules(&self) {
+        let rules: Vec<crate::rules::Rule> = crate::rules::RULES.iter().copied().filter(|r| self.store.tidy_rule_enabled(r.id)).collect();
+        if rules.is_empty() {
+            return;
+        }
+        crate::platform::lower_thread_priority();
+        let status = self.get_status().map(|s| s.status).unwrap_or(DiskStatus::Healthy);
+        for rule in rules {
+            let now = self.now();
+            let last = self.store.last_tidy_run(rule.id).map(|l| l.0);
+            if !crate::rules::due(&rule, status, last, now) {
+                continue;
+            }
+            let findings = self.store.findings().unwrap_or_default();
+            let ids = crate::rules::eligible(&rule, &findings, now);
+            let (result, bytes, run_id) = if ids.is_empty() {
+                ("nothing".to_string(), 0, None)
+            } else {
+                match self.cleanup.create_rule_plan(rule.id, &ids, now).and_then(|p| self.cleanup.run_plan_blocking(&p.id, now)) {
+                    Ok(run) => {
+                        let freed = self.cleanup.get_run(&run).ok().and_then(|r| r.measured_bytes_freed).unwrap_or(0);
+                        ("done".to_string(), freed, Some(run))
+                    }
+                    Err(e) => (format!("failed: {e}"), 0, None),
+                }
+            };
+            let id = format!("tidy-{}-{now}", rule.id);
+            let _ = self.store.insert_tidy_run(&id, rule.id, run_id.as_deref(), now, &result, bytes);
+            self.emit(EV_TIDY_RULE_RAN, &crate::rules::TidyRuleRan { rule_id: rule.id.into(), result, bytes_freed: bytes, run_id });
         }
     }
 

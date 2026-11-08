@@ -53,3 +53,8 @@ html.tray-native, html.tray-native body { background: transparent; }
    on its tint is under WCAG AA contrast at 11 px in the light theme; mixed
    with the ink colour it passes in both themes. */
 .wt-ag:not(.lock) { color: color-mix(in srgb, var(--accent) 70%, var(--ink)); }
+
+/* Keep me tidy: what a rule removes, before it is turned on (spec "Keep me
+   tidy rules": turning a rule on must state exactly what it will remove).
+   The prototype's switches turn on at once; the look follows its risk box. */
+.tidy-ask { display: flex; flex-direction: column; gap: 8px; border: 2px solid var(--line); border-radius: 16px; padding: 10px 14px; background: var(--soft); font-size: 14px; }

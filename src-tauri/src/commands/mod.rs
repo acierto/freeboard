@@ -8,6 +8,7 @@ use tauri::State;
 use crate::app_core::{AppCore, BlindSpotResult, CmdResult, CommandError, FolderList, PlanSource, SuggestionFilter, VolumeId};
 use crate::diskmap::{AreaGrowth, BlindSpot, BlindSpotAction, DiskMap, PlaceChecked};
 use crate::model::*;
+use crate::rules::TidyRuleId;
 use crate::settings::{Goal, Settings, UiSettingsPatch};
 
 type Core<'a> = State<'a, Arc<AppCore>>;
@@ -149,6 +150,16 @@ pub async fn get_places_checked(core: Core<'_>) -> CmdResult<Vec<PlaceChecked>> 
 #[tauri::command]
 pub async fn get_growth(core: Core<'_>, days: u32) -> CmdResult<Vec<AreaGrowth>> {
     core.get_growth(days)
+}
+
+#[tauri::command]
+pub async fn get_tidy_rules(core: Core<'_>) -> CmdResult<Vec<crate::rules::TidyRule>> {
+    core.get_tidy_rules()
+}
+
+#[tauri::command]
+pub async fn set_tidy_rule(core: Core<'_>, rule_id: TidyRuleId, enabled: bool) -> CmdResult<Vec<crate::rules::TidyRule>> {
+    core.set_tidy_rule(rule_id, enabled)
 }
 
 #[tauri::command]

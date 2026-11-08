@@ -565,5 +565,17 @@
   "wt.sort": "Sort them now",
   "wt.sorting": "Scanning…",
   "wt.ack1": "I understand this 1 file will be gone for good. Let me select it.",
-  "wt.ackN": "I understand these {n} files will be gone for good. Let me select it."
+  "wt.ackN": "I understand these {n} files will be gone for good. Let me select it.",
+  "k.title": "Keep me tidy",
+  "k.note": "Optional. Each rule only covers Safe items, and every run shows in the Logbook.",
+  "k.caches": "Clear package caches over 30 days old when space is Low",
+  "k.docker": "Clear unused Docker build cache every week",
+  "k.removes": "When it runs, it removes: {x}.",
+  "k.only": "Only items marked Safe, never anything you chose to keep. Every run shows in the Logbook.",
+  "k.turnon": "Turn on",
+  "k.cancel": "Cancel",
+  "k.lastdone": "Last run freed {x}.",
+  "k.lastnothing": "Last run found nothing to clear.",
+  "k.lastfailed": "Last run stopped. The Logbook says why.",
+  "lg.rule": "Keep me tidy: {x}"
 }

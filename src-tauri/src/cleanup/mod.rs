@@ -104,6 +104,10 @@ struct PlanSnapshot {
     /// A separately confirmed permanent-deletion plan for items whose move to
     /// the Trash failed.
     permanent: bool,
+    /// A Keep me tidy rule's plan: runs without the user's confirmation, so
+    /// it may hold only what that rule allows (checked here and at start).
+    #[serde(default)]
+    rule: Option<String>,
 }
 
 /// A plan item as confirmed: what the confirmation showed, the parts it
@@ -266,17 +270,25 @@ impl CleanupEngine {
     // ----- plans ---------------------------------------------------------
 
     pub fn create_plan(&self, item_ids: &[String], now: i64) -> Result<CleanupPlan, CleanupError> {
-        self.create(item_ids, now, false)
+        self.create(item_ids, now, false, None)
+    }
+
+    /// A Keep me tidy rule's plan (design D7): only Safe, unkept items of the
+    /// rule's own detectors, every selected part included. Only `rules` calls
+    /// this; `start` checks the same again.
+    pub fn create_rule_plan(&self, rule_id: &str, item_ids: &[String], now: i64) -> Result<CleanupPlan, CleanupError> {
+        let rule = crate::rules::rule(rule_id).ok_or_else(|| CleanupError::NotEligible(rule_id.into()))?;
+        self.create(item_ids, now, false, Some(rule))
     }
 
     /// A new, separately confirmed plan that permanently deletes items whose
     /// move to the Trash failed because no usable Trash exists. Every item is
     /// marked unrecoverable and needs its own acknowledgment.
     pub fn create_permanent_plan(&self, item_ids: &[String], now: i64) -> Result<CleanupPlan, CleanupError> {
-        self.create(item_ids, now, true)
+        self.create(item_ids, now, true, None)
     }
 
-    fn create(&self, item_ids: &[String], now: i64, permanent: bool) -> Result<CleanupPlan, CleanupError> {
+    fn create(&self, item_ids: &[String], now: i64, permanent: bool, rule: Option<crate::rules::Rule>) -> Result<CleanupPlan, CleanupError> {
         let mut ids: Vec<String> = vec![];
         for id in item_ids {
             if !ids.contains(id) {
@@ -299,6 +311,9 @@ impl CleanupEngine {
             }
             if s.action == Action::None || matches!(f.target, Target::None) {
                 return Err(CleanupError::Blocked("No cleanup action is available.".into()));
+            }
+            if rule.is_some_and(|r| !crate::rules::allows(&r, s)) {
+                return Err(CleanupError::NotEligible(id.clone()));
             }
             let mut shown = s.clone();
             shown.skip_reason = None;
@@ -350,6 +365,9 @@ impl CleanupEngine {
                     make_permanent(&mut st.suggestion);
                 }
             }
+            if rule.is_some_and(|r| steps.iter().any(|st| !crate::rules::allows(&r, &st.suggestion))) {
+                return Err(CleanupError::NotEligible(id.clone()));
+            }
             // Within an item, the biggest parts go first too.
             steps.sort_by(|a, b| b.suggestion.size_bytes.cmp(&a.suggestion.size_bytes));
             entries.push(PlanEntry { suggestion: shown, part_ids, steps });
@@ -358,7 +376,7 @@ impl CleanupEngine {
         // items first (requested by the user, 2026-11-05). Stable, so equal
         // sizes keep the selection order.
         entries.sort_by(|a, b| b.suggestion.size_bytes.cmp(&a.suggestion.size_bytes));
-        let snap = PlanSnapshot { entries, permanent };
+        let snap = PlanSnapshot { entries, permanent, rule: rule.map(|r| r.id.to_string()) };
         let snapshot = serde_json::to_string(&snap).map_err(|e| CleanupError::Internal(e.to_string()))?;
         let row = PlanRow {
             id: self.new_id("plan"),
@@ -487,6 +505,16 @@ impl CleanupEngine {
         let snapshot: PlanSnapshot = serde_json::from_str(&row.snapshot).map_err(|_| CleanupError::Altered)?;
         if snapshot.entries.is_empty() || snapshot.entries.iter().any(|e| e.steps.is_empty()) {
             return Err(CleanupError::Empty);
+        }
+        // Invariant 2's one exception: a rule's plan runs unconfirmed, so it
+        // must hold only what its rule allows, part by part.
+        if let Some(r) = &snapshot.rule {
+            let Some(rule) = crate::rules::rule(r) else { return Err(CleanupError::Altered) };
+            if snapshot.permanent
+                || snapshot.entries.iter().any(|e| !crate::rules::allows(&rule, &e.suggestion) || e.steps.iter().any(|st| !crate::rules::allows(&rule, &st.suggestion)))
+            {
+                return Err(CleanupError::NotEligible(r.clone()));
+            }
         }
         let acks = persist::acks(&self.store.conn(), plan_id)?;
         if snapshot.entries.iter().any(|e| e.suggestion.needs_confirmation && !acks.contains(&e.suggestion.id)) {

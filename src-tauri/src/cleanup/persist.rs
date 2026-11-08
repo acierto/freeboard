@@ -316,7 +316,8 @@ pub fn list_runs(c: &Connection, page: u32, per_page: u32) -> R<HistoryPage> {
     let mut st = c.prepare(
         "SELECT r.id, r.started_at, r.free_before, r.free_after, r.trash_bytes, r.state,
                 (SELECT COUNT(*) FROM cleanup_items i WHERE i.run_id = r.id),
-                (SELECT COUNT(*) FROM cleanup_items i WHERE i.run_id = r.id AND i.state = 'skipped')
+                (SELECT COUNT(*) FROM cleanup_items i WHERE i.run_id = r.id AND i.state = 'skipped'),
+                (SELECT t.rule_id FROM tidy_runs t WHERE t.run_id = r.id LIMIT 1)
          FROM cleanup_runs r ORDER BY r.started_at DESC, r.rowid DESC LIMIT ?1 OFFSET ?2",
     )?;
     let mut runs = st
@@ -332,6 +333,7 @@ pub fn list_runs(c: &Connection, page: u32, per_page: u32) -> R<HistoryPage> {
                 skipped: r.get::<_, i64>(7)? as u32,
                 removed: 0,
                 state: r.get(5)?,
+                rule: r.get(8)?,
             })
         })?
         .collect::<R<Vec<_>>>()?;

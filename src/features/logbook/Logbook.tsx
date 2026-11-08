@@ -111,7 +111,7 @@ export function Logbook({ platform, refresh }: { platform: Platform; refresh: st
         >
           <span className="when muted">{when(r.startedAt)}</span>
           <span>
-            {line(r)}
+            {r.rule ? t("lg.rule", { x: line(r) }) : line(r)}
             {/* A block, not <br>: the prototype renders without a doctype,
                 where a small-font second line is shorter than in standards
                 mode; as a block it has that height in both. */}
