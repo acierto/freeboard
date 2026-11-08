@@ -61,7 +61,8 @@ Implement one group at a time. Each exit gate must pass on macOS, Linux and Wind
 - [x] 5.1 Add `cache.npm` (folder removal), `cache.jetbrains`, `cache.electron_apps` and `cache.playwright`. Verify fixture tests for evidence rules.
   - `cache.npm` landed earlier; the other three on 2026-11-08 (`tests::app_caches`).
 - [x] 5.2 Add `docker.disk_slack` as information-only, and check that the existing Docker detectors meet the used-image and attached-volume rules. Verify fixtures for stopped-container references, the 14-day age and the unavailable daemon.
-- [ ] 5.3 Add `ai.ollama` (per-model parts), `ai.huggingface` and `ai.lm_studio` (per-model parts), after checking each tool's real output. Verify with fake-executable and folder fixtures, including malformed output marking the detector unavailable.
+- [x] 5.3 Add `ai.ollama` (per-model parts), `ai.huggingface` and `ai.lm_studio` (per-model parts), after checking each tool's real output. Verify with fake-executable and folder fixtures, including malformed output marking the detector unavailable.
+  - Hugging Face's layout checked on a real cache (2026-11-08). Ollama and LM Studio are not installed on the development Mac; their formats come from the documented on-disk layouts (`docs/decisions.md`, 2026-11-08). Validate them on a machine with each tool before release.
 - [ ] 5.4 Add `mobile.ios_backups`, `mobile.android_avd` and `mobile.simulators` with parts. Verify fixtures for age thresholds and the unavailable-runtime rule.
 - [ ] 5.5 Add `tools.node_versions` and `tools.rust_toolchains`, with project-requested versions kept out. Verify fixtures where `.nvmrc`, `engines`, `rust-toolchain.toml` and `package.json` pin versions.
 - [ ] 5.6 Add `apps.unused` (macOS Trash per app; Windows and Linux link to the uninstaller), only when last-opened data exists, with the narrow guard exception and its positive and negative tests.

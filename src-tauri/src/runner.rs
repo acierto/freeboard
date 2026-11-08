@@ -130,7 +130,7 @@ impl Acknowledged {
     }
 }
 
-const PROGRAMS: &[&str] = &["docker", "git", "pnpm", "pip", "pip3", "brew", "xcrun", "npm", "lsof", "ps", "tmutil"];
+const PROGRAMS: &[&str] = &["docker", "git", "pnpm", "pip", "pip3", "brew", "xcrun", "npm", "lsof", "ps", "tmutil", "ollama"];
 
 fn is_force_flag(a: &str) -> bool {
     if a == "--force" || a.starts_with("--force=") || a == "-f" {
@@ -251,6 +251,8 @@ fn action_allowed(cmd: &Cmd) -> bool {
         "pnpm" => a == ["store", "prune"],
         "pip" | "pip3" => a == ["cache", "purge"],
         "brew" => a == ["cleanup"],
+        // One model by name; `ollama rm` takes several, but each part runs alone.
+        "ollama" => a.len() == 2 && a[0] == "rm" && crate::detectors::ai::safe_model_name(a[1]),
         "xcrun" => {
             a == ["simctl", "delete", "unavailable"]
                 // Bounded form: exact device UDIDs only.

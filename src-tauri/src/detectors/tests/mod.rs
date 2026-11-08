@@ -15,6 +15,8 @@ use crate::scan::{run_scan, Detector, ScanContext, ScanOutcome};
 use crate::settings::Settings;
 
 #[cfg(unix)]
+mod ai;
+#[cfg(unix)]
 mod app_caches;
 #[cfg(unix)]
 mod caches;

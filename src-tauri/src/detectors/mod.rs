@@ -3,6 +3,7 @@
 //! One `Detector` per source detector ID (`Detector::id()` equals each
 //! finding's `suggestion.detector`). Detectors only read (invariant 1).
 
+pub mod ai;
 pub mod app_caches;
 pub mod caches;
 pub mod common;
@@ -41,6 +42,9 @@ pub fn all() -> Vec<Box<dyn Detector>> {
         Box::new(app_caches::Playwright),
         Box::new(caches::Xcode),
         Box::new(caches::Simulators),
+        Box::new(ai::Ollama),
+        Box::new(ai::HuggingFace),
+        Box::new(ai::LmStudio),
         Box::new(files::Installers),
         Box::new(files::WindowsTemp),
     ]
@@ -77,6 +81,8 @@ pub fn probe_with(finding: &Finding, ctx: &ScanContext, guard: &Guard) -> Probe 
         app_caches::probe(finding, ctx, guard)
     } else if det.starts_with("cache.") || det == caches::SIMULATORS {
         caches::probe(finding, ctx, guard)
+    } else if det.starts_with("ai.") {
+        ai::probe(finding, ctx, guard)
     } else if det.starts_with("files.") {
         files::probe_paths(finding, ctx, guard)
     } else {
