@@ -592,5 +592,6 @@
   "Unchanged for {STALE_DAYS}+ days, not in use": "{STALE_DAYS}+ dagen ongewijzigd, niet in gebruik",
   "Unknown system detector.": "Onbekende systeemdetector.",
   "Your temporary folder": "Je tijdelijke map",
-  "Downloads is read once you add it as a scan folder, so macOS does not ask for access you did not choose to give.": "Downloads wordt gelezen zodra je het als scanmap toevoegt, zodat macOS niet vraagt om toegang die je niet zelf wilde geven."
+  "Downloads is read once you add it as a scan folder, so macOS does not ask for access you did not choose to give.": "Downloads wordt gelezen zodra je het als scanmap toevoegt, zodat macOS niet vraagt om toegang die je niet zelf wilde geven.",
+  "That disk is not connected any more.": "Die schijf is niet meer aangesloten."
 }

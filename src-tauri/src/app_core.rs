@@ -101,6 +101,23 @@ pub enum PlanSource {
     Items,
 }
 
+/// A disk Settings can watch besides the home volume.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct VolumeChoice {
+    pub id: String,
+    pub name: String,
+    /// Shown only; switching uses the ID.
+    pub mount_point: String,
+    pub total_bytes: u64,
+    pub free_bytes: u64,
+    pub watched: bool,
+}
+
+pub fn volume_choice_id(mount: &str) -> String {
+    format!("vol-{}", &crate::detectors::common::hash_hex(mount)[..12])
+}
+
 /// The volume a disk-map command is about. Only the home volume has a map.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -1145,6 +1162,40 @@ impl AppCore {
         Ok(self.cleanup.list_history(page)?)
     }
 
+    // ----- other disks to watch (Settings) ------------------------------------
+
+    /// Disks besides the home volume, each with a stable ID. The interface
+    /// switches one by ID; its mount point never comes back from it.
+    pub fn get_volumes(&self) -> CmdResult<Vec<VolumeChoice>> {
+        let watched = self.settings().extra_volumes;
+        Ok(self
+            .volumes
+            .candidates(&self.home)
+            .into_iter()
+            .map(|r| VolumeChoice {
+                id: volume_choice_id(&r.mount_point),
+                watched: watched.iter().any(|w| w == &r.mount_point),
+                name: if r.name.is_empty() { r.mount_point.clone() } else { r.name },
+                mount_point: r.mount_point,
+                total_bytes: r.total,
+                free_bytes: r.free,
+            })
+            .collect())
+    }
+
+    pub fn set_volume_watched(&self, volume_id: String, watched: bool) -> CmdResult<Vec<VolumeChoice>> {
+        let choices = self.get_volumes()?;
+        let v = choices.iter().find(|c| c.id == volume_id).ok_or_else(|| CommandError::new("unknown_volume", "That disk is not connected any more."))?;
+        let mut list: Vec<String> = self.settings().extra_volumes.into_iter().filter(|m| m != &v.mount_point).collect();
+        if watched {
+            list.push(v.mount_point.clone());
+        }
+        let patch = crate::settings::SettingsPatch { extra_volumes: Some(list), ..Default::default() };
+        self.apply_patch(patch)?;
+        let _ = self.tick_monitor();
+        self.get_volumes()
+    }
+
     pub fn get_settings(&self) -> CmdResult<Settings> {
         Ok(self.settings())
     }
@@ -1653,6 +1704,60 @@ pub(crate) mod tests {
         let s = core.undo_remove_folder().unwrap();
         assert!(s.scan_folders[0].ends_with("a") && s.scan_folders[1].ends_with("b"), "{:?}", s.scan_folders);
         assert!(core.undo_remove_folder().is_err(), "undo works once");
+    }
+
+    struct TwoDisks;
+    impl VolumeSource for TwoDisks {
+        fn read(&self, _home: &Path, extra: &[String]) -> Vec<VolumeReading> {
+            let mut v = vec![VolumeReading { id: "home".into(), name: "Disk".into(), mount_point: "/".into(), free: 50 * GB, total: 512 * GB }];
+            for e in extra {
+                v.push(VolumeReading { id: e.clone(), name: "Archive".into(), mount_point: e.clone(), free: 900 * GB, total: 2000 * GB });
+            }
+            v
+        }
+        fn candidates(&self, _home: &Path) -> Vec<VolumeReading> {
+            vec![
+                VolumeReading { id: "/Volumes/Archive".into(), name: "Archive".into(), mount_point: "/Volumes/Archive".into(), free: 900 * GB, total: 2000 * GB },
+                VolumeReading { id: "/Volumes/Photos".into(), name: "".into(), mount_point: "/Volumes/Photos".into(), free: 100 * GB, total: 500 * GB },
+            ]
+        }
+    }
+
+    #[test]
+    fn other_disks_are_switched_by_id_never_by_path() {
+        let d = tempfile::tempdir().unwrap();
+        let (base, ..) = core_with(50, d.path());
+        let core = AppCore::new(CoreConfig {
+            store: base.store.clone(),
+            runner: Runner::with_path(d.path()),
+            home: d.path().to_path_buf(),
+            volumes: Arc::new(TwoDisks),
+            events: Arc::new(MemorySink::default()),
+            detectors: Vec::new(),
+            clock: system_clock(),
+            platform: crate::platform::platform_name(),
+            extra_protected: vec![],
+            measure_outside_home: false,
+        });
+        let v = core.get_volumes().unwrap();
+        assert_eq!(v.len(), 2);
+        assert!(v.iter().all(|c| !c.watched && c.id.starts_with("vol-")));
+        // A volume without a name shows its mount point.
+        assert_eq!(v[1].name, "/Volumes/Photos");
+        let v = core.set_volume_watched(v[0].id.clone(), true).unwrap();
+        assert!(v[0].watched && !v[1].watched);
+        assert_eq!(core.get_settings().unwrap().extra_volumes, ["/Volumes/Archive"]);
+        assert_eq!(core.get_status().unwrap().volumes.len(), 2, "the watched disk is monitored");
+        // A path, or an ID of no connected disk, changes nothing.
+        assert!(core.set_volume_watched("/Volumes/Photos".into(), true).is_err());
+        assert!(core.set_volume_watched("vol-000000000000".into(), true).is_err());
+        assert_eq!(core.get_settings().unwrap().extra_volumes, ["/Volumes/Archive"]);
+        let v = core.set_volume_watched(v[0].id.clone(), false).unwrap();
+        assert!(!v[0].watched);
+        assert!(core.get_settings().unwrap().extra_volumes.is_empty());
+        assert!(crate::monitor::is_system_mount("/System/Volumes/Data") && crate::monitor::is_system_mount("/") && crate::monitor::is_system_mount("/boot/efi"));
+        assert!(!crate::monitor::is_system_mount("/Volumes/Archive") && !crate::monitor::is_system_mount("/media/me/usb") && !crate::monitor::is_system_mount("/run/media/me/usb"));
+        assert!(crate::monitor::is_system_mount("/run/user/1000"));
     }
 
     #[test]

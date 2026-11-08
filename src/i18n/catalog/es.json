@@ -589,5 +589,6 @@
   "Unchanged for {STALE_DAYS}+ days, not in use": "Sin cambios en {STALE_DAYS}+ días, sin usar",
   "Unknown system detector.": "Detector del sistema desconocido.",
   "Your temporary folder": "Tu carpeta temporal",
-  "Downloads is read once you add it as a scan folder, so macOS does not ask for access you did not choose to give.": "Descargas se lee en cuanto la añades como carpeta de análisis, para que macOS no pida un acceso que no elegiste dar."
+  "Downloads is read once you add it as a scan folder, so macOS does not ask for access you did not choose to give.": "Descargas se lee en cuanto la añades como carpeta de análisis, para que macOS no pida un acceso que no elegiste dar.",
+  "That disk is not connected any more.": "Ese disco ya no está conectado."
 }

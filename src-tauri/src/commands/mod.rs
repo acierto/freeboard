@@ -153,6 +153,16 @@ pub async fn get_growth(core: Core<'_>, days: u32) -> CmdResult<Vec<AreaGrowth>>
 }
 
 #[tauri::command]
+pub async fn get_volumes(core: Core<'_>) -> CmdResult<Vec<crate::app_core::VolumeChoice>> {
+    core.get_volumes()
+}
+
+#[tauri::command]
+pub async fn set_volume_watched(core: Core<'_>, volume_id: String, watched: bool) -> CmdResult<Vec<crate::app_core::VolumeChoice>> {
+    core.set_volume_watched(volume_id, watched)
+}
+
+#[tauri::command]
 pub async fn get_tidy_rules(core: Core<'_>) -> CmdResult<Vec<crate::rules::TidyRule>> {
     core.get_tidy_rules()
 }

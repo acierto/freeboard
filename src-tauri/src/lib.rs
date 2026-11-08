@@ -411,6 +411,8 @@ mod shell {
                 crate::commands::get_growth,
                 crate::commands::create_disk_report,
                 crate::commands::get_tidy_rules,
+                crate::commands::get_volumes,
+                crate::commands::set_volume_watched,
                 crate::commands::set_tidy_rule,
                 crate::commands::get_settings,
                 crate::commands::update_settings,

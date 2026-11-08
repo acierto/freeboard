@@ -674,6 +674,28 @@ async function tabStaysInside(p, n = 10) {
   await ctx.close();
 }
 
+// Settings, In the background: schedules and switches save at once; other
+// disks are switched by ID, never by path.
+{
+  const { p, ctx } = await page();
+  await p.click('[data-act="settings"]');
+  await p.waitForSelector("#st-bg");
+  await idle(p);
+  await p.evaluate(() => (window.__FIXTURE_CALLS__ = []));
+  await p.selectOption("#quick-every", "daily");
+  await p.selectOption("#deep-every", "daily");
+  await p.click("#pause-battery");
+  await idle(p);
+  const patches = (await p.evaluate(() => window.__FIXTURE_CALLS__)).filter((c) => c.cmd === "update_settings").map((c) => JSON.stringify(c.args.patch));
+  check("settings: schedules and the battery switch save at once", JSON.stringify(patches) === JSON.stringify(['{"quickScan":"daily"}', '{"deepScan":"daily"}', '{"pauseDeepScansOnBattery":false}']), JSON.stringify(patches));
+  check("settings: the scan line follows the schedule", (await p.textContent("#scan-status")).endsWith("Quick scans run once a day."), await p.textContent("#scan-status"));
+  await p.click("#disk-vol-archive");
+  await idle(p);
+  const vol = (await p.evaluate(() => window.__FIXTURE_CALLS__)).filter((c) => c.cmd === "set_volume_watched");
+  check("settings: a disk is watched by its ID", vol.length === 1 && JSON.stringify(vol[0].args) === '{"volumeId":"vol-archive","watched":true}' && (await p.isChecked("#disk-vol-archive")), JSON.stringify(vol));
+  await ctx.close();
+}
+
 await browser.close();
 server.close();
 for (const r of results) console.log(`${r.ok ? "PASS" : "FAIL"}  ${r.name}${r.ok || !r.detail ? "" : "  (" + r.detail + ")"}`);

@@ -290,10 +290,40 @@ function settingsWording(w = { repos: "$1 repositories,", rerun: "Run setup agai
 }
 const SETTINGS_NOTE =
   "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.";
+const BG_NOTE = "A supplemental In the background group after Scanning holds the scan schedules, the battery, login and notification switches and other disks to watch (spec defaults); built from the sheet's own components.";
 const settingsEntry = (id, state, steps, lang) => ({
   id, surface: "Settings", state, sizes: [DESKTOP, PHONE], query: "",
-  ref: [act("settings"), ...steps, evalRef(settingsWording, lang && { repos: STR[lang]["ob.m.reposN"].replace("{n}", "$1") + ",", rerun: STR[lang]["s.rerun"], deep: STR[lang]["s.deep.s2"], unit: lang === "fr" ? "Go" : "GB" })], impl: [act("settings"), ...steps], clip: SHEET, supplemental: true, note: SETTINGS_NOTE,
+  ref: [act("settings"), ...steps, evalRef(settingsWording, lang && { repos: STR[lang]["ob.m.reposN"].replace("{n}", "$1") + ",", rerun: STR[lang]["s.rerun"], deep: STR[lang]["s.deep.s2"], unit: lang === "fr" ? "Go" : "GB" }), evalRef(backgroundSection, bgStrings(lang || "en"))], impl: [act("settings"), ...steps], clip: SHEET, supplemental: true, note: SETTINGS_NOTE + " " + BG_NOTE,
 });
+
+function backgroundSection(w) {
+  // Settings, In the background (spec defaults: scan schedules, battery,
+  // login, notifications, other disks). The prototype's sheet has no such
+  // group; it is built from its .st-sec, .st-list, .st-sub and .frow
+  // components (supplemental.css .frow.setrow), after Scanning.
+  const opt = (labels, sel) => labels.map((l, i) => '<option' + (i === sel ? " selected" : "") + ">" + l + "</option>").join("");
+  const sw = (id, b, s, on) => '<label class="frow setrow" for="' + id + '"><span><b>' + b + "</b><small>" + s + '</small></span><input type="checkbox" class="switch" id="' + id + '"' + (on ? " checked" : "") + "></label>";
+  const sec = document.createElement("section");
+  sec.className = "st-sec";
+  sec.setAttribute("aria-labelledby", "st-bg");
+  sec.innerHTML =
+    '<h3 id="st-bg">' + w.h + "</h3><p>" + w.p + '</p><div class="st-list">' +
+    '<div class="frow setrow"><label for="quick-every"><b>' + w.quick + "</b><small>" + w.quickS + '</small></label><select id="quick-every">' + opt(w.q, 0) + "</select></div>" +
+    '<div class="frow setrow"><label for="deep-every"><b>' + w.deep + "</b><small>" + w.deepS + '</small></label><select id="deep-every">' + opt(w.d, 0) + "</select></div>" +
+    sw("pause-battery", w.battery, w.batteryS, true) + sw("start-login", w.login, w.loginS, true) + sw("notify", w.notify, w.notifyS, true) +
+    '</div><div class="st-sub">' + w.disks + '</div><div class="st-list">' + sw("disk-vol-archive", "Archive", w.disk, false) + "</div>";
+  document.querySelector("#sheet .st-body").appendChild(sec);
+}
+/** The section's text in one language, with the sample disk's sizes. */
+const bgStrings = (lang = "en") => {
+  const S = STR[lang], g = (x) => (lang === "en" ? x : x.replace(".", ",")) + " " + (lang === "fr" ? "Go" : "GB");
+  return {
+    h: S["s.bg.h"], p: S["s.bg.p"], quick: S["s.bg.quick"], quickS: S["s.bg.quick.s"], deep: S["s.bg.deep"], deepS: S["s.bg.deep.s"],
+    q: ["hourly", "every6_hours", "daily", "on_request"].map((k) => S["s.bg.q." + k]), d: ["on_request", "daily"].map((k) => S["s.bg.d." + k]),
+    battery: S["s.bg.battery"], batteryS: S["s.bg.battery.s"], login: S["s.bg.login"], loginS: S["s.bg.login.s"], notify: S["s.bg.notify"], notifyS: S["s.bg.notify.s"],
+    disks: S["s.bg.disks"], disk: S["s.bg.disk.s"].replace("{x}", g("212.4")).replace("{t}", g("500.0")),
+  };
+};
 
 // Reference edits run in the page, so they get openSheet as source text.
 const OPEN_SHEET = openSheet.toString();
@@ -395,6 +425,14 @@ export const ENTRIES = [
 
   // Settings (prototype revision of 2026-11-07).
   settingsEntry("settings-sheet", "Settings: warning zones, folders, always protected, scanning", []),
+  {
+    // The reference gains the group first, then both sides scroll to it.
+    ...settingsEntry("settings-background", "Settings: In the background (scan schedules, battery, login, notifications, other disks)", []),
+    ref: [act("settings"), evalRef(settingsWording), evalRef(backgroundSection, bgStrings()), { scroll: "#st-bg" }],
+    impl: [act("settings"), { scroll: "#st-bg" }],
+    sizes: [DESKTOP, MID, PHONE],
+    clip: ['section[aria-labelledby="st-bg"]'],
+  },
   settingsEntry("settings-undo", "Settings: a scanned folder removed, with Undo", [{ click: "#scan-rm-1" }]),
   settingsEntry("settings-suggested-added", "Settings: a folder found outside the scanned ones added", [{ click: "#sugg-add-0" }]),
 

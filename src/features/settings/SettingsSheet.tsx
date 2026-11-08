@@ -11,7 +11,7 @@ import { api } from "../../lib/api";
 import { GB, gb, plural } from "../../lib/format";
 import { LANGS, LANG_NAMES, ago as agoIn, fx, lang, t, tn, unitGB, type Lang, type LanguagePref } from "../../i18n";
 import { track } from "../../lib/useBusy";
-import type { FolderDetails, FolderInfo, FolderList, Platform, QuickScanSchedule, ScanKind, Settings, SettingsPatch } from "../../lib/types";
+import type { DeepScanSchedule, FolderDetails, FolderInfo, FolderList, Platform, QuickScanSchedule, ScanKind, Settings, SettingsPatch, VolumeChoice } from "../../lib/types";
 import { displayPath } from "./Folders";
 
 const MAX = 60;
@@ -56,6 +56,74 @@ function lastScanLine(when: string, q: QuickScanSchedule): string {
   if (q === "hourly") return t("s.last", { t: when });
   const every = { every6_hours: "s.q.6h", daily: "s.q.daily", on_request: "s.q.ask" }[q];
   return t("s.lastonly", { t: when }) + " " + t(every);
+}
+
+const QUICK: QuickScanSchedule[] = ["hourly", "every6_hours", "daily", "on_request"];
+const DEEP: DeepScanSchedule[] = ["on_request", "daily"];
+
+/** In the background (supplemental; the prototype has no such group): scan
+ * schedules, battery, login, notifications and other disks to watch. Rows in
+ * the sheet's own list style: label and hint left, control right. */
+function Background({ settings, onChange }: { settings: Settings; onChange: (p: SettingsPatch) => void }) {
+  const [volumes, setVolumes] = useState<VolumeChoice[] | null>(null);
+  useEffect(() => {
+    track(api.getVolumes()).then(setVolumes, () => setVolumes([]));
+  }, []);
+  const toggle = (id: string, label: string, hint: string, on: boolean, set: (v: boolean) => void) => (
+    <label className="frow setrow" htmlFor={id}>
+      <span>
+        <b>{label}</b>
+        <small>{hint}</small>
+      </span>
+      <input type="checkbox" className="switch" id={id} checked={on} onChange={(e) => set(e.target.checked)} />
+    </label>
+  );
+  return (
+    <section className="st-sec" aria-labelledby="st-bg" data-supplemental="background">
+      <h3 id="st-bg">{t("s.bg.h")}</h3>
+      <p>{t("s.bg.p")}</p>
+      <div className="st-list">
+        <div className="frow setrow">
+          <label htmlFor="quick-every">
+            <b>{t("s.bg.quick")}</b>
+            <small>{t("s.bg.quick.s")}</small>
+          </label>
+          <select id="quick-every" value={settings.quickScan} onChange={(e) => onChange({ quickScan: e.target.value as QuickScanSchedule })}>
+            {QUICK.map((q) => (
+              <option key={q} value={q}>
+                {t("s.bg.q." + q)}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="frow setrow">
+          <label htmlFor="deep-every">
+            <b>{t("s.bg.deep")}</b>
+            <small>{t("s.bg.deep.s")}</small>
+          </label>
+          <select id="deep-every" value={settings.deepScan} onChange={(e) => onChange({ deepScan: e.target.value as DeepScanSchedule })}>
+            {DEEP.map((q) => (
+              <option key={q} value={q}>
+                {t("s.bg.d." + q)}
+              </option>
+            ))}
+          </select>
+        </div>
+        {toggle("pause-battery", t("s.bg.battery"), t("s.bg.battery.s"), settings.pauseDeepScansOnBattery, (v) => onChange({ pauseDeepScansOnBattery: v }))}
+        {toggle("start-login", t("s.bg.login"), t("s.bg.login.s"), settings.startAtLogin, (v) => onChange({ startAtLogin: v }))}
+        {toggle("notify", t("s.bg.notify"), t("s.bg.notify.s"), settings.notifications, (v) => onChange({ notifications: v }))}
+      </div>
+      <div className="st-sub">{t("s.bg.disks")}</div>
+      <div className="st-list">
+        {volumes && volumes.length === 0 && <div className="empty">{t("s.bg.nodisks")}</div>}
+        {(volumes ?? []).map((v) =>
+          toggle(`disk-${v.id}`, v.name, t("s.bg.disk.s", { x: gb(v.freeBytes), t: gb(v.totalBytes) }), v.watched, (on) =>
+            void track(api.setVolumeWatched(v.id, on)).then(setVolumes, () => undefined),
+          ),
+        )}
+      </div>
+    </section>
+  );
 }
 
 /** A translated sentence with a folder path (in mono) where `{p}` stands. */
@@ -319,6 +387,8 @@ export function SettingsSheet({
             </button>
           </div>
         </section>
+
+        <Background settings={settings} onChange={onChange} />
       </div>
       <div className="st-foot">
         <button className="link small" id="rerun-setup" style={{ marginRight: "auto" }} onClick={() => void track(api.updateSettings({ onboardingComplete: false })).then((s) => { onSettings(s); onClose(); }, () => undefined)}>

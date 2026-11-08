@@ -355,6 +355,16 @@ export interface RunSummary {
 
 export type TidyRuleId = "package_caches" | "docker_build_cache";
 
+/** A disk Settings can watch besides the home volume; switched by ID. */
+export interface VolumeChoice {
+  id: string;
+  name: string;
+  mountPoint: string;
+  totalBytes: number;
+  freeBytes: number;
+  watched: boolean;
+}
+
 /** A Keep me tidy rule (spec "Keep me tidy rules"). */
 export interface TidyRule {
   id: TidyRuleId;

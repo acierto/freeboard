@@ -24,6 +24,7 @@ import type {
   LogbookPage,
   TidyRule,
   TidyRuleId,
+  VolumeChoice,
   PileState,
   PlanSource,
   RunDetail,
@@ -98,6 +99,9 @@ export const api = {
   /** Sizes, folder names and risk levels; never file contents. */
   createDiskReport: () => call<unknown>("create_disk_report"),
   listLogbook: (page: number) => call<LogbookPage>("list_logbook", { page }),
+  /** Other disks to watch: listed by the backend, switched by ID only. */
+  getVolumes: () => call<VolumeChoice[]>("get_volumes"),
+  setVolumeWatched: (volumeId: string, watched: boolean) => call<VolumeChoice[]>("set_volume_watched", { volumeId, watched }),
   /** Keep me tidy rules: off until turned on; each covers named Safe detectors only. */
   getTidyRules: () => call<TidyRule[]>("get_tidy_rules"),
   setTidyRule: (ruleId: TidyRuleId, enabled: boolean) => call<TidyRule[]>("set_tidy_rule", { ruleId, enabled }),

@@ -20,8 +20,8 @@
   "locale": "en-US",
   "timezone": "UTC",
   "adapter": "scripts/visual/lib.mjs referenceHtml(): local fonts, data-theme, host reset (src/styles/reset.css), prototype-only controls hidden (.top-right .sim, .top-right [data-act=\"reset\"], .top > div > .note, .top-right .tray, .top-right [data-act=\"welcome\"])",
-  "acceptedAt": "2026-11-08T10:30:49.446Z",
-  "rationale": "Selection states (task 3.8): goals 20, 100 and All I can, Where from one and two areas, the pile opened, a crate taken out by hand, an empty pile, the first and next question card, every question answered, Caches opened, Ollama's Choose which opened and the protected card; Keep me tidy (task 6.2): the card with both rules off, turning the package rule on (supplemental: what it removes, with Turn on and Cancel) and the Docker rule on. Light and dark, three widths (2026-11-08)",
+  "acceptedAt": "2026-11-08T10:46:28.971Z",
+  "rationale": "Settings gains a supplemental In the background group after Scanning: quick and deep scan schedules, pause deep scans on battery, open at login, notifications, and other disks to watch (task 6.4, spec defaults). Built from the sheet's own components; new entry settings-background in light and dark at three widths. The existing Settings entries capture the sheet's first screen, which is unchanged (2026-11-08)",
   "entries": {
     "cleanup-confirm-ack--dark--1120x900": {
       "id": "cleanup-confirm-ack",
@@ -5667,6 +5667,108 @@
       "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
       "sha256": "3b1aaac6d992422d9712f4af040bf20d90d1efa42f001d62c10ab681c2b4facb"
     },
+    "settings-background--dark--1120x900": {
+      "id": "settings-background",
+      "surface": "Settings",
+      "state": "Settings: In the background (scan schedules, battery, login, notifications, other disks)",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used. A supplemental In the background group after Scanning holds the scan schedules, the battery, login and notification switches and other disks to watch (spec defaults); built from the sheet's own components.",
+      "sha256": "bded3ddef267e4b6920f836b28d6d3c6079875dfac1390703d7f2b0328d98637"
+    },
+    "settings-background--dark--390x844": {
+      "id": "settings-background",
+      "surface": "Settings",
+      "state": "Settings: In the background (scan schedules, battery, login, notifications, other disks)",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used. A supplemental In the background group after Scanning holds the scan schedules, the battery, login and notification switches and other disks to watch (spec defaults); built from the sheet's own components.",
+      "sha256": "feb55e0c4e634f0b66a4cfd51ba73752b0f94e9ddf1fe8252823dda116f8f56a"
+    },
+    "settings-background--dark--760x900": {
+      "id": "settings-background",
+      "surface": "Settings",
+      "state": "Settings: In the background (scan schedules, battery, login, notifications, other disks)",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used. A supplemental In the background group after Scanning holds the scan schedules, the battery, login and notification switches and other disks to watch (spec defaults); built from the sheet's own components.",
+      "sha256": "bded3ddef267e4b6920f836b28d6d3c6079875dfac1390703d7f2b0328d98637"
+    },
+    "settings-background--light--1120x900": {
+      "id": "settings-background",
+      "surface": "Settings",
+      "state": "Settings: In the background (scan schedules, battery, login, notifications, other disks)",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used. A supplemental In the background group after Scanning holds the scan schedules, the battery, login and notification switches and other disks to watch (spec defaults); built from the sheet's own components.",
+      "sha256": "9ef41fc36661fb8606eda1cff3768cea9e5286a729b8158c6c7b6b73cb2b4ddb"
+    },
+    "settings-background--light--390x844": {
+      "id": "settings-background",
+      "surface": "Settings",
+      "state": "Settings: In the background (scan schedules, battery, login, notifications, other disks)",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used. A supplemental In the background group after Scanning holds the scan schedules, the battery, login and notification switches and other disks to watch (spec defaults); built from the sheet's own components.",
+      "sha256": "84ff315fa9f0491634edabc6aec2109aeb39fe57ee1f21e338bac4b2fc3fc1bc"
+    },
+    "settings-background--light--760x900": {
+      "id": "settings-background",
+      "surface": "Settings",
+      "state": "Settings: In the background (scan schedules, battery, login, notifications, other disks)",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used. A supplemental In the background group after Scanning holds the scan schedules, the battery, login and notification switches and other disks to watch (spec defaults); built from the sheet's own components.",
+      "sha256": "9ef41fc36661fb8606eda1cff3768cea9e5286a729b8158c6c7b6b73cb2b4ddb"
+    },
     "settings-sheet--dark--1120x900": {
       "id": "settings-sheet",
       "surface": "Settings",
@@ -5681,7 +5783,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used. A supplemental In the background group after Scanning holds the scan schedules, the battery, login and notification switches and other disks to watch (spec defaults); built from the sheet's own components.",
       "sha256": "eb5d8492d47159eeca8488559833fec32be6bd4a7a9dc06f5355608d19317722"
     },
     "settings-sheet--dark--390x844": {
@@ -5698,7 +5800,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used. A supplemental In the background group after Scanning holds the scan schedules, the battery, login and notification switches and other disks to watch (spec defaults); built from the sheet's own components.",
       "sha256": "477a1faa310b50e4d9f358c0fc80c2251eb7c83989b2cadd3665bfdc9bd9e6e1"
     },
     "settings-sheet--light--1120x900": {
@@ -5715,7 +5817,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used. A supplemental In the background group after Scanning holds the scan schedules, the battery, login and notification switches and other disks to watch (spec defaults); built from the sheet's own components.",
       "sha256": "bfe0a96a174cfcf1ff9260793cca136aa44a38de5161b36d293f95579ff3ed58"
     },
     "settings-sheet--light--390x844": {
@@ -5732,7 +5834,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used. A supplemental In the background group after Scanning holds the scan schedules, the battery, login and notification switches and other disks to watch (spec defaults); built from the sheet's own components.",
       "sha256": "879b61a43e2d89330b6c8c4b4d3ea3c27525fd328eecfa1987347eb29c49fc7a"
     },
     "settings-sheet-de--dark--1120x900": {
@@ -5749,7 +5851,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used. A supplemental In the background group after Scanning holds the scan schedules, the battery, login and notification switches and other disks to watch (spec defaults); built from the sheet's own components.",
       "sha256": "3de932be7ac00e9c3694b0612a9b5f3bdc078be99e4c1f23fdd4da42eebdc8de"
     },
     "settings-sheet-de--dark--390x844": {
@@ -5766,7 +5868,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used. A supplemental In the background group after Scanning holds the scan schedules, the battery, login and notification switches and other disks to watch (spec defaults); built from the sheet's own components.",
       "sha256": "d217ac3b2ca299d013d944bd566f1e743c9cd715533a263ef1a1b3d45e745a31"
     },
     "settings-sheet-de--light--1120x900": {
@@ -5783,7 +5885,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used. A supplemental In the background group after Scanning holds the scan schedules, the battery, login and notification switches and other disks to watch (spec defaults); built from the sheet's own components.",
       "sha256": "cb75a4068e89739a04c7c484e7583caa40873dda0d1021a608d630699cb418df"
     },
     "settings-sheet-de--light--390x844": {
@@ -5800,7 +5902,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used. A supplemental In the background group after Scanning holds the scan schedules, the battery, login and notification switches and other disks to watch (spec defaults); built from the sheet's own components.",
       "sha256": "13bec1b214a8d5b27d51a13afa1f87a9b8c673a639e9d48bc5a99b929d0ce4b1"
     },
     "settings-sheet-fr--dark--1120x900": {
@@ -5817,7 +5919,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used. A supplemental In the background group after Scanning holds the scan schedules, the battery, login and notification switches and other disks to watch (spec defaults); built from the sheet's own components.",
       "sha256": "80656fca5598570eef73fe83b5f2a817c5103bd54a1764c3189032a15739708f"
     },
     "settings-sheet-fr--dark--390x844": {
@@ -5834,7 +5936,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used. A supplemental In the background group after Scanning holds the scan schedules, the battery, login and notification switches and other disks to watch (spec defaults); built from the sheet's own components.",
       "sha256": "6c4bb65c2867b7baada6e88a6c47f46bc89e12f9801e1faa5c30c472cf5e6e6e"
     },
     "settings-sheet-fr--light--1120x900": {
@@ -5851,7 +5953,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used. A supplemental In the background group after Scanning holds the scan schedules, the battery, login and notification switches and other disks to watch (spec defaults); built from the sheet's own components.",
       "sha256": "e4d4c1a0181af3194330cef3860bb1c5d2797eec69d2006f16571a6530bd3561"
     },
     "settings-sheet-fr--light--390x844": {
@@ -5868,7 +5970,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used. A supplemental In the background group after Scanning holds the scan schedules, the battery, login and notification switches and other disks to watch (spec defaults); built from the sheet's own components.",
       "sha256": "f882db710a730a4a82d8c370d2a081ea08b08f564a5252cf3010ff5eb0ed2310"
     },
     "settings-suggested-added--dark--1120x900": {
@@ -5885,7 +5987,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used. A supplemental In the background group after Scanning holds the scan schedules, the battery, login and notification switches and other disks to watch (spec defaults); built from the sheet's own components.",
       "sha256": "eb5d8492d47159eeca8488559833fec32be6bd4a7a9dc06f5355608d19317722"
     },
     "settings-suggested-added--dark--390x844": {
@@ -5902,7 +6004,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used. A supplemental In the background group after Scanning holds the scan schedules, the battery, login and notification switches and other disks to watch (spec defaults); built from the sheet's own components.",
       "sha256": "477a1faa310b50e4d9f358c0fc80c2251eb7c83989b2cadd3665bfdc9bd9e6e1"
     },
     "settings-suggested-added--light--1120x900": {
@@ -5919,7 +6021,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used. A supplemental In the background group after Scanning holds the scan schedules, the battery, login and notification switches and other disks to watch (spec defaults); built from the sheet's own components.",
       "sha256": "bfe0a96a174cfcf1ff9260793cca136aa44a38de5161b36d293f95579ff3ed58"
     },
     "settings-suggested-added--light--390x844": {
@@ -5936,7 +6038,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used. A supplemental In the background group after Scanning holds the scan schedules, the battery, login and notification switches and other disks to watch (spec defaults); built from the sheet's own components.",
       "sha256": "879b61a43e2d89330b6c8c4b4d3ea3c27525fd328eecfa1987347eb29c49fc7a"
     },
     "settings-undo--dark--1120x900": {
@@ -5953,7 +6055,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used. A supplemental In the background group after Scanning holds the scan schedules, the battery, login and notification switches and other disks to watch (spec defaults); built from the sheet's own components.",
       "sha256": "0c77c0c943ee0b9ab905e45bb5e8888583cbe2735de3d6e7111d358ae5573830"
     },
     "settings-undo--dark--390x844": {
@@ -5970,7 +6072,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used. A supplemental In the background group after Scanning holds the scan schedules, the battery, login and notification switches and other disks to watch (spec defaults); built from the sheet's own components.",
       "sha256": "477a1faa310b50e4d9f358c0fc80c2251eb7c83989b2cadd3665bfdc9bd9e6e1"
     },
     "settings-undo--light--1120x900": {
@@ -5987,7 +6089,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used. A supplemental In the background group after Scanning holds the scan schedules, the battery, login and notification switches and other disks to watch (spec defaults); built from the sheet's own components.",
       "sha256": "008f253e541455af687f98652c6b90af9209cb02bbc7adae60632986fa0a9371"
     },
     "settings-undo--light--390x844": {
@@ -6004,7 +6106,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
+      "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used. A supplemental In the background group after Scanning holds the scan schedules, the battery, login and notification switches and other disks to watch (spec defaults); built from the sheet's own components.",
       "sha256": "879b61a43e2d89330b6c8c4b4d3ea3c27525fd328eecfa1987347eb29c49fc7a"
     },
     "tidy-ask--dark--1120x900": {

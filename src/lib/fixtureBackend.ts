@@ -25,7 +25,7 @@ import { firstSupported, type LanguagePref } from "../i18n";
 // cleaned in part keeps its other parts listed.
 
 import type { Backend } from "./api";
-import type { AppStatus, BlindSpot, CleanupPlan, DiskMap, EventMap, Goal, Group, PileState, PlaceChecked, Platform, RunDetail, RunItem, RunSummary, Settings, Suggestion, TidyRule, WorktreesView, WtStatus } from "./types";
+import type { AppStatus, BlindSpot, CleanupPlan, DiskMap, EventMap, Goal, Group, PileState, PlaceChecked, Platform, RunDetail, RunItem, RunSummary, Settings, Suggestion, TidyRule, VolumeChoice, WorktreesView, WtStatus } from "./types";
 
 export const FIXTURE_MARKER = "FREEBOARD_FIXTURE_BACKEND";
 const G = 1e9;
@@ -644,6 +644,9 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
     rule: null,
   });
 
+  // One external disk, not watched yet.
+  let volumes: VolumeChoice[] = [{ id: "vol-archive", name: "Archive", mountPoint: "/Volumes/Archive", totalBytes: 500e9, freeBytes: 212.4e9, watched: false }];
+
   // Keep me tidy: both off, as on a fresh install (spec "Default settings").
   let tidy: TidyRule[] = [
     { id: "package_caches", enabled: false, removes: ["pnpm store", "pip cache", "npm cache", "Homebrew cache"], lastRunAt: null, lastResult: null, lastBytesFreed: null },
@@ -939,6 +942,11 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
       page: 0,
       hasMore: false,
     }),
+    get_volumes: () => volumes,
+    set_volume_watched: (a) => {
+      volumes = volumes.map((v) => (v.id === a.volumeId ? { ...v, watched: !!a.watched } : v));
+      return volumes;
+    },
     get_tidy_rules: () => tidy,
     set_tidy_rule: (a) => {
       tidy = tidy.map((r) => (r.id === a.ruleId ? { ...r, enabled: !!a.enabled } : r));

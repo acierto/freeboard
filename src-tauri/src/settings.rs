@@ -419,4 +419,17 @@ mod tests {
             .unwrap();
         assert_eq!(Settings::from_rows(&s.to_rows()), s);
     }
+
+    #[test]
+    fn interface_patches_are_typed_and_carry_no_paths() {
+        let ok: UiSettingsPatch = serde_json::from_str(r#"{"quickScan":"every6_hours","deepScan":"daily","pauseDeepScansOnBattery":false,"startAtLogin":false,"notifications":false}"#).unwrap();
+        assert_eq!(ok.quick_scan, Some(QuickScanSchedule::Every6Hours));
+        assert_eq!(ok.deep_scan, Some(DeepScanSchedule::Daily));
+        // Unknown schedules and any path field are rejected before anything is
+        // applied: other disks change only through set_volume_watched.
+        for bad in [r#"{"quickScan":"every_minute"}"#, r#"{"deepScan":"hourly"}"#, r#"{"extraVolumes":["/Volumes/x"]}"#, r#"{"scanFolders":["/"]}"#, r#"{"startAtLogin":"yes"}"#] {
+            assert!(serde_json::from_str::<UiSettingsPatch>(bad).is_err(), "{bad}");
+        }
+    }
+
 }

@@ -36,6 +36,21 @@ pub trait VolumeSource: Send + Sync {
     fn full_disk_access(&self, _platform: &str) -> Option<bool> {
         None
     }
+    /// Other disks the person could choose to watch (Settings): not the home
+    /// volume, not system or virtual mounts. Fakes offer none.
+    fn candidates(&self, _home: &Path) -> Vec<VolumeReading> {
+        Vec::new()
+    }
+}
+
+/// Mount points that are the system's own, not a disk a person would watch.
+pub fn is_system_mount(mount: &str) -> bool {
+    mount == "/"
+        || ["/System/Volumes/", "/private/var/vm", "/boot", "/snap/", "/dev", "/proc", "/sys", "/var/lib/", "/tmp"].iter().any(|p| mount.starts_with(p))
+        // Fedora and others mount USB drives in /run/media/<user>.
+        || (mount.starts_with("/run/") && !mount.starts_with("/run/media/"))
+        || mount.starts_with("/Volumes/com.apple.")
+        || mount.contains("/.timemachine")
 }
 
 /// Real volumes through `sysinfo`. Removable volumes are excluded unless the
@@ -75,6 +90,29 @@ impl VolumeSource for SysVolumes {
     }
     fn platform_volume_bytes(&self, platform: &str) -> u64 {
         crate::diskmap::platform_volume_bytes(platform)
+    }
+    fn candidates(&self, home: &Path) -> Vec<VolumeReading> {
+        let home_mount = self.read(home, &[]).into_iter().next().map(|h| h.mount_point);
+        let Ok(disks) = sysinfo::Disks::new_with_refreshed_list() else { return Vec::new() };
+        let mut v: Vec<VolumeReading> = disks
+            .iter()
+            .map(|d| VolumeReading {
+                id: d.mount_point().to_string_lossy().into_owned(),
+                name: d.name().to_string_lossy().into_owned(),
+                mount_point: d.mount_point().to_string_lossy().into_owned(),
+                free: real_free(d),
+                total: d.total_space(),
+            })
+            .filter(|r| {
+                !crate::platform::is_wsl_path(Path::new(&r.mount_point))
+                    && !is_system_mount(&r.mount_point)
+                    && Some(&r.mount_point) != home_mount.as_ref()
+                    && r.total >= 1_000_000_000
+            })
+            .collect();
+        v.sort_by(|a, b| a.mount_point.cmp(&b.mount_point));
+        v.dedup_by(|a, b| a.mount_point == b.mount_point);
+        v
     }
     fn full_disk_access(&self, platform: &str) -> Option<bool> {
         crate::diskmap::full_disk_access(platform)

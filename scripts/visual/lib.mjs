@@ -160,6 +160,13 @@ async function runStep(page, side, step) {
       el.dispatchEvent(new Event("input", { bubbles: true }));
       el.dispatchEvent(new Event("change", { bubbles: true }));
     }, step.range);
+  } else if (step.scroll) {
+    // Bring an element inside a scrolling sheet into view, on both sides.
+    await page.evaluate((sel) => {
+      const el = document.querySelector(sel);
+      if (!el) throw new Error("missing element " + sel);
+      el.scrollIntoView({ block: "start" });
+    }, step.scroll);
   } else if (step.key) {
     await page.keyboard.press(step.key);
   } else if (step.eval) {
