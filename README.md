@@ -1,15 +1,16 @@
 # Freeboard
 
-**Know before your disk is full.** Freeboard is a free, open-source desktop app for macOS, Windows and Linux. It watches your free space, warns you early, and shows what you can remove safely: Docker data, package caches, old dependencies, build output and stale Git worktrees.
+**Know before your disk is full.** Freeboard is a free, open-source desktop app for macOS, Windows and Linux. It watches your free space, warns you early, shows where your space went, and what you can remove safely: Docker data, package caches, old dependencies, build output, stale Git worktrees, unused AI models, old device backups and more.
 
 [Website and downloads](https://acierto.github.io/freeboard/) · [Documentation](docs/README.md) · [User guide](docs/user-guide.md) · [Releases](https://github.com/acierto/freeboard/releases)
 
 ## What it does
 
 - **Warns early.** One notification when you drop below your Low or Critical level, plus a forecast of when the disk fills at the current rate.
-- **Finds developer clutter.** Docker build cache, images, containers and volumes; npm, pnpm, pip, Cargo, Gradle and Homebrew caches; Xcode data; `node_modules` and build output in idle projects; old Git worktrees.
+- **Finds developer clutter.** Docker build cache, images, containers and volumes; npm, pnpm, pip, Cargo, Gradle, Homebrew, JetBrains, Playwright and chat-app caches; Xcode data and simulators; `node_modules` and build output in idle projects; old Git worktrees; Ollama, Hugging Face and LM Studio models; old iPhone backups and Android emulators; Node versions and Rust toolchains no project uses; apps not opened for a year; exact duplicates and big videos you no longer open.
+- **Explains the disk.** A disk map assigns used space to areas, says how much it could not explain, and why.
 - **Explains every item.** Why it is listed, the exact command or folder action that would run, and how to get it back.
-- **Never acts on its own.** You review a cleanup plan. Each item is checked again just before it runs, and anything that changed since the scan is skipped.
+- **Never acts on its own.** You review a cleanup plan. Each item is checked again just before it runs, and anything that changed since the scan is skipped. The only exception is a Keep me tidy rule you turn on yourself, limited to named Safe caches.
 - **Stays local.** No account, no telemetry, no network calls.
 
 Every item carries a risk label:

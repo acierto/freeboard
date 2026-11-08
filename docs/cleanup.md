@@ -43,6 +43,15 @@ restore policy", "Cleanup rules", "Pre-cleanup checks", "Trash". Code:
 | Docker image or volume | Still exists and unused by every container, including stopped ones | `detectors::docker::probe` |
 | Docker container | Still stopped, unchanged since the scan | `detectors::docker::probe` |
 | Caches (pnpm, pip, Homebrew, simulators, Gradle) | Same location; resource set has not grown; Gradle daemon not running | `detectors::caches::probe` |
+| Slack, Discord and Teams caches | Path checks, and the app is still closed (unknown blocks) | `detectors::app_caches::probe` |
+| Ollama model | Manifest unchanged, not run since the scan, `ollama` installed | `detectors::ai::probe` |
+| Android emulator | Path checks, and no `*.lock` files (not running) | `detectors::mobile::probe` |
+| Node version, Rust toolchain | Not the newest or the default now; toolchain still listed and not default, active or an override | `detectors::tools::probe` |
+| Unused app | Passes `Guard::check_unused_app`, same bundle, still not opened for a year, not running | `detectors::apps::probe` |
+| Duplicate copies | Path checks; the kept copy still exists with the same `blake3`, and every extra still matches it (read again in full) | `detectors::dupes::probe` |
+| Large video | Path checks, and not opened since the scan | `detectors::dupes::probe` |
+| Local snapshot | A newer backup is still confirmed; the snapshot still exists | `detectors::system::probe` |
+| Leftover temp files | Path checks, and no running process holds them open | `detectors::system::probe` |
 
 Changed items are skipped with a reason; unknown results (tool missing,
 timeout, daemon down) are skipped too. Skipped items stay in Suggestions with
@@ -73,6 +82,17 @@ confirmed plan:
 | pnpm | `pnpm store prune` | Cannot be limited to a package list. Skipped if unreferenced store data grew by more than 5% + 50 MB since the scan. |
 | pip | `pip cache purge` | The confirmed resource is the whole download cache. Skipped if its location changed or it grew by more than 5% + 50 MB. |
 | Homebrew | `brew cleanup` | Skipped if `brew cleanup --dry-run` lists any path that was not in the plan. |
+| Ollama models | `ollama rm <model>` | One model per part; the name passes `safe_model_name`. |
+| Rust toolchains | `rustup toolchain uninstall <name>` | One toolchain per part; the name passes `safe_toolchain`. |
+| Time Machine snapshots | `tmutil deletelocalsnapshots <YYYY-MM-DD-HHMMSS>` | One snapshot per part, by date; a mount point (which would delete every snapshot) is refused. |
+
+## Keep me tidy plans
+
+A rule (see the user guide) builds a plan with `CleanupEngine::create_rule_plan` and runs it through the same engine, checks and records. It is the only plan that runs without the user's confirmation, so both `create` and `start` refuse it unless every item and every selected part is a Safe, unkept, unblocked item of the rule's own detectors that needs no acknowledgment (`rules::allows`). Its run is linked to the rule in `tidy_runs` and shows in the Logbook as "Keep me tidy".
+
+## Unused apps (macOS)
+
+An app not opened for a year is moved to the Trash, never deleted. `Guard::check_unused_app` allows only a real `.app` folder directly inside `/Applications` or `~/Applications`, never a link or anything under `/System`, and marks the result Trash-only: `Guard::remove` refuses it. Each app needs its own acknowledgment.
 
 Only `docker builder prune` and `docker image prune` may carry `--force`
 (the runner enforces this); `image prune` is not used at all. Banned commands

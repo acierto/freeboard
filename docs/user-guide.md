@@ -68,7 +68,7 @@ Closing the window hides Freeboard to the tray. Monitoring and scheduled scans k
 | **Everything I found** | All suggestions, grouped by source (Docker, Git worktrees, dependencies, caches, files), with a checkbox, **Remove now** and **Keep** per item. |
 | **Disk map** | Where the space goes, by area; what Freeboard can't explain and why, with a fix for each; what grew fastest; which places were checked. |
 | **Logbook** | History of cleanups: date, result, space freed, amount held in the Trash and skipped items. |
-| **Settings** | Behind the gear button: warning levels, scan folders, excluded folders, scan schedule, startup, notifications. |
+| **Settings** | Behind the gear button: language, warning levels, scan folders, excluded folders, scanning, and In the background: quick and deep scan schedules, pausing deep scans on battery, opening at login, notifications, and other disks to watch. |
 
 ## Making room
 
@@ -112,13 +112,16 @@ Optional rules, **off by default**, limited to named Safe detectors:
 
 | Rule | Limit |
 | --- | --- |
-| Clear package caches over 30 days old when space is Low | Named Safe cache detectors only |
-| Clear unused Docker build cache every week | `docker.build_cache` only |
+| Clear package caches over 30 days old when space is Low | Safe pnpm, pip, npm and Homebrew caches unchanged for 30 days; at most once a day while space is Low or Critical |
+| Clear unused Docker build cache every week | `docker.build_cache` only, once a week |
+
+The switches are at the bottom of **Quick questions**. Turning one on first lists exactly what it removes; it is saved only when you choose **Turn on**. Rules run after a scan, at low priority, through the same checks as a cleanup you confirm, and never touch anything you marked **Keep**, anything Review or Risky, or anything blocked. Each run is in the Logbook, marked "Keep me tidy".
 
 ## What Freeboard never does
 
-- Removes anything without a plan you confirmed.
-- Touches system or application folders, your home folder's main folders, or `.ssh`.
+- Removes anything without a plan you confirmed, except a Keep me tidy rule you turned on.
+- Touches system or application folders, your home folder's main folders, or `.ssh`. The one exception: on macOS, an app you have not opened for a year can go to the Trash (never deleted), after you confirm that app.
+- Reads Desktop, Documents, Downloads, Music, Movies or Pictures on macOS unless you add them as scan folders or give Freeboard Full Disk Access, so macOS never asks you for access you did not choose to give.
 - Deletes a repository root or anything inside `.git`.
 - Follows symbolic links out of the folder being cleaned.
 - Uses force flags, except Docker's own prune commands after you confirm.

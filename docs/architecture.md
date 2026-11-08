@@ -3,7 +3,7 @@
 Freeboard is a Tauri 2 desktop app. A Rust core does all monitoring, scanning and cleanup; a React interface only displays results and sends IDs back. The core keeps running in the tray after the webview is destroyed.
 
 ```
-src/                       React screens (overview, suggestions, plan, history, settings)
+src/                       React screens (home, quick questions, disk map, worktrees, logbook, settings, first run, tray view)
   lib/types.ts, api.ts     typed contract mirroring src-tauri/src/model.rs
 src-tauri/
   capabilities/default.json  only core event listen + Freeboard's own commands
@@ -14,7 +14,11 @@ src-tauri/
     commands/     thin #[tauri::command] handlers
     monitor/      sampling, status + hysteresis, notifications, forecast
     scan/         orchestration, deep walk, allocated-size measurement
-    detectors/    docker, worktrees, projects, caches, files
+    detectors/    docker, worktrees, projects, caches, app caches, AI models, phones and
+                  emulators, tool versions, apps, duplicates and videos, system items
+    diskmap/      disk accounting, blind spots, places checked, growth, the disk report
+    selection/    the pile (goals, Where from) as a pure function
+    rules/        Keep me tidy: rule-sourced plans through the cleanup engine
     cleanup/      plans, acknowledgments, revalidation, execution, Trash, history
     platform/     macOS / Linux / Windows differences
     runner.rs     the only module that starts external commands
@@ -28,10 +32,10 @@ src-tauri/
 | Invariant | Where it is enforced |
 | --- | --- |
 | 1 Scans are read-only | Detectors get a `ScanContext` with a runner (read-only policy) and no guard |
-| 2 Confirmed plan only | `runner::Confirmed` can only be created by the cleanup engine after plan validation |
+| 2 Confirmed plan only | `runner::Confirmed` can only be created by the cleanup engine after plan validation; a Keep me tidy plan is refused unless every item and part is a Safe, unkept item of the rule's own detectors (`rules::allows`, checked when the plan is made and when it starts) |
 | 3 IDs only | `UiSettingsPatch` has no paths; `validate_id`; capability allows only app commands |
 | 4 Recheck before cleanup | `detectors::probe` + `Guard::check_expected` per item |
-| 5 Protected paths | `Guard::protected_reason` on the canonical form |
+| 5 Protected paths | `Guard::protected_reason` on the canonical form; the one exception, an unused macOS app moved to the Trash, is `Guard::check_unused_app` (Trash only) |
 | 6 No link following | `symlink_metadata` everywhere; links removed as links |
 | 7 Banned commands | `runner::banned_reason` under every policy |
 | 8 No shell | `std::process::Command` with an argument array; program names allowlisted |
@@ -59,7 +63,7 @@ Prerequisites: Rust stable, Node 24, and on Linux `libwebkit2gtk-4.1-dev libayat
 
 ## Fixture-only safety policy
 
-- Tests never run cleanup against the developer's machine. Scanning and cleanup tests create temporary directories, temporary Git repositories, and fake tool executables (`runner::fake::tool`) that simulate `docker`, `pnpm`, `pip`, `brew` and `xcrun`.
+- Tests never run cleanup against the developer's machine. Scanning and cleanup tests create temporary directories, temporary Git repositories, and fake tool executables (`runner::fake::tool`) that simulate `docker`, `pnpm`, `pip`, `brew`, `xcrun`, `ollama`, `rustup`, `mdls`, `tmutil`, `lsof` and `ps`.
 - Detector development may run the installed tools' **read-only** commands (`docker version`, `docker system df`, `git worktree list`) to validate output formats. Prune, remove and delete commands are never run on a real machine during development or tests.
 - Native Trash checks (manual) use dedicated disposable files created for the check.
 - Kubernetes: `kubectl exec` is never used.
