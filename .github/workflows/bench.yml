@@ -1,0 +1,43 @@
+# Scan timings on a platform without a local test machine (docs/performance.md).
+# Run by hand: gh workflow run bench.yml -f os=windows-11-arm
+name: scan bench
+on:
+  workflow_dispatch:
+    inputs:
+      os:
+        description: Runner image
+        default: windows-11-arm
+        type: choice
+        options: [windows-11-arm, windows-latest, ubuntu-22.04, macos-latest]
+permissions:
+  contents: read
+jobs:
+  bench:
+    runs-on: ${{ inputs.os }}
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: bash
+        working-directory: src-tauri
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo build --release --no-default-features --example scan_bench --locked
+      - name: Quick scan, three runs
+        run: |
+          B=target/release/examples/scan_bench
+          { uname -a; nproc; } > ../bench-system.txt
+          for i in 1 2 3; do $B quick; done > ../bench-quick.txt 2>&1
+      - name: Deep scan over 1 million files, fresh and with every file a year old
+        run: |
+          B=target/release/examples/scan_bench
+          FX="${RUNNER_TEMP//\\//}/fx"
+          s=$(date +%s); $B make-fixture "$FX" 1000000 > ../bench-deep.txt 2>&1; echo "make-fixture $(( $(date +%s)-s )) s" >> ../bench-deep.txt
+          for i in 1 2; do $B deep "$FX"; done >> ../bench-deep.txt 2>&1
+          s=$(date +%s); find "$FX" -exec touch -h -d "400 days ago" {} + ; echo "backdated in $(( $(date +%s)-s )) s" >> ../bench-deep.txt
+          for i in 1 2; do $B deep "$FX"; done >> ../bench-deep.txt 2>&1
+      - run: grep -h -E '^\{|make-fixture|backdated' ../bench-*.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bench-${{ inputs.os }}
+          path: bench-*.txt
