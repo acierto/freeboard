@@ -14,7 +14,6 @@ Status values:
 
 - **met**: automated evidence exists.
 - **met, owner check by hand**: the automated part exists. The part that needs a person (a click-through of the installed app, a native screenshot, a screen reader) is done by the owner outside this change (decision 2026-11-08, "Checks done by a person are out of this change").
-- **open: Windows**: only the Windows measurement is missing.
 - **gap**: no evidence, or part of the criterion has no evidence. See "Gaps" below.
 
 | # | Criterion | Evidence | Status |
