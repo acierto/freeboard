@@ -47,6 +47,21 @@ const idle = (p) => p.waitForFunction(() => document.documentElement.dataset.bus
   await ctx.close();
 }
 
+// Menu bar window when Healthy: the Toss button is the quiet style, marked optional,
+// and the forecast line is there in every status.
+{
+  const low = await page("view=tray", { width: 362, height: 560 });
+  check("menu bar window: the forecast says when the disk is full", /Full in about \d+ days\.$/.test(await low.p.textContent(".tb-line")), await low.p.textContent(".tb-line"));
+  check("menu bar window: Toss is the primary style when Low", await low.p.$eval(".tb-toss", (b) => b.classList.contains("primary")));
+  await low.ctx.close();
+  const { p, ctx } = await page("view=tray&free=120", { width: 362, height: 560 });
+  check("menu bar window: Healthy status", (await p.textContent(".tb-free")).includes("Healthy"), await p.textContent(".tb-free"));
+  check("menu bar window: Toss is the quiet style when Healthy", await p.$eval(".tb-toss", (b) => b.classList.contains("calm") && !b.classList.contains("primary")));
+  check("menu bar window: Healthy says tossing is optional", !!(await p.$(".tb-c")));
+  check("menu bar window: the forecast shows when Healthy too", /Full in about \d+ days\.$/.test(await p.textContent(".tb-line")), await p.textContent(".tb-line"));
+  await ctx.close();
+}
+
 // Languages (spec "Languages"): Settings → Language applies at once; setup
 // step 1 has a picker preset to the system's language; sizes follow it.
 {
@@ -347,6 +362,21 @@ async function tabStaysInside(p, n = 10) {
   check("toss: Esc closes the confirmation", !(await p.$("#sheet")));
   check("toss: focus returns to Toss", (await focused(p)) === "cta", await focused(p));
   check("toss: closing runs nothing", (await callsOf(p, "run_plan")).length === 0);
+  await ctx.close();
+}
+
+// A Risky question card starts with its box open (spec "Risk explainer").
+{
+  const { p, ctx } = await page();
+  // Skip questions with Ask me later until one is Risky.
+  let riskyQ = null;
+  for (let i = 0; i < 40 && !riskyQ; i++) {
+    const q = await p.$eval("#v-tidy .q", (q) => { const b = q.querySelector(".riskx"); return b ? { risky: b.classList.contains("risky"), open: b.open, id: b.dataset.riskBox } : { risky: false }; }).catch(() => null);
+    if (!q) break;
+    if (q.risky) riskyQ = q;
+    else { await p.click('#v-tidy .q [data-q="later"]'); await idle(p); }
+  }
+  check("risk: a Risky question card starts with its box open", riskyQ?.open === true, JSON.stringify(riskyQ));
   await ctx.close();
 }
 
@@ -727,6 +757,35 @@ async function tabStaysInside(p, n = 10) {
   ({ p, ctx } = await page("platform=windows&trash=2.4"));
   check("states: Windows says Recycle Bin", (await p.textContent("#trash")).includes("Recycle Bin"), await p.textContent("#trash"));
   await ctx.close();
+}
+
+
+// Download page languages (spec "Languages"): opens in the browser's language
+// when it is one of en, nl, de, fr, es (else English), remembers a manual
+// choice, and writes sizes with the language's decimal separator.
+{
+  const { createServer } = await import("node:http");
+  const site = readFileSync(new URL("../../site/index.html", import.meta.url));
+  const srv = createServer((req, res) => { res.writeHead(req.url.split("?")[0] === "/" ? 200 : 404, { "content-type": "text/html; charset=utf-8" }); res.end(req.url.split("?")[0] === "/" ? site : ""); });
+  await new Promise((r) => srv.listen(0, "127.0.0.1", r));
+  const url = `http://127.0.0.1:${srv.address().port}/`;
+  const open = async (ctx) => { const p = await ctx.newPage(); await ctx.route("**/*", (r) => (new URL(r.request().url()).hostname === "127.0.0.1" ? r.continue() : r.abort())); await p.goto(url); await p.waitForFunction(() => document.getElementById("langCode")?.textContent); return p; };
+  let ctx = await browser.newContext({ locale: "nl-NL" });
+  let p = await open(ctx);
+  check("site: opens in the browser's language (Dutch)", (await p.getAttribute("html", "lang")) === "nl" && (await p.textContent("#langCode")) === "NL" && (await p.textContent(".hero h1")).includes("waterlijn"), await p.textContent(".hero h1"));
+  check("site: sizes take a decimal comma in Dutch", (await p.textContent("body")).includes("12,4 GB") && !(await p.textContent(".hero")).includes("12.4 GB"));
+  await p.click("#langBtn");
+  await p.click('[data-lang="fr"]');
+  check("site: picking a language switches at once, French writes Go", (await p.getAttribute("html", "lang")) === "fr" && (await p.textContent("body")).includes("12,4 Go"));
+  await p.reload();
+  await p.waitForFunction(() => document.getElementById("langCode")?.textContent);
+  check("site: the manual choice is remembered", (await p.textContent("#langCode")) === "FR");
+  await ctx.close();
+  ctx = await browser.newContext({ locale: "ja-JP" });
+  p = await open(ctx);
+  check("site: other languages get English", (await p.getAttribute("html", "lang")) === "en" && (await p.textContent("body")).includes("12.4 GB"));
+  await ctx.close();
+  srv.close();
 }
 
 await browser.close();

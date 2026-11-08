@@ -42,7 +42,7 @@ jobs:
       - name: Safety traceability report
         shell: bash
         run: |
-          if [ -f scripts/safety-traceability.mjs ]; then node scripts/safety-traceability.mjs --check; fi
+          sh scripts/safety-traceability.sh
 
   desktop:
     name: desktop build (${{ matrix.os }})
@@ -129,6 +129,8 @@ jobs:
         run: npm run test:ui
       - name: Interface behaviour (keyboard, sheets, tray view, pile)
         run: npm run verify:ui
+      - name: Accessibility (axe on every view, sheet and state, light and dark)
+        run: npm run verify:a11y
       # Pixel baselines are specific to the machine that rendered them (text
       # rasterization differs between OS versions), so CI compares the app
       # with the prototype rendered on the same runner (decision 2026-11-05).
