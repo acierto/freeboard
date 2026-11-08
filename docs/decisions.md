@@ -428,3 +428,7 @@ Found on a real Mac after installing the Worktrees build: the tab showed "0 in 0
 - **Found and fixed**: on first run's folders step, tools that are not installed were drawn at the prototype's 70% opacity, under WCAG AA contrast. They keep the line-through at full opacity; meaning is never colour alone (line-through plus the "Not installed" title).
 - **Not done here: a screen-reader session.** VoiceOver, NVDA and Orca need a person at each platform; this task stays open until someone records those findings.
 - 2026-11-08: Baselines regenerated from `docs/reference/freeboard-prototype.html` (SHA-256 `e4e14a41ea9d…`, chromium 156.0.8078.4, 438 captures). Rationale: First run, tools found: a tool that is not installed keeps its line-through at full opacity (supplemental.css); the prototype's 70% fails WCAG AA contrast, found by axe in task 6.6. Affected: first-run-folders in English, German and French (2026-11-08)
+
+## 2026-11-08: lsof's exit code says nothing (found on the real Mac)
+
+`lsof +D <folder>` exits 1 on macOS even when it lists open files, with nothing on stderr; the leftover-temp-files detector took that as "could not check" and was always unavailable on a real Mac (the fixture's fake lsof exited 0). It now trusts the listing and counts only a real error on stderr (not a warning) as unknown. The fixture's fake lsof exits 1 like the real one.

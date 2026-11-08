@@ -197,13 +197,13 @@ pub fn user_temp(ctx: &ScanContext) -> PathBuf {
 }
 
 /// Every path a running process holds open inside `dir` (`lsof +D`), or None.
+/// lsof exits 1 both when nothing is open and, on macOS, when it listed open
+/// files (checked live 2026-11-08), so its exit code says nothing; an error
+/// on stderr other than a warning makes the answer unknown.
 fn open_inside(ctx: &ScanContext, dir: &Path) -> Option<Vec<PathBuf>> {
     let out = ctx.runner.run_read(&Cmd::new("lsof", ["-Fn", "+D", &dir.to_string_lossy()])).ok()?;
-    // lsof exits 1 when nothing is open.
-    if !out.success() && !out.stdout.trim().is_empty() {
-        return None;
-    }
-    if !out.success() && !out.stderr.trim().is_empty() && !out.stderr.contains("WARNING") {
+    let failed = out.stderr.lines().map(str::trim).any(|l| !l.is_empty() && !l.contains("WARNING"));
+    if failed {
         return None;
     }
     Some(out.stdout.lines().filter_map(|l| l.strip_prefix('n')).map(PathBuf::from).collect())

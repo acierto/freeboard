@@ -71,7 +71,8 @@ fn stale_temp_leaves_files_apps_still_use() {
     age(&fx.home.join("tmp"), 30);
     fx.write("tmp/fresh.tmp", &vec![1u8; 30_000]);
     let held = fx.home.join("tmp/in-use/session.db");
-    fx.tool("lsof", &format!("printf 'p42\\nn{}\\n'", held.display()));
+    // Like macOS's lsof: open files listed, exit 1.
+    fx.tool("lsof", &format!("printf 'p42\\nn{}\\n'; exit 1", held.display()));
     let o = fx.scan(ScanKind::Quick, &[Box::new(StaleTemp)]);
     let f = find(&o, STALE_TEMP);
     let mut names: Vec<String> = f.paths().iter().map(|p| Path::new(p).file_name().unwrap().to_string_lossy().to_string()).collect();
