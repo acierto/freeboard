@@ -259,6 +259,7 @@ fn deep_scan_pauses_on_battery_and_cancels() {
         should_pause: &pause,
         progress: &progress,
         platform: fx.platform,
+        full_disk_access: None,
     };
     let o = run_scan(&ctx, &crate::detectors::all());
     assert!(o.findings.is_empty(), "no detector runs while paused");
@@ -267,4 +268,47 @@ fn deep_scan_pauses_on_battery_and_cancels() {
     let cancel2 = AtomicBool::new(false);
     let ctx = ScanContext { kind: ScanKind::Quick, cancel: &cancel2, ..ctx };
     assert!(!run_scan(&ctx, &crate::detectors::all()).findings.is_empty());
+}
+
+/// Spec "First-run setup", scenario "No early permission prompt": the scans
+/// that follow setup never read a folder macOS asks about (Desktop,
+/// Documents, Downloads, Music, Movies, Pictures, other apps' data, device
+/// backups) unless it is a scan folder or Freeboard has Full Disk Access.
+/// Reading a folder moves its access time (macOS, and Linux with relatime
+/// for an old one), so an unchanged access time proves it was not read.
+#[test]
+fn no_permission_prompt_after_first_run() {
+    let mut fx = Fx::new();
+    world(&mut fx);
+    fx.platform = "macos";
+    fx.full_disk_access = Some(false);
+    let guarded = [
+        "Desktop", "Documents", "Downloads", "Music", "Movies", "Pictures",
+        "Library/Containers", "Library/Application Support/MobileSync",
+    ];
+    for g in guarded {
+        fx.write(&format!("{g}/bait.mp4"), &vec![1u8; 4096]);
+    }
+    let old = UNIX_EPOCH + Duration::from_secs(1_700_000_000);
+    let atime = |p: &Path| std::fs::metadata(p).unwrap().accessed().unwrap();
+    for g in guarded {
+        let d = crate::platform::open_dir_for_times(&fx.home.join(g)).unwrap();
+        d.set_times(std::fs::FileTimes::new().set_accessed(old)).unwrap();
+        assert_eq!(atime(&fx.home.join(g)), old);
+    }
+    let quick = fx.scan_all(ScanKind::Quick);
+    let deep = fx.scan_all(ScanKind::Deep);
+    for g in guarded {
+        assert_eq!(atime(&fx.home.join(g)), old, "{g} was read during the first scans");
+    }
+    // Nothing from them is offered, and the places that would need them say
+    // why instead of looking clean.
+    for f in quick.findings.iter().chain(&deep.findings) {
+        assert!(f.paths().iter().all(|p| !guarded.iter().any(|g| p.contains(&format!("/{g}/")))), "{:?}", f.paths());
+    }
+    assert!(quick.errors.iter().any(|e| e.detector == "files.installers" && e.kind == "permission"), "{:?}", quick.errors);
+    // Once Downloads is a scan folder, it is read.
+    fx.settings.scan_folders.push(fx.home.join("Downloads").to_string_lossy().to_string());
+    let o = fx.scan_all(ScanKind::Quick);
+    assert!(o.findings.iter().any(|f| f.suggestion.detector == "files.installers"));
 }

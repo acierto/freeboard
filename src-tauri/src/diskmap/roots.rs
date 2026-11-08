@@ -257,7 +257,7 @@ fn private_locations(platform: &str) -> Vec<(&'static str, &'static str)> {
 /// scan folders or Freeboard has Full Disk Access. Music, Movies and Pictures
 /// hold the Apple Music, TV and Photos libraries, which prompt for media
 /// library access (found on a real Mac, 2026-11-06).
-fn prompting_folders(platform: &str) -> &'static [&'static str] {
+pub fn prompting_folders(platform: &str) -> &'static [&'static str] {
     if platform == "macos" {
         &["Desktop", "Documents", "Downloads", "Music", "Movies", "Pictures"]
     } else {

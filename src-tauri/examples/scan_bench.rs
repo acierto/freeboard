@@ -86,6 +86,7 @@ fn run_one(ds: Vec<Box<dyn freeboard_lib::scan::Detector>>) {
         should_pause: &pause,
         progress: &progress,
         platform: freeboard_lib::platform::platform_name(),
+        full_disk_access: None,
     };
     run_scan(&ctx, &ds);
 }
@@ -110,6 +111,7 @@ fn bench(kind: ScanKind, settings: Settings) {
         should_pause: &pause,
         progress: &progress,
         platform: freeboard_lib::platform::platform_name(),
+        full_disk_access: None,
     };
     let t = Instant::now();
     let out = run_scan(&ctx, &default_detectors());

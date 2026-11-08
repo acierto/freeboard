@@ -352,11 +352,27 @@ pub fn may_read_protected(ctx: &ScanContext) -> bool {
     if ctx.platform != "macos" {
         return true;
     }
+    if let Some(granted) = ctx.full_disk_access {
+        return granted;
+    }
     let real = platform::home_dir().and_then(|h| std::fs::canonicalize(h).ok());
     if real != std::fs::canonicalize(&ctx.home).ok() {
         return true;
     }
     crate::diskmap::full_disk_access("macos") == Some(true)
+}
+
+/// Whether reading `dir` could make macOS ask the person for access they did
+/// not choose to give: a folder macOS guards (Desktop, Documents, Downloads,
+/// Music, Movies, Pictures) that is not inside a scan folder, without Full
+/// Disk Access (spec "First-run setup": no early permission prompt).
+pub fn would_prompt(ctx: &ScanContext, dir: &Path) -> bool {
+    let guarded = crate::diskmap::roots::prompting_folders(ctx.platform).iter().any(|f| dir.starts_with(ctx.home.join(f)));
+    if !guarded {
+        return false;
+    }
+    let chosen = ctx.settings.scan_folders.iter().any(|s| dir.starts_with(s));
+    !chosen && !may_read_protected(ctx)
 }
 
 /// Command lines of running processes, lowercased; None when unknown.

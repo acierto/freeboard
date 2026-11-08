@@ -580,6 +580,7 @@ impl CleanupEngine {
                     should_pause: &no_pause,
                     progress: &no_progress,
                     platform: self.platform,
+                    full_disk_access: None,
                 };
                 match detectors::probe_with(f, &ctx, &self.guard) {
                     Probe::Unchanged => {}

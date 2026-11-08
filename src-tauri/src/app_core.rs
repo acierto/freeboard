@@ -523,6 +523,7 @@ impl AppCore {
             should_pause: &should_pause,
             progress: &progress,
             platform: self.platform,
+            full_disk_access: None,
         };
         let outcome = scan::run_scan(&ctx, &self.detectors);
         let mut canceled = self.scan_cancel.load(Ordering::Relaxed);

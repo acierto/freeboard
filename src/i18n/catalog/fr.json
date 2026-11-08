@@ -588,5 +588,6 @@
   "Time Machine local snapshots": "Instantanés locaux Time Machine",
   "Unchanged for {STALE_DAYS}+ days, not in use": "Inchangé depuis {STALE_DAYS}+ jours, non utilisé",
   "Unknown system detector.": "Détecteur système inconnu.",
-  "Your temporary folder": "Votre dossier temporaire"
+  "Your temporary folder": "Votre dossier temporaire",
+  "Downloads is read once you add it as a scan folder, so macOS does not ask for access you did not choose to give.": "Téléchargements est lu dès que vous l'ajoutez comme dossier analysé, pour que macOS ne demande pas un accès que vous n'avez pas choisi de donner."
 }

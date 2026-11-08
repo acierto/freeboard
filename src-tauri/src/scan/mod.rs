@@ -30,6 +30,10 @@ pub struct ScanContext<'a> {
     pub progress: &'a (dyn Fn(&str, Option<&str>, u64) + Sync),
     /// Platform override for tests ("macos" | "linux" | "windows").
     pub platform: &'static str,
+    /// macOS Full Disk Access: None asks the system when the real home is
+    /// scanned (fixture homes count as granted); tests set it to act as a Mac
+    /// without it.
+    pub full_disk_access: Option<bool>,
 }
 
 pub trait Detector: Send + Sync {

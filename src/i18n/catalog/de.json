@@ -603,5 +603,6 @@
   "Time Machine local snapshots": "Lokale Time-Machine-Schnappschüsse",
   "Unchanged for {STALE_DAYS}+ days, not in use": "Seit {STALE_DAYS}+ Tagen unverändert, nicht in Gebrauch",
   "Unknown system detector.": "Unbekannter System-Detektor.",
-  "Your temporary folder": "Dein temporärer Ordner"
+  "Your temporary folder": "Dein temporärer Ordner",
+  "Downloads is read once you add it as a scan folder, so macOS does not ask for access you did not choose to give.": "Downloads wird gelesen, sobald du es als Scan-Ordner hinzufügst, damit macOS nicht nach einem Zugriff fragt, den du nicht geben wolltest."
 }

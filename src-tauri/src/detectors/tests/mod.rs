@@ -52,6 +52,8 @@ pub struct Fx {
     pub runner: Runner,
     pub settings: Settings,
     pub platform: &'static str,
+    /// Simulated macOS Full Disk Access (None: a fixture home is readable).
+    pub full_disk_access: Option<bool>,
 }
 
 fn real_dir_of(program: &str) -> Option<PathBuf> {
@@ -84,7 +86,7 @@ impl Fx {
         fake::tool(&bin, "ps", "exit 0");
         let mut settings = Settings::default();
         settings.scan_folders = vec![home.join("projects").to_string_lossy().to_string()];
-        Fx { _tmp: t, root, home, bin, runner: Runner::with_path(path), settings, platform: crate::platform::platform_name() }
+        Fx { _tmp: t, root, home, bin, runner: Runner::with_path(path), settings, platform: crate::platform::platform_name(), full_disk_access: None }
     }
 
     pub fn tool(&self, name: &str, body: &str) {
@@ -105,6 +107,7 @@ impl Fx {
             should_pause: &pause,
             progress: &progress,
             platform: self.platform,
+            full_disk_access: self.full_disk_access,
         };
         f(&ctx)
     }

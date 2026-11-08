@@ -284,7 +284,10 @@ pub fn is_video(p: &Path) -> bool {
 /// library).
 fn media_roots(ctx: &ScanContext) -> Vec<PathBuf> {
     let mut r = walk::roots(ctx);
-    r.push(platform::downloads_dir(&ctx.home));
+    let dl = platform::downloads_dir(&ctx.home);
+    if !would_prompt(ctx, &dl) {
+        r.push(dl);
+    }
     match ctx.platform {
         "macos" if may_read_protected(ctx) => r.push(ctx.home.join("Movies")),
         "macos" => {}

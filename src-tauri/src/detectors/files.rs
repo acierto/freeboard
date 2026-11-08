@@ -135,6 +135,12 @@ impl Detector for Installers {
     }
     fn run(&self, ctx: &ScanContext) -> Result<Vec<Finding>, DetectorError> {
         let dir = downloads(ctx);
+        // macOS asks before an app reads Downloads: only once it is a scan
+        // folder (Settings, or the disk map's Scan this folder) or with Full
+        // Disk Access.
+        if would_prompt(ctx, &dir) {
+            return Err(err(INSTALLERS, "permission", "Downloads is read once you add it as a scan folder, so macOS does not ask for access you did not choose to give."));
+        }
         if !dir.is_dir() {
             return Ok(vec![]);
         }

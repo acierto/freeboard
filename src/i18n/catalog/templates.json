@@ -184,6 +184,7 @@
   "Downloaded or used {0}",
   "Downloaded packages that npm can fetch again.",
   "Downloaded wheels that pip can fetch again.",
+  "Downloads is read once you add it as a scan folder, so macOS does not ask for access you did not choose to give.",
   "Duplicate copies of {0} files",
   "Duplicate files",
   "Empty space in Docker's disk",
