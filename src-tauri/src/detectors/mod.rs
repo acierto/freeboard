@@ -9,6 +9,7 @@ pub mod apps;
 pub mod caches;
 pub mod common;
 pub mod docker;
+pub mod dupes;
 pub mod files;
 pub mod git;
 pub mod mobile;
@@ -55,6 +56,8 @@ pub fn all() -> Vec<Box<dyn Detector>> {
         Box::new(apps::UnusedApps),
         Box::new(files::Installers),
         Box::new(files::WindowsTemp),
+        Box::new(dupes::Duplicates),
+        Box::new(dupes::LargeMedia),
     ]
 }
 
@@ -97,6 +100,8 @@ pub fn probe_with(finding: &Finding, ctx: &ScanContext, guard: &Guard) -> Probe 
         apps::probe(finding, ctx, guard)
     } else if det.starts_with("ai.") {
         ai::probe(finding, ctx, guard)
+    } else if det == dupes::DUPLICATES || det == dupes::LARGE_MEDIA {
+        dupes::probe(finding, ctx, guard)
     } else if det.starts_with("files.") {
         files::probe_paths(finding, ctx, guard)
     } else {

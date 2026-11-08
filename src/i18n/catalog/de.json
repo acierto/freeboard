@@ -562,5 +562,25 @@
   "system application": "System-App",
   "The app is open. Quit it, then scan again.": "Die App ist geöffnet. Beende sie und scanne dann erneut.",
   "The app was opened after the scan.": "Die App wurde nach dem Scan geöffnet.",
-  "The app was replaced or moved after the scan.": "Die App wurde nach dem Scan ersetzt oder verschoben."
+  "The app was replaced or moved after the scan.": "Die App wurde nach dem Scan ersetzt oder verschoben.",
+  "{name}: {0} extra cop{1}": {
+    "one": "{name}: {0} zusätzliche Kopie",
+    "other": "{name}: {0} zusätzliche Kopien"
+  },
+  "A copy is no longer the same as the one being kept.": "Eine Kopie ist nicht mehr gleich der, die bleibt.",
+  "Duplicate copies of {0} files": "Doppelte Kopien von {0} Dateien",
+  "Duplicate files": "Doppelte Dateien",
+  "Files with exactly the same contents. One copy of each is kept: the oldest.": "Dateien mit genau demselben Inhalt. Von jeder bleibt eine Kopie: die älteste.",
+  "Freeboard doesn't know which copy to keep.": "Freeboard weiß nicht, welche Kopie bleiben soll.",
+  "Kept: {0}": "Bleibt: {0}",
+  "Large videos": "Große Videos",
+  "Large videos not opened for 6 months": "Große Videos, seit 6 Monaten nicht geöffnet",
+  "One copy of each is kept": "Von jeder bleibt eine Kopie",
+  "Restore them from the {0}.": "Stelle sie aus dem {0} wieder her.",
+  "The copy being kept changed after the scan.": "Die Kopie, die bleibt, hat sich nach dem Scan geändert.",
+  "The copy being kept is gone, so the others stay.": "Die Kopie, die bleiben sollte, ist weg, daher bleiben die anderen.",
+  "The video was opened after the scan.": "Das Video wurde nach dem Scan geöffnet.",
+  "Video files of 500 MB or more that you have not opened for 6 months. They may be the only copy.": "Videodateien ab 500 MB, die du seit 6 Monaten nicht geöffnet hast. Es kann die einzige Kopie sein.",
+  "Your folders": "Deine Ordner",
+  "Your scan folders": "Deine Scan-Ordner"
 }

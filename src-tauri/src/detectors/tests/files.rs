@@ -86,3 +86,16 @@ fn installer_links_are_ignored() {
     std::os::unix::fs::symlink(&target, fx.home.join("Downloads/link.iso")).unwrap();
     assert!(fx.scan(ScanKind::Quick, &[Box::new(Installers)]).findings.is_empty());
 }
+
+#[test]
+fn installers_turn_old_at_90_days() {
+    let fx = Fx::new();
+    let a = fx.write("Downloads/a.pkg", b"x");
+    let b = fx.write("Downloads/b.pkg", b"x");
+    age(&a, 89);
+    age(&b, 91);
+    let o = fx.scan(ScanKind::Quick, &[Box::new(Installers)]);
+    let paths = find(&o, INSTALLERS).paths();
+    assert_eq!(paths.len(), 1);
+    assert!(paths[0].ends_with("b.pkg"));
+}

@@ -24,6 +24,8 @@ pub(crate) mod apps;
 mod caches;
 #[cfg(unix)]
 mod docker;
+#[cfg(unix)]
+mod dupes;
 mod files;
 #[cfg(unix)]
 mod git;

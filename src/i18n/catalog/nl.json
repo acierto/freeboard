@@ -550,5 +550,25 @@
   "system application": "systeemapp",
   "The app is open. Quit it, then scan again.": "De app is open. Sluit hem af en scan opnieuw.",
   "The app was opened after the scan.": "De app is na de scan geopend.",
-  "The app was replaced or moved after the scan.": "De app is na de scan vervangen of verplaatst."
+  "The app was replaced or moved after the scan.": "De app is na de scan vervangen of verplaatst.",
+  "{name}: {0} extra cop{1}": {
+    "one": "{name}: {0} extra kopie",
+    "other": "{name}: {0} extra kopieën"
+  },
+  "A copy is no longer the same as the one being kept.": "Een kopie is niet meer gelijk aan de kopie die blijft.",
+  "Duplicate copies of {0} files": "Dubbele kopieën van {0} bestanden",
+  "Duplicate files": "Dubbele bestanden",
+  "Files with exactly the same contents. One copy of each is kept: the oldest.": "Bestanden met precies dezelfde inhoud. Van elk blijft één kopie staan: de oudste.",
+  "Freeboard doesn't know which copy to keep.": "Freeboard weet niet welke kopie moet blijven.",
+  "Kept: {0}": "Blijft: {0}",
+  "Large videos": "Grote video's",
+  "Large videos not opened for 6 months": "Grote video's die 6 maanden niet zijn geopend",
+  "One copy of each is kept": "Van elk blijft één kopie staan",
+  "Restore them from the {0}.": "Zet ze terug uit de {0}.",
+  "The copy being kept changed after the scan.": "De kopie die blijft, is na de scan gewijzigd.",
+  "The copy being kept is gone, so the others stay.": "De kopie die zou blijven is weg, dus de andere blijven staan.",
+  "The video was opened after the scan.": "De video is na de scan geopend.",
+  "Video files of 500 MB or more that you have not opened for 6 months. They may be the only copy.": "Videobestanden van 500 MB of meer die je 6 maanden niet hebt geopend. Het kan de enige kopie zijn.",
+  "Your folders": "Je mappen",
+  "Your scan folders": "Je scanmappen"
 }

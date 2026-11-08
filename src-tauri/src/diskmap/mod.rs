@@ -743,6 +743,8 @@ pub fn detector_label(id: &str) -> String {
         "apps.unused" => "Apps not opened for a year",
         "files.installers" => "Installers in Downloads",
         "files.windows_temp" => "Windows temp files",
+        "files.duplicates" => "Duplicate files",
+        "files.large_media" => "Large videos",
         other => other,
     }
     .to_string()
