@@ -3,6 +3,7 @@
 //! One `Detector` per source detector ID (`Detector::id()` equals each
 //! finding's `suggestion.detector`). Detectors only read (invariant 1).
 
+pub mod app_caches;
 pub mod caches;
 pub mod common;
 pub mod docker;
@@ -25,6 +26,7 @@ pub fn all() -> Vec<Box<dyn Detector>> {
         Box::new(docker::UnusedImages),
         Box::new(docker::StoppedContainers),
         Box::new(docker::Volumes),
+        Box::new(docker::DiskSlack),
         Box::new(git::Worktrees),
         Box::new(projects::Dependencies),
         Box::new(projects::BuildOutput),
@@ -34,6 +36,9 @@ pub fn all() -> Vec<Box<dyn Detector>> {
         Box::new(caches::Homebrew),
         Box::new(caches::Cargo),
         Box::new(caches::Gradle),
+        Box::new(app_caches::JetBrains),
+        Box::new(app_caches::ElectronApps),
+        Box::new(app_caches::Playwright),
         Box::new(caches::Xcode),
         Box::new(caches::Simulators),
         Box::new(files::Installers),
@@ -68,6 +73,8 @@ pub fn probe_with(finding: &Finding, ctx: &ScanContext, guard: &Guard) -> Probe 
         git::probe(finding, ctx)
     } else if det.starts_with("project.") {
         projects::probe(finding, ctx, guard)
+    } else if [app_caches::JETBRAINS, app_caches::ELECTRON, app_caches::PLAYWRIGHT].contains(&det) {
+        app_caches::probe(finding, ctx, guard)
     } else if det.starts_with("cache.") || det == caches::SIMULATORS {
         caches::probe(finding, ctx, guard)
     } else if det.starts_with("files.") {

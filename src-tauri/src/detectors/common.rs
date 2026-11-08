@@ -234,6 +234,128 @@ fn fingerprint_paths_with(states: &[PathState], size: impl Fn(&crate::scan::size
     format!("p:{};c:{}", &hash_hex(&loc)[..16], &hash_hex(&con)[..16])
 }
 
+/// What a folder-based item says about itself; every part shares it.
+pub struct FolderItem<'a> {
+    pub detector: &'a str,
+    pub group: Group,
+    pub identity: &'a str,
+    pub title: String,
+    pub location: String,
+    pub risk: Risk,
+    pub action: Action,
+    pub reason: String,
+    pub recovery: String,
+}
+
+/// A part of a folder-based item: its label, its paths, and optionally when
+/// it was last used (time and label) instead of the newest modification.
+pub type FolderEntry = (String, Vec<PathBuf>, Option<(Option<i64>, String)>);
+
+/// One finding for a set of folders or files, split into one part per entry
+/// (`label`, `paths`) when there is more than one, so each part is measured,
+/// fingerprinted and checked before cleanup on its own. Links and entries that
+/// vanished or measure 0 bytes are left out. `last_used` overrides the label
+/// derived from modification times.
+pub fn split_finding(
+    ctx: &ScanContext,
+    item: FolderItem,
+    entries: Vec<FolderEntry>,
+) -> Option<Finding> {
+    let ex = crate::scan::walk::exclusions(ctx);
+    let mut parts: Vec<Finding> = vec![];
+    for (label, paths, last) in entries {
+        let mut states = vec![];
+        for p in &paths {
+            match path_state(p, &ex) {
+                Some(st) if !st.is_link => states.push(st),
+                _ => {}
+            }
+        }
+        let bytes: u64 = states.iter().map(|s| s.m.reclaimable()).sum();
+        if bytes == 0 {
+            continue;
+        }
+        let newest = states.iter().filter_map(|s| s.m.newest_mtime).max();
+        let mut s = base(item.detector, item.group, &format!("{}\0{}", item.identity, paths[0].display()));
+        s.title = label.clone();
+        s.location = display_path(ctx, &paths[0]);
+        s.size_bytes = bytes;
+        s.full_size_bytes = bytes;
+        s.size_is_estimate = states.iter().any(|s| s.m.is_estimate());
+        let (at, used) = match last {
+            Some((t, l)) => (t.and_then(rfc3339), l),
+            None => match newest {
+                Some(t) if t > 0 => (rfc3339(t), format!("Last changed {}", ago(ctx.now, t))),
+                _ => (None, "Last change unknown".into()),
+            },
+        };
+        s.last_used_at = at;
+        s.last_used_label = used;
+        s.risk = item.risk;
+        s.action = item.action;
+        s.action_label = match item.action {
+            Action::Trash => move_label(ctx),
+            _ => "Delete the folder".into(),
+        };
+        s.reason = item.reason.clone();
+        s.recovery = item.recovery.clone();
+        s.recoverable = item.action == Action::Trash || item.risk == Risk::Safe;
+        s.fingerprint = fingerprint_paths(&states);
+        let kept: Vec<String> = states.iter().map(|s| s.canonical.to_string_lossy().to_string()).collect();
+        parts.push(Finding::new(s, Target::Paths { paths: kept }));
+    }
+    if parts.is_empty() {
+        return None;
+    }
+    if parts.len() == 1 {
+        let mut f = parts.pop().unwrap();
+        f.suggestion.id = stable_id(item.detector, item.identity);
+        f.suggestion.title = item.title;
+        return Some(f);
+    }
+    parts.sort_by_key(|f| std::cmp::Reverse(f.suggestion.size_bytes));
+    let mut s = base(item.detector, item.group, item.identity);
+    let total: u64 = parts.iter().map(|f| f.suggestion.size_bytes).sum();
+    s.title = item.title;
+    s.location = item.location;
+    s.size_bytes = total;
+    s.full_size_bytes = total;
+    s.size_is_estimate = parts.iter().any(|f| f.suggestion.size_is_estimate);
+    s.last_used_at = parts.iter().filter_map(|f| f.suggestion.last_used_at.clone()).max();
+    s.last_used_label = parts[0].suggestion.last_used_label.clone();
+    s.risk = item.risk;
+    s.action = item.action;
+    s.action_label = parts[0].suggestion.action_label.clone();
+    s.reason = item.reason;
+    s.recovery = item.recovery;
+    s.recoverable = parts.iter().all(|f| f.suggestion.recoverable);
+    s.parts = parts
+        .iter()
+        .map(|f| SuggestionPart {
+            id: f.suggestion.id.clone(),
+            label: f.suggestion.title.clone(),
+            location: f.suggestion.location.clone(),
+            size_bytes: f.suggestion.size_bytes,
+            selected: true,
+        })
+        .collect();
+    s.fingerprint = parts.iter().map(|f| f.suggestion.fingerprint.as_str()).collect::<Vec<_>>().join("|");
+    let paths = parts.iter().flat_map(|f| f.paths().to_vec()).collect();
+    Some(Finding { suggestion: s, target: Target::Paths { paths }, parts })
+}
+
+/// Command lines of running processes, lowercased; None when unknown.
+pub fn running_commands(ctx: &ScanContext) -> Option<Vec<String>> {
+    if ctx.platform == "windows" {
+        return None;
+    }
+    let out = ctx.runner.run_read(&crate::runner::Cmd::new("ps", ["-A", "-o", "args="])).ok()?;
+    if !out.success() {
+        return None;
+    }
+    Some(out.stdout.lines().map(|l| l.trim().to_lowercase()).filter(|l| !l.is_empty()).collect())
+}
+
 pub fn fingerprint_of(parts: &[&str]) -> String {
     format!("r:{}", &hash_hex(&parts.join("\n"))[..24])
 }

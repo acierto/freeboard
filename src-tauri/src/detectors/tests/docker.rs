@@ -73,7 +73,8 @@ fn daemon_down_marks_all_docker_detectors_unavailable_and_others_continue() {
     age(&fx.home.join("Downloads"), 200);
     let o = fx.scan_all(ScanKind::Quick);
     let docker_errs: Vec<_> = o.errors.iter().filter(|e| e.detector.starts_with("docker.")).collect();
-    assert_eq!(docker_errs.len(), 5, "{:?}", o.errors);
+    let expected = crate::detectors::all().iter().filter(|d| d.id().starts_with("docker.") && d.platforms().contains(&fx.platform)).count();
+    assert_eq!(docker_errs.len(), expected, "{:?}", o.errors);
     assert!(docker_errs.iter().all(|e| e.kind == "unavailable" && e.message.contains("not running")));
     assert!(o.findings.iter().all(|f| !f.suggestion.detector.starts_with("docker.")));
     assert_eq!(by_detector(&o, "files.installers").len(), 1, "unrelated detectors still produce results");
@@ -262,4 +263,47 @@ fn containers_hidden_from_docker_ps_still_keep_their_images_and_volumes() {
     assert!(hide(false).iter().any(|t| t == "Volume web_data"));
     let vols = hide(true);
     assert!(!vols.iter().any(|t| t == "Volume web_data" || t == "Volume cache_vol"), "{vols:?}");
+}
+
+#[test]
+fn disk_slack_is_information_only() {
+    let mut fx = Fx::new();
+    fx.platform = "macos";
+    let disk = fx.write("Library/Containers/com.docker.docker/Data/vms/0/data/Docker.raw", &vec![1u8; 3_000_000]);
+    let snap = Snapshot { used_total: Some(1_000_000), ..Default::default() };
+    let out = fx.with_ctx(ScanKind::Quick, |ctx| slack_findings(ctx, &snap, 1_000_000)).unwrap();
+    let s = &out[0].suggestion;
+    assert_eq!(s.detector, DISK_SLACK);
+    assert!(s.size_bytes >= 1_900_000 && s.size_bytes <= 2_200_000, "{}", s.size_bytes);
+    // Never in a plan: no action, no target, and shown as blocked.
+    assert_eq!(s.action, Action::None);
+    assert!(matches!(out[0].target, Target::None));
+    assert!(s.blocked_reason.is_some());
+    assert!(!crate::selection::can_hold(s));
+    // Little empty space is not worth a row.
+    let snap = Snapshot { used_total: Some(2_900_000), ..Default::default() };
+    assert!(fx.with_ctx(ScanKind::Quick, |ctx| slack_findings(ctx, &snap, 1_000_000)).unwrap().is_empty());
+    // Unknown usage is unavailable, never "no empty space".
+    let snap = Snapshot::default();
+    assert_eq!(fx.with_ctx(ScanKind::Quick, |ctx| slack_findings(ctx, &snap, 1_000_000)).unwrap_err().kind, "malformed");
+    let _ = disk;
+}
+
+#[test]
+fn disk_slack_reads_docker_usage_and_needs_the_daemon() {
+    let mut fx = Fx::new();
+    fx.platform = "macos";
+    fx.docker(true);
+    // The fixture's `docker system df` adds up to 36.3 GB.
+    let snap = fx.with_ctx(ScanKind::Quick, |ctx| load(ctx, DISK_SLACK)).unwrap();
+    assert_eq!(snap.used_total, Some(36_300_000_000));
+    // No disk image (Docker Engine without Desktop): nothing to show.
+    assert!(fx.scan(ScanKind::Quick, &[Box::new(DiskSlack)]).findings.is_empty());
+    reset_snapshot_cache();
+    let fx2 = Fx::new();
+    fx2.docker(false);
+    let o = fx2.scan(ScanKind::Quick, &[Box::new(DiskSlack)]);
+    if fx2.platform == "macos" || fx2.platform == "windows" {
+        assert_eq!(o.errors[0].detector, DISK_SLACK);
+    }
 }

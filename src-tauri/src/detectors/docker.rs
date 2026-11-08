@@ -62,6 +62,9 @@ pub struct Snapshot {
     pub volume_sizes: HashMap<String, u64>,
     pub volume_meta: HashMap<String, VolumeMeta>,
     pub build_cache_reclaimable: Option<u64>,
+    /// What Docker's images, containers, volumes and build cache take
+    /// together (`docker system df`), when every row could be read.
+    pub used_total: Option<u64>,
 }
 
 /// What Docker records about a volume besides its name.
@@ -277,11 +280,14 @@ pub fn load(ctx: &ScanContext, det: &str) -> Result<Snapshot, DetectorError> {
 
     // Sizes: build cache and per-volume usage (estimates from `docker system df`).
     if let Ok(out) = df_out {
-        for row in json_lines(det, &out).unwrap_or_default() {
-            if s(&row, "Type") == "Build Cache" {
-                snap.build_cache_reclaimable = parse_human(&s(&row, "Reclaimable"));
+        let rows = json_lines(det, &out).unwrap_or_default();
+        for row in &rows {
+            if s(row, "Type") == "Build Cache" {
+                snap.build_cache_reclaimable = parse_human(&s(row, "Reclaimable"));
             }
         }
+        let sizes: Option<Vec<u64>> = rows.iter().map(|r| parse_human(&s(r, "Size"))).collect();
+        snap.used_total = sizes.filter(|v| !v.is_empty()).map(|v| v.iter().sum());
     }
     if let Ok(out) = dfv_out {
         if let Ok(v) = serde_json::from_str::<Value>(out.trim()) {
@@ -352,12 +358,16 @@ pub struct DanglingImages;
 pub struct UnusedImages;
 pub struct StoppedContainers;
 pub struct Volumes;
+pub struct DiskSlack;
 
 pub const BUILD_CACHE: &str = "docker.build_cache";
 pub const DANGLING: &str = "docker.dangling_images";
 pub const UNUSED: &str = "docker.unused_images";
 pub const STOPPED: &str = "docker.stopped_containers";
 pub const VOLUMES: &str = "docker.volumes";
+pub const DISK_SLACK: &str = "docker.disk_slack";
+/// Smaller gaps are normal for a growing disk image and not worth a row.
+pub const SLACK_MIN: u64 = 1_000_000_000;
 
 /// Placeholder replaced at execution time with the age of the scan, so the
 /// prune only touches cache that was already unused when the plan was made.
@@ -638,6 +648,88 @@ docker_detector!(DanglingImages, DANGLING, dangling_findings);
 docker_detector!(UnusedImages, UNUSED, unused_findings);
 docker_detector!(StoppedContainers, STOPPED, stopped_findings);
 docker_detector!(Volumes, VOLUMES, volume_findings);
+
+// ----- empty space inside Docker Desktop's disk ------------------------------
+
+/// Docker Desktop's virtual disk for the platform scanned.
+pub fn desktop_disks(ctx: &ScanContext) -> Vec<std::path::PathBuf> {
+    match ctx.platform {
+        "macos" => vec![ctx.home.join("Library/Containers/com.docker.docker/Data/vms/0/data/Docker.raw")],
+        "windows" => {
+            let local = ctx.home.join("AppData").join("Local").join("Docker").join("wsl");
+            vec![local.join("disk").join("docker_data.vhdx"), local.join("data").join("ext4.vhdx"), local.join("main").join("ext4.vhdx")]
+        }
+        _ => vec![],
+    }
+}
+
+/// macOS keeps Docker's disk among other apps' data, which Freeboard reads
+/// only with Full Disk Access (no prompt the person did not ask for).
+/// Fixture homes are not the real one and are always readable.
+fn may_read_app_data(ctx: &ScanContext) -> bool {
+    if ctx.platform != "macos" {
+        return true;
+    }
+    let real = crate::platform::home_dir().and_then(|h| std::fs::canonicalize(h).ok());
+    if real != std::fs::canonicalize(&ctx.home).ok() {
+        return true;
+    }
+    crate::diskmap::full_disk_access("macos") == Some(true)
+}
+
+/// The disk image's space on disk minus what Docker stores inside it.
+pub fn slack_findings(ctx: &ScanContext, snap: &Snapshot, min: u64) -> Result<Vec<Finding>, DetectorError> {
+    if !may_read_app_data(ctx) {
+        return Err(err(DISK_SLACK, "permission", "Docker Desktop's disk is among other apps' data, which needs Full Disk Access."));
+    }
+    let Some(used) = snap.used_total else {
+        return Err(err(DISK_SLACK, "malformed", "Docker did not report how much it stores."));
+    };
+    let mut out = vec![];
+    for disk in desktop_disks(ctx) {
+        let Ok(meta) = std::fs::symlink_metadata(&disk) else { continue };
+        if !meta.is_file() {
+            continue;
+        }
+        let on_disk = crate::platform::allocated_size(&disk, &meta);
+        let slack = on_disk.saturating_sub(used);
+        if slack < min {
+            continue;
+        }
+        let mut s = base(DISK_SLACK, Group::Docker, &disk.to_string_lossy());
+        s.title = "Empty space inside Docker Desktop's disk".into();
+        s.location = display_path(ctx, &disk);
+        s.size_bytes = slack;
+        s.full_size_bytes = slack;
+        s.size_is_estimate = true;
+        s.last_used_label = format!("The disk takes {}; Docker stores {} in it", human(on_disk), human(used));
+        s.risk = Risk::Review;
+        s.action = Action::None;
+        s.action_label = "None".into();
+        s.reason = "Docker Desktop's disk does not shrink when images and containers are removed.".into();
+        s.recovery = "Nothing is removed.".into();
+        s.blocked_reason = Some(
+            "Shown for information. Freeboard has no supported way to shrink this disk; Docker Desktop can, under Settings > Resources, which stops Docker briefly."
+                .into(),
+        );
+        s.fingerprint = fingerprint_of(&[&disk.to_string_lossy(), &on_disk.to_string(), &used.to_string()]);
+        out.push(Finding::new(s, Target::None));
+    }
+    Ok(out)
+}
+
+impl Detector for DiskSlack {
+    fn id(&self) -> &'static str {
+        DISK_SLACK
+    }
+    fn platforms(&self) -> &'static [&'static str] {
+        &["macos", "windows"]
+    }
+    fn run(&self, ctx: &ScanContext) -> Result<Vec<Finding>, DetectorError> {
+        let snap = shared(ctx, DISK_SLACK)?;
+        slack_findings(ctx, &snap, SLACK_MIN)
+    }
+}
 
 // ----- pre-cleanup checks ----------------------------------------------------
 

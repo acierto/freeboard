@@ -58,18 +58,19 @@ Implement one group at a time. Each exit gate must pass on macOS, Linux and Wind
 
 ## 5. Disk map and the new detectors, working in the real app (slice 3)
 
-- [ ] 5.1 Add `cache.npm` (folder removal), `cache.jetbrains`, `cache.electron_apps` and `cache.playwright`. Verify fixture tests for evidence rules.
-- [ ] 5.2 Add `docker.disk_slack` as information-only, and check that the existing Docker detectors meet the used-image and attached-volume rules. Verify fixtures for stopped-container references, the 14-day age and the unavailable daemon.
+- [x] 5.1 Add `cache.npm` (folder removal), `cache.jetbrains`, `cache.electron_apps` and `cache.playwright`. Verify fixture tests for evidence rules.
+  - `cache.npm` landed earlier; the other three on 2026-11-08 (`tests::app_caches`).
+- [x] 5.2 Add `docker.disk_slack` as information-only, and check that the existing Docker detectors meet the used-image and attached-volume rules. Verify fixtures for stopped-container references, the 14-day age and the unavailable daemon.
 - [ ] 5.3 Add `ai.ollama` (per-model parts), `ai.huggingface` and `ai.lm_studio` (per-model parts), after checking each tool's real output. Verify with fake-executable and folder fixtures, including malformed output marking the detector unavailable.
 - [ ] 5.4 Add `mobile.ios_backups`, `mobile.android_avd` and `mobile.simulators` with parts. Verify fixtures for age thresholds and the unavailable-runtime rule.
 - [ ] 5.5 Add `tools.node_versions` and `tools.rust_toolchains`, with project-requested versions kept out. Verify fixtures where `.nvmrc`, `engines`, `rust-toolchain.toml` and `package.json` pin versions.
 - [ ] 5.6 Add `apps.unused` (macOS Trash per app; Windows and Linux link to the uninstaller), only when last-opened data exists, with the narrow guard exception and its positive and negative tests.
 - [ ] 5.7 Add `files.duplicates` (size, head hash, then `blake3`; exclusions), `files.large_media`, and the installers rule for 90 days and the listed extensions. Verify near-duplicate, hidden-folder, bundle and repository exclusion fixtures.
 - [ ] 5.8 Add `system.snapshots`, gated on confirming the latest backup, and `system.stale_temp`. Verify fixtures for the confirmed, unconfirmed and running-app cases.
-- [ ] 5.9 Implement `diskmap/` accounting (claims, most-specific priority, inode deduplication, Not explained, coverage, the 1% incomplete flag, macOS purgeable and snapshot reporting) and `get_disk_map`. Verify accounting fixtures for hard links, nesting, unreadable folders and totals within 1%.
-- [ ] 5.10 Implement blind spots, `resolve_blind_spot`, places checked, `map_snapshots` growth and `create_disk_report`. Verify resolving each kind updates coverage, that unavailable is never shown as clean, and that the report contains no file contents.
+- [x] 5.9 Implement `diskmap/` accounting (claims, most-specific priority, inode deduplication, Not explained, coverage, the 1% incomplete flag, macOS purgeable and snapshot reporting) and `get_disk_map`. Verify accounting fixtures for hard links, nesting, unreadable folders and totals within 1%.
+- [x] 5.10 Implement blind spots, `resolve_blind_spot`, places checked, `map_snapshots` growth and `create_disk_report`. Verify resolving each kind updates coverage, that unavailable is never shown as clean, and that the report contains no file contents.
 - [ ] 5.11 Prove scans are read-only across all detectors. Verify the before-and-after fixture tree hash is identical for quick and deep scans, and that symlink traps are not followed.
-- [ ] 5.12 Build the Disk map tab (coverage ring, squarified treemap of buttons, area details with leave-alone rows and item controls, blind spots, growth, places checked, disk report copy with textarea fallback). Add visual entries for each tile and blind-spot state, light and dark, at three widths. Verify PASS.
+- [x] 5.12 Build the Disk map tab (coverage ring, squarified treemap of buttons, area details with leave-alone rows and item controls, blind spots, growth, places checked, disk report copy with textarea fallback). Add visual entries for each tile and blind-spot state, light and dark, at three widths. Verify PASS.
 - [ ] 5.13 Measure quick-scan time and the 1-million-file deep scan on each platform and record them in `docs/performance.md`.
 - [ ] 5.14 Slice 3 exit gate: the click-through shows a real disk map whose totals match used space within 1% (or says it is incomplete), resolves a blind spot, and copies the report, on macOS and Linux (Windows with 2.8).
 

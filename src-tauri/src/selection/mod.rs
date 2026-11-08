@@ -89,7 +89,7 @@ pub fn apply_decisions(items: &mut [Suggestion], d: &Decisions) {
 
 /// An item the pile may hold at all: not blocked, has an action, has
 /// something selected, not kept, and not changed during a cleanup.
-fn can_hold(s: &Suggestion) -> bool {
+pub(crate) fn can_hold(s: &Suggestion) -> bool {
     s.blocked_reason.is_none()
         && s.action != crate::model::Action::None
         && s.size_bytes > 0

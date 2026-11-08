@@ -40,6 +40,7 @@ the size as an estimate (the interface shows "about").
 | `docker.unused_images` | Tagged images no container uses | Review | `docker image rm <tags>` | All | `classifies_fixture_state`, `probe_detects_container_using_image_and_volume` |
 | `docker.stopped_containers` | Containers stopped 14+ days | Review | `docker container rm <ids>` | All | `classifies_fixture_state` |
 | `docker.volumes` | Volumes no container mounts | Risky, individual acknowledgment | `docker volume rm <name>` | All | `inv10_volumes_never_preselected_and_need_ack` |
+| `docker.disk_slack` | Docker Desktop's disk image (`Docker.raw`, `docker_data.vhdx`) on disk minus the total of `docker system df`, when 1 GB or more. macOS reads it only with Full Disk Access (otherwise unavailable, "permission"). Information only: no action, `Target::None`, shown as blocked with how Docker Desktop can shrink it | Review | None | macOS, Windows | `tests::docker::disk_slack_is_information_only`, `disk_slack_reads_docker_usage_and_needs_the_daemon` |
 | `git.worktrees` | Linked worktrees | Review or Risky; removal disabled | `git worktree remove <path>` (not run, see cleanup.md) | All | `tests::git::worktree_state_matrix` |
 | `project.dependencies` | `node_modules`, `.venv` | Safe / Review | Delete / Trash | All | `tests::projects::ownership_evidence_table` |
 | `project.build_output` | `target`, `dist`, `build`, `.next` | Safe | Delete | All | `ownership_evidence_table` |
@@ -49,6 +50,9 @@ the size as an estimate (the interface shows "about").
 | `cache.homebrew` | What `brew cleanup` would remove | Safe | `brew cleanup` | macOS, Linux | `homebrew_dry_run_and_growth`, `homebrew_excluded_on_windows` |
 | `cache.cargo` | `registry/cache`, `registry/src`, `git/db`, `git/checkouts` | Review | Trash | All | `cargo_and_gradle_are_review_trash` |
 | `cache.gradle` | `~/.gradle/caches` | Review; blocked while a daemon runs or when unknown | Trash | All | `gradle_blocked_while_daemon_runs_or_unknown`, `gradle_probe_rechecks_daemon` |
+| `cache.jetbrains` | Cache (and on macOS log) folders of JetBrains IDE versions older than the newest version of the same product, judged from caches and settings folders; one part per version | Safe | Delete | All | `tests::app_caches::jetbrains_offers_only_versions_older_than_the_newest`, `jetbrains_with_one_version_per_product_offers_nothing` |
+| `cache.electron_apps` | `Cache`, `Code Cache`, `GPUCache`, `Service Worker/CacheStorage` of Slack, Discord and Teams; one part per closed app. An open app (process name on macOS and Linux, Chromium's `lockfile` on Windows) is its own blocked item; unknown blocks | Safe | Delete | All | `electron_caches_only_while_the_app_is_closed`, `electron_unknown_process_state_blocks` |
+| `cache.playwright` | `ms-playwright/<browser>-<revision>` folders that no project's `playwright-core/browsers.json` asks for and that are not the newest revision of their browser; deep scans only; unreadable `browsers.json` marks it unavailable | Safe | Delete | All | `playwright_keeps_what_projects_need_and_the_newest`, `playwright_unreadable_needs_mark_it_unavailable` |
 | `cache.xcode` | DerivedData | Safe | Delete | macOS | `xcode_and_simulators_are_macos_only` |
 | `cache.simulators` | Unavailable simulators | Review | `xcrun simctl delete <exact UDIDs>` | macOS | `xcode_and_simulators_are_macos_only` |
 | `files.installers` | `.dmg .pkg .exe .msi .AppImage .deb .rpm .iso` in Downloads not opened or modified for 90 days | Review | Trash | All | `tests::files::downloads_only_old_installers` |
