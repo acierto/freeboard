@@ -298,6 +298,32 @@ const settingsEntry = (id, state, steps, lang) => ({
 // Reference edits run in the page, so they get openSheet as source text.
 const OPEN_SHEET = openSheet.toString();
 
+// ---- selection (slice 1, task 3.8) and Keep me tidy (task 6.2) --------------
+
+/** The helm after a choice: goals, Where from, manual mode, the pile. */
+const helmEntry = (id, state, steps) => ({ id, surface: "Home", state, sizes: [DESKTOP, MID, PHONE], query: "", ref: [...steps, evalRef(tossNoteContrast)], impl: steps, clip: HOME, supplemental: true, note: TNOTE });
+/** Quick questions: the question card, groups, parts and the protected card. */
+const qEntry = (id, state, steps, clip) => ({ id, surface: "Quick questions", state, sizes: [DESKTOP, MID, PHONE], query: "", ref: [...steps, evalRef(biggestGroupFirst)], impl: steps, clip, supplemental: true, note: BIGGEST + " " + SCALE });
+const LATER = question("later");
+
+function tidyAsk() {
+  // Turning a Keep me tidy rule on first says what it removes (spec "Keep me
+  // tidy rules"); the prototype's switch turns on at once. The panel is
+  // built from the prototype's .note, .row and .btn components in a
+  // supplemental .tidy-ask box, after the package-cache switch.
+  const sw = document.getElementById("auto-caches");
+  sw.checked = true;
+  const box = document.createElement("div");
+  box.className = "tidy-ask";
+  box.innerHTML =
+    '<p class="note">When it runs, it removes: pnpm store, pip cache, npm cache, Homebrew cache.</p>' +
+    '<p class="note">Only items marked Safe, never anything you chose to keep. Every run shows in the Logbook.</p>' +
+    '<div class="row" style="gap:8px"><button class="btn primary">Turn on</button><button class="btn">Cancel</button></div>';
+  sw.closest("label").after(box);
+}
+const TIDY_ASK = "Turning a rule on first lists what it removes, with Turn on and Cancel (spec \u201cKeep me tidy rules\u201d); the prototype's switch turns on at once. Built from the prototype's .note, .row and .btn in a supplemental .tidy-ask box.";
+const TIDY = ['#v-tidy .card:has(#auto-caches)'];
+
 /** @type {Array<{id:string,surface:string,state:string,sizes:number[][],query?:string,ref:any[],impl:any[],supplemental?:boolean,note?:string,motion?:boolean,themes?:string[]}>} */
 export const ENTRIES = [
   // Milestone 2: home at the three disk states, and the tray view (task 2.6).
@@ -332,6 +358,27 @@ export const ENTRIES = [
     id: "risk-row-blocked", surface: "Quick questions", state: "A protected worktree opened, its risk box open", sizes: [DESKTOP, PHONE], query: "",
     ref: [{ click: 'details[data-open="grp-Projects"] > summary' }, { click: "#l-x-wt-pay" }, { click: ".irow:has(#l-x-wt-pay) .riskx > summary" }, evalRef(biggestGroupFirst)], impl: [{ click: 'details[data-open="grp-Projects"] > summary' }, { click: "#l-x-wt-pay" }, { click: ".irow:has(#l-x-wt-pay) .riskx > summary" }], clip: [".irow:has(#l-x-wt-pay)"], supplemental: true, note: BIGGEST + " " + SCALE,
   },
+  // Selection (task 3.8): goals, Where from, manual mode, empty and open
+  // pile; question cards and the finished state; groups and parts open; the
+  // protected card.
+  helmEntry("sel-goal-20", "Goal: 20 GB", [goal(20)]),
+  helmEntry("sel-goal-100", "Goal: 100 GB", [goal(100)]),
+  helmEntry("sel-goal-all", "Goal: All I can", [goal("all")]),
+  helmEntry("sel-from-caches", "Where from: Caches only", [area("Caches")]),
+  helmEntry("sel-from-two", "Where from: Docker and Caches", [area("Docker"), area("Caches")]),
+  helmEntry("sel-pile-open", "The pile opened (See what is inside)", [act("toggle-pile")]),
+  helmEntry("sel-manual", "Manual mode: a crate taken out by hand", [act("toggle-pile"), takeOut("b-target")]),
+  helmEntry("sel-empty", "Empty pile: every crate taken out", [act("toggle-pile"), takeOut("b-node"), takeOut("d-cache"), takeOut("c-derived"), takeOut("b-target")]),
+  qEntry("sel-q-first", "Question card: the first question", [], ["#v-tidy .q"]),
+  qEntry("sel-q-next", "Question card: the next one after Ask me later", [LATER], ["#v-tidy .q"]),
+  qEntry("sel-q-finished", "Question card: every question answered", Array(19).fill(LATER), ["#v-tidy .q, #v-tidy > .card:first-child"]),
+  qEntry("sel-group-open", "Everything I found: Caches opened", [openGroup("grp-Caches")], ['#v-tidy details[data-open="grp-Caches"]']),
+  qEntry("sel-parts-open", "Everything I found: Ollama models, Choose which opened", [openGroup("grp-AI-models"), { click: "#l-x-ai-ollama" }, { click: ".irow:has(#l-x-ai-ollama) details.parts > summary" }], [".irow:has(#l-x-ai-ollama)"]),
+  qEntry("sel-protected", "The protected card", [], ["#v-tidy .protect"]),
+  // Keep me tidy (task 6.2).
+  { id: "tidy-card", surface: "Quick questions", state: "Keep me tidy: both rules off", sizes: [DESKTOP, MID, PHONE], query: "", ...both([]), clip: TIDY },
+  { id: "tidy-ask", surface: "Quick questions", state: "Keep me tidy: turning the package-cache rule on, what it removes", sizes: [DESKTOP, MID, PHONE], query: "", ref: [evalRef(tidyAsk)], impl: [{ click: "#auto-caches" }], clip: TIDY, supplemental: true, note: TIDY_ASK },
+  { id: "tidy-on", surface: "Quick questions", state: "Keep me tidy: the Docker rule on", sizes: [DESKTOP, PHONE], query: "", ref: [{ check: ["#auto-docker", true] }], impl: [{ click: "#auto-docker" }, act("tidy-on")], clip: TIDY },
   mapEntry("map-report", "Disk report shown in the copy-by-hand box", [act("report")]),
   {
     id: "tray-view", surface: "Tray", state: "Menu bar window, Low", sizes: [[362, 560]], query: "view=tray",

@@ -39,7 +39,7 @@ Implement one group at a time. Each exit gate must pass on macOS, Linux and Wind
 - [x] 3.5 Implement `set_item_decision` (Keep, Stop keeping, Ask me later) and `set_item_parts`, persisted by stable resource ID. Verify sizes follow selected parts and decisions survive a rescan.
 - [x] 3.6 Build Quick questions (one card, facts, acknowledgment, Choose which, Add to pile, Keep, don't ask again, Ask me later, finished state with bring-back). Verify ordering and exclusions, and that the Risky tick gates Add to pile.
 - [x] 3.7 Build Everything I found (groups with totals, Remove all here, Add all to pile, item rows with checkbox, Keep or Stop keeping, Choose which) and the protected list. Remove now and Remove all here open the confirmation from group 4; until then they are not shown. Verify group actions exclude blocked, kept, changed and confirmation-needing items, and open groups and focus survive re-render.
-- [ ] 3.8 Add selection visual entries (goals, Where from, manual mode, empty pile, pile open, question cards, finished state, groups and parts open, protected list) in light and dark at three widths. Verify PASS.
+- [x] 3.8 Add selection visual entries (goals, Where from, manual mode, empty pile, pile open, question cards, finished state, groups and parts open, protected list) in light and dark at three widths. Verify PASS.
 - [ ] 3.9 Add a scripted click-through of the real installed app (`scripts/native/`): launch, open each control, screenshot, and compare what it shows with the backend's data. Verify it runs on macOS and the Linux VM.
   - Linux (2026-11-06): `scripts/native/e2e.mjs` drives the installed `.deb` through WebKitWebDriver with fixtures from `scripts/native/fixtures.sh`; 20 of 20 checks pass (`visual/native/linux-gnome/e2e-slice1/`). macOS has no WebDriver for WKWebView, so the macOS click-through is done by hand with real mouse events and screenshots; scripting it (accessibility API) is still open.
 - [ ] 3.10 Slice 1 exit gate: the click-through passes on macOS and Linux (Windows with 2.8): scan finds items, Where from lists their groups, goals fill the pile with Safe items, take-out and Keep work, Quick questions and Everything I found show real items. Attach screenshots and test results.
@@ -79,6 +79,7 @@ Implement one group at a time. Each exit gate must pass on macOS, Linux and Wind
 
 - [x] 6.1 Implement `rules/`: both rules, off by default, rule-sourced plans through `cleanup::run`, low priority, `tidy_rule_ran`, and Logbook records. Verify the off-by-default, kept-item, Review-in-scope and weekly-run tests.
 - [ ] 6.2 Wire the Keep me tidy toggles with the "what it will remove" statement. Verify the UI test, the visual entry and the real app.
+  - UI checks (`scripts/ui/check.mjs`, tidy) and visual entries `tidy-card`, `tidy-ask`, `tidy-on` pass (2026-11-08). The real installed app is still to be checked.
 - [ ] 6.3 Add the just-in-time permission flow (macOS Full Disk Access from its blind spot). Verify the no-early-prompt test.
 - [ ] 6.4 Complete the Settings sheet (scan schedule, startup, notifications, battery, extra volumes). Verify validation and visual entries.
 - [ ] 6.5 Build scan progress, scan failure, detector-unavailable, new-install, no-suggestions and empty-Logbook states, plus Windows and Linux labels. Verify supplemental visual entries, flagged for product-owner review.

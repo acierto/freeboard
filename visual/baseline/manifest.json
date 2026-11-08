@@ -20,8 +20,8 @@
   "locale": "en-US",
   "timezone": "UTC",
   "adapter": "scripts/visual/lib.mjs referenceHtml(): local fonts, data-theme, host reset (src/styles/reset.css), prototype-only controls hidden (.top-right .sim, .top-right [data-act=\"reset\"], .top > div > .note, .top-right .tray, .top-right [data-act=\"welcome\"])",
-  "acceptedAt": "2026-11-07T21:37:14.827Z",
-  "rationale": "Worktrees: rows with uncommitted files have the prototype's acknowledgment, and their command shows --force",
+  "acceptedAt": "2026-11-08T10:30:49.446Z",
+  "rationale": "Selection states (task 3.8): goals 20, 100 and All I can, Where from one and two areas, the pile opened, a crate taken out by hand, an empty pile, the first and next question card, every question answered, Caches opened, Ollama's Choose which opened and the protected card; Keep me tidy (task 6.2): the card with both rules off, turning the package rule on (supplemental: what it removes, with Turn on and Cancel) and the Docker rule on. Light and dark, three widths (2026-11-08)",
   "entries": {
     "cleanup-confirm-ack--dark--1120x900": {
       "id": "cleanup-confirm-ack",
@@ -4239,6 +4239,1434 @@
       "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
       "sha256": "4455fce34ec7d831c118c42316758a237e460f7f688b4c902c7811248cb85119"
     },
+    "sel-empty--dark--1120x900": {
+      "id": "sel-empty",
+      "surface": "Home",
+      "state": "Empty pile: every crate taken out",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "3cd75628c1476c7428db7c25fcbc633e4a4e03043d4b699dbf0718e8e0f35401"
+    },
+    "sel-empty--dark--390x844": {
+      "id": "sel-empty",
+      "surface": "Home",
+      "state": "Empty pile: every crate taken out",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "0587f70e6c657c5baf2fe2c2d4b2ccb8913057e9df84da958099f9c9b926c759"
+    },
+    "sel-empty--dark--760x900": {
+      "id": "sel-empty",
+      "surface": "Home",
+      "state": "Empty pile: every crate taken out",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "c2ccd617c7389a4e11147b12543130e93a7c996bb4c146ad0c9727034a4bba84"
+    },
+    "sel-empty--light--1120x900": {
+      "id": "sel-empty",
+      "surface": "Home",
+      "state": "Empty pile: every crate taken out",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "567a2a5d3f02db752ecca534d75dd3c1e0755dbc3e60ab402fee4a319180648f"
+    },
+    "sel-empty--light--390x844": {
+      "id": "sel-empty",
+      "surface": "Home",
+      "state": "Empty pile: every crate taken out",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "c3a776b9aa3a97b7647bd17a928685db824fd2533e7fb65417094050c022d93e"
+    },
+    "sel-empty--light--760x900": {
+      "id": "sel-empty",
+      "surface": "Home",
+      "state": "Empty pile: every crate taken out",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "c78393b237868395eee5765da9143c5b39042faf47a4ba48ebf7deec75169753"
+    },
+    "sel-from-caches--dark--1120x900": {
+      "id": "sel-from-caches",
+      "surface": "Home",
+      "state": "Where from: Caches only",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "d8c8bf391033ddd286bc7216d0e1f04650cfe89389c7eaa6477e6cc106eff762"
+    },
+    "sel-from-caches--dark--390x844": {
+      "id": "sel-from-caches",
+      "surface": "Home",
+      "state": "Where from: Caches only",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "897513da5e6a224d268c62773492537acef611956e0c05716c094e3c33c0028a"
+    },
+    "sel-from-caches--dark--760x900": {
+      "id": "sel-from-caches",
+      "surface": "Home",
+      "state": "Where from: Caches only",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "ec2a888172338f42e2cb371fa62bae7c7c96098f6f390d1da380be7b9088b556"
+    },
+    "sel-from-caches--light--1120x900": {
+      "id": "sel-from-caches",
+      "surface": "Home",
+      "state": "Where from: Caches only",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "7abd69401c9525e81eb9d622fad5b12b04af47db3620dd7a1a87471a99f8cfde"
+    },
+    "sel-from-caches--light--390x844": {
+      "id": "sel-from-caches",
+      "surface": "Home",
+      "state": "Where from: Caches only",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "dac9831f8f71570439f1ab3905781fbaafa20381b4cfc07a1793ee5405dc8e71"
+    },
+    "sel-from-caches--light--760x900": {
+      "id": "sel-from-caches",
+      "surface": "Home",
+      "state": "Where from: Caches only",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "e11123f6ac155ffd78f6d34ac6bd0b712c813f12cb041e14ee7174e616a76400"
+    },
+    "sel-from-two--dark--1120x900": {
+      "id": "sel-from-two",
+      "surface": "Home",
+      "state": "Where from: Docker and Caches",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "04469758ffe03401f28cfadfef0b46524a6bcbf1b6007fb5d0aa728e476bb311"
+    },
+    "sel-from-two--dark--390x844": {
+      "id": "sel-from-two",
+      "surface": "Home",
+      "state": "Where from: Docker and Caches",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "d6b9f39291e37afe2480b13d7ad09c6137b72b9906a1aafbf1c07d1f11de5f38"
+    },
+    "sel-from-two--dark--760x900": {
+      "id": "sel-from-two",
+      "surface": "Home",
+      "state": "Where from: Docker and Caches",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "ced168d874b176cab09458aa642b6523bdbd7da886f7585f588037f24266e636"
+    },
+    "sel-from-two--light--1120x900": {
+      "id": "sel-from-two",
+      "surface": "Home",
+      "state": "Where from: Docker and Caches",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "cc054608a3afc00ce38d128938c294a3244ac966383af13b0791583e9d1b26c3"
+    },
+    "sel-from-two--light--390x844": {
+      "id": "sel-from-two",
+      "surface": "Home",
+      "state": "Where from: Docker and Caches",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "d39357ac5366f5fce26f2e627a8d246a93d1a941064ad1f1bd78e262604aa2f5"
+    },
+    "sel-from-two--light--760x900": {
+      "id": "sel-from-two",
+      "surface": "Home",
+      "state": "Where from: Docker and Caches",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "ba4622855aee65e9bba3c285d47a81f36ef5331d92332b202d4530281e85294a"
+    },
+    "sel-goal-100--dark--1120x900": {
+      "id": "sel-goal-100",
+      "surface": "Home",
+      "state": "Goal: 100 GB",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "fc70f953a1b3a95a8a9d981bbcd06779f27ae02091266ab62274059777d3979c"
+    },
+    "sel-goal-100--dark--390x844": {
+      "id": "sel-goal-100",
+      "surface": "Home",
+      "state": "Goal: 100 GB",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "d991a4a5122bf9f3e9c73a5c50e6e54238f0fcfca9f2881ab1cfc97a529f6947"
+    },
+    "sel-goal-100--dark--760x900": {
+      "id": "sel-goal-100",
+      "surface": "Home",
+      "state": "Goal: 100 GB",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "73312eead5960268a46fe84c340f60de3ee82913759041121d69be007e626e17"
+    },
+    "sel-goal-100--light--1120x900": {
+      "id": "sel-goal-100",
+      "surface": "Home",
+      "state": "Goal: 100 GB",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "b162a866749dc3e9391a5b6aec1d1e5c32ff62b91baa85d2ff83d9e85043e85f"
+    },
+    "sel-goal-100--light--390x844": {
+      "id": "sel-goal-100",
+      "surface": "Home",
+      "state": "Goal: 100 GB",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "9e1ae8f83647dcf59422dff13be4298d9b13d14626dd9b45f012c21592c7f2d7"
+    },
+    "sel-goal-100--light--760x900": {
+      "id": "sel-goal-100",
+      "surface": "Home",
+      "state": "Goal: 100 GB",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "e09081382985240f131f35968fd36e144018fc7e00e119adf4b77eb15b689d99"
+    },
+    "sel-goal-20--dark--1120x900": {
+      "id": "sel-goal-20",
+      "surface": "Home",
+      "state": "Goal: 20 GB",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "d62c5d767dc1f510e26e4f8d130e75baa4589d599aa65e8378eb82523a80a5ce"
+    },
+    "sel-goal-20--dark--390x844": {
+      "id": "sel-goal-20",
+      "surface": "Home",
+      "state": "Goal: 20 GB",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "47a0213a44aca344d7b69851bfa013c61c434cca653b5e33982e5ac9c7085f35"
+    },
+    "sel-goal-20--dark--760x900": {
+      "id": "sel-goal-20",
+      "surface": "Home",
+      "state": "Goal: 20 GB",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "c769bd856c1ab1d7f00a9a83c59eb2978fe2ac7e970a635a6819680def7b9e3e"
+    },
+    "sel-goal-20--light--1120x900": {
+      "id": "sel-goal-20",
+      "surface": "Home",
+      "state": "Goal: 20 GB",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "92e74c74567260ebf9e153815f447cd5b53327f33a80b138710a2fea42d335ca"
+    },
+    "sel-goal-20--light--390x844": {
+      "id": "sel-goal-20",
+      "surface": "Home",
+      "state": "Goal: 20 GB",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "b55e407f471602ae52a5c5f0f1dbca3b4132b4afd8b9130de36372de7712468c"
+    },
+    "sel-goal-20--light--760x900": {
+      "id": "sel-goal-20",
+      "surface": "Home",
+      "state": "Goal: 20 GB",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "361eea249b1b3a55bc659c4ce6a96c8467530a76563c0e23114d8f3a3f4a92b3"
+    },
+    "sel-goal-all--dark--1120x900": {
+      "id": "sel-goal-all",
+      "surface": "Home",
+      "state": "Goal: All I can",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "b477655d4efc46e1179d55a63d83c336e1f7d9c529724a530c7947bc29af7b7c"
+    },
+    "sel-goal-all--dark--390x844": {
+      "id": "sel-goal-all",
+      "surface": "Home",
+      "state": "Goal: All I can",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "b4e5a467eb8d602c06e8fe919938b09eb459a9a8d510b032d28026e3d2709284"
+    },
+    "sel-goal-all--dark--760x900": {
+      "id": "sel-goal-all",
+      "surface": "Home",
+      "state": "Goal: All I can",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "66d43e947f30af99736546e7fcb3c61b40508da12c3364a915f89e741d04ba27"
+    },
+    "sel-goal-all--light--1120x900": {
+      "id": "sel-goal-all",
+      "surface": "Home",
+      "state": "Goal: All I can",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "333450877a4a697a002d13893fd0cec19dde11a5c8e4aa51bc5f069d6ebb2d7b"
+    },
+    "sel-goal-all--light--390x844": {
+      "id": "sel-goal-all",
+      "surface": "Home",
+      "state": "Goal: All I can",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "279f8455367dad76ca8ae65bd1878eaee557971a0b9fbf7928c08f6e3686a569"
+    },
+    "sel-goal-all--light--760x900": {
+      "id": "sel-goal-all",
+      "surface": "Home",
+      "state": "Goal: All I can",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "fbbf2254e513c92fc46ae2b43142c763d5c4c4fd91fc09ad24bc2f5480613191"
+    },
+    "sel-group-open--dark--1120x900": {
+      "id": "sel-group-open",
+      "surface": "Quick questions",
+      "state": "Everything I found: Caches opened",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "2231d9190cec3ec2cc101cf62ccb68532cb9752d0643d8362af7150edb9ee417"
+    },
+    "sel-group-open--dark--390x844": {
+      "id": "sel-group-open",
+      "surface": "Quick questions",
+      "state": "Everything I found: Caches opened",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "964251e67486e4de30159162af442170711a2b6461b11382d587337e2975eaec"
+    },
+    "sel-group-open--dark--760x900": {
+      "id": "sel-group-open",
+      "surface": "Quick questions",
+      "state": "Everything I found: Caches opened",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "6e99f2850af1a90f5482da68bc52cefc44dea8c003330f44c801289f99d52297"
+    },
+    "sel-group-open--light--1120x900": {
+      "id": "sel-group-open",
+      "surface": "Quick questions",
+      "state": "Everything I found: Caches opened",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "17bfbe69fc066cc34b98214d4282f114bf4b1dd555e8d046dc736cf0fc76a6a0"
+    },
+    "sel-group-open--light--390x844": {
+      "id": "sel-group-open",
+      "surface": "Quick questions",
+      "state": "Everything I found: Caches opened",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "8702a7fa98a6ea0276b86af63a2ae17a3803fed7e7bc008a1d397b59a86cafbb"
+    },
+    "sel-group-open--light--760x900": {
+      "id": "sel-group-open",
+      "surface": "Quick questions",
+      "state": "Everything I found: Caches opened",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "eca14a0a09ab39578854c405f0bd98bec659bc73da7927b6c64825f66c831f45"
+    },
+    "sel-manual--dark--1120x900": {
+      "id": "sel-manual",
+      "surface": "Home",
+      "state": "Manual mode: a crate taken out by hand",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "685d1f4723f6bd31b96fc289acad8552539669b93d8114c2649e5a665b68b2a2"
+    },
+    "sel-manual--dark--390x844": {
+      "id": "sel-manual",
+      "surface": "Home",
+      "state": "Manual mode: a crate taken out by hand",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "334886aa7fd31cd8f1e8c6beac3a169cdf6f3891186cb1871833aa9a38c7bd8d"
+    },
+    "sel-manual--dark--760x900": {
+      "id": "sel-manual",
+      "surface": "Home",
+      "state": "Manual mode: a crate taken out by hand",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "bf1a9b84ad4ef38192a96ef3a12fbbd7bd0d63e8468bb44fa30ace59fda6d331"
+    },
+    "sel-manual--light--1120x900": {
+      "id": "sel-manual",
+      "surface": "Home",
+      "state": "Manual mode: a crate taken out by hand",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "cfc5d8b573450f76e9a137307dd8156897af256051af204f64c123ec85f5250a"
+    },
+    "sel-manual--light--390x844": {
+      "id": "sel-manual",
+      "surface": "Home",
+      "state": "Manual mode: a crate taken out by hand",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "655eb32e8af721322b24f85445bc829ddc10e85dc876dff399fae005f24126ec"
+    },
+    "sel-manual--light--760x900": {
+      "id": "sel-manual",
+      "surface": "Home",
+      "state": "Manual mode: a crate taken out by hand",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "6fce91eb4c46a62660fead2883c0e9cbfb89aad594eea17a431243aab331908d"
+    },
+    "sel-parts-open--dark--1120x900": {
+      "id": "sel-parts-open",
+      "surface": "Quick questions",
+      "state": "Everything I found: Ollama models, Choose which opened",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "22fd69e67004e474d5c0f2ec95ab686bb058172f8204c9cd62d1e929e436f4da"
+    },
+    "sel-parts-open--dark--390x844": {
+      "id": "sel-parts-open",
+      "surface": "Quick questions",
+      "state": "Everything I found: Ollama models, Choose which opened",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "a8f68514e719da7aafbbe13f5b584097d5cefb2d2bbf757f3804708b8d1ed3df"
+    },
+    "sel-parts-open--dark--760x900": {
+      "id": "sel-parts-open",
+      "surface": "Quick questions",
+      "state": "Everything I found: Ollama models, Choose which opened",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "cc324f2106390a0bad8f79e7e754c55401b502c652ded1f753ccef689d63edf8"
+    },
+    "sel-parts-open--light--1120x900": {
+      "id": "sel-parts-open",
+      "surface": "Quick questions",
+      "state": "Everything I found: Ollama models, Choose which opened",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "4609405be6048c116641fc1b99f19c05d465354575002600f7954766de60aa5a"
+    },
+    "sel-parts-open--light--390x844": {
+      "id": "sel-parts-open",
+      "surface": "Quick questions",
+      "state": "Everything I found: Ollama models, Choose which opened",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "48cb0ed18b08dc3ba7d3b737dad5bebfde3840d250efb4a28cc4f749c5bb38c5"
+    },
+    "sel-parts-open--light--760x900": {
+      "id": "sel-parts-open",
+      "surface": "Quick questions",
+      "state": "Everything I found: Ollama models, Choose which opened",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "59364c4f5e1c753321d7a293c3422af75745dc7cf85e4101128cdf0cc273b061"
+    },
+    "sel-pile-open--dark--1120x900": {
+      "id": "sel-pile-open",
+      "surface": "Home",
+      "state": "The pile opened (See what is inside)",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "813fd36afc4ab04b6b7bad6821657a8c2009104ba115276e09a1419d2fc1a396"
+    },
+    "sel-pile-open--dark--390x844": {
+      "id": "sel-pile-open",
+      "surface": "Home",
+      "state": "The pile opened (See what is inside)",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "6b9f56f5b4329316143991909170b16ae59c35e324903d3934a8dbb8c4587f17"
+    },
+    "sel-pile-open--dark--760x900": {
+      "id": "sel-pile-open",
+      "surface": "Home",
+      "state": "The pile opened (See what is inside)",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "08b01e6964108088e0a8e216072b8c8bb75b6117d335e4294cf73eef1ffbbf06"
+    },
+    "sel-pile-open--light--1120x900": {
+      "id": "sel-pile-open",
+      "surface": "Home",
+      "state": "The pile opened (See what is inside)",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "a7c8b55be960a6a1df99764019ea304a8b09d6fe950882eb449adc5316adf352"
+    },
+    "sel-pile-open--light--390x844": {
+      "id": "sel-pile-open",
+      "surface": "Home",
+      "state": "The pile opened (See what is inside)",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "8c35420ec6339bdf7143a41383c6a2e97c73e7b755eb2bb94573131a65e8f7f3"
+    },
+    "sel-pile-open--light--760x900": {
+      "id": "sel-pile-open",
+      "surface": "Home",
+      "state": "The pile opened (See what is inside)",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "f3c04bfc5fcd88d77d89ef4a6aeff3cbb59f4277d18b68c50a668f0b416d8c1f"
+    },
+    "sel-protected--dark--1120x900": {
+      "id": "sel-protected",
+      "surface": "Quick questions",
+      "state": "The protected card",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "2c073f7c83ee5472258b148632a53d7ddc2e26f8f99072663e66f2e5bfcd47a4"
+    },
+    "sel-protected--dark--390x844": {
+      "id": "sel-protected",
+      "surface": "Quick questions",
+      "state": "The protected card",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "e74286a796a5281be15faddd3f6f92f6191ce93ca7925718c9ca7118a1b0f322"
+    },
+    "sel-protected--dark--760x900": {
+      "id": "sel-protected",
+      "surface": "Quick questions",
+      "state": "The protected card",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "3fa055d730ebc53bed205f7bb4b8e00199abe641090533f783c374853866dfb2"
+    },
+    "sel-protected--light--1120x900": {
+      "id": "sel-protected",
+      "surface": "Quick questions",
+      "state": "The protected card",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "257d160369aeed64ca6440a3135fb7af5b245f3a5aff3b0275648b4dffcd5631"
+    },
+    "sel-protected--light--390x844": {
+      "id": "sel-protected",
+      "surface": "Quick questions",
+      "state": "The protected card",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "807ab82d4ced4971b5a58bdca6d02b3b75dbaac4bdc08a91ed8e205b898f1f1f"
+    },
+    "sel-protected--light--760x900": {
+      "id": "sel-protected",
+      "surface": "Quick questions",
+      "state": "The protected card",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "3f74595e6a2d1a7c7bdefc91b5448b874f88fa8affd20126defa4ece62d836e5"
+    },
+    "sel-q-finished--dark--1120x900": {
+      "id": "sel-q-finished",
+      "surface": "Quick questions",
+      "state": "Question card: every question answered",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "a64f42992a8ad43f409037b6163664d641a74c445178a6778a2bf0e6fc12dc74"
+    },
+    "sel-q-finished--dark--390x844": {
+      "id": "sel-q-finished",
+      "surface": "Quick questions",
+      "state": "Question card: every question answered",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "241351ebaac08f9be1aa816be3a99f004163df55b396c8ba097e3b05f5a9088c"
+    },
+    "sel-q-finished--dark--760x900": {
+      "id": "sel-q-finished",
+      "surface": "Quick questions",
+      "state": "Question card: every question answered",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "497a9eb7679e7cf34e98ab9a8dea07616ec01ff7ae41029c55c770e003830cef"
+    },
+    "sel-q-finished--light--1120x900": {
+      "id": "sel-q-finished",
+      "surface": "Quick questions",
+      "state": "Question card: every question answered",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "ed840289720ee3e5009322632da3c2904d4638cd16dfc16cecaa2d1b2601585c"
+    },
+    "sel-q-finished--light--390x844": {
+      "id": "sel-q-finished",
+      "surface": "Quick questions",
+      "state": "Question card: every question answered",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "94f2191dd2d9bc046c0a2c79836039f78a33d69ac850fc33e4c46247a4d50bb3"
+    },
+    "sel-q-finished--light--760x900": {
+      "id": "sel-q-finished",
+      "surface": "Quick questions",
+      "state": "Question card: every question answered",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "e24d941242b696abb233126d92b44f31ca1012a44ba6436f014b0b1bdf51801f"
+    },
+    "sel-q-first--dark--1120x900": {
+      "id": "sel-q-first",
+      "surface": "Quick questions",
+      "state": "Question card: the first question",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "3b56d25bcf1abb81adac98e7adb26ddd89e7b72ee53be26a242954aa4077fed5"
+    },
+    "sel-q-first--dark--390x844": {
+      "id": "sel-q-first",
+      "surface": "Quick questions",
+      "state": "Question card: the first question",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "95e2060659c14e2951395f93983ba5473344c3f5802a1c8b4f8c730e61efab38"
+    },
+    "sel-q-first--dark--760x900": {
+      "id": "sel-q-first",
+      "surface": "Quick questions",
+      "state": "Question card: the first question",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "ac82beebaff85d8304f0600357991cd772700f4e8472701976663758fe8dd6f8"
+    },
+    "sel-q-first--light--1120x900": {
+      "id": "sel-q-first",
+      "surface": "Quick questions",
+      "state": "Question card: the first question",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "f033ed49974b376744ea7c427f15fc2d158bfad07a870595e265aa7662ebc558"
+    },
+    "sel-q-first--light--390x844": {
+      "id": "sel-q-first",
+      "surface": "Quick questions",
+      "state": "Question card: the first question",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "d2cc25423896dad653f017079e60060a10964718ed05ece33a969ebf5e4bdbf0"
+    },
+    "sel-q-first--light--760x900": {
+      "id": "sel-q-first",
+      "surface": "Quick questions",
+      "state": "Question card: the first question",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "9da03a1d2ba8fdd606228eeaf5c8f3d111f05e057539672c77a8b26293bcb2d3"
+    },
+    "sel-q-next--dark--1120x900": {
+      "id": "sel-q-next",
+      "surface": "Quick questions",
+      "state": "Question card: the next one after Ask me later",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "f1066beaebe305f73905b64530bc90c981bf485b4407251f78898399f1ada60b"
+    },
+    "sel-q-next--dark--390x844": {
+      "id": "sel-q-next",
+      "surface": "Quick questions",
+      "state": "Question card: the next one after Ask me later",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "87d00be7c3d061bee6908c60cfe511902c22ee83c58e0f6e72197c4024fccbe9"
+    },
+    "sel-q-next--dark--760x900": {
+      "id": "sel-q-next",
+      "surface": "Quick questions",
+      "state": "Question card: the next one after Ask me later",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "65179a3594c2963c500df35de88175eba3bf307ff404b2ef73b8008df1762370"
+    },
+    "sel-q-next--light--1120x900": {
+      "id": "sel-q-next",
+      "surface": "Quick questions",
+      "state": "Question card: the next one after Ask me later",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "ce46e0791d28f12d89a63f9e5f0eb729b9d846dedfd189b92fb2f311f5a27d76"
+    },
+    "sel-q-next--light--390x844": {
+      "id": "sel-q-next",
+      "surface": "Quick questions",
+      "state": "Question card: the next one after Ask me later",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "da1cb4b6f1c1f4f821e935f9c86548772442a04a8564b4b73fee27a6c20876a3"
+    },
+    "sel-q-next--light--760x900": {
+      "id": "sel-q-next",
+      "surface": "Quick questions",
+      "state": "Question card: the next one after Ask me later",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way. The risk scale's other levels keep readable text (supplemental.css): the prototype's 50% opacity fails WCAG AA contrast.",
+      "sha256": "3b1aaac6d992422d9712f4af040bf20d90d1efa42f001d62c10ab681c2b4facb"
+    },
     "settings-sheet--dark--1120x900": {
       "id": "settings-sheet",
       "surface": "Settings",
@@ -4578,6 +6006,278 @@
       "supplemental": true,
       "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used.",
       "sha256": "879b61a43e2d89330b6c8c4b4d3ea3c27525fd328eecfa1987347eb29c49fc7a"
+    },
+    "tidy-ask--dark--1120x900": {
+      "id": "tidy-ask",
+      "surface": "Quick questions",
+      "state": "Keep me tidy: turning the package-cache rule on, what it removes",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Turning a rule on first lists what it removes, with Turn on and Cancel (spec “Keep me tidy rules”); the prototype's switch turns on at once. Built from the prototype's .note, .row and .btn in a supplemental .tidy-ask box.",
+      "sha256": "585aa16b6057fa64bf6a003751971d89315b6d1d6de5f30c8a9f9c5382ae1032"
+    },
+    "tidy-ask--dark--390x844": {
+      "id": "tidy-ask",
+      "surface": "Quick questions",
+      "state": "Keep me tidy: turning the package-cache rule on, what it removes",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Turning a rule on first lists what it removes, with Turn on and Cancel (spec “Keep me tidy rules”); the prototype's switch turns on at once. Built from the prototype's .note, .row and .btn in a supplemental .tidy-ask box.",
+      "sha256": "324b3ac72ef756495147384d497da27279c2da36e1e2092816af8f0c8fa81b57"
+    },
+    "tidy-ask--dark--760x900": {
+      "id": "tidy-ask",
+      "surface": "Quick questions",
+      "state": "Keep me tidy: turning the package-cache rule on, what it removes",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Turning a rule on first lists what it removes, with Turn on and Cancel (spec “Keep me tidy rules”); the prototype's switch turns on at once. Built from the prototype's .note, .row and .btn in a supplemental .tidy-ask box.",
+      "sha256": "db5709abbc055b382a17cff39d9af336fa0810577acbfbc9a0d5afecd1c8a7b8"
+    },
+    "tidy-ask--light--1120x900": {
+      "id": "tidy-ask",
+      "surface": "Quick questions",
+      "state": "Keep me tidy: turning the package-cache rule on, what it removes",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Turning a rule on first lists what it removes, with Turn on and Cancel (spec “Keep me tidy rules”); the prototype's switch turns on at once. Built from the prototype's .note, .row and .btn in a supplemental .tidy-ask box.",
+      "sha256": "30c164540cf289d9b6b69eeaba032af757aa96194ddca815af5e0f901e5de90a"
+    },
+    "tidy-ask--light--390x844": {
+      "id": "tidy-ask",
+      "surface": "Quick questions",
+      "state": "Keep me tidy: turning the package-cache rule on, what it removes",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Turning a rule on first lists what it removes, with Turn on and Cancel (spec “Keep me tidy rules”); the prototype's switch turns on at once. Built from the prototype's .note, .row and .btn in a supplemental .tidy-ask box.",
+      "sha256": "87c5134b65718ed11b851b77022daeed4cda25d4b031fa267384eefb4518a66b"
+    },
+    "tidy-ask--light--760x900": {
+      "id": "tidy-ask",
+      "surface": "Quick questions",
+      "state": "Keep me tidy: turning the package-cache rule on, what it removes",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Turning a rule on first lists what it removes, with Turn on and Cancel (spec “Keep me tidy rules”); the prototype's switch turns on at once. Built from the prototype's .note, .row and .btn in a supplemental .tidy-ask box.",
+      "sha256": "03454ff3b594769116b3f1b84db439012ad63007055cffac394a71d09923a9f9"
+    },
+    "tidy-card--dark--1120x900": {
+      "id": "tidy-card",
+      "surface": "Quick questions",
+      "state": "Keep me tidy: both rules off",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": false,
+      "note": null,
+      "sha256": "eb65e1341d94a3ca4d6e43d9a3f623e3f7d1c2df6e18e5c6506885b1228c2fdd"
+    },
+    "tidy-card--dark--390x844": {
+      "id": "tidy-card",
+      "surface": "Quick questions",
+      "state": "Keep me tidy: both rules off",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": false,
+      "note": null,
+      "sha256": "0311c211d793a9d915bd0ac72e1be9d186a370b8c2fa3a0f923a7d39c8d918dd"
+    },
+    "tidy-card--dark--760x900": {
+      "id": "tidy-card",
+      "surface": "Quick questions",
+      "state": "Keep me tidy: both rules off",
+      "theme": "dark",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": false,
+      "note": null,
+      "sha256": "e384771085f2f2a561399baad416bd878ea3bfaa72a2da92aea382768dbe6ef3"
+    },
+    "tidy-card--light--1120x900": {
+      "id": "tidy-card",
+      "surface": "Quick questions",
+      "state": "Keep me tidy: both rules off",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": false,
+      "note": null,
+      "sha256": "91a1adce9d604d9fb550c13283c54f1a24b4bfad1e155d2611270ba57ab3bd04"
+    },
+    "tidy-card--light--390x844": {
+      "id": "tidy-card",
+      "surface": "Quick questions",
+      "state": "Keep me tidy: both rules off",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": false,
+      "note": null,
+      "sha256": "90e3fc82b692ed95fcaba0ce4a3eeec3e5dfcdded2701d55b52d33720b881b99"
+    },
+    "tidy-card--light--760x900": {
+      "id": "tidy-card",
+      "surface": "Quick questions",
+      "state": "Keep me tidy: both rules off",
+      "theme": "light",
+      "viewport": {
+        "width": 760,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": false,
+      "note": null,
+      "sha256": "48ed2a2eea8df232d706943b5a3f96668adfb69a15434fae1f2e7d5071fef56b"
+    },
+    "tidy-on--dark--1120x900": {
+      "id": "tidy-on",
+      "surface": "Quick questions",
+      "state": "Keep me tidy: the Docker rule on",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": false,
+      "note": null,
+      "sha256": "c0ff32a86fc139e93c40ca3aa1e5c3552d2408e0c7ffb7fd85ca1c53453a0893"
+    },
+    "tidy-on--dark--390x844": {
+      "id": "tidy-on",
+      "surface": "Quick questions",
+      "state": "Keep me tidy: the Docker rule on",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": false,
+      "note": null,
+      "sha256": "42e0afa9033b5375d4235ea7d2a854340646dfa0b3fc69c1fa0e899fac7867d5"
+    },
+    "tidy-on--light--1120x900": {
+      "id": "tidy-on",
+      "surface": "Quick questions",
+      "state": "Keep me tidy: the Docker rule on",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": false,
+      "note": null,
+      "sha256": "60a6144b9d5ee410aa83815ec1f2a81497ae374e2a530242b812abc890a6a18b"
+    },
+    "tidy-on--light--390x844": {
+      "id": "tidy-on",
+      "surface": "Quick questions",
+      "state": "Keep me tidy: the Docker rule on",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": false,
+      "note": null,
+      "sha256": "b8d737189e691d36744ad7f23bd942a725ff47e3fc176df2da4e7042c3ce6868"
     },
     "trash-confirm--dark--1120x900": {
       "id": "trash-confirm",

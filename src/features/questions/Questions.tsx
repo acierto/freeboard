@@ -4,7 +4,7 @@
 import { isWorktree } from "../worktrees/worktreesModel";
 import { areaName, t } from "../../i18n";
 import { itemName, tb } from "../../i18n/backend";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { api, errorText } from "../../lib/api";
 import { track } from "../../lib/useBusy";
 import { GROUPS, RISK_LABEL, gb } from "../../lib/format";
@@ -333,7 +333,9 @@ function KeepMeTidy() {
       <h3>{t("k.title")}</h3>
       <p className="note">{t("k.note")}</p>
       {(rules ?? []).map((r) => (
-        <div key={r.id} className="stack" style={{ gap: 6 }}>
+        // Siblings, as in the prototype: each switch is a direct child of
+        // the card's stack.
+        <Fragment key={r.id}>
           <label className="toggle">
             <input
               type="checkbox"
@@ -363,7 +365,7 @@ function KeepMeTidy() {
               {r.lastResult === "done" ? t("k.lastdone", { x: gb(Math.max(0, r.lastBytesFreed ?? 0)) }) : r.lastResult === "nothing" ? t("k.lastnothing") : t("k.lastfailed")}
             </p>
           )}
-        </div>
+        </Fragment>
       ))}
       {error && <p className="muted">{tb(error)}</p>}
     </div>
