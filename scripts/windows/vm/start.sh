@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # Start the disposable Freeboard Windows 11 ARM64 test VM with QEMU (HVF).
 #   scripts/windows/vm/start.sh   creates the VM on first run (unattended install), then boots it
-# Needs in ~/soft/vms/freeboard-windows/: windows.iso (Microsoft's Windows 11 Arm64 ISO)
+# Needs in ~/soft/vms/windows/: windows.iso (Microsoft's Windows 11 Arm64 ISO)
 # and virtio-win.iso (Fedora virtio drivers; NetKVM for the network card).
 # SSH after setup: scripts/windows/vm/ssh.sh   QMP: qmp.py shot|keys
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
-V="${VMS_DIR:-$HOME/soft/vms}/freeboard-windows"
+V="${VMS_DIR:-$HOME/soft/vms}/windows"
 KEY="$HOME/.ssh/freeboard_vm"
 # Homebrew QEMU 9.x: its UEFI firmware boots from NVMe (the 2022 MacPorts
 # QEMU 7.1 firmware cannot, although Windows setup itself sees the disk).

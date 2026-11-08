@@ -5,7 +5,7 @@ usage: screendump.py OUT.png
 """
 import json, os, socket, sys
 
-sock = os.path.join(os.environ.get("VMS_DIR", os.path.expanduser("~/soft/vms")), "freeboard-linux", "qmp.sock")
+sock = os.path.join(os.environ.get("VMS_DIR", os.path.expanduser("~/soft/vms")), "linux", "qmp.sock")
 out = os.path.abspath(sys.argv[1])
 s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 s.connect(sock)

@@ -9,7 +9,7 @@ usage: qmp.py shot OUT.png        screenshot
 import json, os, socket, subprocess, sys
 
 s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-s.connect(os.path.join(os.environ.get("VMS_DIR", os.path.expanduser("~/soft/vms")), "freeboard-windows", "qmp.sock"))
+s.connect(os.path.join(os.environ.get("VMS_DIR", os.path.expanduser("~/soft/vms")), "windows", "qmp.sock"))
 f = s.makefile("rw")
 f.readline()  # greeting
 

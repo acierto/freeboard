@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Start the disposable Freeboard Linux test VM with QEMU (HVF acceleration).
 #   scripts/linux/vm/start.sh            create on first run, then boot
-# VM files live in ~/soft/vms/freeboard-linux/. SSH: ssh -p 2222 -i ~/.ssh/freeboard_vm dev@127.0.0.1
-# QMP control socket: ~/soft/vms/freeboard-linux/qmp.sock (screenshots and input from the host).
+# VM files live in ~/soft/vms/linux/. SSH: ssh -p 2222 -i ~/.ssh/freeboard_vm dev@127.0.0.1
+# QMP control socket: ~/soft/vms/linux/qmp.sock (screenshots and input from the host).
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
-V="${VMS_DIR:-$HOME/soft/vms}/freeboard-linux"
+V="${VMS_DIR:-$HOME/soft/vms}/linux"
 KEY="$HOME/.ssh/freeboard_vm"
 FW=/opt/local/share/qemu/edk2-aarch64-code.fd
 QEMU=/opt/local/bin/qemu-system-aarch64
