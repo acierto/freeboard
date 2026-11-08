@@ -20,8 +20,8 @@
   "locale": "en-US",
   "timezone": "UTC",
   "adapter": "scripts/visual/lib.mjs referenceHtml(): local fonts, data-theme, host reset (src/styles/reset.css), prototype-only controls hidden (.top-right .sim, .top-right [data-act=\"reset\"], .top > div > .note, .top-right .tray, .top-right [data-act=\"welcome\"])",
-  "acceptedAt": "2026-11-08T11:01:13.916Z",
-  "rationale": "States (task 6.5), supplemental and flagged for product-owner review: places the last scan could not check (one line per cause), Everything I found on a new install and after a scan that found nothing (desktop), the empty Logbook, a running scan under the Toss button, and the Trash line in the Recycle Bin (Windows) and Trash (Linux) words; light and dark. For the empty states the helm above the clip takes the app's height so the card lands on the same sub-pixel position (2026-11-08)",
+  "acceptedAt": "2026-11-08T11:11:26.146Z",
+  "rationale": "First run, tools found: a tool that is not installed keeps its line-through at full opacity (supplemental.css); the prototype's 70% fails WCAG AA contrast, found by axe in task 6.6. Affected: first-run-folders in English, German and French (2026-11-08)",
   "entries": {
     "cleanup-confirm-ack--dark--1120x900": {
       "id": "cleanup-confirm-ack",
@@ -548,7 +548,7 @@
       "fixture": "firstrun=1",
       "supplemental": true,
       "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
-      "sha256": "d2c2e5a1028421d7a4e8ed510f09e57d5fe6f72a4ca950646f2f6dc1f0446c37"
+      "sha256": "d198d87f02f21d6744e2b15cae1deab8d489112710512f55e9d72d9c040f1672"
     },
     "first-run-folders--light--1120x900": {
       "id": "first-run-folders",
@@ -565,7 +565,7 @@
       "fixture": "firstrun=1",
       "supplemental": true,
       "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
-      "sha256": "d4e05e2fe2de2855d353147f51baf488e0e7bdd98a298e5fd1c89aecf3b9b609"
+      "sha256": "ea4c233b65d1a237d13ad8e2b20cee4755429a9aeca832b9f2c83177209b9772"
     },
     "first-run-folders-de--dark--1120x900": {
       "id": "first-run-folders-de",
@@ -582,7 +582,7 @@
       "fixture": "firstrun=1",
       "supplemental": true,
       "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
-      "sha256": "ce9d84bb75f3ca90adae8bd4f398e6f681542056e4bc150134b5231e8a630e22"
+      "sha256": "e9aa01cde91833c04234ba8d215ba0f3995c520f499d4c1b2bf56c81caa34729"
     },
     "first-run-folders-de--light--1120x900": {
       "id": "first-run-folders-de",
@@ -599,7 +599,7 @@
       "fixture": "firstrun=1",
       "supplemental": true,
       "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
-      "sha256": "1f58b0be179382920e6c833555bcabb3210e01a48e9a08ca0cd960b88ea93f22"
+      "sha256": "5cc5379229511a28f45196960d20d68f76bcdc26546dca421775e21e6936ef06"
     },
     "first-run-folders-fr--dark--1120x900": {
       "id": "first-run-folders-fr",
@@ -616,7 +616,7 @@
       "fixture": "firstrun=1",
       "supplemental": true,
       "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
-      "sha256": "b86ab5cce84badd967f358ef56e6f95ef55981640ae06b1caf600303f349fbb0"
+      "sha256": "2052f864939bde83e60fccd96754b81f1e4531971ea2a5173464a9c78eeb4e2f"
     },
     "first-run-folders-fr--light--1120x900": {
       "id": "first-run-folders-fr",
@@ -633,7 +633,7 @@
       "fixture": "firstrun=1",
       "supplemental": true,
       "note": "The app shows first run on its own, so the prototype's demo page behind it is hidden. Folders step: the app offers folders that hold Git repositories, not Downloads, so the reference's Downloads card is removed.",
-      "sha256": "11a836eec59dbc441006c78e343ec36998ba6118b44156d2c2b957c4015bef9d"
+      "sha256": "70207bf6baffbfa553f6e01505167dec00376af4808bdf78892641321066b5ea"
     },
     "first-run-hello--dark--1120x900": {
       "id": "first-run-hello",

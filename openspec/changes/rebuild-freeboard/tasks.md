@@ -84,6 +84,7 @@ Implement one group at a time. Each exit gate must pass on macOS, Linux and Wind
 - [x] 6.4 Complete the Settings sheet (scan schedule, startup, notifications, battery, extra volumes). Verify validation and visual entries.
 - [x] 6.5 Build scan progress, scan failure, detector-unavailable, new-install, no-suggestions and empty-Logbook states, plus Windows and Linux labels. Verify supplemental visual entries, flagged for product-owner review.
 - [ ] 6.6 Run axe and keyboard checks on every view and sheet (focus visible, focus trap, Esc, focus return, reduced motion, no color-only meaning). Verify zero violations and record screen-reader findings.
+  - axe: 160 checks on every view, sheet and state, light and dark, desktop and phone, zero violations; keyboard checks pass (2026-11-08). Still open: a VoiceOver, NVDA and Orca session by a person.
 - [ ] 6.7 Run the full visual matrix in light and dark at every width, and capture native webview and tray evidence on all three platforms. Verify every row has reference, actual, diff and a review disposition, with none failing or incomplete.
 - [ ] 6.8 Measure installer size, hidden memory, idle CPU, quick scan and deep scan on each platform against the five targets. Fix any misses or record them as decisions.
 - [ ] 6.9 Regenerate `site/` screenshots and the demo video from the new UI, and update `README`, `docs/architecture.md`, `docs/detectors.md` and `docs/cleanup.md`. Verify that the documented commands run as written.

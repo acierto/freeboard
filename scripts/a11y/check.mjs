@@ -41,6 +41,19 @@ const STATES = [
   { id: "tray-view-de", query: "view=tray&lang=de", root: ".tray-window" },
   { id: "first-run-hello-fr", query: "firstrun=1&lang=fr", root: "#ob-root" },
   { id: "first-run-promises-de", query: "firstrun=1&lang=de", click: ["#ob-next", "#ob-next", "#ob-next"], root: "#ob-root" },
+  // Task 6.6: every view and sheet added since, and the empty and error states.
+  { id: "questions", query: "", click: ["#tab-tidy"] },
+  { id: "questions-parts-open", query: "", click: ["#tab-tidy", 'details[data-open="grp-AI-models"] > summary', "#l-x-ai-ollama", ".irow:has(#l-x-ai-ollama) details.parts > summary"] },
+  { id: "questions-finished", query: "", click: ["#tab-tidy", ...Array(19).fill('[data-q="later"]')] },
+  { id: "keep-tidy-ask", query: "", click: ["#tab-tidy", "#auto-caches"], wait: ".tidy-ask" },
+  { id: "settings-background", query: "", click: ['[data-act="settings"]'], wait: "#st-bg" },
+  { id: "state-unchecked", query: "unavail=1", click: ["#tab-tidy"] },
+  { id: "state-new-install", query: "fresh=1", click: ["#tab-tidy"] },
+  { id: "state-nothing-found", query: "nothing=1", click: ["#tab-tidy"] },
+  { id: "state-logbook-empty", query: "fresh=1", click: ["#tab-log"] },
+  { id: "state-scanning", query: "scanning=1" },
+  { id: "state-windows", query: "platform=windows&trash=2.4" },
+  { id: "first-run-folders", query: "firstrun=1", click: ["#ob-next", "#ob-next"], root: "#ob-root" },
 ];
 const THEMES = ["light", "dark"];
 const SIZES = [

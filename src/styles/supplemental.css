@@ -70,3 +70,9 @@ html.tray-native, html.tray-native body { background: transparent; }
 /* Everything I found: places the last scan could not check, one line per
    cause. Dashed like an unavailable place in Places checked. */
 .unchecked { display: flex; flex-direction: column; gap: 2px; border: 2px dashed var(--line); border-radius: 14px; padding: 8px 12px; margin: 2px 0 8px; font-size: 14px; }
+
+/* First run, tools found: a tool that is not installed keeps its line-through
+   but full opacity. The prototype's 70% fails WCAG AA contrast (axe, task
+   6.6); the strike-through and the "Not installed" title carry the meaning.
+   More specific than the prototype rule, which the reference loads after. */
+.ob-tools .ob-tool:not(.on) { opacity: 1; }
