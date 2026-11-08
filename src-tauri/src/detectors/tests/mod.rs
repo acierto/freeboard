@@ -245,7 +245,10 @@ fn git_at(dir: &Path, args: &[&str], when: Option<i64>) -> String {
         cmd.env("GIT_AUTHOR_DATE", format!("@{t} +0000")).env("GIT_COMMITTER_DATE", format!("@{t} +0000"));
     }
     let out = cmd
-        .args(["-c", "init.defaultBranch=main", "-c", "commit.gpgsign=false", "-c", "core.hooksPath=/dev/null"])
+        // No automatic gc or maintenance: git can leave a detached background
+        // process working in the fixture repository, which a scan then sees
+        // as "a program is using it" (a flaky Linux CI failure, 2026-11-08).
+        .args(["-c", "init.defaultBranch=main", "-c", "commit.gpgsign=false", "-c", "core.hooksPath=/dev/null", "-c", "gc.auto=0", "-c", "maintenance.auto=false"])
         .args(args)
         .current_dir(dir)
         .env("GIT_AUTHOR_NAME", "Fixture")

@@ -1706,6 +1706,10 @@ pub(crate) mod tests {
         assert!(core.undo_remove_folder().is_err(), "undo works once");
     }
 
+    /// Mount points as each platform writes them (settings require absolute paths).
+    const ARCHIVE: &str = if cfg!(windows) { "D:\\" } else { "/Volumes/Archive" };
+    const PHOTOS: &str = if cfg!(windows) { "E:\\" } else { "/Volumes/Photos" };
+
     struct TwoDisks;
     impl VolumeSource for TwoDisks {
         fn read(&self, _home: &Path, extra: &[String]) -> Vec<VolumeReading> {
@@ -1717,8 +1721,8 @@ pub(crate) mod tests {
         }
         fn candidates(&self, _home: &Path) -> Vec<VolumeReading> {
             vec![
-                VolumeReading { id: "/Volumes/Archive".into(), name: "Archive".into(), mount_point: "/Volumes/Archive".into(), free: 900 * GB, total: 2000 * GB },
-                VolumeReading { id: "/Volumes/Photos".into(), name: "".into(), mount_point: "/Volumes/Photos".into(), free: 100 * GB, total: 500 * GB },
+                VolumeReading { id: ARCHIVE.into(), name: "Archive".into(), mount_point: ARCHIVE.into(), free: 900 * GB, total: 2000 * GB },
+                VolumeReading { id: PHOTOS.into(), name: "".into(), mount_point: PHOTOS.into(), free: 100 * GB, total: 500 * GB },
             ]
         }
     }
@@ -1743,15 +1747,15 @@ pub(crate) mod tests {
         assert_eq!(v.len(), 2);
         assert!(v.iter().all(|c| !c.watched && c.id.starts_with("vol-")));
         // A volume without a name shows its mount point.
-        assert_eq!(v[1].name, "/Volumes/Photos");
+        assert_eq!(v[1].name, PHOTOS);
         let v = core.set_volume_watched(v[0].id.clone(), true).unwrap();
         assert!(v[0].watched && !v[1].watched);
-        assert_eq!(core.get_settings().unwrap().extra_volumes, ["/Volumes/Archive"]);
+        assert_eq!(core.get_settings().unwrap().extra_volumes, [ARCHIVE]);
         assert_eq!(core.get_status().unwrap().volumes.len(), 2, "the watched disk is monitored");
         // A path, or an ID of no connected disk, changes nothing.
-        assert!(core.set_volume_watched("/Volumes/Photos".into(), true).is_err());
+        assert!(core.set_volume_watched(PHOTOS.into(), true).is_err());
         assert!(core.set_volume_watched("vol-000000000000".into(), true).is_err());
-        assert_eq!(core.get_settings().unwrap().extra_volumes, ["/Volumes/Archive"]);
+        assert_eq!(core.get_settings().unwrap().extra_volumes, [ARCHIVE]);
         let v = core.set_volume_watched(v[0].id.clone(), false).unwrap();
         assert!(!v[0].watched);
         assert!(core.get_settings().unwrap().extra_volumes.is_empty());

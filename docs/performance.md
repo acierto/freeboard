@@ -2,6 +2,17 @@
 
 Actual measurements against the source targets. Targets are not results; every row says where and how it was measured. Platforms without a measurement are listed as **not measured**.
 
+## Rebuild, slice 3: every detector (2026-11-08, task 5.13)
+
+Scan times with all 35 detectors of the spec's summary, on the development Mac (Apple silicon, macOS 27, internal SSD). Linux and Windows are **not measured yet**: the Linux and Windows test VMs are no longer on this Mac (the Windows VM needs Microsoft's Windows 11 Arm64 ISO).
+
+| Metric | Target | Measured | Status | How |
+| --- | --- | --- | --- | --- |
+| Quick scan | < 10 s | 5.87 s, 6.11 s, 7.32 s (17 findings, 59.1 GB; Docker Desktop running) | met | `cargo run --release --no-default-features --example scan_bench -- quick` |
+| Deep scan, 1 million files | < 60 s | 23.6 s and 25.8 s (1,000,000 files; the fixture walk plus every quick detector against this home) | met | `scan_bench make-fixture <dir> 1000000` (78 s), then `scan_bench deep <dir>` twice |
+
+The deep scan is slower than the 12.8–18.0 s of 2026-11-04 because deep scans now also look for duplicates (size buckets first, so the fixture's small files are never hashed), large videos, Playwright browsers, Node versions and Rust toolchains. Four detectors report unavailable on this Mac, as they should without Full Disk Access or a backup disk: Installers in Downloads (not a scan folder), Docker's disk, device backups, and Time Machine snapshots (no backup destination).
+
 ## Rebuild, milestone 2 (2026-11-06)
 
 The harbor interface (openspec change `rebuild-freeboard`) replaced the hull-gauge one. Hidden memory and idle CPU were measured again on each platform (task 2.7). Scan times are measured again in milestone 3.

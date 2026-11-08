@@ -73,6 +73,7 @@ Implement one group at a time. Each exit gate must pass on macOS, Linux and Wind
 - [x] 5.11 Prove scans are read-only across all detectors. Verify the before-and-after fixture tree hash is identical for quick and deep scans, and that symlink traps are not followed.
 - [x] 5.12 Build the Disk map tab (coverage ring, squarified treemap of buttons, area details with leave-alone rows and item controls, blind spots, growth, places checked, disk report copy with textarea fallback). Add visual entries for each tile and blind-spot state, light and dark, at three widths. Verify PASS.
 - [ ] 5.13 Measure quick-scan time and the 1-million-file deep scan on each platform and record them in `docs/performance.md`.
+  - macOS measured 2026-11-08 with every detector: quick 5.9–7.3 s, deep 23.6–25.8 s, both met. Linux and Windows still to measure (their VMs are no longer on the development Mac).
 - [ ] 5.14 Slice 3 exit gate: the click-through shows a real disk map whose totals match used space within 1% (or says it is incomplete), resolves a blind spot, and copies the report, on macOS and Linux (Windows with 2.8).
 
 ## 6. Keep me tidy and release
