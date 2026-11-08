@@ -4,7 +4,7 @@ Actual measurements against the source targets. Targets are not results; every r
 
 ## Rebuild, slice 3: every detector (2026-11-08, task 5.13)
 
-Scan times with all 35 detectors of the spec's summary. macOS on the development Mac (Apple silicon, macOS 27, internal SSD). Linux in an Ubuntu 22.04 ARM64 container on the same Mac (Docker 29.8, linuxkit kernel 7.0, 10 CPUs, fixture on a Docker volume; `linux-evidence/bench/*-2026-11-08.txt`). Windows is **not measured yet**: the Windows test VM is in use for another project.
+Scan times with all 35 detectors of the spec's summary. macOS on the development Mac (Apple silicon, macOS 27, internal SSD). Linux in an Ubuntu 22.04 ARM64 container on the same Mac (Docker 29.8, linuxkit kernel 7.0, 10 CPUs, fixture on a Docker volume; `linux-evidence/bench/*-2026-11-08.txt`). Windows on GitHub's Windows 11 Arm64 runner (4 CPUs; `.github/workflows/bench.yml`, `windows-evidence/bench*/`).
 
 | Platform | Metric | Target | Measured | Status | How |
 | --- | --- | --- | --- | --- | --- |
@@ -12,6 +12,10 @@ Scan times with all 35 detectors of the spec's summary. macOS on the development
 | macOS | Deep scan, 1 million files | < 60 s | 23.6 s and 25.8 s (1,000,000 files; the fixture walk plus every quick detector against this home) | met | `scan_bench make-fixture <dir> 1000000` (78 s), then `scan_bench deep <dir>` twice |
 | Linux | Quick scan | < 10 s | 0.16 s, 0.08 s, 0.09 s (empty home: no findings; Docker, pnpm, pip and Homebrew not installed, reported unavailable) | met, but a lower bound: the 2026-11-04 GNOME VM with real tool data took 1.48 s | `scan_bench quick` three times |
 | Linux | Deep scan, 1 million files | < 60 s | 0.99 s and 0.77 s with the fixture just made (every project active, only sources read); 2.05 s and 1.93 s with every file backdated 400 days (all 1,000 `node_modules` sized: one finding, 3.7 GB) | met | `scan_bench make-fixture /bench/fx 1000000` (1,002,000 files, 10 s), `scan_bench deep` twice, `touch -d "400 days ago"` on every file, `scan_bench deep` twice; page cache warm (a container cannot drop it) |
+| Windows | Quick scan | < 10 s | 0.51 s and 0.53 s, after a first run of 7.2 s (Defender scanning the new binary); runner home: one Cargo cache, Docker and pnpm not installed | met | `scan_bench quick` three times |
+| Windows | Deep scan, 1 million files | < 60 s | Fresh fixture: 10.2 s and 7.8 s. Every file backdated 400 days: first 77.3 s and 68.3 s (**missed**), then 38.1 s and 30.8 s after the fix below | met | same steps as Linux, in Git Bash (`make-fixture` 411 s, backdating 300 s) |
+
+The first Windows run missed the deep-scan target: 69 of its 78 s went to sizing the 1,000 idle `node_modules` folders. Each file was opened about four times (size, then link count and file ID twice each), one after another on the thread that reads the walk. Now the walker's threads gather each entry's facts, and link count and file ID come from one handle (`platform::file_facts`). Windows sizes count each small file at its own length, not a whole cluster, so the fixture's `node_modules` total far less than on Linux and macOS (2026-11-08).
 
 The deep scan is slower than the 12.8–18.0 s of 2026-11-04 because deep scans now also look for duplicates (size buckets first, so the fixture's small files are never hashed), large videos, Playwright browsers, Node versions and Rust toolchains. Four detectors report unavailable on this Mac, as they should without Full Disk Access or a backup disk: Installers in Downloads (not a scan folder), Docker's disk, device backups, and Time Machine snapshots (no backup destination).
 
@@ -39,7 +43,7 @@ The harbor interface (openspec change `rebuild-freeboard`) replaced the hull-gau
 | --- | --- | --- | --- |
 | macOS 27, Apple silicon | 21 MB average and peak physical footprint over 304 s (RSS 108.1 MB, reference only): **met** | 0.053%: **met** | Release build; tray view opened and closed; main window closed; `destroying hidden webview` logged at 14:12:24Z; then `node scripts/perf/measure-process.mjs --name freeboard --seconds 300 --interval 10` |
 | Linux, Ubuntu 24.04 GNOME (X11), ARM64 VM | 22.9 MB average and peak PSS over 305 s (RSS 52 MB, reference only): **met** | 0.328%: **met** | `.deb` from the release workflow (run 42232860033); main window closed with Alt+F4; Freeboard restarted itself as `freeboard --tray --after-pid <pid>` after 60 s; then `node measure-process.mjs --name freeboard --seconds 300 --interval 10` inside the VM |
-| Windows 11 (Arm64 VM) | not measured yet | not measured yet | VM being rebuilt |
+| Windows 11 Pro (Arm64 VM), 2026-11-08 | 3.9 MB average, 4.0 MB peak private working set over 310 s (private bytes 5.2 MB, working set 27.7 MB, reference only): **met** | 0.005%: **met** | Release 1.6.0 `windows-arm64-setup.exe` installed per user; first-run window closed with Alt+F4; WebView2 processes gone after 90 s (only `freeboard.exe` left); then Freeboard's process tree sampled every 10 s for 300 s from a scheduled task on the desktop session (`Win32_PerfRawData_PerfProc_Process.WorkingSetPrivate`; CPU seconds over wall time, one core) |
 
 ## macOS (Apple silicon, macOS 27, 2026-11-04)
 

@@ -39,7 +39,10 @@ jobs:
       - name: Core library tests (fixtures and fake tools only)
         working-directory: src-tauri
         run: cargo test --no-default-features --locked
+      # The invariant tests that use fake executables are Unix-only
+      # (docs/safety-traceability.md), so the map is checked on macOS and Linux.
       - name: Safety traceability report
+        if: runner.os != 'Windows'
         shell: bash
         run: |
           sh scripts/safety-traceability.sh

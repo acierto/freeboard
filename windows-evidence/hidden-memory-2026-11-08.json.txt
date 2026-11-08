@@ -1,0 +1,11 @@
+processes: freeboard
+{
+    "seconds":  310,
+    "processesAtEnd":  "freeboard",
+    "avgPrivateWorkingSetMB":  3.9,
+    "maxPrivateWorkingSetMB":  4,
+    "avgPrivateBytesMB_reference":  5.2,
+    "avgWorkingSetMB_reference":  27.7,
+    "avgCpuPercentOfOneCore":  0.005,
+    "cores":  "4"
+}
