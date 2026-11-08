@@ -436,3 +436,7 @@ Found on a real Mac after installing the Worktrees build: the tab showed "0 in 0
 ## 2026-11-08: Checks done by a person are out of this change (decided by the user)
 
 The parts of tasks that need a person are taken out of this change's scope; the owner does them outside it: trying Keep me tidy in the installed app (6.2), the VoiceOver, NVDA and Orca session (6.6), and the site's promo video and poster (6.9). Their automated parts are done, so the three tasks are closed.
+
+## 2026-11-08: Installer art (supplied by the user)
+
+The macOS DMG window has a background ("Drag Freeboard into Applications", with the Open Anyway hint) and the Windows installer a header and sidebar, from `src-tauri/installer/` (sources and its README there). The DMG background is one HiDPI TIFF made with `tiffutil` from the 1× and 2× PNGs. The click-through license window is removed from the DMG (`bundle.licenseFile` dropped): MIT needs no acceptance, and that macOS dialog cannot be styled. The license stays in the repository and on every release; showing it in the app (an About view) is not built yet. The Windows installer installs per user and is in English, Dutch, German, French and Spanish, following the system language.

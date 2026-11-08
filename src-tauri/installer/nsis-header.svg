@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="150" height="57" viewBox="0 0 150 57">
+ <rect width="150" height="57" fill="#ffffff"/><path d="M-60 40 q15 -4 30 0 t30 0 q15 -4 30 0 t30 0 q15 -4 30 0 t30 0 q15 -4 30 0 t30 0 q15 -4 30 0 t30 0 q15 -4 30 0 t30 0 V440 H-60Z" fill="#7FD0E3" fill-opacity="0.9"/><g transform="translate(110 40) scale(0.2)">
+  <path d="M-118 -6H134Q128 58 72 66H-78Q-112 58 -118 -6Z" fill="#FF8B7B"/><path d="M-118 -6H134L131 8H-116Z" fill="#E96A5C"/>
+  <rect x="-104" y="-82" width="94" height="78" rx="20" fill="#fff" stroke="#23405A" stroke-width="4"/>
+  <path d="M-114 -74Q-58 -104 0 -74Z" fill="#FF8B7B" stroke="#23405A" stroke-width="4" stroke-linejoin="round"/>
+  <rect x="-34" y="-112" width="20" height="30" rx="5" fill="#E96A5C" stroke="#23405A" stroke-width="4"/>
+  <circle cx="-82" cy="-30" r="6" fill="#FFB4A8"/><circle cx="-32" cy="-30" r="6" fill="#FFB4A8"/>
+  <path d="M-78 -46q7 -9 14 0M-50 -46q7 -9 14 0" fill="none" stroke="#23405A" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M-68 -30q11 12 22 0" fill="#23405A"/></g><path d="M-42 46 q15 -4 30 0 t30 0 q15 -4 30 0 t30 0 q15 -4 30 0 t30 0 q15 -4 30 0 t30 0 q15 -4 30 0 t30 0 q15 -4 30 0 t30 0 V446 H-60Z" fill="#3BA7C7" fill-opacity="1"/></svg>

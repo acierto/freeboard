@@ -58,12 +58,26 @@
     "category": "Utility",
     "shortDescription": "Disk space warnings and safe cleanup for developers",
     "copyright": "Copyright (c) 2026 Bogdan Nechyporenko. MIT License.",
-    "licenseFile": "../LICENSE",
     "macOS": {
       "signingIdentity": "-",
       "hardenedRuntime": true,
       "minimumSystemVersion": "11.0",
-      "entitlements": null
+      "entitlements": null,
+      "dmg": {
+        "background": "installer/dmg-background.tiff",
+        "windowSize": {
+          "width": 660,
+          "height": 400
+        },
+        "appPosition": {
+          "x": 170,
+          "y": 180
+        },
+        "applicationFolderPosition": {
+          "x": 490,
+          "y": 180
+        }
+      }
     },
     "linux": {
       "deb": {
@@ -71,6 +85,22 @@
       },
       "appimage": {
         "bundleMediaFramework": false
+      }
+    },
+    "windows": {
+      "nsis": {
+        "headerImage": "installer/nsis-header.bmp",
+        "sidebarImage": "installer/nsis-sidebar.bmp",
+        "installerIcon": "icons/icon.ico",
+        "installMode": "currentUser",
+        "languages": [
+          "English",
+          "Dutch",
+          "German",
+          "French",
+          "Spanish"
+        ],
+        "displayLanguageSelector": false
       }
     }
   },
