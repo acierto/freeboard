@@ -4,14 +4,32 @@ Actual measurements against the source targets. Targets are not results; every r
 
 ## Rebuild, slice 3: every detector (2026-11-08, task 5.13)
 
-Scan times with all 35 detectors of the spec's summary, on the development Mac (Apple silicon, macOS 27, internal SSD). Linux and Windows are **not measured yet**: the Linux and Windows test VMs are no longer on this Mac (the Windows VM needs Microsoft's Windows 11 Arm64 ISO).
+Scan times with all 35 detectors of the spec's summary. macOS on the development Mac (Apple silicon, macOS 27, internal SSD). Linux in an Ubuntu 22.04 ARM64 container on the same Mac (Docker 29.8, linuxkit kernel 7.0, 10 CPUs, fixture on a Docker volume; `linux-evidence/bench/*-2026-11-08.txt`). Windows is **not measured yet**: the Windows test VM is in use for another project.
 
-| Metric | Target | Measured | Status | How |
-| --- | --- | --- | --- | --- |
-| Quick scan | < 10 s | 5.87 s, 6.11 s, 7.32 s (17 findings, 59.1 GB; Docker Desktop running) | met | `cargo run --release --no-default-features --example scan_bench -- quick` |
-| Deep scan, 1 million files | < 60 s | 23.6 s and 25.8 s (1,000,000 files; the fixture walk plus every quick detector against this home) | met | `scan_bench make-fixture <dir> 1000000` (78 s), then `scan_bench deep <dir>` twice |
+| Platform | Metric | Target | Measured | Status | How |
+| --- | --- | --- | --- | --- | --- |
+| macOS | Quick scan | < 10 s | 5.87 s, 6.11 s, 7.32 s (17 findings, 59.1 GB; Docker Desktop running) | met | `cargo run --release --no-default-features --example scan_bench -- quick` |
+| macOS | Deep scan, 1 million files | < 60 s | 23.6 s and 25.8 s (1,000,000 files; the fixture walk plus every quick detector against this home) | met | `scan_bench make-fixture <dir> 1000000` (78 s), then `scan_bench deep <dir>` twice |
+| Linux | Quick scan | < 10 s | 0.16 s, 0.08 s, 0.09 s (empty home: no findings; Docker, pnpm, pip and Homebrew not installed, reported unavailable) | met, but a lower bound: the 2026-11-04 GNOME VM with real tool data took 1.48 s | `scan_bench quick` three times |
+| Linux | Deep scan, 1 million files | < 60 s | 0.99 s and 0.77 s with the fixture just made (every project active, only sources read); 2.05 s and 1.93 s with every file backdated 400 days (all 1,000 `node_modules` sized: one finding, 3.7 GB) | met | `scan_bench make-fixture /bench/fx 1000000` (1,002,000 files, 10 s), `scan_bench deep` twice, `touch -d "400 days ago"` on every file, `scan_bench deep` twice; page cache warm (a container cannot drop it) |
 
 The deep scan is slower than the 12.8–18.0 s of 2026-11-04 because deep scans now also look for duplicates (size buckets first, so the fixture's small files are never hashed), large videos, Playwright browsers, Node versions and Rust toolchains. Four detectors report unavailable on this Mac, as they should without Full Disk Access or a backup disk: Installers in Downloads (not a scan folder), Docker's disk, device backups, and Time Machine snapshots (no backup destination).
+
+### Installer sizes, release 1.6.0 (2026-11-08, task 6.8)
+
+Sizes of the files attached to https://github.com/acierto/freeboard/releases/tag/v1.6.0 (`gh release view v1.6.0 --json assets`). Target ≤ 15 MB.
+
+| File | Size | Status |
+| --- | --- | --- |
+| `macOS-arm64.dmg` (app 7.2 MB) | 4.25 MB | met |
+| `macOS-x64.dmg` (app 8.0 MB) | 4.59 MB | met |
+| `windows-x64-setup.exe` | 3.08 MB | met |
+| `windows-arm64-setup.exe` | 2.77 MB | met |
+| `windows-x64.msi` | 4.06 MB | met |
+| `linux-x86_64.deb` | 3.60 MB | met |
+| `linux-arm64.deb` | 3.52 MB | met |
+| `linux-x86_64.AppImage` | 83.08 MB | **missed**: it bundles WebKitGTK and its libraries (decision 2026-11-08) |
+| `linux-arm64.AppImage` | 81.06 MB | **missed**, same reason |
 
 ## Rebuild, milestone 2 (2026-11-06)
 

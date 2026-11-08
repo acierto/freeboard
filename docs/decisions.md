@@ -447,3 +447,11 @@ The macOS DMG window has a background ("Drag Freeboard into Applications", with 
 ## 2026-11-08: Two macOS downloads instead of one universal (decided by the user)
 
 From 1.6.0 the release has `Freeboard-<version>-macOS-arm64.dmg` (Apple silicon) and `Freeboard-<version>-macOS-x64.dmg` (Intel) instead of one universal DMG. A universal app carries both programs: 15.8 MB installed and an 8.2 MB download, against about 8 MB and 4–4.4 MB for one processor. Both are built on GitHub's Apple silicon runner, the Intel one cross-compiled. Browsers do not say which processor a Mac has, so the site's main macOS button gives the Apple silicon DMG and the Intel one is under Other downloads.
+
+## 2026-11-08: The AppImage stays over the installer-size target (task 6.8)
+
+The 15 MB installer target is met by every download except the Linux AppImage (81 MB arm64, 83 MB x86_64), which carries WebKitGTK and its libraries so it runs on distributions without them. The `.deb` (3.5–3.6 MB) uses the system's WebKitGTK and meets the target. The AppImage is kept as the download for distributions without `.deb` support; the release notes list the `.deb` first. Dropping the AppImage, or replacing it with a Flatpak on the shared GNOME runtime, would close the miss; neither is done in this change.
+
+## 2026-11-08: Linux scan times measured in a container
+
+The Linux test VM is not rebuilt; quick and deep scan times for task 5.13 were measured with `scan_bench` in the Ubuntu 22.04 ARM64 container that builds the Linux release, on the development Mac. The deep scan's fixture is the same 1,002,000 files as on macOS, measured fresh and with every file backdated 400 days. The quick scan's home is empty, so its time (under 0.2 s) is a lower bound; the 2026-11-04 GNOME VM run with real tool data (1.48 s) stays the realistic figure. Both are far under the targets.
