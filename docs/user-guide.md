@@ -10,7 +10,7 @@ Preview builds are not yet signed with an Apple Developer ID or a Windows code-s
 
 ### macOS (11 or later, Apple silicon and Intel)
 
-1. Open `Freeboard-<version>-macOS-universal.dmg`, accept the MIT license, and drag Freeboard to Applications.
+1. Open `Freeboard-<version>-macOS-arm64.dmg` (Apple silicon, M1 and later) or `Freeboard-<version>-macOS-x64.dmg` (Intel), and drag Freeboard to Applications.
 2. Open Freeboard once. macOS says it can't verify the app and won't open it. Click **Done**.
 3. Open **System Settings → Privacy & Security**.
 4. Scroll down to **Security** and click **Open Anyway** next to "Freeboard was blocked to protect your Mac". The button shows for a while after your first try.

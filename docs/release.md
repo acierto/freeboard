@@ -37,7 +37,7 @@ Status: **incomplete**. This Mac has only an "Apple Development" certificate, wh
 
 1. Set the version in `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` and `package.json`.
 2. Tag and push: `git tag v0.1.0 && git push origin v0.1.0`.
-3. `.github/workflows/release.yml` builds on GitHub runners (macOS universal, Linux x86_64 and arm64), runs the core tests, and attaches `Freeboard-<version>-macOS-universal.dmg`, `Freeboard-linux-<arch>.deb`, `Freeboard-linux-<arch>.AppImage` and `SHA256SUMS.txt` to the release.
+3. `.github/workflows/release.yml` builds on GitHub runners (macOS Apple silicon and Intel, Windows x64 and Arm64, Linux x86_64 and arm64), runs the core tests, and attaches `Freeboard-<version>-macOS-arm64.dmg`, `Freeboard-<version>-macOS-x64.dmg`, `Freeboard-linux-<arch>.deb`, `Freeboard-linux-<arch>.AppImage` and `SHA256SUMS.txt` to the release.
 4. The download page (`site/`, deployed by `.github/workflows/pages.yml`) links to `releases/latest/download/<name>`, so it always serves the newest non-prerelease release.
 
 ## Smoke test after installing

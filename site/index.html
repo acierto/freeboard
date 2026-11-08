@@ -383,7 +383,7 @@ footer a { color: #fff; }
         <a class="btn primary" href="#download" data-release-link><svg><use href="#dl"/></svg><span data-os-label data-i18n="hero.dl">Download Freeboard</span></a>
         <a class="btn" href="https://github.com/" data-repo-link><svg><use href="#gh"/></svg><span data-i18n="hero.star">Star on GitHub</span></a>
       </div>
-      <div class="platforms"><a href="https://github.com/acierto/freeboard/releases/latest" data-file="macOS-universal.dmg" data-asset="macOS">macOS</a><a href="https://github.com/acierto/freeboard/releases/latest" data-file="linux-x86_64.deb" data-asset="Linux">Linux</a><a href="https://github.com/acierto/freeboard/releases/latest" data-file="windows-x64-setup.exe" data-asset="Windows">Windows</a><span data-i18n="hero.built">Built with Tauri 2</span></div>
+      <div class="platforms"><a href="https://github.com/acierto/freeboard/releases/latest" data-file="macOS-arm64.dmg" data-asset="macOS">macOS</a><a href="https://github.com/acierto/freeboard/releases/latest" data-file="linux-x86_64.deb" data-asset="Linux">Linux</a><a href="https://github.com/acierto/freeboard/releases/latest" data-file="windows-x64-setup.exe" data-asset="Windows">Windows</a><span data-i18n="hero.built">Built with Tauri 2</span></div>
       <div class="release-line"><span data-version>Latest release</span> · <a href="https://github.com/acierto/freeboard/releases" data-i18n="rel.all">All releases and older versions</a></div>
       <div class="release-line" style="margin-top:-18px"><span data-i18n="fo.blocked">Blocked on first launch? <a href="#first-open">Here's how to open it</a>.</span></div>
     </div>
@@ -564,7 +564,7 @@ footer a { color: #fff; }
       <a class="btn primary" href="https://github.com/" data-release-link><svg><use href="#dl"/></svg><span data-i18n="final.dl">Download the latest release</span></a>
       <a class="btn" href="https://github.com/" data-repo-link><svg><use href="#gh"/></svg><span data-i18n="final.src">View the source</span></a>
     </div>
-    <p class="reveal" style="margin-top:18px;font-size:15px;color:var(--muted)"><span data-i18n="dl.other">Other downloads:</span> <a href="https://github.com/acierto/freeboard/releases/latest" data-file="macOS-universal.dmg">macOS (.dmg)</a> · <a href="https://github.com/acierto/freeboard/releases/latest" data-file="windows-x64-setup.exe">Windows x64 (.exe)</a> · <a href="https://github.com/acierto/freeboard/releases/latest" data-file="windows-arm64-setup.exe">Windows Arm (.exe)</a> · <a href="https://github.com/acierto/freeboard/releases/latest" data-file="linux-x86_64.deb">Linux x86_64 (.deb)</a> · <a href="https://github.com/acierto/freeboard/releases/latest" data-file="linux-x86_64.AppImage">AppImage</a> · <a href="https://github.com/acierto/freeboard/releases/latest" data-file="linux-arm64.deb">Linux arm64 (.deb)</a></p>
+    <p class="reveal" style="margin-top:18px;font-size:15px;color:var(--muted)"><span data-i18n="dl.other">Other downloads:</span> <a href="https://github.com/acierto/freeboard/releases/latest" data-file="macOS-arm64.dmg">macOS Apple silicon (.dmg)</a> · <a href="https://github.com/acierto/freeboard/releases/latest" data-file="macOS-x64.dmg">macOS Intel (.dmg)</a> · <a href="https://github.com/acierto/freeboard/releases/latest" data-file="windows-x64-setup.exe">Windows x64 (.exe)</a> · <a href="https://github.com/acierto/freeboard/releases/latest" data-file="windows-arm64-setup.exe">Windows Arm (.exe)</a> · <a href="https://github.com/acierto/freeboard/releases/latest" data-file="linux-x86_64.deb">Linux x86_64 (.deb)</a> · <a href="https://github.com/acierto/freeboard/releases/latest" data-file="linux-x86_64.AppImage">AppImage</a> · <a href="https://github.com/acierto/freeboard/releases/latest" data-file="linux-arm64.deb">Linux arm64 (.deb)</a></p>
     <p class="reveal" style="margin-top:6px;font-size:15px;color:var(--muted)"><span data-version>Latest release</span> · <a href="https://github.com/acierto/freeboard/releases" data-i18n="rel.all">All releases and older versions</a></p>
     <div class="install reveal"><code id="installCmd">git clone https://github.com/your-name/freeboard &amp;&amp; cd freeboard &amp;&amp; pnpm tauri build</code><button class="btn sm" id="copyBtn">Copy</button></div>
     <p class="reveal" style="margin-top:6px;font-size:15px;color:var(--muted)"><span data-i18n="fo.pre">macOS or Windows says it can't open it? <a href="#first-open">First time opening it?</a></span></p>
@@ -626,10 +626,12 @@ var I18N = {"nl":{"nav.how":"Hoe het werkt","nav.finds":"Wat het vindt","nav.saf
   var REPO = 'acierto/freeboard';
   document.querySelectorAll('[data-repo-link]').forEach(function (a) { a.href = 'https://github.com/' + REPO; });
   var REL = 'https://github.com/' + REPO + '/releases/latest', DL = REL + '/download/';
-  // File names carry the version (Freeboard-1.0.0-macOS-universal.dmg), so the
+  // File names carry the version (Freeboard-1.6.0-macOS-arm64.dmg), so the
   // links are filled in from the latest release. Without the API they open
   // the release page, where every file is listed.
-  var FILES = { macOS: 'macOS-universal.dmg', Linux: 'linux-x86_64.deb', Windows: 'windows-x64-setup.exe' };
+  // Browsers do not say whether a Mac has Apple silicon, so the main button
+  // offers the Apple silicon DMG; Intel is under Other downloads.
+  var FILES = { macOS: 'macOS-arm64.dmg', Linux: 'linux-x86_64.deb', Windows: 'windows-x64-setup.exe' };
   var ua = navigator.userAgent, os = /Mac/.test(ua) ? 'macOS' : /Win/.test(ua) ? 'Windows' : /Linux/.test(ua) ? 'Linux' : '';
 
   // Language: saved choice, then ?lang=, then the browser's languages, then English.

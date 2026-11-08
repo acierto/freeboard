@@ -30,9 +30,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: macOS-universal
+          # One DMG per processor: a universal app carries both and is
+          # twice the size (15.8 MB instead of about 8 MB).
+          - name: macOS-arm64
             os: macos-latest
-            args: --target universal-apple-darwin --bundles app,dmg
+            target: aarch64-apple-darwin
+            args: --target aarch64-apple-darwin --bundles app,dmg
+          - name: macOS-x64
+            os: macos-latest
+            target: x86_64-apple-darwin
+            args: --target x86_64-apple-darwin --bundles app,dmg
           - name: linux-x86_64
             os: ubuntu-22.04
             args: --bundles deb,appimage
@@ -57,7 +64,7 @@ jobs:
           cache: npm
       - uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ runner.os == 'macOS' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+          targets: ${{ matrix.target || '' }}
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: src-tauri
@@ -80,22 +87,22 @@ jobs:
         # Tauri arranges the DMG window through Finder, which does not run on
         # CI; scripts/macos/dmg-layout.sh adds the layout saved from a Mac build.
         if: runner.os == 'macOS'
-        run: scripts/macos/dmg-layout.sh "$(ls src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg | head -1)"
+        run: scripts/macos/dmg-layout.sh "$(ls src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg | head -1)"
       - name: Collect with fixed names
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p out
           b=src-tauri/target
-          # Every file name carries the version (Freeboard-1.0.0-macOS-universal.dmg),
+          # Every file name carries the version (Freeboard-1.6.0-macOS-arm64.dmg),
           # so a new download is never mistaken for an older one with the same name.
           v="$(node -p "require('./src-tauri/tauri.conf.json').version")"
           # A version tag must match the app's version, or the files would be
           # named and labelled differently from what the app reports.
           case "$TAG" in v[0-9]*) [ "$TAG" = "v$v" ] || { echo "Tag $TAG does not match the app version $v" >&2; exit 1; };; esac
           case "${{ matrix.name }}" in
-            macOS-universal)
-              cp "$(ls $b/universal-apple-darwin/release/bundle/dmg/*.dmg | head -1)" "out/Freeboard-$v-macOS-universal.dmg" ;;
+            macOS-*)
+              cp "$(ls $b/${{ matrix.target }}/release/bundle/dmg/*.dmg | head -1)" "out/Freeboard-$v-${{ matrix.name }}.dmg" ;;
             linux-*)
               arch="${{ matrix.name }}"; arch="${arch#linux-}"
               # apt package name freeboard-disk (scripts/linux/rename-deb.sh).
@@ -137,7 +144,7 @@ jobs:
 
           Download page: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
 
-          - **macOS** (11+, Apple silicon and Intel): \`Freeboard-${TAG#v}-macOS-universal.dmg\`. Not notarized yet: after the first launch is blocked, open System Settings → Privacy & Security → Open Anyway.
+          - **macOS** (11+): \`Freeboard-${TAG#v}-macOS-arm64.dmg\` for Apple silicon (M1 and later), \`Freeboard-${TAG#v}-macOS-x64.dmg\` for Intel Macs. Not notarized yet: after the first launch is blocked, open System Settings → Privacy & Security → Open Anyway.
           - **Windows** (10 and 11): \`Freeboard-${TAG#v}-windows-x64-setup.exe\` (or \`.msi\`), \`Freeboard-${TAG#v}-windows-arm64-setup.exe\` for Arm PCs. Not code-signed yet: SmartScreen shows "Windows protected your PC"; choose More info → Run anyway.
           - **Linux** (Ubuntu 22.04+ or similar): \`.deb\` or AppImage for x86_64 and arm64. In apt the package is \`freeboard-disk\` (Ubuntu's own \`freeboard\` is an unrelated IoT dashboard).
 
