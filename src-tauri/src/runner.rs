@@ -130,7 +130,7 @@ impl Acknowledged {
     }
 }
 
-const PROGRAMS: &[&str] = &["docker", "git", "pnpm", "pip", "pip3", "brew", "xcrun", "npm", "lsof", "ps", "tmutil", "ollama"];
+const PROGRAMS: &[&str] = &["docker", "git", "pnpm", "pip", "pip3", "brew", "xcrun", "npm", "lsof", "ps", "tmutil", "ollama", "rustup"];
 
 fn is_force_flag(a: &str) -> bool {
     if a == "--force" || a.starts_with("--force=") || a == "-f" {
@@ -222,6 +222,7 @@ fn read_only_allowed(cmd: &Cmd) -> bool {
         "xcrun" => starts(&a, &["simctl", "list"]),
         "npm" => starts(&a, &["config", "get", "cache"]) || starts(&a, &["--version"]),
         "tmutil" => a.len() == 2 && a[0] == "listlocalsnapshots",
+        "rustup" => a == ["toolchain", "list"] || a == ["--version"],
         "lsof" => true,
         "ps" => true,
         _ => false,
@@ -252,6 +253,8 @@ fn action_allowed(cmd: &Cmd) -> bool {
         "pip" | "pip3" => a == ["cache", "purge"],
         "brew" => a == ["cleanup"],
         // One model by name; `ollama rm` takes several, but each part runs alone.
+        // One toolchain by name per part.
+        "rustup" => a.len() == 3 && a[..2] == ["toolchain", "uninstall"] && crate::detectors::tools::safe_toolchain(a[2]),
         "ollama" => a.len() == 2 && a[0] == "rm" && crate::detectors::ai::safe_model_name(a[1]),
         "xcrun" => {
             a == ["simctl", "delete", "unavailable"]

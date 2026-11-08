@@ -24,7 +24,7 @@ const TEST_MOD = /#\[cfg\((?:all\()?test[^\n]*\n\s*mod \w+ \{/;
 const NOT_FOR_PEOPLE = /(Command::new|\.arg\(|\.args\(|run_tool|tracing::|debug!|info!|warn!|error!|expect\(|panic!|assert|log::|strip_prefix\(|starts_with\(|ends_with\(|trim_end_matches\(|split\(|contains\(|== $|meta_set\(|meta_get\(|query_row|execute\(|prepare\(|env::var|join\($|header|"--)/;
 // Text that is a command line, a path, an id or SQL.
 // Text that is a command line: a tool and one of its subcommands.
-const COMMAND = /^(docker (builder|image|container|volume|system|version|run|pull|compose)|git (worktree|status|-C|push|branch|log|rev-parse)|pnpm (store|install)|npm (cache|install)|pip3? (cache|freeze|install)|brew (cleanup|--cache)|xcrun simctl|cargo (build|clean)|ollama (rm|list)|gradle --stop|(rm|tar|du|ls|sudo|tmutil|diskutil|powershell|wsl|cmd|reg|xdg-open|explorer) )/;
+const COMMAND = /^(docker (builder|image|container|volume|system|version|run|pull|compose)|git (worktree|status|-C|push|branch|log|rev-parse)|pnpm (store|install)|npm (cache|install)|pip3? (cache|freeze|install)|brew (cleanup|--cache)|xcrun simctl|cargo (build|clean)|ollama (rm|list)|rustup toolchain |gradle --stop|(rm|tar|du|ls|sudo|tmutil|diskutil|powershell|wsl|cmd|reg|xdg-open|explorer) )/;
 // SQL is written in capitals here; sentences start with "Create", "Delete"…
 const SQL = /^\s*(SELECT|INSERT|UPDATE|DELETE|CREATE|PRAGMA|ALTER|DROP|WITH|BEGIN)\b/;
 

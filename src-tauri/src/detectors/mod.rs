@@ -12,6 +12,7 @@ pub mod files;
 pub mod git;
 pub mod mobile;
 pub mod projects;
+pub mod tools;
 
 #[cfg(test)]
 pub(crate) mod tests;
@@ -48,6 +49,8 @@ pub fn all() -> Vec<Box<dyn Detector>> {
         Box::new(ai::Ollama),
         Box::new(ai::HuggingFace),
         Box::new(ai::LmStudio),
+        Box::new(tools::NodeVersions),
+        Box::new(tools::RustToolchains),
         Box::new(files::Installers),
         Box::new(files::WindowsTemp),
     ]
@@ -86,6 +89,8 @@ pub fn probe_with(finding: &Finding, ctx: &ScanContext, guard: &Guard) -> Probe 
         caches::probe(finding, ctx, guard)
     } else if det.starts_with("mobile.") {
         mobile::probe(finding, ctx, guard)
+    } else if det.starts_with("tools.") {
+        tools::probe(finding, ctx, guard)
     } else if det.starts_with("ai.") {
         ai::probe(finding, ctx, guard)
     } else if det.starts_with("files.") {

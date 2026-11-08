@@ -29,6 +29,32 @@ fn world(fx: &mut Fx) -> PathBuf {
     fx.tool("npm", &format!("echo '{}'", fx.home.join(".npm").display()));
     fx.tool("brew", "echo 'Would remove: /x (1MB)'; echo '==> This operation would free approximately 1MB of disk space.'");
     fx.tool("xcrun", "echo '{\"devices\":{}}'");
+    // Detectors added in slice 3 (tasks 5.1–5.8), one finding each.
+    for v in ["IntelliJIdea2023.1", "IntelliJIdea2024.2"] {
+        fx.write(&format!("Library/Caches/JetBrains/{v}/caches/x"), &vec![1u8; 4096]);
+    }
+    fx.write("Library/Application Support/Slack/Cache/a", &vec![1u8; 4096]);
+    for b in ["chromium-1100", "chromium-1150"] {
+        fx.write(&format!("Library/Caches/ms-playwright/{b}/bin"), &vec![1u8; 4096]);
+    }
+    let digest = format!("sha256:{}", "e".repeat(64));
+    fx.write(".ollama/models/manifests/registry.ollama.ai/library/llama3/8b", format!(r#"{{"layers":[{{"digest":"{digest}","size":4096}}]}}"#).as_bytes());
+    fx.write(&format!(".ollama/models/blobs/{}", digest.replace(':', "-")), &vec![1u8; 4096]);
+    fx.tool("ollama", "exit 0");
+    fx.write(".cache/huggingface/hub/models--org--bert/blobs/a", &vec![1u8; 4096]);
+    fx.write(".lmstudio/models/pub/model-GGUF/m.gguf", &vec![1u8; 4096]);
+    fx.write(
+        "Library/Application Support/MobileSync/Backup/0000-AAAA/Info.plist",
+        b"<plist><dict><key>Device Name</key><string>Old iPhone</string><key>Last Backup Date</key><date>2024-01-01T00:00:00Z</date></dict></plist>",
+    );
+    fx.write(".android/avd/Pixel.avd/userdata-qemu.img", &vec![1u8; 4096]);
+    for v in ["v18.19.0", "v22.8.0"] {
+        fx.write(&format!(".nvm/versions/node/{v}/bin/node"), &vec![1u8; 4096]);
+    }
+    for t in ["stable-aarch64-apple-darwin", "1.70.0-aarch64-apple-darwin"] {
+        fx.write(&format!(".rustup/toolchains/{t}/bin/rustc"), &vec![1u8; 4096]);
+    }
+    fx.tool("rustup", "echo 'stable-aarch64-apple-darwin (default)'; echo '1.70.0-aarch64-apple-darwin'");
 
     // Traps: a link into a precious tree outside the scan roots, a link
     // loop, and an excluded folder containing a valid project.
@@ -103,6 +129,16 @@ fn every_detector_runs_and_contract_is_complete() {
         "cache.cargo",
         "cache.gradle",
         "cache.xcode",
+        "cache.jetbrains",
+        "cache.electron_apps",
+        "cache.playwright",
+        "ai.ollama",
+        "ai.huggingface",
+        "ai.lm_studio",
+        "mobile.ios_backups",
+        "mobile.android_avd",
+        "tools.node_versions",
+        "tools.rust_toolchains",
         "files.installers",
     ] {
         assert!(ids.contains(id), "missing {id}: {ids:?}");

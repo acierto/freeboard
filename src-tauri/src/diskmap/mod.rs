@@ -738,6 +738,8 @@ pub fn detector_label(id: &str) -> String {
         "ai.ollama" => "Ollama models",
         "ai.huggingface" => "Hugging Face downloads",
         "ai.lm_studio" => "LM Studio models",
+        "tools.node_versions" => "Node versions",
+        "tools.rust_toolchains" => "Rust toolchains",
         "files.installers" => "Installers in Downloads",
         "files.windows_temp" => "Windows temp files",
         other => other,

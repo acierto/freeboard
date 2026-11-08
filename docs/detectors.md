@@ -60,6 +60,8 @@ the size as an estimate (the interface shows "about").
 | `ai.ollama` | Models whose manifest and layers were not read or changed for 60 days, from `~/.ollama/models/manifests` (or `OLLAMA_MODELS`); one part per model; size counts only layers no other model uses. Blocked when `ollama` is not installed; a malformed manifest marks it unavailable | Review | `ollama rm <model>`, one model per part | All | `tests::ai::ollama_offers_idle_models_per_model_counting_only_their_own_layers`, `ollama_malformed_manifest_marks_it_unavailable_and_missing_cli_blocks`, `ollama_rm_is_the_only_allowed_action` |
 | `ai.huggingface` | `models--*`, `datasets--*`, `spaces--*` in the hub cache (`HF_HUB_CACHE`, `HF_HOME/hub`, `~/.cache/huggingface/hub`); one part per repository; space shared with the hub's `blobs` folder is not counted | Review | Trash | All | `huggingface_repositories_are_parts_and_go_to_the_trash` |
 | `ai.lm_studio` | `<publisher>/<model>` folders in `~/.lmstudio/models` and `~/.cache/lm-studio/models`; one part per model | Review | Trash | All | `lm_studio_models_split_by_model_in_both_locations` |
+| `tools.node_versions` | nvm versions (`$NVM_DIR/versions/node/v*`) that are not the newest, do not match `alias/default`, and match no project's `.nvmrc`, `.node-version`, `engines.node` or `volta.node` (semver ranges, partial versions, `lts/<name>`); deep scans only; one part per version. A request it cannot read keeps every version (unavailable, "malformed") | Review | Trash (`nvm` is a shell function, so the version's folder goes, as `nvm uninstall` does) | All | `tests::tools::node_versions_keep_default_newest_and_every_requested_version`, `node_versions_unreadable_request_keeps_everything` |
+| `tools.rust_toolchains` | `rustup toolchain list` entries that are not default, active or an override, and that no project's `rust-toolchain.toml` or `rust-toolchain` pins; linked toolchains are skipped; deep scans only; one part per toolchain | Review | `rustup toolchain uninstall <name>` per part | All | `rust_toolchains_keep_default_and_pinned`, `rustup_actions_are_bounded` |
 | `files.installers` | `.dmg .pkg .exe .msi .AppImage .deb .rpm .iso` in Downloads not opened or modified for 90 days | Review | Trash | All | `tests::files::downloads_only_old_installers` |
 | `files.windows_temp` | `%TEMP%` entries unchanged for 14 days | Review | Recycle Bin | Windows | `windows_temp_old_entries_go_to_recycle_bin` |
 
@@ -85,6 +87,8 @@ read-only commands only.
 | pnpm | installed | `pnpm store path` prints the absolute store path. |
 | pip | installed | `pip3 cache dir` prints the absolute cache path. |
 | npm | installed | `npm config get cache` prints the cache root; `_cacache` lives inside it. |
+| nvm | 0.40 (`~/.nvm`) | `versions/node/v<major>.<minor>.<patch>/` folders and `alias/default` holding a version or alias (`24.18.0` here); checked live 2026-11-08. |
+| rustup | 1.29.2 | `rustup toolchain list` prints one toolchain per line, flags in parentheses (`stable-aarch64-apple-darwin (active, default)`); checked live 2026-11-08. |
 | ps / lsof | macOS | `ps -A -o args=` (Gradle daemon check); `lsof -a -d cwd -Fp +D <dir>` (processes in a folder; exit 1 means none). Linux reads `/proc/*/cwd`. |
 
 ## Limitations

@@ -31,6 +31,8 @@ mod mobile;
 mod projects;
 #[cfg(unix)]
 mod scan;
+#[cfg(unix)]
+mod tools;
 
 /// Test clock: 2026-11-04T00:00:00Z.
 pub const NOW: i64 = 1_793_750_400;
