@@ -663,23 +663,9 @@ pub fn desktop_disks(ctx: &ScanContext) -> Vec<std::path::PathBuf> {
     }
 }
 
-/// macOS keeps Docker's disk among other apps' data, which Freeboard reads
-/// only with Full Disk Access (no prompt the person did not ask for).
-/// Fixture homes are not the real one and are always readable.
-fn may_read_app_data(ctx: &ScanContext) -> bool {
-    if ctx.platform != "macos" {
-        return true;
-    }
-    let real = crate::platform::home_dir().and_then(|h| std::fs::canonicalize(h).ok());
-    if real != std::fs::canonicalize(&ctx.home).ok() {
-        return true;
-    }
-    crate::diskmap::full_disk_access("macos") == Some(true)
-}
-
 /// The disk image's space on disk minus what Docker stores inside it.
 pub fn slack_findings(ctx: &ScanContext, snap: &Snapshot, min: u64) -> Result<Vec<Finding>, DetectorError> {
-    if !may_read_app_data(ctx) {
+    if !may_read_protected(ctx) {
         return Err(err(DISK_SLACK, "permission", "Docker Desktop's disk is among other apps' data, which needs Full Disk Access."));
     }
     let Some(used) = snap.used_total else {

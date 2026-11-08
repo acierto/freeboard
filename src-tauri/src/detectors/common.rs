@@ -344,6 +344,21 @@ pub fn split_finding(
     Some(Finding { suggestion: s, target: Target::Paths { paths }, parts })
 }
 
+/// macOS keeps some data (other apps' containers, device backups) behind
+/// privacy protection that Freeboard reads only with Full Disk Access, so no
+/// prompt appears that the person did not ask for. Fixture homes are not the
+/// real one and are always readable; other platforms have no such rule.
+pub fn may_read_protected(ctx: &ScanContext) -> bool {
+    if ctx.platform != "macos" {
+        return true;
+    }
+    let real = platform::home_dir().and_then(|h| std::fs::canonicalize(h).ok());
+    if real != std::fs::canonicalize(&ctx.home).ok() {
+        return true;
+    }
+    crate::diskmap::full_disk_access("macos") == Some(true)
+}
+
 /// Command lines of running processes, lowercased; None when unknown.
 pub fn running_commands(ctx: &ScanContext) -> Option<Vec<String>> {
     if ctx.platform == "windows" {

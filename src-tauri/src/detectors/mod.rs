@@ -10,6 +10,7 @@ pub mod common;
 pub mod docker;
 pub mod files;
 pub mod git;
+pub mod mobile;
 pub mod projects;
 
 #[cfg(test)]
@@ -42,6 +43,8 @@ pub fn all() -> Vec<Box<dyn Detector>> {
         Box::new(app_caches::Playwright),
         Box::new(caches::Xcode),
         Box::new(caches::Simulators),
+        Box::new(mobile::IosBackups),
+        Box::new(mobile::AndroidAvd),
         Box::new(ai::Ollama),
         Box::new(ai::HuggingFace),
         Box::new(ai::LmStudio),
@@ -81,6 +84,8 @@ pub fn probe_with(finding: &Finding, ctx: &ScanContext, guard: &Guard) -> Probe 
         app_caches::probe(finding, ctx, guard)
     } else if det.starts_with("cache.") || det == caches::SIMULATORS {
         caches::probe(finding, ctx, guard)
+    } else if det.starts_with("mobile.") {
+        mobile::probe(finding, ctx, guard)
     } else if det.starts_with("ai.") {
         ai::probe(finding, ctx, guard)
     } else if det.starts_with("files.") {

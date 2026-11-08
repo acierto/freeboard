@@ -26,6 +26,8 @@ mod files;
 #[cfg(unix)]
 mod git;
 #[cfg(unix)]
+mod mobile;
+#[cfg(unix)]
 mod projects;
 #[cfg(unix)]
 mod scan;

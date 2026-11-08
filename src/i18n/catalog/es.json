@@ -497,5 +497,19 @@
   "This model is gone already.": "Este modelo ya no está.",
   "This model was downloaded again after the scan.": "Este modelo se volvió a descargar después del análisis.",
   "This model was run after the scan.": "Este modelo se usó después del análisis.",
-  "Unknown AI model detector.": "Detector de modelos de IA desconocido."
+  "Unknown AI model detector.": "Detector de modelos de IA desconocido.",
+  "Android emulators": "Emuladores de Android",
+  "Android emulators not started for 90+ days": "Emuladores de Android sin iniciar en 90+ días",
+  "Backup {0}": "Copia de seguridad {0}",
+  "Backups not updated for {BACKUP_DAYS} days or more, often of a phone or tablet you no longer use. A backup may be the only copy of that device's data.": "Copias de seguridad sin actualizar en {BACKUP_DAYS} días o más, a menudo de un teléfono o tableta que ya no usas. Una copia puede ser la única de los datos de ese dispositivo.",
+  "Device backups are protected by macOS and need Full Disk Access.": "Las copias de seguridad de dispositivos están protegidas por macOS y requieren acceso total al disco.",
+  "Emulators with their disk images and saved state. Apps installed in them are removed too.": "Emuladores con sus imágenes de disco y su estado guardado. Las apps instaladas en ellos también se eliminan.",
+  "Freeboard couldn't check whether this emulator is running.": "Freeboard no pudo comprobar si este emulador se está ejecutando.",
+  "iPhone and iPad backups": "Copias de seguridad de iPhone y iPad",
+  "Last backed up {0}": "Última copia {0}",
+  "Not started in {0}+ days": "Sin iniciar en {0}+ días",
+  "Old iPhone and iPad backups": "Copias de seguridad antiguas de iPhone y iPad",
+  "Restore them from the {tw}, or create the emulator again in Android Studio.": "Restáuralos desde la {tw} o vuelve a crear el emulador en Android Studio.",
+  "Simulator {0}": "Simulador {0}",
+  "This emulator is running. Close it, then scan again.": "Este emulador se está ejecutando. Ciérralo y vuelve a analizar."
 }

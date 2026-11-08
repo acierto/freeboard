@@ -733,6 +733,8 @@ pub fn detector_label(id: &str) -> String {
         "cache.playwright" => "Playwright browsers",
         "cache.xcode" => "Xcode DerivedData",
         "mobile.simulators" => "iOS simulators",
+        "mobile.ios_backups" => "iPhone and iPad backups",
+        "mobile.android_avd" => "Android emulators",
         "ai.ollama" => "Ollama models",
         "ai.huggingface" => "Hugging Face downloads",
         "ai.lm_studio" => "LM Studio models",

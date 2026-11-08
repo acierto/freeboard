@@ -139,6 +139,12 @@ fn xcode_and_simulators_are_macos_only() {
     let Target::Native { args, .. } = &s.target else { panic!() };
     assert_eq!(args.len(), 4, "bounded to the two listed UDIDs: {args:?}");
     assert_eq!(s.suggestion.size_bytes, 323_502_080 + 45_056 + 13_316_096);
+    // One part per simulator, each deleted by its own UDID.
+    let labels: Vec<(&str, &str)> = s.suggestion.parts.iter().map(|p| (p.label.as_str(), p.location.as_str())).collect();
+    assert_eq!(labels, [("iPhone 14 Pro", "iOS 16.4"), ("iPhone 14 Pro Max", "iOS 16.4")]);
+    let Target::Native { args, .. } = &s.parts[1].target else { panic!() };
+    assert_eq!(args, &["simctl", "delete", "1F38C5F6-0213-4A6B-999E-5A03A5831FA2"]);
+    fx.with_ctx(ScanKind::Quick, |ctx| assert_eq!(probe(&s.parts[1], ctx), Probe::Unchanged));
     fx.platform = "linux";
     assert!(fx.scan(ScanKind::Quick, &[Box::new(Xcode), Box::new(Simulators)]).findings.is_empty());
     fx.platform = "macos";

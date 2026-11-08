@@ -486,6 +486,9 @@ pub struct Simulators;
 #[derive(Debug, Clone, PartialEq)]
 pub struct Sim {
     pub udid: String,
+    pub name: Option<String>,
+    /// The runtime it needs, readable ("iOS 16.4").
+    pub runtime: Option<String>,
     pub data_path: Option<PathBuf>,
     pub size: Option<u64>,
 }
@@ -494,11 +497,18 @@ pub fn is_udid(s: &str) -> bool {
     s.len() == 36 && s.chars().all(|c| c.is_ascii_hexdigit() || c == '-')
 }
 
+/// "com.apple.CoreSimulator.SimRuntime.iOS-16-4" → "iOS 16.4".
+pub fn runtime_label(key: &str) -> Option<String> {
+    let r = key.rsplit('.').next()?;
+    let (os, ver) = r.split_once('-')?;
+    Some(format!("{os} {}", ver.replace('-', ".")))
+}
+
 pub fn parse_simctl(out: &str) -> Option<Vec<Sim>> {
     let v: Value = serde_json::from_str(out).ok()?;
     let devs = v.get("devices")?.as_object()?;
     let mut sims = vec![];
-    for list in devs.values() {
+    for (runtime, list) in devs {
         for d in list.as_array()? {
             if d.get("isAvailable").and_then(|a| a.as_bool()) != Some(false) {
                 continue;
@@ -511,7 +521,13 @@ pub fn parse_simctl(out: &str) -> Option<Vec<Sim>> {
                 (None, None) => None,
                 (a, b) => Some(a.unwrap_or(0) + b.unwrap_or(0)),
             };
-            sims.push(Sim { udid, data_path: d.get("dataPath").and_then(|p| p.as_str()).map(PathBuf::from), size });
+            sims.push(Sim {
+                udid,
+                name: d.get("name").and_then(|n| n.as_str()).map(String::from),
+                runtime: runtime_label(runtime),
+                data_path: d.get("dataPath").and_then(|p| p.as_str()).map(PathBuf::from),
+                size,
+            });
         }
     }
     sims.sort_by(|a, b| a.udid.cmp(&b.udid));
@@ -541,38 +557,78 @@ impl Detector for Simulators {
         if sims.is_empty() {
             return Ok(vec![]);
         }
-        let mut bytes = 0;
-        let mut estimate = false;
-        for s in &sims {
-            match (s.size, s.data_path.as_ref().and_then(|p| p.parent())) {
-                (_, Some(dev)) if dev.is_dir() => bytes += measure(dev, &MeasureOpts::default()).bytes,
-                (Some(n), _) => {
-                    bytes += n;
-                    estimate = true;
-                }
-                _ => estimate = true,
-            }
+        // One part per simulator, each deleted by its exact UDID.
+        let mut parts = vec![];
+        for sim in &sims {
+            let (bytes, estimate) = match (sim.size, sim.data_path.as_ref().and_then(|p| p.parent())) {
+                (_, Some(dev)) if dev.is_dir() => (measure(dev, &MeasureOpts::default()).bytes, false),
+                (Some(n), _) => (n, true),
+                _ => (0, true),
+            };
+            let mut s = base(SIMULATORS, Group::PhonesEmulators, &sim.udid);
+            s.title = sim.name.clone().unwrap_or_else(|| format!("Simulator {}", &sim.udid[..8]));
+            s.location = sim.runtime.clone().unwrap_or_default();
+            s.size_bytes = bytes;
+            s.full_size_bytes = bytes;
+            s.size_is_estimate = estimate;
+            s.last_used_label = "Runtime no longer installed".into();
+            s.risk = Risk::Review;
+            s.action = Action::NativeCommand;
+            s.action_label = format!("xcrun simctl delete {}", sim.udid);
+            s.reason = SIM_REASON.into();
+            s.recovery = SIM_RECOVERY.into();
+            s.recoverable = true;
+            s.fingerprint = fingerprint_of(&[&sim.udid]);
+            let target = Target::Native {
+                program: "xcrun".into(),
+                args: vec!["simctl".into(), "delete".into(), sim.udid.clone()],
+                resources: vec![sim.udid.clone()],
+                cwd: None,
+            };
+            parts.push(Finding::new(s, target));
         }
-        let udids: Vec<String> = sims.iter().map(|s| s.udid.clone()).collect();
+        parts.sort_by_key(|f| std::cmp::Reverse(f.suggestion.size_bytes));
+        let udids: Vec<String> = parts.iter().map(|f| match &f.target { Target::Native { resources, .. } => resources[0].clone(), _ => String::new() }).collect();
         let mut s = base(SIMULATORS, Group::PhonesEmulators, "unavailable-simulators");
         s.title = "Unavailable iOS simulators".into();
         s.location = format!("{} simulator device{}", udids.len(), if udids.len() == 1 { "" } else { "s" });
-        s.size_bytes = bytes;
-        s.size_is_estimate = estimate;
+        s.size_bytes = parts.iter().map(|f| f.suggestion.size_bytes).sum();
+        s.full_size_bytes = s.size_bytes;
+        s.size_is_estimate = parts.iter().any(|f| f.suggestion.size_is_estimate);
         s.last_used_label = "Runtime no longer installed".into();
         s.risk = Risk::Review;
         s.action = Action::NativeCommand;
         s.action_label = "xcrun simctl delete unavailable".into();
-        s.reason = "These simulators depend on runtimes that are gone.".into();
-        s.recovery = "Create the simulator again in Xcode.".into();
+        s.reason = SIM_REASON.into();
+        s.recovery = SIM_RECOVERY.into();
         s.recoverable = true;
         s.fingerprint = fingerprint_of(&udids.iter().map(|s| s.as_str()).collect::<Vec<_>>());
+        if parts.len() == 1 {
+            let mut f = parts.pop().unwrap();
+            f.suggestion.id = s.id;
+            f.suggestion.title = s.title;
+            f.suggestion.location = s.location;
+            return Ok(vec![f]);
+        }
+        s.parts = parts
+            .iter()
+            .map(|f| SuggestionPart {
+                id: f.suggestion.id.clone(),
+                label: f.suggestion.title.clone(),
+                location: f.suggestion.location.clone(),
+                size_bytes: f.suggestion.size_bytes,
+                selected: true,
+            })
+            .collect();
         // Bounded: delete exactly the devices listed, not "unavailable".
         let mut args = vec!["simctl".to_string(), "delete".to_string()];
         args.extend(udids.iter().cloned());
-        Ok(vec![Finding { parts: vec![], suggestion: s, target: Target::Native { program: "xcrun".into(), args, resources: udids, cwd: None } }])
+        Ok(vec![Finding { suggestion: s, target: Target::Native { program: "xcrun".into(), args, resources: udids, cwd: None }, parts }])
     }
 }
+
+const SIM_REASON: &str = "These simulators depend on runtimes that are gone.";
+const SIM_RECOVERY: &str = "Create the simulator again in Xcode.";
 
 // ----- pre-cleanup checks ----------------------------------------------------
 
