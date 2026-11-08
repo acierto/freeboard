@@ -17,6 +17,12 @@ pub fn link_count(_path: &Path, meta: &Metadata) -> u64 {
     meta.nlink()
 }
 
+/// Allocated size, link count and identity of a file in one go (all from
+/// `meta` here; see the Windows version for why this exists).
+pub fn file_facts(path: &Path, meta: &Metadata) -> (u64, u64, Option<FileId>) {
+    (allocated_size(path, meta), meta.nlink(), file_id(path, meta))
+}
+
 pub fn is_link_meta(_path: &Path, meta: &Metadata) -> bool {
     meta.file_type().is_symlink()
 }

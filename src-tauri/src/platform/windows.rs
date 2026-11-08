@@ -84,6 +84,23 @@ pub fn link_count(path: &Path, _meta: &Metadata) -> u64 {
     by_handle_info(path).map(|i| i.nNumberOfLinks as u64).unwrap_or(1)
 }
 
+/// Allocated size, link count and identity of a file. Each Windows call opens
+/// the file, so link count and identity come from one handle: walking a
+/// million-file tree with separate calls took 69 s on a Windows Arm64 runner
+/// (2026-11-08). The identity is only returned for hard-linked files.
+pub fn file_facts(path: &Path, meta: &Metadata) -> (u64, u64, Option<FileId>) {
+    let size = allocated_size(path, meta);
+    match by_handle_info(path) {
+        Some(i) if i.nNumberOfLinks > 1 => (
+            size,
+            i.nNumberOfLinks as u64,
+            Some(FileId { dev: i.dwVolumeSerialNumber as u64, ino: ((i.nFileIndexHigh as u64) << 32) | i.nFileIndexLow as u64 }),
+        ),
+        Some(_) => (size, 1, None),
+        None => (size, 1, None),
+    }
+}
+
 /// Junctions and all other reparse points count as links.
 pub fn is_link_meta(_path: &Path, meta: &Metadata) -> bool {
     meta.file_type().is_symlink() || (meta.file_attributes() & FILE_ATTRIBUTE_REPARSE_POINT) != 0

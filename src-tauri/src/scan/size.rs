@@ -54,6 +54,29 @@ pub struct MeasureOpts {
     pub serial: bool,
 }
 
+/// What the walker's threads learn about one entry, so the per-file system
+/// calls run in parallel rather than on the thread reading the results.
+#[derive(Debug, Clone, Copy)]
+enum Facts {
+    /// A link, junction or reparse point: never followed, counts nothing.
+    Link,
+    /// A folder's own allocation.
+    Dir(u64),
+    File { size: u64, len: u64, mtime: i64, nlink: u64, id: Option<FileId> },
+}
+
+fn facts_of(p: &Path) -> Option<Facts> {
+    let m = std::fs::symlink_metadata(p).ok()?;
+    Some(if platform::is_link_meta(p, &m) {
+        Facts::Link
+    } else if m.is_dir() {
+        Facts::Dir(platform::allocated_size(p, &m))
+    } else {
+        let (size, nlink, id) = if m.is_file() { platform::file_facts(p, &m) } else { (platform::allocated_size(p, &m), 1, None) };
+        Facts::File { size, len: m.len(), mtime: platform::modified_secs(&m), nlink, id }
+    })
+}
+
 #[derive(Default)]
 struct Acc {
     m: Measured,
@@ -63,27 +86,29 @@ struct Acc {
 
 impl Acc {
     fn file(&mut self, path: &Path, meta: &std::fs::Metadata) {
-        let size = platform::allocated_size(path, meta);
-        let mt = platform::modified_secs(meta);
-        let nlink_early = if meta.is_file() { platform::link_count(path, meta) } else { 1 };
-        // Hard-linked files are added once, in finish(), with their length.
-        if nlink_early <= 1 || platform::file_id(path, meta).is_none() {
-            self.m.content_bytes += meta.len();
-        }
-        self.m.newest_mtime = Some(self.m.newest_mtime.map_or(mt, |n| n.max(mt)));
-        self.m.files += 1;
-        let nlink = if meta.is_file() { platform::link_count(path, meta) } else { 1 };
-        if nlink > 1 {
-            if let Some(id) = platform::file_id(path, meta) {
-                let e = self.multi.entry(id).or_insert((0, nlink, size));
-                if e.0 == 0 {
-                    self.m.content_bytes += meta.len();
+        let (size, nlink, id) = if meta.is_file() { platform::file_facts(path, meta) } else { (platform::allocated_size(path, meta), 1, None) };
+        self.add(Facts::File { size, len: meta.len(), mtime: platform::modified_secs(meta), nlink, id });
+    }
+    fn add(&mut self, f: Facts) {
+        match f {
+            Facts::Link => {}
+            Facts::Dir(size) => self.m.bytes += size,
+            Facts::File { size, len, mtime, nlink, id } => {
+                self.m.newest_mtime = Some(self.m.newest_mtime.map_or(mtime, |n| n.max(mtime)));
+                self.m.files += 1;
+                if let (true, Some(id)) = (nlink > 1, id) {
+                    // Hard-linked files are added once, in finish(), with their length.
+                    let e = self.multi.entry(id).or_insert((0, nlink, size));
+                    if e.0 == 0 {
+                        self.m.content_bytes += len;
+                    }
+                    e.0 += 1;
+                    return;
                 }
-                e.0 += 1;
-                return;
+                self.m.content_bytes += len;
+                self.m.bytes += size;
             }
         }
-        self.m.bytes += size;
     }
     fn finish(mut self) -> Measured {
         for (_, (seen, nlink, size)) in self.multi {
@@ -137,7 +162,7 @@ pub fn measure(path: &Path, opts: &MeasureOpts) -> Measured {
         let n = std::thread::available_parallelism().map(|n| n.get()).unwrap_or(2).clamp(2, 8);
         jwalk::Parallelism::RayonNewPool(n)
     };
-    let walker = jwalk::WalkDir::new(path)
+    let walker = jwalk::WalkDirGeneric::<((), Option<Facts>)>::new(path)
         .follow_links(false)
         .skip_hidden(false)
         .sort(false)
@@ -148,10 +173,12 @@ pub fn measure(path: &Path, opts: &MeasureOpts) -> Measured {
                 Err(_) => true,
             });
             for e in children.iter_mut().flatten() {
+                let f = facts_of(&e.path());
                 // Never descend into links, junctions or reparse points.
-                if e.read_children_path.is_some() && (e.file_type.is_symlink() || platform::is_link(&e.path())) {
+                if matches!(f, Some(Facts::Link)) || e.file_type.is_symlink() {
                     e.read_children_path = None;
                 }
+                e.client_state = f;
             }
         });
     for entry in walker {
@@ -163,20 +190,9 @@ pub fn measure(path: &Path, opts: &MeasureOpts) -> Measured {
                 if e.read_children_error.is_some() {
                     acc.m.incomplete = true;
                 }
-                let p = e.path();
-                match std::fs::symlink_metadata(&p) {
-                    Ok(m) => {
-                        if platform::is_link_meta(&p, &m) || m.is_dir() {
-                            // Directory and link entries: count their own
-                            // allocation only (small), never their target.
-                            if !platform::is_link_meta(&p, &m) {
-                                acc.m.bytes += platform::allocated_size(&p, &m);
-                            }
-                        } else {
-                            acc.file(&p, &m);
-                        }
-                    }
-                    Err(_) => acc.m.incomplete = true,
+                match e.client_state {
+                    Some(f) => acc.add(f),
+                    None => acc.m.incomplete = true,
                 }
             }
             Err(_) => acc.m.incomplete = true,

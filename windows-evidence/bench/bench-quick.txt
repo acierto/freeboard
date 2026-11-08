@@ -1,0 +1,153 @@
+     0.00s start
+     0.00s 
+     0.00s docker.build_cache
+     0.00s docker.dangling_images
+     0.00s docker.unused_images
+     0.00s docker.stopped_containers
+     0.00s docker.volumes
+     0.00s docker.disk_slack
+     0.00s ai.huggingface
+     0.00s cache.npm
+     0.00s cache.pip
+     0.00s cache.cargo
+     0.00s cache.gradle
+     0.00s cache.jetbrains
+     0.00s cache.electron_apps
+     0.00s mobile.ios_backups
+     0.00s mobile.android_avd
+     0.00s mobile.ios_backups
+     0.00s ai.ollama
+     0.00s cache.jetbrains
+     0.00s cache.pnpm
+     0.00s ai.huggingface
+     0.00s files.installers
+     0.00s files.windows_temp
+     0.00s cache.electron_apps
+     0.00s ai.lm_studio
+     0.00s files.installers
+     0.00s ai.lm_studio
+     0.00s ai.ollama
+     0.00s mobile.android_avd
+     0.00s cache.gradle
+     0.00s docker.build_cache
+     0.00s docker.stopped_containers
+     0.00s docker.unused_images
+     0.00s docker.dangling_images
+     0.00s docker.disk_slack
+     0.03s docker.volumes
+     0.09s cache.pnpm
+     0.56s files.windows_temp
+     4.38s cache.cargo
+     2.02s cache.pip
+     0.00s cache.npm
+{"kind":"Quick","seconds":7.09,"findings":1,"bytes":250968461,"detectorErrors":7}
+  cache.cargo                     1 items      0.3 GB  {"review": 1}
+  docker.build_cache: unavailable (Docker is not installed.)
+  docker.dangling_images: unavailable (Docker is not installed.)
+  docker.unused_images: unavailable (Docker is not installed.)
+  docker.stopped_containers: unavailable (Docker is not installed.)
+  docker.volumes: unavailable (Docker is not installed.)
+  docker.disk_slack: unavailable (Docker is not installed.)
+  cache.pnpm: unavailable (pnpm is not installed.)
+     0.00s start
+     0.00s 
+     0.00s docker.build_cache
+     0.00s docker.unused_images
+     0.00s docker.dangling_images
+     0.00s cache.gradle
+     0.00s docker.volumes
+     0.00s docker.disk_slack
+     0.00s cache.pnpm
+     0.00s cache.pip
+     0.00s cache.npm
+     0.00s cache.cargo
+     0.00s docker.stopped_containers
+     0.00s cache.jetbrains
+     0.00s cache.electron_apps
+     0.00s mobile.ios_backups
+     0.00s mobile.android_avd
+     0.00s ai.huggingface
+     0.00s mobile.ios_backups
+     0.00s ai.ollama
+     0.00s cache.electron_apps
+     0.00s ai.lm_studio
+     0.00s files.windows_temp
+     0.00s files.installers
+     0.00s cache.gradle
+     0.00s files.installers
+     0.00s ai.lm_studio
+     0.00s cache.jetbrains
+     0.00s ai.ollama
+     0.00s mobile.android_avd
+     0.00s ai.huggingface
+     0.00s cache.pnpm
+     0.00s docker.build_cache
+     0.00s docker.unused_images
+     0.00s docker.stopped_containers
+     0.00s docker.disk_slack
+     0.00s docker.volumes
+     0.01s docker.dangling_images
+     0.27s files.windows_temp
+     0.20s cache.pip
+     0.20s cache.npm
+     0.00s cache.cargo
+{"kind":"Quick","seconds":0.70,"findings":1,"bytes":250968461,"detectorErrors":7}
+  cache.cargo                     1 items      0.3 GB  {"review": 1}
+  docker.build_cache: unavailable (Docker is not installed.)
+  docker.dangling_images: unavailable (Docker is not installed.)
+  docker.unused_images: unavailable (Docker is not installed.)
+  docker.stopped_containers: unavailable (Docker is not installed.)
+  docker.volumes: unavailable (Docker is not installed.)
+  docker.disk_slack: unavailable (Docker is not installed.)
+  cache.pnpm: unavailable (pnpm is not installed.)
+     0.00s start
+     0.00s 
+     0.00s docker.build_cache
+     0.00s cache.pip
+     0.00s mobile.ios_backups
+     0.00s ai.lm_studio
+     0.00s cache.gradle
+     0.00s docker.disk_slack
+     0.00s cache.pnpm
+     0.00s docker.dangling_images
+     0.00s cache.npm
+     0.00s cache.gradle
+     0.00s cache.cargo
+     0.00s docker.stopped_containers
+     0.00s cache.jetbrains
+     0.00s cache.electron_apps
+     0.00s docker.unused_images
+     0.00s mobile.android_avd
+     0.00s ai.ollama
+     0.00s ai.huggingface
+     0.00s docker.volumes
+     0.00s cache.jetbrains
+     0.00s files.installers
+     0.00s cache.electron_apps
+     0.00s files.windows_temp
+     0.00s files.installers
+     0.00s ai.lm_studio
+     0.00s mobile.ios_backups
+     0.00s ai.ollama
+     0.00s mobile.android_avd
+     0.00s ai.huggingface
+     0.00s cache.pnpm
+     0.00s docker.build_cache
+     0.00s docker.disk_slack
+     0.00s docker.volumes
+     0.00s docker.unused_images
+     0.00s docker.stopped_containers
+     0.01s docker.dangling_images
+     0.25s files.windows_temp
+     0.21s cache.pip
+     0.17s cache.npm
+     0.00s cache.cargo
+{"kind":"Quick","seconds":0.65,"findings":1,"bytes":250968461,"detectorErrors":7}
+  cache.cargo                     1 items      0.3 GB  {"review": 1}
+  docker.build_cache: unavailable (Docker is not installed.)
+  docker.dangling_images: unavailable (Docker is not installed.)
+  docker.unused_images: unavailable (Docker is not installed.)
+  docker.stopped_containers: unavailable (Docker is not installed.)
+  docker.volumes: unavailable (Docker is not installed.)
+  docker.disk_slack: unavailable (Docker is not installed.)
+  cache.pnpm: unavailable (pnpm is not installed.)
