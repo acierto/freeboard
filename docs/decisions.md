@@ -432,3 +432,7 @@ Found on a real Mac after installing the Worktrees build: the tab showed "0 in 0
 ## 2026-11-08: lsof's exit code says nothing (found on the real Mac)
 
 `lsof +D <folder>` exits 1 on macOS even when it lists open files, with nothing on stderr; the leftover-temp-files detector took that as "could not check" and was always unavailable on a real Mac (the fixture's fake lsof exited 0). It now trusts the listing and counts only a real error on stderr (not a warning) as unknown. The fixture's fake lsof exits 1 like the real one.
+
+## 2026-11-08: Checks done by a person are out of this change (decided by the user)
+
+The parts of tasks that need a person are taken out of this change's scope; the owner does them outside it: trying Keep me tidy in the installed app (6.2), the VoiceOver, NVDA and Orca session (6.6), and the site's promo video and poster (6.9). Their automated parts are done, so the three tasks are closed.
