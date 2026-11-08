@@ -437,6 +437,8 @@ Found on a real Mac after installing the Worktrees build: the tab showed "0 in 0
 
 The parts of tasks that need a person are taken out of this change's scope; the owner does them outside it: trying Keep me tidy in the installed app (6.2), the VoiceOver, NVDA and Orca session (6.6), and the site's promo video and poster (6.9). Their automated parts are done, so the three tasks are closed.
 
+Later the same day the user extended this to every remaining check by hand: the Windows tray check (2.5), the macOS and Windows click-throughs of the installed app and the slice exit gates that rely on them (3.9, 3.10, 4.8, 5.14), and native webview and tray screenshots (6.7). The owner does them on the installed release. Scripting the macOS click-through through the accessibility API is dropped. Measurements stay in scope (2.7, 2.8, 5.13, 6.8), as does the release gate (6.10).
+
 ## 2026-11-08: Installer art (supplied by the user)
 
 The macOS DMG window has a background ("Drag Freeboard into Applications", with the Open Anyway hint) and the Windows installer a header and sidebar, from `src-tauri/installer/` (sources and its README there). The DMG background is one HiDPI TIFF made with `tiffutil` from the 1× and 2× PNGs. The click-through license window is removed from the DMG (`bundle.licenseFile` dropped): MIT needs no acceptance, and that macOS dialog cannot be styled. The license stays in the repository and on every release; showing it in the app (an About view) is not built yet. The Windows installer installs per user and is in English, Dutch, German, French and Spanish, following the system language.

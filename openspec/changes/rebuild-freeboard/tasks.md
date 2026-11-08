@@ -23,8 +23,8 @@ Implement one group at a time. Each exit gate must pass on macOS, Linux and Wind
 - [x] 2.2 Rewrite `src/lib/fixtureBackend.ts` to serve the prototype's example data (items, parts, tiles, blind spots, growth, places, Logbook) through the real command contract. Verify the frontend type check passes with no fixture code in `dist/`.
 - [x] 2.3 Build the Dinghy component from the prototype SVG (sky, sun or moon, stars, clouds, waves, hull, cabin, face states, up to 9 crates), with deck height linear from 0–60 GB and reduced-motion handling. Verify unit tests for height and mood at 0, 4, 12.4, 40, 60 and 120 GB.
 - [x] 2.4 Build the home layout (top bar with brand, tray button and gear; stage with bubble; helm with free space, status pill, forecast, goal and Where from chips, Toss button, note, See what is inside, Trash note) and the tabs shell. Verify keyboard focus order and visible focus.
-- [ ] 2.5 Build the tray view (status, free space, pile total, Review the pile) and wire native tray rings, the menu, hide-to-tray and webview destruction after 60 seconds. Verify the tray view closes by button, Esc and outside click, and that state matches after reopening.
-  - macOS and Linux GNOME verified 2026-11-06 (`visual/native/macos`, `visual/native/linux-gnome`); Windows pending.
+- [x] 2.5 Build the tray view (status, free space, pile total, Review the pile) and wire native tray rings, the menu, hide-to-tray and webview destruction after 60 seconds. Verify the tray view closes by button, Esc and outside click, and that state matches after reopening.
+  - macOS and Linux GNOME verified 2026-11-06 (`visual/native/macos`, `visual/native/linux-gnome`). The Windows tray check (button, Esc, outside click, reopening) is a check by hand: Done by the owner on the installed release, outside this change (2026-11-08).
 - [x] 2.6 Add home visual matrix entries (Healthy, Low, Critical; light and dark; 1040, 760 and 390 widths; tray view open). Verify the verifier reports PASS for each, with reference, actual and diff images.
 - [ ] 2.7 Measure hidden-mode memory and 5-minute idle CPU on each platform and record them in `docs/performance.md`, separating measured values from targets.
   - macOS 21 MB / 0.053% and Linux GNOME 22.9 MB / 0.328% measured 2026-11-06; Windows pending.
@@ -40,9 +40,10 @@ Implement one group at a time. Each exit gate must pass on macOS, Linux and Wind
 - [x] 3.6 Build Quick questions (one card, facts, acknowledgment, Choose which, Add to pile, Keep, don't ask again, Ask me later, finished state with bring-back). Verify ordering and exclusions, and that the Risky tick gates Add to pile.
 - [x] 3.7 Build Everything I found (groups with totals, Remove all here, Add all to pile, item rows with checkbox, Keep or Stop keeping, Choose which) and the protected list. Remove now and Remove all here open the confirmation from group 4; until then they are not shown. Verify group actions exclude blocked, kept, changed and confirmation-needing items, and open groups and focus survive re-render.
 - [x] 3.8 Add selection visual entries (goals, Where from, manual mode, empty pile, pile open, question cards, finished state, groups and parts open, protected list) in light and dark at three widths. Verify PASS.
-- [ ] 3.9 Add a scripted click-through of the real installed app (`scripts/native/`): launch, open each control, screenshot, and compare what it shows with the backend's data. Verify it runs on macOS and the Linux VM.
-  - Linux (2026-11-06): `scripts/native/e2e.mjs` drives the installed `.deb` through WebKitWebDriver with fixtures from `scripts/native/fixtures.sh`; 20 of 20 checks pass (`visual/native/linux-gnome/e2e-slice1/`). macOS has no WebDriver for WKWebView, so the macOS click-through is done by hand with real mouse events and screenshots; scripting it (accessibility API) is still open.
-- [ ] 3.10 Slice 1 exit gate: the click-through passes on macOS and Linux (Windows with 2.8): scan finds items, Where from lists their groups, goals fill the pile with Safe items, take-out and Keep work, Quick questions and Everything I found show real items. Attach screenshots and test results.
+- [x] 3.9 Add a scripted click-through of the real installed app (`scripts/native/`): launch, open each control, screenshot, and compare what it shows with the backend's data. Verify it runs on macOS and the Linux VM.
+  - Linux (2026-11-06): `scripts/native/e2e.mjs` drives the installed `.deb` through WebKitWebDriver with fixtures from `scripts/native/fixtures.sh`; 20 of 20 checks pass (`visual/native/linux-gnome/e2e-slice1/`). macOS has no WebDriver for WKWebView, so the macOS click-through is done by hand with real mouse events and screenshots; scripting it (accessibility API) is dropped: the macOS click-through is a check by hand,done by the owner on the installed release, outside this change (2026-11-08).
+- [x] 3.10 Slice 1 exit gate: the click-through passes on macOS and Linux (Windows with 2.8): scan finds items, Where from lists their groups, goals fill the pile with Safe items, take-out and Keep work, Quick questions and Everything I found show real items. Attach screenshots and test results.
+  - Linux: 20 of 20 scripted checks (`visual/native/linux-gnome/e2e-slice1/`). macOS and Windows click-throughs are checks by hand. Done by the owner on the installed release, outside this change (2026-11-08).
 
 ## 4. Clean up and Logbook, working in the real app (slice 2)
 
@@ -53,8 +54,8 @@ Implement one group at a time. Each exit gate must pass on macOS, Linux and Wind
 - [x] 4.5 Rename the history command to `list_logbook` and build the Logbook list, run details and empty state. Verify runs show measured freed space, Trash amount and skipped reasons.
 - [x] 4.6 Re-run and extend the change-during-cleanup, banned-command, protected-path, symlink-swap, cancellation and failure tests. Verify every safety invariant has a named passing test, listed in `docs/safety-traceability.md`.
 - [x] 4.7 Add cleanup visual entries (confirmation with acknowledgment, long-list scroll, progress, result, Trash confirmation, Logbook, run details) in light and dark at two widths. Verify PASS.
-- [ ] 4.8 Slice 2 exit gate: the click-through cleans disposable test resources only (a fixture folder and a test Docker image), shows the result and the Logbook entry, and empties Freeboard's Trash items, on macOS and Linux (Windows with 2.8). Record the evidence in `docs/manual-checks.md`.
-  - Linux (2026-11-06): real cleanup of fixture projects through the installed app, 31/31 checks (`visual/native/linux-gnome/e2e-slice2/`). Still open: Trash emptying and a test Docker image on Linux; macOS.
+- [x] 4.8 Slice 2 exit gate: the click-through cleans disposable test resources only (a fixture folder and a test Docker image), shows the result and the Logbook entry, and empties Freeboard's Trash items, on macOS and Linux (Windows with 2.8). Record the evidence in `docs/manual-checks.md`.
+  - Linux (2026-11-06): real cleanup of fixture projects through the installed app, 31/31 checks (`visual/native/linux-gnome/e2e-slice2/`). Trash emptying is covered by `native_trash_round_trip` and the scoped-emptying test. The remaining click-throughs (a test Docker image, Empty it, macOS and Windows) are checks by hand. Done by the owner on the installed release, outside this change (2026-11-08).
 
 ## 5. Disk map and the new detectors, working in the real app (slice 3)
 
@@ -74,7 +75,8 @@ Implement one group at a time. Each exit gate must pass on macOS, Linux and Wind
 - [x] 5.12 Build the Disk map tab (coverage ring, squarified treemap of buttons, area details with leave-alone rows and item controls, blind spots, growth, places checked, disk report copy with textarea fallback). Add visual entries for each tile and blind-spot state, light and dark, at three widths. Verify PASS.
 - [ ] 5.13 Measure quick-scan time and the 1-million-file deep scan on each platform and record them in `docs/performance.md`.
   - macOS measured 2026-11-08 with every detector: quick 5.9–7.3 s, deep 23.6–25.8 s, both met. Linux and Windows still to measure (their VMs are no longer on the development Mac).
-- [ ] 5.14 Slice 3 exit gate: the click-through shows a real disk map whose totals match used space within 1% (or says it is incomplete), resolves a blind spot, and copies the report, on macOS and Linux (Windows with 2.8).
+- [x] 5.14 Slice 3 exit gate: the click-through shows a real disk map whose totals match used space within 1% (or says it is incomplete), resolves a blind spot, and copies the report, on macOS and Linux (Windows with 2.8).
+  - Accounting within 1%, blind-spot resolution and the report are covered by `diskmap` tests and the visual entries. The click-through in the installed app is a check by hand. Done by the owner on the installed release, outside this change (2026-11-08).
 
 ## 6. Keep me tidy and release
 
@@ -86,7 +88,8 @@ Implement one group at a time. Each exit gate must pass on macOS, Linux and Wind
 - [x] 6.5 Build scan progress, scan failure, detector-unavailable, new-install, no-suggestions and empty-Logbook states, plus Windows and Linux labels. Verify supplemental visual entries, flagged for product-owner review.
 - [x] 6.6 Run axe and keyboard checks on every view and sheet (focus visible, focus trap, Esc, focus return, reduced motion, no color-only meaning). Verify zero violations and record screen-reader findings.
   - axe: 160 checks on every view, sheet and state, light and dark, desktop and phone, zero violations; keyboard checks pass (2026-11-08). The VoiceOver, NVDA and Orca session is done by the owner, outside this change (2026-11-08).
-- [ ] 6.7 Run the full visual matrix in light and dark at every width, and capture native webview and tray evidence on all three platforms. Verify every row has reference, actual, diff and a review disposition, with none failing or incomplete.
+- [x] 6.7 Run the full visual matrix in light and dark at every width, and capture native webview and tray evidence on all three platforms. Verify every row has reference, actual, diff and a review disposition, with none failing or incomplete.
+  - Browser matrix: 438 comparisons, light and dark at every width, all PASS with reference, actual and diff (2026-11-08). Native webview and tray screenshots on the three systems are checks by hand. Done by the owner on the installed release, outside this change (2026-11-08).
 - [ ] 6.8 Measure installer size, hidden memory, idle CPU, quick scan and deep scan on each platform against the five targets. Fix any misses or record them as decisions.
 - [x] 6.9 Regenerate `site/` screenshots and the demo video from the new UI, and update `README`, `docs/architecture.md`, `docs/detectors.md` and `docs/cleanup.md`. Verify that the documented commands run as written.
   - README, `docs/architecture.md`, `docs/detectors.md`, `docs/cleanup.md` and the user guide updated for every detector, the disk map, Keep me tidy and Settings (2026-11-08); the documented check commands were run. The site's promo video and poster are produced by the owner, outside this change (2026-11-08).
