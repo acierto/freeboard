@@ -1,6 +1,6 @@
 [package]
 name = "freeboard"
-version = "1.3.0"
+version = "1.4.0"
 description = "Warns before disk space runs out and explains what can be reclaimed safely"
 edition = "2021"
 rust-version = "1.80"
