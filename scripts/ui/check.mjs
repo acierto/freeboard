@@ -238,6 +238,10 @@ const idle = (p) => p.waitForFunction(() => document.documentElement.dataset.bus
 }
 {
   const { p, ctx } = await page("firstrun=1");
+  // First run listens for Esc from an effect that runs after the first
+  // paint; two frames make sure it is attached (a slow CI Mac pressed Esc
+  // before it, 2026-11-08). Pressing twice would save twice.
+  await p.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
   await p.keyboard.press("Escape");
   await p.waitForSelector(".page .hero");
   const sent = await p.evaluate(() => window.__FIXTURE_CALLS__.filter((c) => c.cmd === "update_settings").map((c) => c.args.patch));
