@@ -598,5 +598,7 @@
   "s.bg.notify.s": "Cuando el espacio sea bajo o crítico.",
   "s.bg.disks": "Otros discos que vigilar",
   "s.bg.nodisks": "No hay otros discos conectados.",
-  "s.bg.disk.s": "{x} libres de {t}"
+  "s.bg.disk.s": "{x} libres de {t}",
+  "u.title": "Algunos lugares no se pudieron comprobar",
+  "e.nothing": "El último análisis no encontró nada que limpiar."
 }

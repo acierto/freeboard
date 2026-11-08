@@ -82,7 +82,17 @@ jobs:
         working-directory: src-tauri
         run: cargo test --locked
       - name: Unsigned installers
-        run: npx tauri build --bundles ${{ matrix.bundles }}
+        # The bundler downloads WiX, NSIS and AppImage tools from GitHub; a
+        # 503 or 504 there failed whole runs (2026-11-08). Retry the bundling,
+        # never the tests.
+        shell: bash
+        run: |
+          for i in 1 2 3; do
+            npx tauri build --bundles ${{ matrix.bundles }} && exit 0
+            echo "Bundling failed (attempt $i); retrying in 30 s."
+            sleep 30
+          done
+          exit 1
       - name: Installer size report
         shell: bash
         run: node scripts/perf/installer-size.mjs >> "$GITHUB_STEP_SUMMARY" || true

@@ -19,6 +19,10 @@ import { firstSupported, type LanguagePref } from "../i18n";
 //                      (the prototype always skips old-experiment)
 //   notrash=1          moving to the Trash fails, as on a volume without one
 //   fail=<id,...>      these items fail once (the prototype's DEMO_FAIL)
+//   fresh=1            set up but never scanned: nothing found, no Logbook
+//   nothing=1          scanned and nothing found
+//   unavail=1          the last scan could not check Docker and pip
+//   scanning=1         a quick scan is running
 //
 // Cleanup follows the prototype's `run()`: items run in plan order, Trash
 // items are held in the Trash, the rest free space at once, and a split item
@@ -315,7 +319,9 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
   // wtstale: also one worktree as an older version stored it (no facts).
   if (params.has("wtstale")) items.push({ ...worktreeItem(WT[1]), id: "w-old", title: "backstage: docs/old-format", worktree: null, blockedReason: "Blocked in v1. Push this branch first.", risk: "risky", action: "none" });
   const gone = new Set<string>();
-  const active = () => items.filter((i) => !gone.has(i.id) && (!i.need || resolvedSpots.get(i.need) === "scan"));
+  // fresh=1 (never scanned) and nothing=1 (scanned, nothing found) list no items.
+  const noItems = params.has("fresh") || params.has("nothing");
+  const active = () => (noItems ? [] : items.filter((i) => !gone.has(i.id) && (!i.need || resolvedSpots.get(i.need) === "scan")));
   // Other views get the prototype's own items; worktrees have their tab.
   const listed = () => active().filter((i) => !i.worktree);
   // Prototype `slow`: one removal times out the first time (its demo).
@@ -419,7 +425,17 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
       forecast: params.get("forecast") === "none" ? null : { bytesPerDay: RATE_GB * G, daysLeft: freeGb / RATE_GB },
       trashBytes: trashBytes(),
       trend: [],
-      scan: { running: null, phase: null, lastFinishedAt: "2026-11-04T11:42:00Z", detectorErrors: [] },
+      scan: {
+        running: params.has("scanning") ? "scan-quick" : null,
+        phase: params.has("scanning") ? "detectors" : null,
+        lastFinishedAt: params.has("fresh") ? null : "2026-11-04T11:42:00Z",
+        detectorErrors: params.has("unavail")
+          ? [
+              ...["docker.build_cache", "docker.dangling_images", "docker.unused_images", "docker.stopped_containers", "docker.volumes"].map((detector) => ({ detector, kind: "unavailable", message: "Docker is installed but not running." })),
+              { detector: "cache.pip", kind: "unavailable", message: "pip is not installed." },
+            ]
+          : [],
+      },
       notificationsPaused: false,
       platform,
       firstRun: false,
@@ -938,7 +954,7 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
       return "scan-1";
     },
     list_logbook: () => ({
-      runs: [...sessionRuns.map((s) => summary(runs.get(s.id)!.detail)), ...SAMPLE_RUNS.map(summary)],
+      runs: [...sessionRuns.map((s) => summary(runs.get(s.id)!.detail)), ...(params.has("fresh") ? [] : SAMPLE_RUNS.map(summary))],
       page: 0,
       hasMore: false,
     }),

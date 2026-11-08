@@ -297,7 +297,7 @@ export function Home({ navigate }: { navigate: View | null }) {
         </div>
 
         <section id="v-tidy" className="two" hidden={tab !== "tidy"}>
-          <QuickQuestions items={suggestions} pile={pile} act={{ add: h.add, takeOut: h.takeOut, decide: h.decide, parts: h.parts, remove: cleanup.fromItems, toss: cleanup.fromPile }} />
+          <QuickQuestions items={suggestions} pile={pile} errors={status.scan.detectorErrors} scanned={!!status.scan.lastFinishedAt} act={{ add: h.add, takeOut: h.takeOut, decide: h.decide, parts: h.parts, remove: cleanup.fromItems, toss: cleanup.fromPile }} />
         </section>
         <section id="v-map" className="two" hidden={tab !== "map"}>
           {map && (

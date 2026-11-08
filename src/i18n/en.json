@@ -598,5 +598,7 @@
   "s.bg.notify.s": "When space gets Low or Critical.",
   "s.bg.disks": "Other disks to watch",
   "s.bg.nodisks": "No other disks are connected.",
-  "s.bg.disk.s": "{x} free of {t}"
+  "s.bg.disk.s": "{x} free of {t}",
+  "u.title": "Some places could not be checked",
+  "e.nothing": "The last scan found nothing to clean up."
 }

@@ -598,5 +598,7 @@
   "s.bg.notify.s": "Wenn der Platz knapp oder kritisch wird.",
   "s.bg.disks": "Weitere Festplatten beobachten",
   "s.bg.nodisks": "Es sind keine weiteren Festplatten angeschlossen.",
-  "s.bg.disk.s": "{x} frei von {t}"
+  "s.bg.disk.s": "{x} frei von {t}",
+  "u.title": "Manche Orte konnten nicht geprüft werden",
+  "e.nothing": "Der letzte Scan fand nichts zum Aufräumen."
 }

@@ -354,6 +354,62 @@ function tidyAsk() {
 const TIDY_ASK = "Turning a rule on first lists what it removes, with Turn on and Cancel (spec \u201cKeep me tidy rules\u201d); the prototype's switch turns on at once. Built from the prototype's .note, .row and .btn in a supplemental .tidy-ask box.";
 const TIDY = ['#v-tidy .card:has(#auto-caches)'];
 
+// ---- states (task 6.5) -----------------------------------------------------
+
+/** Everything I found, in both: the plain card in the second column. */
+const EVERY = ["#v-tidy .stack > .card:not(.stack)"];
+
+function uncheckedNote() {
+  // Places the last scan could not check, one line per cause (supplemental
+  // .unchecked, dashed like an unavailable place), under the card's summary.
+  const card = document.querySelector("#v-tidy .stack > .card:not(.stack)");
+  const d = document.createElement("div");
+  d.className = "unchecked";
+  d.innerHTML = "<b>Some places could not be checked</b><span class=\"note\">Docker is installed but not running.</span><span class=\"note\">pip is not installed.</span>";
+  card.querySelector(":scope > p.note").after(d);
+}
+function emptyHelmHeight() {
+  // With nothing found, the app's helm has no area buttons and says Nothing
+  // to toss, so it is shorter than the prototype's. The helm is outside these
+  // entries' clip; it gets the app's height (504.8 px at 1120, 900.8 px at
+  // 390) so the card below lands on the same sub-pixel position.
+  const hero = document.querySelector(".hero");
+  hero.style.height = (window.innerWidth >= 1000 ? 504.796875 : 900.796875) + "px";
+  hero.style.overflow = "hidden";
+}
+function nothingListed(text) {
+  // A new install, or a scan that found nothing: no groups, no pile bar, no
+  // protected card; the summary line says why.
+  document.querySelectorAll("#v-tidy .protect").forEach((e) => e.remove());
+  const card = document.querySelector("#v-tidy .stack > .card:not(.stack)");
+  card.querySelectorAll("details.grp, .pilebar").forEach((e) => e.remove());
+  card.querySelector(":scope > p.note").textContent = text;
+}
+function emptyLogbook(text) {
+  const v = document.getElementById("v-log");
+  v.querySelectorAll(".log").forEach((e) => e.remove());
+  const p = document.createElement("p");
+  p.className = "muted";
+  p.textContent = text;
+  v.appendChild(p);
+}
+function scanningNote(text) {
+  // A running scan, under the Toss button's note (the app's #scan-progress).
+  const p = document.createElement("p");
+  p.className = "note";
+  p.id = "scan-progress";
+  p.textContent = text;
+  document.getElementById("cta-note").after(p);
+}
+function heldIn(word) {
+  // 2.4 GB held, in the platform's word for the Trash (the prototype's own
+  // renderHero line).
+  document.getElementById("trash").innerHTML =
+    '<div class="row between note"><span class="num">2.4 GB is in the ' + word + ' and not free yet.</span><button class="link" data-act="empty">Empty it</button></div>';
+}
+const STATES_EMPTY = " The helm above the clip takes the app's empty-state height, so the clipped card lands on the same sub-pixel position. Everything I found is compared at desktop width only: at phone width the question card above it is the app's all-answered card, not the prototype's first question.";
+const STATES = "Supplemental states the prototype does not show, flagged for product-owner review; each reference is the prototype with its own components rearranged as noted in the entry's state.";
+
 /** @type {Array<{id:string,surface:string,state:string,sizes:number[][],query?:string,ref:any[],impl:any[],supplemental?:boolean,note?:string,motion?:boolean,themes?:string[]}>} */
 export const ENTRIES = [
   // Milestone 2: home at the three disk states, and the tray view (task 2.6).
@@ -409,6 +465,14 @@ export const ENTRIES = [
   { id: "tidy-card", surface: "Quick questions", state: "Keep me tidy: both rules off", sizes: [DESKTOP, MID, PHONE], query: "", ...both([]), clip: TIDY },
   { id: "tidy-ask", surface: "Quick questions", state: "Keep me tidy: turning the package-cache rule on, what it removes", sizes: [DESKTOP, MID, PHONE], query: "", ref: [evalRef(tidyAsk)], impl: [{ click: "#auto-caches" }], clip: TIDY, supplemental: true, note: TIDY_ASK },
   { id: "tidy-on", surface: "Quick questions", state: "Keep me tidy: the Docker rule on", sizes: [DESKTOP, PHONE], query: "", ref: [{ check: ["#auto-docker", true] }], impl: [{ click: "#auto-docker" }, act("tidy-on")], clip: TIDY },
+  // States (task 6.5), flagged for product-owner review.
+  { id: "state-unchecked", surface: "Quick questions", state: "Everything I found after a scan that could not check Docker and pip", sizes: [DESKTOP, PHONE], query: "unavail=1", ref: [evalRef(biggestGroupFirst), evalRef(uncheckedNote)], impl: [], clip: EVERY, supplemental: true, note: STATES + " " + BIGGEST },
+  { id: "state-new-install", surface: "Quick questions", state: "Everything I found on a new install, before the first scan", sizes: [DESKTOP], query: "fresh=1", ref: [evalRef(nothingListed, STR.en["e.none"]), evalRef(emptyHelmHeight)], impl: [], clip: EVERY, supplemental: true, note: STATES + STATES_EMPTY },
+  { id: "state-nothing-found", surface: "Quick questions", state: "Everything I found after a scan that found nothing", sizes: [DESKTOP], query: "nothing=1", ref: [evalRef(nothingListed, STR.en["e.nothing"]), evalRef(emptyHelmHeight)], impl: [], clip: EVERY, supplemental: true, note: STATES + STATES_EMPTY },
+  { id: "state-logbook-empty", surface: "Logbook", state: "The Logbook before any cleanup", sizes: [DESKTOP, PHONE], query: "fresh=1", ref: [tab("log"), evalRef(emptyLogbook, STR.en["lg.none"]), evalRef(emptyHelmHeight)], impl: [tab("log")], clip: ["#v-log"], supplemental: true, note: STATES + STATES_EMPTY },
+  { id: "state-scanning", surface: "Home", state: "A scan running, under the Toss button", sizes: [DESKTOP, PHONE], query: "scanning=1", ref: [evalRef(tossNoteContrast), evalRef(scanningNote, "Scanning your disk\u2026")], impl: [], clip: HOME, supplemental: true, note: STATES + " " + TNOTE },
+  { id: "state-windows-trash", surface: "Home", state: "Windows: 2.4 GB held in the Recycle Bin", sizes: [DESKTOP, PHONE], query: "platform=windows&trash=2.4", ref: [evalRef(tossNoteContrast), evalRef(heldIn, "Recycle Bin")], impl: [], clip: HOME, supplemental: true, note: STATES + " " + TNOTE },
+  { id: "state-linux-trash", surface: "Home", state: "Linux: 2.4 GB held in the Trash", sizes: [DESKTOP, PHONE], query: "platform=linux&trash=2.4", ref: [evalRef(tossNoteContrast), evalRef(heldIn, "Trash")], impl: [], clip: HOME, supplemental: true, note: STATES + " " + TNOTE },
   mapEntry("map-report", "Disk report shown in the copy-by-hand box", [act("report")]),
   {
     id: "tray-view", surface: "Tray", state: "Menu bar window, Low", sizes: [[362, 560]], query: "view=tray",

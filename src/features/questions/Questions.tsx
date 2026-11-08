@@ -8,7 +8,7 @@ import { Fragment, useEffect, useState } from "react";
 import { api, errorText } from "../../lib/api";
 import { track } from "../../lib/useBusy";
 import { GROUPS, RISK_LABEL, gb } from "../../lib/format";
-import type { ItemDecision, PileState, Suggestion, TidyRule, TidyRuleId } from "../../lib/types";
+import type { DetectorError, ItemDecision, PileState, Suggestion, TidyRule, TidyRuleId } from "../../lib/types";
 import { questionDeck } from "../home/homeModel";
 import { age, cmdFor } from "../cleanup/cleanupModel";
 import { Parts } from "./Parts";
@@ -267,7 +267,25 @@ function Protected({ items }: { items: Suggestion[] }) {
   );
 }
 
-function Everything({ items, pile, chosen, act }: { items: Suggestion[]; pile: PileState; chosen: Set<string>; act: Choices }) {
+/** Places the last scan could not check, one line per cause (five Docker
+ * detectors share "Docker is not running"). Spec "Scans and detectors": a
+ * missing or stopped tool is shown, and the rest continues. */
+function Unchecked({ errors }: { errors: DetectorError[] }) {
+  const causes = [...new Set(errors.map((e) => e.message))];
+  if (!causes.length) return null;
+  return (
+    <div className="unchecked" data-supplemental="unchecked">
+      <b>{t("u.title")}</b>
+      {causes.map((m) => (
+        <span className="note" key={m}>
+          {tb(m)}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function Everything({ items, pile, chosen, act, errors, scanned }: { items: Suggestion[]; pile: PileState; chosen: Set<string>; act: Choices; errors: DetectorError[]; scanned: boolean }) {
   const total = items.reduce((t, s) => t + s.sizeBytes, 0);
   const blocked = items.filter((s) => s.blockedReason);
   return (
@@ -276,8 +294,9 @@ function Everything({ items, pile, chosen, act }: { items: Suggestion[]; pile: P
       <div className="card">
         <h3>{t("e.title")}</h3>
         <p className="note" style={{ marginBottom: 6 }}>
-          {items.length ? (items.length === 1 ? t("e.sum1", { x: gb(total) }) : t("e.sumN", { n: items.length, x: gb(total) })) : t("e.none")}
+          {items.length ? (items.length === 1 ? t("e.sum1", { x: gb(total) }) : t("e.sumN", { n: items.length, x: gb(total) })) : scanned ? t("e.nothing") : t("e.none")}
         </p>
+        <Unchecked errors={errors} />
         {GROUPS.map(({ id, label }) => {
           const l = items.filter((s) => s.group === id).sort((a, b) => b.sizeBytes - a.sizeBytes);
           return { id, label, l, bytes: l.reduce((t, s) => t + s.sizeBytes, 0) };
@@ -372,7 +391,7 @@ function KeepMeTidy() {
   );
 }
 
-export function QuickQuestions({ items: all, pile, act }: { items: Suggestion[]; pile: PileState; act: Choices }) {
+export function QuickQuestions({ items: all, pile, act, errors = [], scanned = true }: { items: Suggestion[]; pile: PileState; act: Choices; errors?: DetectorError[]; scanned?: boolean }) {
   const chosen = new Set(pile.itemIds);
   // Worktrees have their own tab (spec "Worktrees view"): there can be
   // hundreds, each with its own reason.
@@ -380,7 +399,7 @@ export function QuickQuestions({ items: all, pile, act }: { items: Suggestion[];
   return (
     <>
       <Question items={items} pile={pile} act={act} />
-      <Everything items={items} pile={pile} chosen={chosen} act={act} />
+      <Everything items={items} pile={pile} chosen={chosen} act={act} errors={errors} scanned={scanned} />
     </>
   );
 }

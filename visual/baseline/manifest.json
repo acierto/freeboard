@@ -20,8 +20,8 @@
   "locale": "en-US",
   "timezone": "UTC",
   "adapter": "scripts/visual/lib.mjs referenceHtml(): local fonts, data-theme, host reset (src/styles/reset.css), prototype-only controls hidden (.top-right .sim, .top-right [data-act=\"reset\"], .top > div > .note, .top-right .tray, .top-right [data-act=\"welcome\"])",
-  "acceptedAt": "2026-11-08T10:46:28.971Z",
-  "rationale": "Settings gains a supplemental In the background group after Scanning: quick and deep scan schedules, pause deep scans on battery, open at login, notifications, and other disks to watch (task 6.4, spec defaults). Built from the sheet's own components; new entry settings-background in light and dark at three widths. The existing Settings entries capture the sheet's first screen, which is unchanged (2026-11-08)",
+  "acceptedAt": "2026-11-08T11:01:13.916Z",
+  "rationale": "States (task 6.5), supplemental and flagged for product-owner review: places the last scan could not check (one line per cause), Everything I found on a new install and after a scan that found nothing (desktop), the empty Logbook, a running scan under the Toss button, and the Trash line in the Recycle Bin (Windows) and Trash (Linux) words; light and dark. For the empty states the helm above the clip takes the app's height so the card lands on the same sub-pixel position (2026-11-08)",
   "entries": {
     "cleanup-confirm-ack--dark--1120x900": {
       "id": "cleanup-confirm-ack",
@@ -6108,6 +6108,414 @@
       "supplemental": true,
       "note": "Folder rows say repositories, not projects, and the deep scan line says it measures the disk map and takes a few minutes. Folders are added with the native folder picker, so the prototype's typed-path form is not used. A supplemental In the background group after Scanning holds the scan schedules, the battery, login and notification switches and other disks to watch (spec defaults); built from the sheet's own components.",
       "sha256": "879b61a43e2d89330b6c8c4b4d3ea3c27525fd328eecfa1987347eb29c49fc7a"
+    },
+    "state-linux-trash--dark--1120x900": {
+      "id": "state-linux-trash",
+      "surface": "Home",
+      "state": "Linux: 2.4 GB held in the Trash",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "platform=linux&trash=2.4",
+      "supplemental": true,
+      "note": "Supplemental states the prototype does not show, flagged for product-owner review; each reference is the prototype with its own components rearranged as noted in the entry's state. The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "e7d9b5cdb99d09e383b8f616429044e9e0842f0934f404ee52c5df966c5e88fc"
+    },
+    "state-linux-trash--dark--390x844": {
+      "id": "state-linux-trash",
+      "surface": "Home",
+      "state": "Linux: 2.4 GB held in the Trash",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "platform=linux&trash=2.4",
+      "supplemental": true,
+      "note": "Supplemental states the prototype does not show, flagged for product-owner review; each reference is the prototype with its own components rearranged as noted in the entry's state. The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "8038b0dd6bb9fe97fe3fe37fb491102e1bd864263209b1ec4d4550a403d06da8"
+    },
+    "state-linux-trash--light--1120x900": {
+      "id": "state-linux-trash",
+      "surface": "Home",
+      "state": "Linux: 2.4 GB held in the Trash",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "platform=linux&trash=2.4",
+      "supplemental": true,
+      "note": "Supplemental states the prototype does not show, flagged for product-owner review; each reference is the prototype with its own components rearranged as noted in the entry's state. The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "3e9d51480cce0c4c2ad836faddab8f8481a2dc97943c9c2c163dc83c73757505"
+    },
+    "state-linux-trash--light--390x844": {
+      "id": "state-linux-trash",
+      "surface": "Home",
+      "state": "Linux: 2.4 GB held in the Trash",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "platform=linux&trash=2.4",
+      "supplemental": true,
+      "note": "Supplemental states the prototype does not show, flagged for product-owner review; each reference is the prototype with its own components rearranged as noted in the entry's state. The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "0061119a7cf899fdcf18999ce9cc9a8e0d7e2804a07244b92819dacb685cb9c1"
+    },
+    "state-logbook-empty--dark--1120x900": {
+      "id": "state-logbook-empty",
+      "surface": "Logbook",
+      "state": "The Logbook before any cleanup",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "fresh=1",
+      "supplemental": true,
+      "note": "Supplemental states the prototype does not show, flagged for product-owner review; each reference is the prototype with its own components rearranged as noted in the entry's state. The helm above the clip takes the app's empty-state height, so the clipped card lands on the same sub-pixel position. Everything I found is compared at desktop width only: at phone width the question card above it is the app's all-answered card, not the prototype's first question.",
+      "sha256": "a4045da90cc3c14da7dc0677afa7d15a5060d3a67b824890dbaebf21d4d1181d"
+    },
+    "state-logbook-empty--dark--390x844": {
+      "id": "state-logbook-empty",
+      "surface": "Logbook",
+      "state": "The Logbook before any cleanup",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "fresh=1",
+      "supplemental": true,
+      "note": "Supplemental states the prototype does not show, flagged for product-owner review; each reference is the prototype with its own components rearranged as noted in the entry's state. The helm above the clip takes the app's empty-state height, so the clipped card lands on the same sub-pixel position. Everything I found is compared at desktop width only: at phone width the question card above it is the app's all-answered card, not the prototype's first question.",
+      "sha256": "30a605bd5a8893f36e391cb397ee25886421253ffe29942599ca849f6a10dad7"
+    },
+    "state-logbook-empty--light--1120x900": {
+      "id": "state-logbook-empty",
+      "surface": "Logbook",
+      "state": "The Logbook before any cleanup",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "fresh=1",
+      "supplemental": true,
+      "note": "Supplemental states the prototype does not show, flagged for product-owner review; each reference is the prototype with its own components rearranged as noted in the entry's state. The helm above the clip takes the app's empty-state height, so the clipped card lands on the same sub-pixel position. Everything I found is compared at desktop width only: at phone width the question card above it is the app's all-answered card, not the prototype's first question.",
+      "sha256": "6bbcdf1b8f77e1cf8770f1b510a666f3ea42ebfdb663cffa09806c07fd8d0c31"
+    },
+    "state-logbook-empty--light--390x844": {
+      "id": "state-logbook-empty",
+      "surface": "Logbook",
+      "state": "The Logbook before any cleanup",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "fresh=1",
+      "supplemental": true,
+      "note": "Supplemental states the prototype does not show, flagged for product-owner review; each reference is the prototype with its own components rearranged as noted in the entry's state. The helm above the clip takes the app's empty-state height, so the clipped card lands on the same sub-pixel position. Everything I found is compared at desktop width only: at phone width the question card above it is the app's all-answered card, not the prototype's first question.",
+      "sha256": "73bf8d82636a892880b86da6fda1b7389075492d5a864d29102cb553f10d5e48"
+    },
+    "state-new-install--dark--1120x900": {
+      "id": "state-new-install",
+      "surface": "Quick questions",
+      "state": "Everything I found on a new install, before the first scan",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "fresh=1",
+      "supplemental": true,
+      "note": "Supplemental states the prototype does not show, flagged for product-owner review; each reference is the prototype with its own components rearranged as noted in the entry's state. The helm above the clip takes the app's empty-state height, so the clipped card lands on the same sub-pixel position. Everything I found is compared at desktop width only: at phone width the question card above it is the app's all-answered card, not the prototype's first question.",
+      "sha256": "adee1023ec5fcea1f55874b59543e9bb37d9cfbbcfda2b886d26c3ef9a9f93cc"
+    },
+    "state-new-install--light--1120x900": {
+      "id": "state-new-install",
+      "surface": "Quick questions",
+      "state": "Everything I found on a new install, before the first scan",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "fresh=1",
+      "supplemental": true,
+      "note": "Supplemental states the prototype does not show, flagged for product-owner review; each reference is the prototype with its own components rearranged as noted in the entry's state. The helm above the clip takes the app's empty-state height, so the clipped card lands on the same sub-pixel position. Everything I found is compared at desktop width only: at phone width the question card above it is the app's all-answered card, not the prototype's first question.",
+      "sha256": "cb6e2936b4a1e0bcce59be9e7ef633ac420ac570245bacf7ddf8545c77364529"
+    },
+    "state-nothing-found--dark--1120x900": {
+      "id": "state-nothing-found",
+      "surface": "Quick questions",
+      "state": "Everything I found after a scan that found nothing",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "nothing=1",
+      "supplemental": true,
+      "note": "Supplemental states the prototype does not show, flagged for product-owner review; each reference is the prototype with its own components rearranged as noted in the entry's state. The helm above the clip takes the app's empty-state height, so the clipped card lands on the same sub-pixel position. Everything I found is compared at desktop width only: at phone width the question card above it is the app's all-answered card, not the prototype's first question.",
+      "sha256": "a820e1bb971e4d71f7cbe55d9d3e87ba2fe5abc4c5668baf9d42f1c0e651a95f"
+    },
+    "state-nothing-found--light--1120x900": {
+      "id": "state-nothing-found",
+      "surface": "Quick questions",
+      "state": "Everything I found after a scan that found nothing",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "nothing=1",
+      "supplemental": true,
+      "note": "Supplemental states the prototype does not show, flagged for product-owner review; each reference is the prototype with its own components rearranged as noted in the entry's state. The helm above the clip takes the app's empty-state height, so the clipped card lands on the same sub-pixel position. Everything I found is compared at desktop width only: at phone width the question card above it is the app's all-answered card, not the prototype's first question.",
+      "sha256": "de8ae7528f682a0f54e7a57ac4200e44f049c9ff1c731a8333a58ca2bddc4e49"
+    },
+    "state-scanning--dark--1120x900": {
+      "id": "state-scanning",
+      "surface": "Home",
+      "state": "A scan running, under the Toss button",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "scanning=1",
+      "supplemental": true,
+      "note": "Supplemental states the prototype does not show, flagged for product-owner review; each reference is the prototype with its own components rearranged as noted in the entry's state. The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "ad6ce4e418a26fd0d14ad1d21a0a7bad8d631b93dc4036b9810981624470d98e"
+    },
+    "state-scanning--dark--390x844": {
+      "id": "state-scanning",
+      "surface": "Home",
+      "state": "A scan running, under the Toss button",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "scanning=1",
+      "supplemental": true,
+      "note": "Supplemental states the prototype does not show, flagged for product-owner review; each reference is the prototype with its own components rearranged as noted in the entry's state. The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "e380a7f94726c72fabb977ae4be91096e15e23c8686d6355a596c48fd82e8cd1"
+    },
+    "state-scanning--light--1120x900": {
+      "id": "state-scanning",
+      "surface": "Home",
+      "state": "A scan running, under the Toss button",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "scanning=1",
+      "supplemental": true,
+      "note": "Supplemental states the prototype does not show, flagged for product-owner review; each reference is the prototype with its own components rearranged as noted in the entry's state. The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "d2091851afec74b70e2e02a4817b0bb41cf52d51f3a5363bdd10a97d2a1ec404"
+    },
+    "state-scanning--light--390x844": {
+      "id": "state-scanning",
+      "surface": "Home",
+      "state": "A scan running, under the Toss button",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "scanning=1",
+      "supplemental": true,
+      "note": "Supplemental states the prototype does not show, flagged for product-owner review; each reference is the prototype with its own components rearranged as noted in the entry's state. The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "5bdb5a557c1797bdbdccafcfd180b6fd887e0e2d959d6ddcc2cd3d4b2256a70c"
+    },
+    "state-unchecked--dark--1120x900": {
+      "id": "state-unchecked",
+      "surface": "Quick questions",
+      "state": "Everything I found after a scan that could not check Docker and pip",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "unavail=1",
+      "supplemental": true,
+      "note": "Supplemental states the prototype does not show, flagged for product-owner review; each reference is the prototype with its own components rearranged as noted in the entry's state. Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way.",
+      "sha256": "0b0e38a77f364d4a9b456350fdd5a9ae9ca39c2b6f6aee000094afcbf77699c4"
+    },
+    "state-unchecked--dark--390x844": {
+      "id": "state-unchecked",
+      "surface": "Quick questions",
+      "state": "Everything I found after a scan that could not check Docker and pip",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "unavail=1",
+      "supplemental": true,
+      "note": "Supplemental states the prototype does not show, flagged for product-owner review; each reference is the prototype with its own components rearranged as noted in the entry's state. Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way.",
+      "sha256": "6ff828f5ae0fef75429483bfc9498095cc1ba6ae02acef39329af071dc233b5a"
+    },
+    "state-unchecked--light--1120x900": {
+      "id": "state-unchecked",
+      "surface": "Quick questions",
+      "state": "Everything I found after a scan that could not check Docker and pip",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "unavail=1",
+      "supplemental": true,
+      "note": "Supplemental states the prototype does not show, flagged for product-owner review; each reference is the prototype with its own components rearranged as noted in the entry's state. Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way.",
+      "sha256": "d4bed5ff8b176fdc23eb6eb1f2bbc80126333240efd3d64ba7fbd050e88a4b74"
+    },
+    "state-unchecked--light--390x844": {
+      "id": "state-unchecked",
+      "surface": "Quick questions",
+      "state": "Everything I found after a scan that could not check Docker and pip",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "unavail=1",
+      "supplemental": true,
+      "note": "Supplemental states the prototype does not show, flagged for product-owner review; each reference is the prototype with its own components rearranged as noted in the entry's state. Groups in Everything I found are ordered biggest first (decided by the user); the reference is reordered the same way.",
+      "sha256": "9d9b035badc5cc345562f79658ef59f0066e4558827a82e15d41647b13b1bed3"
+    },
+    "state-windows-trash--dark--1120x900": {
+      "id": "state-windows-trash",
+      "surface": "Home",
+      "state": "Windows: 2.4 GB held in the Recycle Bin",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "platform=windows&trash=2.4",
+      "supplemental": true,
+      "note": "Supplemental states the prototype does not show, flagged for product-owner review; each reference is the prototype with its own components rearranged as noted in the entry's state. The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "e38055f37e18774c3e8745bbf01d51360d07b696f68c900f6920f6d524a968c8"
+    },
+    "state-windows-trash--dark--390x844": {
+      "id": "state-windows-trash",
+      "surface": "Home",
+      "state": "Windows: 2.4 GB held in the Recycle Bin",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "platform=windows&trash=2.4",
+      "supplemental": true,
+      "note": "Supplemental states the prototype does not show, flagged for product-owner review; each reference is the prototype with its own components rearranged as noted in the entry's state. The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "10c8e307ca2f5482dafd77da9b4b21469f08a603e093c8df0a37990e7ffe12cc"
+    },
+    "state-windows-trash--light--1120x900": {
+      "id": "state-windows-trash",
+      "surface": "Home",
+      "state": "Windows: 2.4 GB held in the Recycle Bin",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "platform=windows&trash=2.4",
+      "supplemental": true,
+      "note": "Supplemental states the prototype does not show, flagged for product-owner review; each reference is the prototype with its own components rearranged as noted in the entry's state. The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "cf4faa4da97bc85eedd3c6a90fc3e1a95abc1a0920e8d66382339c719be48bed"
+    },
+    "state-windows-trash--light--390x844": {
+      "id": "state-windows-trash",
+      "surface": "Home",
+      "state": "Windows: 2.4 GB held in the Recycle Bin",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "platform=windows&trash=2.4",
+      "supplemental": true,
+      "note": "Supplemental states the prototype does not show, flagged for product-owner review; each reference is the prototype with its own components rearranged as noted in the entry's state. The small line in the Toss button is fully opaque (`.tnote`): at the prototype's 85% it fails WCAG AA contrast in the light theme.",
+      "sha256": "aab9fad3523ad9e46fc996aec03f5c8ca386e76e7ac524b74730cfd674f26331"
     },
     "tidy-ask--dark--1120x900": {
       "id": "tidy-ask",

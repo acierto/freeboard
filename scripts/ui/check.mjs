@@ -24,6 +24,7 @@ const focused = (p) => p.evaluate(() => {
   const e = document.activeElement;
   return e ? e.id || e.getAttribute("data-goal") || e.getAttribute("data-area") || e.getAttribute("data-act") || e.getAttribute("data-tab") || e.textContent.trim() : null;
 });
+const LG_NONE = JSON.parse(readFileSync(new URL("../../src/i18n/en.json", import.meta.url), "utf8"))["lg.none"];
 const idle = (p) => p.waitForFunction(() => document.documentElement.dataset.busy === "0");
 
 // Tray view: Esc and the close button both ask the shell to close it.
@@ -693,6 +694,34 @@ async function tabStaysInside(p, n = 10) {
   await idle(p);
   const vol = (await p.evaluate(() => window.__FIXTURE_CALLS__)).filter((c) => c.cmd === "set_volume_watched");
   check("settings: a disk is watched by its ID", vol.length === 1 && JSON.stringify(vol[0].args) === '{"volumeId":"vol-archive","watched":true}' && (await p.isChecked("#disk-vol-archive")), JSON.stringify(vol));
+  await ctx.close();
+}
+
+// States (task 6.5): scan running, places that could not be checked, a new
+// install, a scan that found nothing, and Windows words.
+{
+  let { p, ctx } = await page("unavail=1");
+  await p.click("#tab-tidy");
+  const lines = await p.$$eval("#v-tidy .unchecked .note", (e) => e.map((x) => x.textContent));
+  check("states: places not checked, once per cause", JSON.stringify(lines) === JSON.stringify(["Docker is installed but not running.", "pip is not installed."]), JSON.stringify(lines));
+  await ctx.close();
+  ({ p, ctx } = await page("fresh=1"));
+  await p.click("#tab-tidy");
+  check("states: a new install says how to start", (await p.textContent("#v-tidy .card .note")).startsWith("Nothing yet."), await p.textContent("#v-tidy .card .note"));
+  await p.click('[data-tab="log"]');
+  await idle(p);
+  const log = await p.textContent("#v-log");
+  check("states: an empty Logbook says so", log.includes(LG_NONE), log);
+  await ctx.close();
+  ({ p, ctx } = await page("nothing=1"));
+  await p.click("#tab-tidy");
+  check("states: a scan that found nothing says so", (await p.textContent("#v-tidy .card .note")) === "The last scan found nothing to clean up.", await p.textContent("#v-tidy .card .note"));
+  await ctx.close();
+  ({ p, ctx } = await page("scanning=1"));
+  check("states: a running scan shows its progress", !!(await p.$("#scan-progress")));
+  await ctx.close();
+  ({ p, ctx } = await page("platform=windows&trash=2.4"));
+  check("states: Windows says Recycle Bin", (await p.textContent("#trash")).includes("Recycle Bin"), await p.textContent("#trash"));
   await ctx.close();
 }
 

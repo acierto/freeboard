@@ -598,5 +598,7 @@
   "s.bg.notify.s": "Als de ruimte laag of kritiek wordt.",
   "s.bg.disks": "Andere schijven om in de gaten te houden",
   "s.bg.nodisks": "Er zijn geen andere schijven aangesloten.",
-  "s.bg.disk.s": "{x} vrij van {t}"
+  "s.bg.disk.s": "{x} vrij van {t}",
+  "u.title": "Sommige plekken konden niet worden gecontroleerd",
+  "e.nothing": "De laatste scan vond niets om op te ruimen."
 }
