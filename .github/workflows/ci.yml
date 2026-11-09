@@ -87,11 +87,11 @@ jobs:
       - name: Unsigned installers
         # The bundler downloads WiX, NSIS and AppImage tools from GitHub; a
         # 503 or 504 there failed whole runs (2026-11-08). Retry the bundling,
-        # never the tests.
+        # never the tests. CI has no update signing key, so no update files.
         shell: bash
         run: |
           for i in 1 2 3; do
-            npx tauri build --bundles ${{ matrix.bundles }} && exit 0
+            npx tauri build --bundles ${{ matrix.bundles }} --config '{"bundle":{"createUpdaterArtifacts":false}}' && exit 0
             echo "Bundling failed (attempt $i); retrying in 30 s."
             sleep 30
           done

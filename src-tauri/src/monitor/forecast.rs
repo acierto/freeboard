@@ -1,7 +1,7 @@
 //! Free-space forecast: linear fit over the last 14 days, excluding cleanup
 //! jumps. Shown only with at least 3 days of samples and falling free space.
 
-use crate::model::{Forecast, GB};
+use crate::model::{Forecast, Pace, GB};
 
 pub const WINDOW_SECS: i64 = 14 * 86_400;
 pub const MIN_SPAN_SECS: i64 = 3 * 86_400;
@@ -56,6 +56,45 @@ pub fn forecast(samples: &[(i64, u64)], now: i64, cleanup_times: &[i64]) -> Opti
     }
     let current = s.last()?.1 as f64;
     Some(Forecast { bytes_per_day: slope, days_left: (current / -slope).max(0.0) })
+}
+
+/// Window of the menu bar window's pace (spec "Menu bar window", v21).
+pub const PACE_WINDOW_SECS: i64 = 7 * 86_400;
+/// Less than a day of samples says nothing about a week's pace.
+pub const PACE_MIN_SPAN_SECS: i64 = 86_400;
+
+/// This week's growth and pace (spec "Menu bar window", revision v21):
+/// growth = how much free space the last 7 days used, with cleanup jumps
+/// left out (a cleanup is not the disk "shrinking"); rate = growth ÷ 7.
+/// With less than a week of samples the span there is counts (a 3-day-old
+/// install divides by 3), so the rate is never diluted by days not measured.
+/// `None` under a day of samples.
+pub fn pace(samples: &[(i64, u64)], now: i64, cleanup_times: &[i64]) -> Option<Pace> {
+    let mut s: Vec<(i64, i64)> = samples
+        .iter()
+        .filter(|(t, _)| *t >= now - PACE_WINDOW_SECS && *t <= now)
+        .map(|(t, f)| (*t, *f as i64))
+        .collect();
+    s.sort_by_key(|p| p.0);
+    let span = s.last()?.0 - s.first()?.0;
+    if span < PACE_MIN_SPAN_SECS {
+        return None;
+    }
+    // Sum the organic changes: every fall counts, rises count too (files
+    // deleted by hand), except cleanup jumps, as in `forecast`.
+    let mut used = 0i64;
+    for w in s.windows(2) {
+        let (t0, f0) = w[0];
+        let (t1, f1) = w[1];
+        let delta = f1 - f0;
+        let cleanup_between = cleanup_times.iter().any(|c| *c > t0 && *c <= t1);
+        if delta > 0 && (cleanup_between || delta >= JUMP_BYTES) {
+            continue;
+        }
+        used -= delta;
+    }
+    let days = span as f64 / 86_400.0;
+    Some(Pace { week_bytes: used, bytes_per_day: used as f64 / days.min(7.0) })
 }
 
 #[cfg(test)]
@@ -123,5 +162,49 @@ mod tests {
         // Without exclusion the fit would be rising; the jump heuristic also catches it.
         let f2 = forecast(&s, NOW, &[]).unwrap();
         assert!((f2.bytes_per_day / GB as f64 + 2.0).abs() < 0.05);
+    }
+
+    #[test]
+    fn pace_is_a_week_of_growth_over_seven() {
+        // The user's screenshot: 189.8 GB free, +63.7 GB this week. That is
+        // 9.1 GB a day, so about 21 days (3 weeks), not 3 days.
+        let s = series(7, 189.8 + 63.7, -63.7 / 7.0);
+        let p = pace(&s, NOW, &[]).unwrap();
+        assert!((p.week_bytes as f64 / GB as f64 - 63.7).abs() < 0.05, "{p:?}");
+        assert!((p.bytes_per_day / GB as f64 - 9.1).abs() < 0.01, "{p:?}");
+        let free = 189.8 * GB as f64;
+        assert_eq!((free / p.bytes_per_day).round(), 21.0);
+    }
+
+    #[test]
+    fn pace_counts_only_the_last_seven_days() {
+        // Two weeks: the first week fast, the second slow. Only the second counts.
+        let mut s = series(14, 300.0, -10.0);
+        s.retain(|(t, _)| *t < NOW - 7 * DAY);
+        s.extend(series(7, 150.0, -1.0));
+        let p = pace(&s, NOW, &[]).unwrap();
+        assert!((p.bytes_per_day / GB as f64 - 1.0).abs() < 0.01, "{p:?}");
+    }
+
+    #[test]
+    fn pace_leaves_out_cleanups_and_needs_a_day() {
+        let mut s = series(7, 100.0, -2.0);
+        let mid = NOW - 3 * DAY;
+        for p in s.iter_mut() {
+            if p.0 >= mid {
+                p.1 += 40 * GB;
+            }
+        }
+        // The hour holding the cleanup is left out whole, hence 0.02.
+        let p = pace(&s, NOW, &[mid]).unwrap();
+        assert!((p.bytes_per_day / GB as f64 - 2.0).abs() < 0.02, "{p:?}");
+        // Rising free space (files deleted by hand, no jump) is a negative pace.
+        assert!(pace(&series(7, 50.0, 0.5), NOW, &[]).unwrap().bytes_per_day < 0.0);
+        // Under a day of samples: no pace.
+        assert!(pace(&series(0, 50.0, -2.0), NOW, &[]).is_none());
+        assert!(pace(&[], NOW, &[]).is_none());
+        // Three days of samples divide by three, not seven.
+        let p3 = pace(&series(3, 50.0, -3.0), NOW, &[]).unwrap();
+        assert!((p3.bytes_per_day / GB as f64 - 3.0).abs() < 0.01, "{p3:?}");
     }
 }

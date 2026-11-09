@@ -126,6 +126,14 @@ function trayWindow() {
   document.body.prepend(w);
 }
 
+const TRAY_NOTE = "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.";
+/** A menu bar window entry at `gbFree` (null: the prototype's 12.4 GB). */
+const trayEntry = (id, state, gbFree) => ({
+  id, surface: "Tray", state, sizes: [[372, 676]],
+  query: "view=tray&update=available" + (gbFree === null ? "" : `&free=${gbFree}`),
+  ref: [...(gbFree === null ? [] : [free(gbFree)]), { click: "#tray-btn" }, evalRef(trayWindow)], impl: [], clip: [".tray-window"], supplemental: true, note: TRAY_NOTE,
+});
+
 // ---- cleanup (slice 2, task 4.7) --------------------------------------------
 
 export const removeNow = (id) => ({ click: `[data-now="${id}"]` });
@@ -474,10 +482,16 @@ export const ENTRIES = [
   { id: "state-windows-trash", surface: "Home", state: "Windows: 2.4 GB held in the Recycle Bin", sizes: [DESKTOP, PHONE], query: "platform=windows&trash=2.4", ref: [evalRef(tossNoteContrast), evalRef(heldIn, "Recycle Bin")], impl: [], clip: HOME, supplemental: true, note: STATES + " " + TNOTE },
   { id: "state-linux-trash", surface: "Home", state: "Linux: 2.4 GB held in the Trash", sizes: [DESKTOP, PHONE], query: "platform=linux&trash=2.4", ref: [evalRef(tossNoteContrast), evalRef(heldIn, "Trash")], impl: [], clip: HOME, supplemental: true, note: STATES + " " + TNOTE },
   mapEntry("map-report", "Disk report shown in the copy-by-hand box", [act("report")]),
+  // The menu bar window (prototype Version 21). The prototype starts with
+  // 1.4.1 on offer for 1.4.0 (update=available), and this week's growth is
+  // its GROWING total, 21.6 GB, as in the fixture.
+  trayEntry("tray-view", "Menu bar window, Low, 12.4 GB free (zones gauge)", null),
+  trayEntry("tray-filling-fast", "Menu bar window, Healthy at 40 GB but filling fast (full in about 13 days)", 40),
+  trayEntry("tray-roomy", "Menu bar window, Healthy at 189.8 GB: whole-disk bar, full in about 2 months", 189.8),
   {
-    id: "tray-view", surface: "Tray", state: "Menu bar window, Low", sizes: [[362, 560]], query: "view=tray",
-    ref: [{ click: "#tray-btn" }, evalRef(trayWindow)], impl: [], clip: [".tray-window"], supplemental: true,
-    note: "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
+    ...trayEntry("tray-update", "Menu bar window: the update banner (Freeboard 1.4.1 is ready)", null),
+    ref: [{ click: "#tray-btn" }, { click: '[data-act="upd-open"]' }, evalRef(trayWindow)],
+    impl: [{ click: '[data-act="upd-open"]' }],
   },
 
   // First run, five steps (prototype Version 17).

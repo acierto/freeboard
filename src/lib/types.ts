@@ -213,6 +213,22 @@ export interface Forecast {
   daysLeft: number;
 }
 
+/** This week's pace (menu bar window): free space used over the last 7
+ *  days with cleanups left out, and that ÷ 7. */
+export interface Pace {
+  weekBytes: number;
+  bytesPerDay: number;
+}
+
+/** Updates (menu bar window's version chip; docs/decisions.md "Updates only when asked"). */
+export type UpdateStage = "idle" | "checking" | "latest" | "available" | "downloading" | "ready" | "checkFailed" | "installFailed";
+export interface UpdateStatus {
+  stage: UpdateStage;
+  current: string;
+  version: string | null;
+  notes: string | null;
+}
+
 export interface TrendPoint {
   at: string;
   freeBytes: number;
@@ -237,6 +253,7 @@ export interface AppStatus {
   volumes: VolumeStatus[];
   status: DiskStatus;
   forecast: Forecast | null;
+  pace: Pace | null;
   trashBytes: number;
   trend: TrendPoint[];
   scan: ScanState;
@@ -495,7 +512,7 @@ export interface CleanupFinished {
   skippedCount: number;
 }
 /** Where a notification click or the tray view sends the window. */
-export type View = "home" | "pile" | "questions" | "settings";
+export type View = "home" | "pile" | "questions" | "map" | "settings";
 export interface Navigate {
   view: View;
 }
@@ -510,4 +527,5 @@ export interface EventMap {
   cleanup_item_updated: CleanupItemUpdated;
   cleanup_finished: CleanupFinished;
   navigate: Navigate;
+  update_changed: UpdateStatus;
 }

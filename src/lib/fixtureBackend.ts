@@ -1,4 +1,5 @@
 import { firstSupported, type LanguagePref } from "../i18n";
+import type { UpdateStage, UpdateStatus } from "./types";
 // TEST-ONLY fixture backend used by the visual verifier (`vite build --mode visual`).
 // It is never part of the production bundle (scripts/visual/verify.mjs checks).
 // Marker: FREEBOARD_FIXTURE_BACKEND
@@ -23,6 +24,12 @@ import { firstSupported, type LanguagePref } from "../i18n";
 //   nothing=1          scanned and nothing found
 //   unavail=1          the last scan could not check Docker and pip
 //   scanning=1         a quick scan is running
+//   week=<GB>          free space used this week (default 21.6, the sum of
+//                      the prototype's GROWING); the menu bar window's pace
+//   update=<stage>     the version chip's state: idle (default), available
+//                      (the prototype's start: 1.4.1 for 1.4.0), latest,
+//                      checking, downloading, ready, checkFailed; clicking
+//                      the chip in idle finds 1.4.1 unless update=none
 //
 // Cleanup follows the prototype's `run()`: items run in plan order, Trash
 // items are held in the Trash, the rest free space at once, and a split item
@@ -423,6 +430,7 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
       volumes: [{ id: "home", name: "Macintosh HD", mountPoint: "/", freeBytes: free, totalBytes: TOTAL_GB * G, status: s, purgeableBytes: null, snapshotCount: null }],
       status: s,
       forecast: params.get("forecast") === "none" ? null : { bytesPerDay: RATE_GB * G, daysLeft: freeGb / RATE_GB },
+      pace: params.get("forecast") === "none" ? null : { weekBytes: bytes(weekGb), bytesPerDay: bytes(weekGb) / 7 },
       trashBytes: trashBytes(),
       trend: [],
       scan: {
@@ -501,6 +509,20 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
   };
 
   const listeners: { [K in keyof EventMap]?: ((p: EventMap[K]) => void)[] } = {};
+  // The prototype's update flow: 1.4.0 installed, 1.4.1 on offer.
+  const weekGb = params.has("week") ? parseFloat(params.get("week")!) : GROWING.reduce((t, g) => t + g[2], 0);
+  const upParam = params.get("update");
+  let upd: UpdateStatus = {
+    stage: (upParam && upParam !== "none" ? upParam : "idle") as UpdateStage,
+    current: "1.4.0",
+    version: upParam && !["idle", "none", "latest", "checkFailed"].includes(upParam) ? "1.4.1" : null,
+    notes: "faster worktree scans, removal queue.",
+  };
+  const later = (ms: number, next: Partial<UpdateStatus>) =>
+    setTimeout(() => {
+      upd = { ...upd, ...next };
+      emit("update_changed", upd);
+    }, ms);
   const emit = <K extends keyof EventMap>(event: K, payload: EventMap[K]) => listeners[event]?.forEach((cb) => cb(payload));
   const changed = () => {
     const p = pile();
@@ -971,6 +993,23 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
     set_notifications_paused: (a) => a.paused,
     close_tray_view: () => undefined,
     review_pile: () => undefined,
+    fit_tray_view: () => undefined,
+    get_update: () => upd,
+    check_for_update: () => {
+      upd = { ...upd, stage: "checking" };
+      later(600, upParam === "none" ? { stage: "latest", version: null } : { stage: "available", version: "1.4.1" });
+      return upd;
+    },
+    download_update: () => {
+      upd = { ...upd, stage: "downloading" };
+      later(900, { stage: "ready" });
+      return upd;
+    },
+    restart_to_update: () => {
+      upd = { ...upd, stage: "latest", current: upd.version ?? upd.current, version: null };
+      later(0, {});
+      return upd;
+    },
   };
 
   return {

@@ -59,6 +59,14 @@ The **forecast** ("About N days left") appears only when there are at least 3 da
 
 Closing the window hides Freeboard to the tray. Monitoring and scheduled scans keep running; the interface is released after 60 seconds hidden. The tray menu offers **Open Freeboard**, **Scan Now**, **Pause Notifications** and **Quit**.
 
+### The menu bar window
+
+Click the tray icon for a small window that answers "am I OK?": free space and status; this week's pace ("At this week's pace (+3.1 GB a day), full in about 2 months", from the last 7 days' use divided by 7); **This week** with the area that grew most (**See where ›** opens the Disk map); the three biggest Safe crates with a **Toss** button; and when the last scan ran. Under 60 GB free it shows a gauge with your Low and Critical levels; with 60 GB or more, a bar of the whole disk with the crates you could toss striped. If the disk would fill within 14 days while still Healthy, it says "Plenty of room for now, but it's filling fast."
+
+### Updates
+
+The version number next to "Freeboard" in the menu bar window checks for a newer release when you click it ("v1.6.2 · up to date ✓", or "1.6.3 available" with a short note). **Update** downloads the new version and checks its signature; **Restart to update** installs it and starts it again. Freeboard never checks on its own. Versions before 1.7.0 cannot update themselves; download 1.7.0 once by hand.
+
 ## The screens
 
 | Screen | What it is for |
@@ -126,7 +134,7 @@ The switches are at the bottom of **Quick questions**. Turning one on first list
 - Follows symbolic links out of the folder being cleaned.
 - Uses force flags, except Docker's own prune commands after you confirm.
 - Runs commands through a shell.
-- Sends data anywhere. There is no account, telemetry or network access.
+- Sends data anywhere. There is no account or telemetry. The only network request is the update check, made only when you click the version number in the menu bar window.
 
 The full list of rules, and the test that covers each, is in [Safety traceability](safety-traceability.md).
 

@@ -1,6 +1,6 @@
 [package]
 name = "freeboard"
-version = "1.6.1"
+version = "1.7.0"
 description = "Warns before disk space runs out and explains what can be reclaimed safely"
 edition = "2021"
 rust-version = "1.80"
@@ -20,7 +20,7 @@ default = ["desktop"]
 # The `desktop` feature pulls in the Tauri shell. The core library (guard,
 # runner, store, monitor, scan, detectors, cleanup) builds and tests without it.
 test-support = []
-desktop = ["dep:tauri", "dep:tauri-build", "dep:tauri-plugin-notification", "dep:tauri-plugin-autostart", "dep:tauri-plugin-dialog", "dep:notify-rust", "dep:tauri-plugin-single-instance"]
+desktop = ["dep:tauri", "dep:tauri-build", "dep:tauri-plugin-notification", "dep:tauri-plugin-autostart", "dep:tauri-plugin-dialog", "dep:notify-rust", "dep:tauri-plugin-single-instance", "dep:tauri-plugin-updater"]
 
 [build-dependencies]
 tauri-build = { version = "2", features = [], optional = true }
@@ -45,6 +45,7 @@ thiserror = "2"
 chrono = { version = "0.4", default-features = false, features = ["clock", "std", "serde"] }
 sys-locale = "0.3"
 blake3 = { version = "1", default-features = false, features = ["std"] }
+tauri-plugin-updater = { version = "2", optional = true }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 # Already used by tauri-plugin-notification; used directly on Linux to receive

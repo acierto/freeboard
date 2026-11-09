@@ -25,6 +25,8 @@ pub mod store;
 pub mod commands;
 #[cfg(feature = "desktop")]
 pub mod tray;
+#[cfg(feature = "desktop")]
+pub mod updates;
 
 #[cfg(feature = "desktop")]
 mod shell {
@@ -123,9 +125,13 @@ mod shell {
     /// The tray view's window label and logical size (prototype `#popover`
     /// plus room for its shadow).
     pub const TRAY_VIEW: &str = "tray";
-    // The menu bar window (spec "Menu bar window"): a 330 px card in the
-    // transparent window's padding; tall enough for all five sections.
-    const TRAY_VIEW_SIZE: (f64, f64) = (362.0, 560.0);
+    // The menu bar window (spec "Menu bar window", v21): a 340 px card, at
+    // most 640 px tall, in the transparent window's padding (12 top, 16 on
+    // the sides, 24 below for the shadow). The interface fits the height to
+    // the card once drawn (`fit_tray_view`).
+    const TRAY_VIEW_SIZE: (f64, f64) = (372.0, 676.0);
+    const TRAY_VIEW_PAD_Y: f64 = 36.0;
+    const TRAY_CARD_MAX_H: f64 = 640.0;
 
     /// Open the tray view next to the tray icon, or close it if it is open.
     /// `anchor` is the click position in physical pixels (None on Linux, where
@@ -171,6 +177,30 @@ mod shell {
         }
         let _ = win.show();
         let _ = win.set_focus();
+    }
+
+    /// Fit the tray view's height to its card (the interface measures it).
+    /// When the window sits above the icon (a taskbar at the bottom of the
+    /// screen) its bottom edge stays put, so the card stays next to the icon.
+    pub fn fit_tray_view(app: &AppHandle, card_height: f64) {
+        let Some(win) = app.get_webview_window(TRAY_VIEW) else { return };
+        let h = card_height.clamp(120.0, TRAY_CARD_MAX_H) + TRAY_VIEW_PAD_Y;
+        let (Ok(pos), Ok(size), Ok(scale)) = (win.outer_position(), win.outer_size(), win.scale_factor()) else { return };
+        let new_h = (h * scale).round();
+        if (new_h - size.height as f64).abs() < 1.0 {
+            return;
+        }
+        let above_icon = win
+            .current_monitor()
+            .ok()
+            .flatten()
+            .map(|m| (pos.y as f64 - m.position().y as f64) > m.size().height as f64 / 2.0)
+            .unwrap_or(false);
+        let _ = win.set_size(tauri::LogicalSize::new(TRAY_VIEW_SIZE.0, h));
+        if above_icon {
+            let y = pos.y as f64 + size.height as f64 - new_h;
+            let _ = win.set_position(tauri::PhysicalPosition::new(pos.x as f64, y));
+        }
     }
 
     pub fn close_tray_view(app: &AppHandle) {
@@ -325,6 +355,9 @@ mod shell {
             }))
             .plugin(tauri_plugin_notification::init())
             .plugin(tauri_plugin_dialog::init())
+            // Updates: checked only when the version chip is clicked (docs/decisions.md, "Updates only when asked").
+            .plugin(tauri_plugin_updater::Builder::new().build())
+            .manage(crate::updates::Updates::new())
             // Login startup goes straight to the tray, without opening a window.
             .plugin(tauri_plugin_autostart::init(tauri_plugin_autostart::MacosLauncher::LaunchAgent, Some(vec![TRAY_FLAG])))
             .manage(HideGeneration(AtomicU64::new(0)))
@@ -428,6 +461,11 @@ mod shell {
                 crate::commands::set_notifications_paused,
                 crate::commands::close_tray_view,
                 crate::commands::review_pile,
+                crate::commands::fit_tray_view,
+                crate::commands::get_update,
+                crate::commands::check_for_update,
+                crate::commands::download_update,
+                crate::commands::restart_to_update,
             ])
             .build(context)
             .expect("error while building Freeboard");
@@ -444,7 +482,7 @@ mod shell {
 }
 
 #[cfg(feature = "desktop")]
-pub use shell::{close_tray_view, open_main_view, open_window, review_pile, run, toggle_tray_view};
+pub use shell::{close_tray_view, fit_tray_view, open_main_view, open_window, review_pile, run, toggle_tray_view};
 
 #[cfg(not(feature = "desktop"))]
 pub fn run() {

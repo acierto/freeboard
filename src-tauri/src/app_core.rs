@@ -419,7 +419,9 @@ impl AppCore {
         if let Some(h) = volumes.first() {
             pts.push((now, h.free_bytes));
         }
-        let forecast = monitor::forecast::forecast(&pts, now, &self.cleanup_times());
+        let cleanups = self.cleanup_times();
+        let forecast = monitor::forecast::forecast(&pts, now, &cleanups);
+        let pace = monitor::forecast::pace(&pts, now, &cleanups);
         let mut trend = monitor::daily_trend(&samples, now);
         if let Some(h) = volumes.first() {
             trend.push(TrendPoint { at: iso(now), free_bytes: h.free_bytes });
@@ -430,6 +432,7 @@ impl AppCore {
             volumes,
             status,
             forecast,
+            pace,
             trash_bytes: self.cleanup.trash_summary().bytes,
             trend,
             scan,

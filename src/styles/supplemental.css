@@ -6,7 +6,9 @@
 /* The tray view runs in its own small window, so its popover sits in the
    page flow instead of hanging under the prototype's in-page tray button. */
 .tray-window { padding: 12px 16px 24px; }
-.tray-window .popover { position: static; width: 100%; }
+.tray-window .popover { position: static; width: 100%; max-height: 640px; }
+/* The window fits the card (fit_tray_view), so the card, not the window, caps the height. */
+.tray-window { overflow: hidden; }
 /* In the app's transparent tray window, only the card and its shadow show. */
 html.tray-native, html.tray-native body { background: transparent; }
 
@@ -37,6 +39,9 @@ html.tray-native, html.tray-native body { background: transparent; }
 /* Menu bar window: the status pill keeps the card behind it, so its text
    meets WCAG AA contrast on the amber and pink tinted status sections. */
 .tb-status .pill { background: var(--card); }
+/* Worktrees dock: the size on Remove N worktrees. The prototype dims it to
+   75% opacity, which takes white on the accent below WCAG AA contrast. */
+.wt-dock .btn.primary .dim { opacity: 1; }
 /* Confirmation: drop one item from the toss (found on a real Mac: an item
    needing its own acknowledgment blocked the whole toss). */
 .cf-leave { align-self: flex-start; font-size: 13px; }

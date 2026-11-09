@@ -36,9 +36,14 @@ Status: **incomplete**. This Mac has only an "Apple Development" certificate, wh
 ## Publishing a preview release
 
 1. Set the version in `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` and `package.json`.
-2. Tag and push: `git tag v0.1.0 && git push origin v0.1.0`.
+2. Tag and push: `git tag -a v0.1.0 -m "<one line: what is new>" && git push origin v0.1.0`. The tag's message is the "New: …" note in the app's update banner.
 3. `.github/workflows/release.yml` builds on GitHub runners (macOS Apple silicon and Intel, Windows x64 and Arm64, Linux x86_64 and arm64), runs the core tests, and attaches `Freeboard-<version>-macOS-arm64.dmg`, `Freeboard-<version>-macOS-x64.dmg`, `Freeboard-linux-<arch>.deb`, `Freeboard-linux-<arch>.AppImage` and `SHA256SUMS.txt` to the release.
+   Each build also signs its update files (`.app.tar.gz` on macOS, the setup `.exe` and `.msi`, the AppImage and the renamed `.deb`), and the publish job writes `latest.json` (`scripts/release/latest-json.mjs`), which the app's version chip reads. Without every platform's signed file the publish fails.
 4. The download page (`site/`, deployed by `.github/workflows/pages.yml`) links to `releases/latest/download/<name>`, so it always serves the newest non-prerelease release.
+
+## Update signing key
+
+Update files are signed with a minisign key made by `npx tauri signer generate`. The public key is `plugins.updater.pubkey` in `src-tauri/tauri.conf.json`. The private key and its password are the repository secrets `TAURI_SIGNING_PRIVATE_KEY` and `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`; the maintainer keeps the originals in `~/.tauri/freeboard-updater.key` and `~/.tauri/freeboard-updater.password`, outside the repository. Losing the private key means installed copies can no longer update themselves (a new key needs one manual download), so keep a backup.
 
 ## Smoke test after installing
 

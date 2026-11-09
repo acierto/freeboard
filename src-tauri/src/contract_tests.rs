@@ -97,9 +97,11 @@ fn inv12_csp_forbids_remote_content() {
 #[test]
 fn inv12_no_network_client_in_dependencies() {
     // Freeboard makes no network calls of its own: no HTTP or socket client
-    // crates are direct dependencies, and the core never opens sockets.
+    // crates are direct dependencies, and the core never opens sockets. The
+    // one exception (docs/decisions.md "Updates only when asked") is the updater plugin, used only by
+    // src/updates.rs when the person clicks the version chip.
     let cargo = std::fs::read_to_string(root().join("Cargo.toml")).unwrap();
-    for bad in ["reqwest", "ureq", "hyper", "surf", "isahc", "tauri-plugin-http", "tauri-plugin-updater", "tungstenite", "sentry"] {
+    for bad in ["reqwest", "ureq", "hyper", "surf", "isahc", "tauri-plugin-http", "tungstenite", "sentry"] {
         assert!(!cargo.contains(bad), "network client dependency {bad}");
     }
     let mut stack = vec![root().join("src")];
@@ -112,6 +114,35 @@ fn inv12_no_network_client_in_dependencies() {
                 let s = std::fs::read_to_string(&p).unwrap();
                 for bad in ["TcpStream", "UdpSocket", "std::net::", "TcpListener"] {
                     assert!(!s.contains(bad), "{} uses {bad}", p.display());
+                }
+            }
+        }
+    }
+}
+
+/// docs/decisions.md, "Updates only when asked": the update check is the only network request, it goes to
+/// the project's own releases, it is signed, and it runs only from the
+/// version chip's commands (never on a timer or at start-up).
+#[test]
+fn inv12_updates_only_on_request_from_the_projects_releases() {
+    let conf = read_json("tauri.conf.json");
+    let up = &conf["plugins"]["updater"];
+    let endpoints = up["endpoints"].as_array().expect("updater endpoints");
+    assert_eq!(endpoints.len(), 1);
+    assert_eq!(endpoints[0], "https://github.com/acierto/freeboard/releases/latest/download/latest.json");
+    assert!(up["pubkey"].as_str().map(|k| k.len() > 40).unwrap_or(false), "updates must be signed");
+    assert_eq!(conf["bundle"]["createUpdaterArtifacts"], serde_json::Value::Bool(true));
+    let mut stack = vec![root().join("src")];
+    while let Some(d) = stack.pop() {
+        for e in std::fs::read_dir(d).unwrap().flatten() {
+            let p = e.path();
+            if p.is_dir() {
+                stack.push(p);
+            } else if p.extension().map(|x| x == "rs").unwrap_or(false) && !p.ends_with("contract_tests.rs") && !p.ends_with("updates.rs") {
+                let s = std::fs::read_to_string(&p).unwrap();
+                for bad in ["updater()", "UpdaterExt", ".check().await", "crate::updates::check(", "crate::updates::download("] {
+                    let allowed = p.ends_with("commands/mod.rs") && bad.starts_with("crate::updates::");
+                    assert!(allowed || !s.contains(bad), "{} reaches the updater ({bad}); only the chip's commands may", p.display());
                 }
             }
         }

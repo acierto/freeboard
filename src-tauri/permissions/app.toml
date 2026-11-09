@@ -49,5 +49,13 @@ commands.allow = [
   "list_logbook",
   # Tray view (no arguments): close it, or open the main window on the pile.
   "close_tray_view",
-  "review_pile"
+  "review_pile",
+  # The tray view's card height (a number), so the window fits it.
+  "fit_tray_view",
+  # Updates (decision D18): no arguments; endpoint and key are fixed in
+  # tauri.conf.json. Checked only when the version chip is clicked.
+  "get_update",
+  "check_for_update",
+  "download_update",
+  "restart_to_update"
 ]

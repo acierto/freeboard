@@ -82,6 +82,13 @@ jobs:
           git config --global init.defaultBranch main
           cargo test --no-default-features --locked
       - name: Build installers
+        # createUpdaterArtifacts signs the update files (macOS .app.tar.gz,
+        # the Windows installers, the AppImage and .deb) with the project's
+        # minisign key; tauri.conf.json holds the public key (docs/decisions.md,
+        # "Updates only when asked").
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: npx tauri build ${{ matrix.args }}
       - name: DMG window layout (background and icon positions)
         # Tauri arranges the DMG window through Finder, which does not run on
@@ -90,6 +97,9 @@ jobs:
         run: scripts/macos/dmg-layout.sh "$(ls src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg | head -1)"
       - name: Collect with fixed names
         shell: bash
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: |
           set -euo pipefail
           mkdir -p out
@@ -102,19 +112,32 @@ jobs:
           case "$TAG" in v[0-9]*) [ "$TAG" = "v$v" ] || { echo "Tag $TAG does not match the app version $v" >&2; exit 1; };; esac
           case "${{ matrix.name }}" in
             macOS-*)
-              cp "$(ls $b/${{ matrix.target }}/release/bundle/dmg/*.dmg | head -1)" "out/Freeboard-$v-${{ matrix.name }}.dmg" ;;
+              cp "$(ls $b/${{ matrix.target }}/release/bundle/dmg/*.dmg | head -1)" "out/Freeboard-$v-${{ matrix.name }}.dmg"
+              # The update file: the signed, compressed .app.
+              cp $b/${{ matrix.target }}/release/bundle/macos/*.app.tar.gz "out/Freeboard-$v-${{ matrix.name }}.app.tar.gz"
+              cp $b/${{ matrix.target }}/release/bundle/macos/*.app.tar.gz.sig "out/Freeboard-$v-${{ matrix.name }}.app.tar.gz.sig" ;;
             linux-*)
               arch="${{ matrix.name }}"; arch="${arch#linux-}"
               # apt package name freeboard-disk (scripts/linux/rename-deb.sh).
+              # Repackaging changes the bytes, so the .deb is signed again.
               scripts/linux/rename-deb.sh "$(ls $b/release/bundle/deb/*.deb | head -1)" "out/Freeboard-$v-linux-$arch.deb"
-              cp "$(ls $b/release/bundle/appimage/*.AppImage | head -1)" "out/Freeboard-$v-linux-$arch.AppImage" ;;
+              npx tauri signer sign "out/Freeboard-$v-linux-$arch.deb"
+              cp "$(ls $b/release/bundle/appimage/*.AppImage | head -1)" "out/Freeboard-$v-linux-$arch.AppImage"
+              cp "$(ls $b/release/bundle/appimage/*.AppImage.sig | head -1)" "out/Freeboard-$v-linux-$arch.AppImage.sig" ;;
             windows-*)
               arch="${{ matrix.name }}"; arch="${arch#windows-}"
               cp "$(ls $b/release/bundle/nsis/*.exe | head -1)" "out/Freeboard-$v-windows-$arch-setup.exe"
+              cp "$(ls $b/release/bundle/nsis/*.exe.sig | head -1)" "out/Freeboard-$v-windows-$arch-setup.exe.sig"
               if ls $b/release/bundle/msi/*.msi >/dev/null 2>&1; then
                 cp "$(ls $b/release/bundle/msi/*.msi | head -1)" "out/Freeboard-$v-windows-$arch.msi"
+                cp "$(ls $b/release/bundle/msi/*.msi.sig | head -1)" "out/Freeboard-$v-windows-$arch.msi.sig"
               fi ;;
           esac
+          # Every update file has its signature.
+          for f in out/*.app.tar.gz out/*.AppImage out/*.deb out/*-setup.exe out/*.msi; do
+            [ -e "$f" ] || continue
+            [ -s "$f.sig" ] || { echo "no signature for $f" >&2; exit 1; }
+          done
           ls -la out
       - uses: actions/upload-artifact@v4
         with:
@@ -127,13 +150,26 @@ jobs:
     if: github.event_name == 'push' || inputs.publish
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+          fetch-depth: 0
       - uses: actions/download-artifact@v4
         with:
           path: dist
           merge-multiple: true
+      - name: Update manifest (latest.json)
+        # The app's updater reads releases/latest/download/latest.json. The
+        # note is the annotated tag's subject (empty for a plain tag).
+        run: |
+          set -euo pipefail
+          git fetch --force origin "refs/tags/$TAG:refs/tags/$TAG" || true
+          notes="$(git for-each-ref "refs/tags/$TAG" --format='%(if:equals=tag)%(objecttype)%(then)%(contents:subject)%(end)')"
+          NOTES="$notes" node scripts/release/latest-json.mjs dist "${TAG#v}" "https://github.com/${{ github.repository }}/releases/download/$TAG" > dist/latest.json
+          cat dist/latest.json
       - name: Checksums
         working-directory: dist
-        run: sha256sum Freeboard-* > SHA256SUMS.txt && cat SHA256SUMS.txt
+        run: sha256sum Freeboard-* latest.json > SHA256SUMS.txt && cat SHA256SUMS.txt
       - name: Create or update the release
         env:
           GH_TOKEN: ${{ github.token }}

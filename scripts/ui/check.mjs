@@ -51,14 +51,55 @@ const idle = (p) => p.waitForFunction(() => document.documentElement.dataset.bus
 // and the forecast line is there in every status.
 {
   const low = await page("view=tray", { width: 362, height: 560 });
-  check("menu bar window: the forecast says when the disk is full", /Full in about \d+ days\.$/.test(await low.p.textContent(".tb-line")), await low.p.textContent(".tb-line"));
+  // Pace from this week's rate (spec v21): 21.6 GB a week is +3.1 GB a day; 12.4 GB lasts about 4 days.
+  check("menu bar window: the pace says when the disk is full", (await low.p.textContent(".tb-pace")) === "At this week\u2019s pace (+3.1 GB a day), full in about 4 days.", await low.p.textContent(".tb-pace"));
+  check("menu bar window: the zones gauge under 60 GB free", !!(await low.p.$(".tg")) && !(await low.p.$(".tcap")));
   check("menu bar window: Toss is the primary style when Low", await low.p.$eval(".tb-toss", (b) => b.classList.contains("primary")));
   await low.ctx.close();
   const { p, ctx } = await page("view=tray&free=120", { width: 362, height: 560 });
   check("menu bar window: Healthy status", (await p.textContent(".tb-free")).includes("Healthy"), await p.textContent(".tb-free"));
   check("menu bar window: Toss is the quiet style when Healthy", await p.$eval(".tb-toss", (b) => b.classList.contains("calm") && !b.classList.contains("primary")));
   check("menu bar window: Healthy says tossing is optional", !!(await p.$(".tb-c")));
-  check("menu bar window: the forecast shows when Healthy too", /Full in about \d+ days\.$/.test(await p.textContent(".tb-line")), await p.textContent(".tb-line"));
+  check("menu bar window: the pace shows when Healthy too", (await p.textContent(".tb-pace")) === "At this week\u2019s pace (+3.1 GB a day), full in about 6 weeks.", await p.textContent(".tb-pace"));
+  check("menu bar window: the whole-disk bar at 60 GB or more", !(await p.$(".tg")) && (await p.textContent(".tcap-lbl")) === "392.0 GB usedof 512 GB", await p.textContent(".tcap-lbl"));
+  check("menu bar window: This week, with the fastest area", (await p.textContent(".tb-grow")) === "This week +21.6 GBMostly Docker (+9.3 GB). See where \u203a", await p.textContent(".tb-grow"));
+  await p.evaluate(() => (window.__FIXTURE_CALLS__ = []));
+  await p.click('[data-act="tray-map"]');
+  check("menu bar window: See where opens the Disk map", JSON.stringify((await p.evaluate(() => window.__FIXTURE_CALLS__)).find((c) => c.cmd === "open_main_view")?.args) === '{"view":"map"}');
+  await ctx.close();
+  // 189.8 GB free with +63.7 GB a week: about 3 weeks, never 3 days.
+  const roomy = await page("view=tray&free=189.8&week=63.7", { width: 372, height: 676 });
+  check("menu bar window: 189.8 GB at +63.7 GB a week is about 3 weeks", (await roomy.p.textContent(".tb-pace")) === "At this week\u2019s pace (+9.1 GB a day), full in about 3 weeks.", await roomy.p.textContent(".tb-pace"));
+  await roomy.ctx.close();
+  // Healthy but full within 14 days: the warning line and the filled Toss.
+  const fast = await page("view=tray&free=40", { width: 372, height: 676 });
+  check("menu bar window: filling fast while Healthy", (await fast.p.textContent(".tb-line")) === "Plenty of room for now, but it\u2019s filling fast." && (await fast.p.$eval(".tb-toss", (b) => b.classList.contains("primary"))) && !(await fast.p.$(".tb-c")), await fast.p.textContent(".tb-line"));
+  await fast.ctx.close();
+  // Not filling up: no forecast that contradicts the status.
+  const flat = await page("view=tray&free=120&week=0", { width: 372, height: 676 });
+  check("menu bar window: not filling up this week", (await flat.p.textContent(".tb-pace")) === "Not filling up this week." && !(await flat.p.$(".tb-grow")), await flat.p.textContent(".tb-pace"));
+  await flat.ctx.close();
+}
+
+// Updates (spec "Menu bar window" v21; docs/decisions.md "Updates only when
+// asked"): nothing is checked until the chip is clicked.
+{
+  const { p, ctx } = await page("view=tray", { width: 372, height: 676 });
+  await p.waitForSelector(".tb-ver");
+  const calls = async () => (await p.evaluate(() => window.__FIXTURE_CALLS__)).map((c) => c.cmd);
+  check("updates: nothing is checked on opening", !(await calls()).some((c) => c === "check_for_update" || c === "download_update"), JSON.stringify(await calls()));
+  check("updates: the chip shows the installed version", (await p.textContent(".tb-ver")) === "v1.4.0");
+  await p.click('[data-act="upd-check"]');
+  check("updates: Checking…", (await p.textContent(".tb-ver")) === "Checking\u2026", await p.textContent(".tb-ver"));
+  await p.waitForSelector('.tb-ver.new[data-act="upd-open"]');
+  check("updates: an update turns the chip accent and opens the banner", (await p.textContent(".tb-ver")) === "1.4.1 available" && (await p.textContent(".tb-upd-t")) === "Freeboard 1.4.1 is readyYou have 1.4.0. New: faster worktree scans, removal queue.", await p.textContent(".tb-upd"));
+  await p.click('[data-act="upd-go"]');
+  check("updates: Downloading", (await p.textContent(".tb-ver")) === "Downloading 1.4.1\u2026" && !(await p.$(".tb-upd")), await p.textContent(".tb-ver"));
+  await p.waitForSelector('[data-act="upd-restart"]');
+  check("updates: Restart to update", (await p.textContent(".tb-ver")) === "Restart to update");
+  await p.click('[data-act="upd-restart"]');
+  await p.waitForFunction(() => document.querySelector(".tb-ver")?.textContent?.includes("up to date"));
+  check("updates: after the restart, up to date", (await p.textContent(".tb-ver")) === "v1.4.1 \u00b7 up to date \u2713", await p.textContent(".tb-ver"));
   await ctx.close();
 }
 
@@ -133,7 +174,7 @@ const idle = (p) => p.waitForFunction(() => document.documentElement.dataset.bus
   check("worktrees: the exact commands, with no branch delete", (await p.textContent(".wt-row.open .wt-cmd")) === "git -C ~/proj/leftyou worktree remove .codex/worktrees/ios-testflight");
   await p.click('[data-wt-open="w5"]');
   await p.click('[data-wt-selrepo="sheltersync"]');
-  check("worktrees: Select N ready selects that repository's ready ones", (await p.textContent(".wt-dock")).startsWith("8 selected · 3.9 GB") && (await p.textContent('[data-wt-act="remove"]')) === "Remove 8 worktrees", await p.textContent(".wt-dock"));
+  check("worktrees: Select N ready selects that repository's ready ones", (await p.textContent(".wt-dock")).startsWith("8 selected · 3.9 GB") && (await p.textContent('[data-wt-act="remove"]')) === "Remove 8 worktrees 3.9 GB", await p.textContent(".wt-dock"));
   await p.evaluate(() => (window.__FIXTURE_CALLS__ = []));
   await p.click('[data-wt-act="remove"]');
   await p.waitForSelector('.wt-run [data-wt-act="retry"]');
@@ -765,8 +806,8 @@ async function tabStaysInside(p, n = 10) {
 // choice, and writes sizes with the language's decimal separator.
 {
   const { createServer } = await import("node:http");
-  const site = readFileSync(new URL("../../site/index.html", import.meta.url));
-  const srv = createServer((req, res) => { res.writeHead(req.url.split("?")[0] === "/" ? 200 : 404, { "content-type": "text/html; charset=utf-8" }); res.end(req.url.split("?")[0] === "/" ? site : ""); });
+  const pages = { "/": readFileSync(new URL("../../site/index.html", import.meta.url)), "/docs/": readFileSync(new URL("../../site/docs/index.html", import.meta.url)) };
+  const srv = createServer((req, res) => { const pg = pages[req.url.split("?")[0]]; res.writeHead(pg ? 200 : 404, { "content-type": "text/html; charset=utf-8" }); res.end(pg ?? ""); });
   await new Promise((r) => srv.listen(0, "127.0.0.1", r));
   const url = `http://127.0.0.1:${srv.address().port}/`;
   const open = async (ctx) => { const p = await ctx.newPage(); await ctx.route("**/*", (r) => (new URL(r.request().url()).hostname === "127.0.0.1" ? r.continue() : r.abort())); await p.goto(url); await p.waitForFunction(() => document.getElementById("langCode")?.textContent); return p; };
@@ -780,6 +821,22 @@ async function tabStaysInside(p, n = 10) {
   await p.reload();
   await p.waitForFunction(() => document.getElementById("langCode")?.textContent);
   check("site: the manual choice is remembered", (await p.textContent("#langCode")) === "FR");
+  // The docs page follows the choice made on the home page (found 2026-11-09:
+  // it was English only, with no switcher).
+  await p.goto(url + "docs/");
+  await p.waitForFunction(() => document.getElementById("langCode")?.textContent);
+  check("docs: follows the language chosen on the home page", (await p.getAttribute("html", "lang")) === "fr" && (await p.textContent("#langCode")) === "FR" && (await p.textContent(".doc h1")) === "Documentation" && (await p.textContent("#start")) === "Pour commencer", await p.textContent("#start"));
+  await p.click("#langBtn");
+  await p.click('[data-lang="de"]');
+  check("docs: its switcher changes the page and is remembered", (await p.textContent("#start")) === "Erste Schritte" && (await p.evaluate(() => localStorage.getItem("fb-lang"))) === "de", await p.textContent("#start"));
+  await ctx.close();
+  ctx = await browser.newContext({ locale: "es-ES" });
+  p = await ctx.newPage();
+  await ctx.route("**/*", (r) => (new URL(r.request().url()).hostname === "127.0.0.1" ? r.continue() : r.abort()));
+  await p.goto(url + "docs/");
+  await p.waitForFunction(() => document.getElementById("langCode")?.textContent);
+  const untranslated = await p.evaluate(() => [...document.querySelectorAll(".doc h2, .doc h3, .doc p, .doc li, .doc th, .doc td, .toc a, .card b, .card span, .nav-links > a, footer span")].filter((e) => !e.closest("[data-i18n]") && /[A-Za-z]{3}/.test(e.textContent) && !e.querySelector("[data-i18n]")).map((e) => e.textContent.slice(0, 40)));
+  check("docs: opens in the browser's language (Spanish), every text translated", (await p.textContent("#start")) === "Primeros pasos" && untranslated.length === 0, JSON.stringify(untranslated));
   await ctx.close();
   ctx = await browser.newContext({ locale: "ja-JP" });
   p = await open(ctx);

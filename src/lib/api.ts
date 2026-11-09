@@ -34,6 +34,7 @@ import type {
   SettingsPatch,
   Suggestion,
   TrashSummary,
+  UpdateStatus,
 } from "./types";
 
 export interface Backend {
@@ -125,6 +126,13 @@ export const api = {
   /** Tray view: close it, or open the main window on the pile. */
   closeTrayView: () => call<void>("close_tray_view"),
   reviewPile: () => call<void>("review_pile"),
+  /** Tray view: its card's height, so the window fits it. */
+  fitTrayView: (height: number) => call<void>("fit_tray_view", { height: Math.ceil(height) }),
+  /** Updates (docs/decisions.md "Updates only when asked"): the network is used only on these clicks. */
+  getUpdate: () => call<UpdateStatus>("get_update"),
+  checkForUpdate: () => call<UpdateStatus>("check_for_update"),
+  downloadUpdate: () => call<UpdateStatus>("download_update"),
+  restartToUpdate: () => call<UpdateStatus>("restart_to_update"),
 };
 
 /** Readable text for a failed command: the core sends `{ code, message }`. */

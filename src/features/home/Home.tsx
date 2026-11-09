@@ -62,9 +62,11 @@ export function Home({ navigate }: { navigate: View | null }) {
   useEffect(() => {
     if (navigate === "pile") setShowPile(true);
     if (navigate === "settings") setSettingsOpen(true);
-    if (navigate === "questions") {
-      setTab("tidy");
-      setTimeout(() => document.getElementById("tab-tidy")?.scrollIntoView({ block: "start" }), 0);
+    if (navigate === "questions" || navigate === "map") {
+      // The menu bar window's "N quick questions" and "See where ›".
+      const tabId = navigate === "map" ? "map" : "tidy";
+      setTab(tabId);
+      setTimeout(() => document.getElementById("tab-" + tabId)?.scrollIntoView({ block: "start" }), 0);
       return;
     }
     if (navigate) window.scrollTo({ top: 0 });

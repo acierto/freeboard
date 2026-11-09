@@ -1,7 +1,7 @@
 {
   "version": 1,
   "source": "docs/reference/freeboard-prototype.html",
-  "sourceSha256": "e4e14a41ea9d80541a355c731f1c77e49c00c1563aeff2c49dc779ff680d6028",
+  "sourceSha256": "3a6629f3f0016fd420e0d2c0b3befd024612c4a9aac752353c87f49130c8892e",
   "engine": {
     "engine": "chromium",
     "version": "156.0.8078.4",
@@ -20,8 +20,8 @@
   "locale": "en-US",
   "timezone": "UTC",
   "adapter": "scripts/visual/lib.mjs referenceHtml(): local fonts, data-theme, host reset (src/styles/reset.css), prototype-only controls hidden (.top-right .sim, .top-right [data-act=\"reset\"], .top > div > .note, .top-right .tray, .top-right [data-act=\"welcome\"])",
-  "acceptedAt": "2026-11-08T11:11:26.146Z",
-  "rationale": "First run, tools found: a tool that is not installed keeps its line-through at full opacity (supplemental.css); the prototype's 70% fails WCAG AA contrast, found by axe in task 6.6. Affected: first-run-folders in English, German and French (2026-11-08)",
+  "acceptedAt": "2026-11-09T13:47:12.329Z",
+  "rationale": "Worktrees dock: the selected size on Remove N worktrees stays at full opacity (supplemental.css) for WCAG AA contrast.",
   "entries": {
     "cleanup-confirm-ack--dark--1120x900": {
       "id": "cleanup-confirm-ack",
@@ -6857,175 +6857,277 @@
       "note": "Emptying the Trash needs its own confirmation (spec); built from the prototype's sheet, .muted, .note, .row and .btn components.",
       "sha256": "c1166031171a8225f92212e2e132cd9ad208992a97da90c62dd29a2085409395"
     },
-    "tray-view--dark--362x560": {
+    "tray-filling-fast--dark--372x676": {
+      "id": "tray-filling-fast",
+      "surface": "Tray",
+      "state": "Menu bar window, Healthy at 40 GB but filling fast (full in about 13 days)",
+      "theme": "dark",
+      "viewport": {
+        "width": 372,
+        "height": 676
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "view=tray&update=available&free=40",
+      "supplemental": true,
+      "note": "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
+      "sha256": "0b757b23b3963d210ebb3fe8487a7bcbc6956af0b63b765c48e4ea77a751e7c9"
+    },
+    "tray-filling-fast--light--372x676": {
+      "id": "tray-filling-fast",
+      "surface": "Tray",
+      "state": "Menu bar window, Healthy at 40 GB but filling fast (full in about 13 days)",
+      "theme": "light",
+      "viewport": {
+        "width": 372,
+        "height": 676
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "view=tray&update=available&free=40",
+      "supplemental": true,
+      "note": "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
+      "sha256": "244a6440a1cc1d2edc694fc6357f14812024775705819575b946441faea55fd5"
+    },
+    "tray-roomy--dark--372x676": {
+      "id": "tray-roomy",
+      "surface": "Tray",
+      "state": "Menu bar window, Healthy at 189.8 GB: whole-disk bar, full in about 2 months",
+      "theme": "dark",
+      "viewport": {
+        "width": 372,
+        "height": 676
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "view=tray&update=available&free=189.8",
+      "supplemental": true,
+      "note": "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
+      "sha256": "a3b4eafd7754de253d7e8538a77bac610bdd4906fd59fdae9608b9d8728363ed"
+    },
+    "tray-roomy--light--372x676": {
+      "id": "tray-roomy",
+      "surface": "Tray",
+      "state": "Menu bar window, Healthy at 189.8 GB: whole-disk bar, full in about 2 months",
+      "theme": "light",
+      "viewport": {
+        "width": 372,
+        "height": 676
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "view=tray&update=available&free=189.8",
+      "supplemental": true,
+      "note": "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
+      "sha256": "cd79e3001b0c22cde340bc816ee766b9f631757072b03a4143b89309b886e26a"
+    },
+    "tray-update--dark--372x676": {
+      "id": "tray-update",
+      "surface": "Tray",
+      "state": "Menu bar window: the update banner (Freeboard 1.4.1 is ready)",
+      "theme": "dark",
+      "viewport": {
+        "width": 372,
+        "height": 676
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "view=tray&update=available",
+      "supplemental": true,
+      "note": "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
+      "sha256": "d71b34ded06c8110d48cf807989f570125450ec948a30043b8bda13245104d7f"
+    },
+    "tray-update--light--372x676": {
+      "id": "tray-update",
+      "surface": "Tray",
+      "state": "Menu bar window: the update banner (Freeboard 1.4.1 is ready)",
+      "theme": "light",
+      "viewport": {
+        "width": 372,
+        "height": 676
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "view=tray&update=available",
+      "supplemental": true,
+      "note": "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
+      "sha256": "109261e7aee9a7dddb3c130a32c27a027f86130155e28a666c86ee25eb67208d"
+    },
+    "tray-view--dark--372x676": {
       "id": "tray-view",
       "surface": "Tray",
-      "state": "Menu bar window, Low",
+      "state": "Menu bar window, Low, 12.4 GB free (zones gauge)",
       "theme": "dark",
       "viewport": {
-        "width": 362,
-        "height": 560
+        "width": 372,
+        "height": 676
       },
       "deviceScaleFactor": 1,
       "reducedMotion": true,
       "crop": "page",
-      "fixture": "view=tray",
+      "fixture": "view=tray&update=available",
       "supplemental": true,
       "note": "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
-      "sha256": "531d798e6ea328df740b87424f2c3b5bcec4e699db04a7946581abbebaa718f8"
+      "sha256": "7de16f74e6b46231017b3335f16054733e6b3ab1eccd74f6d11f612dfadc2441"
     },
-    "tray-view--light--362x560": {
+    "tray-view--light--372x676": {
       "id": "tray-view",
       "surface": "Tray",
-      "state": "Menu bar window, Low",
+      "state": "Menu bar window, Low, 12.4 GB free (zones gauge)",
       "theme": "light",
       "viewport": {
-        "width": 362,
-        "height": 560
+        "width": 372,
+        "height": 676
       },
       "deviceScaleFactor": 1,
       "reducedMotion": true,
       "crop": "page",
-      "fixture": "view=tray",
+      "fixture": "view=tray&update=available",
       "supplemental": true,
       "note": "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
-      "sha256": "80213c453820707988e874147f45fba0b3fcf21fc0d0910e048c7f8d2ac47d3b"
+      "sha256": "7273a960587948f8d48c18949541a3b742329f179ee814c819ee496af282d5d5"
     },
-    "tray-view-de--dark--362x560": {
+    "tray-view-de--dark--372x676": {
       "id": "tray-view-de",
       "surface": "Tray",
-      "state": "Menu bar window, Low (German)",
+      "state": "Menu bar window, Low, 12.4 GB free (zones gauge) (German)",
       "theme": "dark",
       "viewport": {
-        "width": 362,
-        "height": 560
+        "width": 372,
+        "height": 676
       },
       "deviceScaleFactor": 1,
       "reducedMotion": true,
       "crop": "page",
-      "fixture": "view=tray",
+      "fixture": "view=tray&update=available",
       "supplemental": true,
       "note": "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
-      "sha256": "1f54098705483582feb08109017729780ef87689c864ff808cecfe5bcead7f48"
+      "sha256": "4d2774f03cc39aa75befeff0cc3e164744445d78a0ce34285c99baa4c63731d3"
     },
-    "tray-view-de--light--362x560": {
+    "tray-view-de--light--372x676": {
       "id": "tray-view-de",
       "surface": "Tray",
-      "state": "Menu bar window, Low (German)",
+      "state": "Menu bar window, Low, 12.4 GB free (zones gauge) (German)",
       "theme": "light",
       "viewport": {
-        "width": 362,
-        "height": 560
+        "width": 372,
+        "height": 676
       },
       "deviceScaleFactor": 1,
       "reducedMotion": true,
       "crop": "page",
-      "fixture": "view=tray",
+      "fixture": "view=tray&update=available",
       "supplemental": true,
       "note": "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
-      "sha256": "02d0b282aee90786be248d1d74328c9d551ef088c259e294db99e5c3b41e8c6f"
+      "sha256": "b706e917a49178f90ebb63c6f98dd8204398b32bb6fa1f11883255dba45cac14"
     },
-    "tray-view-es--dark--362x560": {
+    "tray-view-es--dark--372x676": {
       "id": "tray-view-es",
       "surface": "Tray",
-      "state": "Menu bar window, Low (Spanish)",
+      "state": "Menu bar window, Low, 12.4 GB free (zones gauge) (Spanish)",
       "theme": "dark",
       "viewport": {
-        "width": 362,
-        "height": 560
+        "width": 372,
+        "height": 676
       },
       "deviceScaleFactor": 1,
       "reducedMotion": true,
       "crop": "page",
-      "fixture": "view=tray",
+      "fixture": "view=tray&update=available",
       "supplemental": true,
       "note": "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
-      "sha256": "c09b5ddcb7ac30450c615c394161a00b0a33bc38674ec7ce8a9a7595c43c5ca4"
+      "sha256": "2a29d796bd32b60b2268b01fe7866d4fbcf072edda9228beae36895e143b131d"
     },
-    "tray-view-es--light--362x560": {
+    "tray-view-es--light--372x676": {
       "id": "tray-view-es",
       "surface": "Tray",
-      "state": "Menu bar window, Low (Spanish)",
+      "state": "Menu bar window, Low, 12.4 GB free (zones gauge) (Spanish)",
       "theme": "light",
       "viewport": {
-        "width": 362,
-        "height": 560
+        "width": 372,
+        "height": 676
       },
       "deviceScaleFactor": 1,
       "reducedMotion": true,
       "crop": "page",
-      "fixture": "view=tray",
+      "fixture": "view=tray&update=available",
       "supplemental": true,
       "note": "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
-      "sha256": "d9a4689cce98d45cb7542c36b31a9c8af5087df82e439609c7c465c23364348c"
+      "sha256": "58c5655e6761489f128a45d8288d2085611d569381517112f9d2b4506f8a8604"
     },
-    "tray-view-fr--dark--362x560": {
+    "tray-view-fr--dark--372x676": {
       "id": "tray-view-fr",
       "surface": "Tray",
-      "state": "Menu bar window, Low (French)",
+      "state": "Menu bar window, Low, 12.4 GB free (zones gauge) (French)",
       "theme": "dark",
       "viewport": {
-        "width": 362,
-        "height": 560
+        "width": 372,
+        "height": 676
       },
       "deviceScaleFactor": 1,
       "reducedMotion": true,
       "crop": "page",
-      "fixture": "view=tray",
+      "fixture": "view=tray&update=available",
       "supplemental": true,
       "note": "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
-      "sha256": "8e7e215d7ead4a25ddb98a62dac35cad03e1d1d48da0891865bc871def433d79"
+      "sha256": "a3a7ba1cbfb56dd63c6037c0c53ae3ebdbd2b364d625eb1e4b3608d664988b65"
     },
-    "tray-view-fr--light--362x560": {
+    "tray-view-fr--light--372x676": {
       "id": "tray-view-fr",
       "surface": "Tray",
-      "state": "Menu bar window, Low (French)",
+      "state": "Menu bar window, Low, 12.4 GB free (zones gauge) (French)",
       "theme": "light",
       "viewport": {
-        "width": 362,
-        "height": 560
+        "width": 372,
+        "height": 676
       },
       "deviceScaleFactor": 1,
       "reducedMotion": true,
       "crop": "page",
-      "fixture": "view=tray",
+      "fixture": "view=tray&update=available",
       "supplemental": true,
       "note": "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
-      "sha256": "e0d1f84759d077c6987b8cba5c68e9db7d1db636c6b0a36fb01400b55fffd5d7"
+      "sha256": "9e0a6cc042710bf67acead5955515e5be1cd24b42b34a597c641ed729596352c"
     },
-    "tray-view-nl--dark--362x560": {
+    "tray-view-nl--dark--372x676": {
       "id": "tray-view-nl",
       "surface": "Tray",
-      "state": "Menu bar window, Low (Dutch)",
+      "state": "Menu bar window, Low, 12.4 GB free (zones gauge) (Dutch)",
       "theme": "dark",
       "viewport": {
-        "width": 362,
-        "height": 560
+        "width": 372,
+        "height": 676
       },
       "deviceScaleFactor": 1,
       "reducedMotion": true,
       "crop": "page",
-      "fixture": "view=tray",
+      "fixture": "view=tray&update=available",
       "supplemental": true,
       "note": "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
-      "sha256": "02979c9870175471bbe6c8f04224d71079847b8f2fbf53adb466d65359f4c29b"
+      "sha256": "1162878f09a1b0a5ae5434d6c1f17d6e3150fb2711ba13151e2af2f2fdc02c3b"
     },
-    "tray-view-nl--light--362x560": {
+    "tray-view-nl--light--372x676": {
       "id": "tray-view-nl",
       "surface": "Tray",
-      "state": "Menu bar window, Low (Dutch)",
+      "state": "Menu bar window, Low, 12.4 GB free (zones gauge) (Dutch)",
       "theme": "light",
       "viewport": {
-        "width": 362,
-        "height": 560
+        "width": 372,
+        "height": 676
       },
       "deviceScaleFactor": 1,
       "reducedMotion": true,
       "crop": "page",
-      "fixture": "view=tray",
+      "fixture": "view=tray&update=available",
       "supplemental": true,
       "note": "The prototype's in-page popover, moved into a .tray-window box (supplemental.css) because the app shows it in its own window opened from the native tray icon.",
-      "sha256": "be842aaec884df79598ef0cb8c6ea56d503a0be8e304264e7c01f8b43f42cd12"
+      "sha256": "f407cabb3c86660d9b92f452c671abbd734cb99e24f3da41894ce4ee4598f699"
     },
     "wt-ack-work--dark--1120x900": {
       "id": "wt-ack-work",
@@ -7042,7 +7144,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
-      "sha256": "b39ad717bb7fdaa801f29e2e2f7f0b57fa743b4c5b8603f4f5d4ec5cbfa270b9"
+      "sha256": "8ebdea8e597d3ab2decae965149eb773e8f51db51f27a1193cdbb2cdb10cd0b7"
     },
     "wt-ack-work--light--1120x900": {
       "id": "wt-ack-work",
@@ -7059,7 +7161,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
-      "sha256": "076b4e6c7f2e0f631085c9b94169bf537f3efa05289a55586914869b28d5c020"
+      "sha256": "26b46cfc108694205071efad4280e630e0e67b4c38db69d74d1adf44b9f9cf44"
     },
     "wt-default--dark--1120x900": {
       "id": "wt-default",
@@ -7416,7 +7518,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
-      "sha256": "4b167fc56787c1a66ee8f5839314952c3f594651ff79c8c0554ac429eb93da02"
+      "sha256": "dd7141b790149ba532d1391b583a9e04f15ca0d02c00770f7b9a8898a148b8f4"
     },
     "wt-selected--dark--390x844": {
       "id": "wt-selected",
@@ -7433,7 +7535,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
-      "sha256": "5f170153380eab8e06de50f6624ccaecd4c52ba852ed36a4de2a008a6aa7fde4"
+      "sha256": "9fb58fd27d844df8703b15b52c10954ca8d4d745bbd136cd0a4461c378bff929"
     },
     "wt-selected--light--1120x900": {
       "id": "wt-selected",
@@ -7450,7 +7552,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
-      "sha256": "31be000680d76d50ad14cdb93c9eb465a7f87a9f7b326b133751114e5fd81833"
+      "sha256": "b8353d0aa60e7e1d8e1ad3daad196fe8678800375cf5aa663b112175b2f5b4c6"
     },
     "wt-selected--light--390x844": {
       "id": "wt-selected",
@@ -7467,7 +7569,7 @@
       "fixture": "",
       "supplemental": true,
       "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
-      "sha256": "888bb46fdc1f13f4c8ffd8059d76841881acef66e75aa82315ef1064e7f49a94"
+      "sha256": "c3b7a0c137411f63d6367bcecd2c6f01438fd6ad709236690340c6979839e418"
     }
   }
 }

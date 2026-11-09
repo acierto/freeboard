@@ -11,7 +11,7 @@
 - **Explains the disk.** A disk map assigns used space to areas, says how much it could not explain, and why.
 - **Explains every item.** Why it is listed, the exact command or folder action that would run, and how to get it back.
 - **Never acts on its own.** You review a cleanup plan. Each item is checked again just before it runs, and anything that changed since the scan is skipped. The only exception is a Keep me tidy rule you turn on yourself, limited to named Safe caches.
-- **Stays local.** No account, no telemetry, no network calls.
+- **Stays local.** No account, no telemetry. It goes online only when you click the version number to check for an update.
 
 Every item carries a risk label:
 

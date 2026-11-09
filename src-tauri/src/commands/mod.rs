@@ -231,6 +231,8 @@ pub enum MainView {
     Home,
     Pile,
     Questions,
+    /// The Disk map tab (the menu bar window's "See where ›").
+    Map,
     Settings,
 }
 
@@ -240,6 +242,7 @@ impl MainView {
             MainView::Home => "home",
             MainView::Pile => "pile",
             MainView::Questions => "questions",
+            MainView::Map => "map",
             MainView::Settings => "settings",
         }
     }
@@ -277,6 +280,39 @@ pub fn close_tray_view(app: tauri::AppHandle) {
 #[tauri::command]
 pub fn review_pile(app: tauri::AppHandle) {
     crate::review_pile(&app);
+}
+
+/// The tray view's card height in logical pixels; the window follows it.
+#[tauri::command]
+pub fn fit_tray_view(app: tauri::AppHandle, height: u32) {
+    crate::fit_tray_view(&app, height as f64);
+}
+
+// Updates (spec "Menu bar window", v21; docs/decisions.md "Updates only when asked"). No arguments: the
+// endpoint and the public key are fixed in tauri.conf.json.
+
+#[tauri::command]
+pub fn get_update(app: tauri::AppHandle) -> crate::updates::UpdateStatus {
+    crate::updates::status(&app)
+}
+
+/// The version chip: ask the release server once. The only network request
+/// Freeboard makes of its own, and only on this click.
+#[tauri::command]
+pub fn check_for_update(app: tauri::AppHandle) -> crate::updates::UpdateStatus {
+    crate::updates::check(&app)
+}
+
+/// Update: download the new version and verify its signature.
+#[tauri::command]
+pub fn download_update(app: tauri::AppHandle) -> crate::updates::UpdateStatus {
+    crate::updates::download(&app)
+}
+
+/// Restart to update: install what was downloaded and start the new version.
+#[tauri::command]
+pub fn restart_to_update(app: tauri::AppHandle) -> crate::updates::UpdateStatus {
+    crate::updates::install_and_restart(&app)
 }
 
 pub fn not_available(msg: &str) -> CommandError {

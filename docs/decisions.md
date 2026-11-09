@@ -455,3 +455,27 @@ The 15 MB installer target is met by every download except the Linux AppImage (8
 ## 2026-11-08: Linux scan times measured in a container
 
 The Linux test VM is not rebuilt; quick and deep scan times for task 5.13 were measured with `scan_bench` in the Ubuntu 22.04 ARM64 container that builds the Linux release, on the development Mac. The deep scan's fixture is the same 1,002,000 files as on macOS, measured fresh and with every file backdated 400 days. The quick scan's home is empty, so its time (under 0.2 s) is a lower bound; the 2026-11-04 GNOME VM run with real tool data (1.48 s) stays the realistic figure. Both are far under the targets.
+
+## 2026-11-09: Updates only when asked (prototype v21)
+
+The v21 menu bar window has a version chip that checks for updates, and the spec says to use the Tauri updater plugin with signed update files. That conflicts with invariant 12 ("no network calls in v1, except those made by developer tools it runs on request") and the acceptance line "The app makes no network calls of its own". It is resolved the way invariant 12 already treats tools: the update check is made only on request.
+
+- **Only on a click.** Clicking the chip checks once; Update downloads; Restart to update installs. Nothing checks at start-up, on a timer or in the background. `src-tauri/src/updates.rs` is the only code that reaches the updater, and `contract_tests.rs` (`inv12_updates_only_on_request_from_the_projects_releases`) fails if anything else does.
+- **One endpoint, signed files.** The only endpoint is `https://github.com/acierto/freeboard/releases/latest/download/latest.json`. Every update file is signed with the project's minisign key; the public key is in `tauri.conf.json` and a file that does not verify is never installed. The private key and its password are kept outside the repository and reach CI as the `TAURI_SIGNING_PRIVATE_KEY` and `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` secrets.
+- **The interface still has no network permission.** The webview calls four of Freeboard's own commands (`get_update`, `check_for_update`, `download_update`, `restart_to_update`), which take no arguments. No `updater:` or `process:` capability is granted, and the CSP is unchanged.
+- **The state lives in Rust**, because the menu bar window is destroyed when it loses focus: a download keeps going, and reopening the window shows how far it got. Restart to update starts the new copy in tray mode with `--updated`, so its chip reads "up to date ✓" without checking again.
+- **Per platform.** macOS replaces the `.app` from a signed `.app.tar.gz`. Windows runs the signed setup `.exe` in passive mode, which closes Freeboard and reopens it. Linux updates the AppImage in place and the `.deb` through `pkexec dpkg -i` (the plugin picks the `linux-<arch>-deb` entry for a `.deb` install). The `.deb` is renamed and repackaged after the build (`freeboard-disk`), so CI signs the renamed file again.
+- **The banner's note** is the first line of the release's note in `latest.json`, which the release workflow takes from the annotated tag's subject. It is in English; "You have 1.4.0." and "New:" are translated.
+- Copies older than the first release with the updater cannot update themselves; they need one manual download.
+
+## 2026-11-09: The menu bar window's pace (prototype v21)
+
+The menu bar window no longer uses the main window's 14-day forecast. It uses this week's pace (`monitor::forecast::pace`): the free space used over the last 7 days, with cleanup jumps left out as in the forecast, divided by 7. Days left = free ÷ that rate, shown in days under 14, weeks under 60 and months above. With under a week of samples, the rate divides by the days measured, so a 3-day-old install is not diluted; under a day of samples there is no pace line. "This week +X" is the same 7-day figure, so the row and the pace line never disagree; "Mostly Docker (+9.3 GB)" is the fastest-growing area from the disk map's daily snapshots.
+
+The user's screenshot showed "+63.7 GB this week" (one area's growth) next to "Full in about 3 days" (the 14-day fit) at 189.8 GB free. The two came from different measurements. The main window keeps the 14-day fit the spec asks for under "Forecast".
+- 2026-11-09: Baselines regenerated from `docs/reference/freeboard-prototype.html` (SHA-256 `3a6629f3f001…`, chromium 156.0.8078.4, 444 captures). Rationale: Prototype Version 21 (2026-11-09): menu bar window with the version chip and update banner, the whole-disk bar at 60 GB or more, the pace from this week's rate, the This week row and the fixed header and footer; Version 20's worktree removal queue.
+
+## 2026-11-09: Worktrees dock tolerance (prototype v20)
+
+The dock's main button now carries the selected size ("Remove 8 worktrees 3.9 GB") and Select N ready leaves out rows already ticked, as in Version 20. With one acknowledged worktree selected (`wt-ack-work`), 45 pixels differ in anti-aliasing across Clear and Remove, in both themes; `wt-selected` with the same dock matches exactly. The tolerance is 45 pixels for that entry only. Version 20's removal queue (adding to a running removal, Pause, Show queue) is not built yet.
+- 2026-11-09: Baselines regenerated from `docs/reference/freeboard-prototype.html` (SHA-256 `3a6629f3f001…`, chromium 156.0.8078.4, 444 captures). Rationale: Worktrees dock: the selected size on Remove N worktrees stays at full opacity (supplemental.css) for WCAG AA contrast.

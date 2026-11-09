@@ -382,6 +382,16 @@ pub struct Forecast {
     pub days_left: f64,
 }
 
+/// This week's pace for the menu bar window (`monitor::forecast::pace`).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Pace {
+    /// Free space used over the last 7 days, cleanups left out. Negative
+    /// when more was freed by hand than used.
+    pub week_bytes: i64,
+    pub bytes_per_day: f64,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TrendPoint {
@@ -413,6 +423,8 @@ pub struct AppStatus {
     pub volumes: Vec<VolumeStatus>,
     pub status: DiskStatus,
     pub forecast: Option<Forecast>,
+    /// This week's pace (menu bar window).
+    pub pace: Option<Pace>,
     pub trash_bytes: u64,
     pub trend: Vec<TrendPoint>,
     pub scan: ScanState,

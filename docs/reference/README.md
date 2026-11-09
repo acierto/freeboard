@@ -14,6 +14,8 @@ A fifth revision (`freeboard-prototype-3.html`, the prototype's Version 15) adde
 
 The user's Version 17 (`freeboard-prototype (1).html`) added the five-step first-run setup and redesigned the menu bar window, with the matching spec sections ("First-run setup", "Menu bar window"), which replaced `FREEBOARD_SPEC.md`.
 
+The user's Version 21 (`Freeboard Prototype.html`, 2026-11-09) redesigned the menu bar window: a version chip with the update flow, a whole-disk bar at 60 GB free or more, the pace from this week's rate, a This week row, and a fixed header and footer around a scrolling middle. It also carries Version 20's worktree removal queue. The spec's matching revisions ("Menu bar window" revision v21, "Removal queue", "Installers") came with it.
+
 - `FREEBOARD_SPEC.md`: product behavior, safety invariants, detector inventory, disk accounting, pile rules, API contract, milestones and acceptance criteria.
 - `freeboard-prototype.html`: visual and interaction reference (Dinghy, the pile, Quick questions, Disk map, Logbook). Its data, cleanup and blind-spot results are simulations.
 
@@ -23,5 +25,5 @@ Prototype-only parts that must not ship: example data, **Pretend free space**, *
 
 ## Integrity
 
-- `FREEBOARD_SPEC.md` SHA-256: `32eabec179aadd301563cd1f7e7b0c73a146251824ef0a40f4e9c7731c75c2bb` (updated 2026-11-07, Version 19: worktree rules by what can be lost, squash-merge check, Worktrees view)
-- `freeboard-prototype.html` SHA-256: `e4e14a41ea9d80541a355c731f1c77e49c00c1563aeff2c49dc779ff680d6028`
+- `FREEBOARD_SPEC.md` SHA-256: `38312dc20a8ea4adfffb6cd25ce0b0fd84f8b2487d0ba4bf21b02f24d35c796c` (updated 2026-11-09, Version 21: menu bar window, updates, removal queue)
+- `freeboard-prototype.html` SHA-256: `3a6629f3f0016fd420e0d2c0b3befd024612c4a9aac752353c87f49130c8892e`

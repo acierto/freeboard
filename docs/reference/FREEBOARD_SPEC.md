@@ -657,6 +657,14 @@ Clicking the menu bar item opens a 330 px window that answers "am I OK, and what
 
 The window never shows Review or Risky items as tossable.
 
+**Revision (prototype v21).** These rules replace the matching parts above:
+
+- **Version and updates in the header.** After "Freeboard" a small chip shows the installed version ("v1.4.0"); clicking it checks for updates ("Checking…", then "v1.4.0 · up to date ✓"). When an update exists the chip turns accent, "1.4.1 available", and opens a one-row banner: "Freeboard 1.4.1 is ready. You have 1.4.0. New: …" with **Update** and ×. Then "Downloading 1.4.1…", then **Restart to update**. Use the Tauri updater plugin with signed update files.
+- **Status picture depends on free space.** Under 60 GB free: the zoomed 0–60+ GB gauge with the Low and Critical zones. At 60 GB or more: a whole-disk bar (used in grey, the pile striped, free in green) with "322.2 GB used" and "of 512 GB", because a marker pinned to the end of a 60 GB scale says nothing.
+- **Forecast from the measured rate, in matching units.** rate = growth over the last 7 days ÷ 7; days = free ÷ rate. Show "At this week's pace (+3.1 GB a day), full in about 2 months." in days under 14, weeks under 60, months above. Not growing, or more than a year: "Not filling up this week." If it would fill within 14 days while still Healthy, the line becomes "Plenty of room for now, but it's filling fast." in bold and the Toss button becomes the filled style. Never show a forecast that contradicts the status (189.8 GB free with +63.7 GB a week is about 3 weeks, not 3 days).
+- **This week row:** "This week +21.6 GB" with the total in amber, "Mostly Docker (+9.3 GB). See where ›" (opens the Disk map), and a thin bar of the top areas. It replaces the old "X grew fastest" line, which wrapped.
+- **Fit:** 340 px wide, at most 640 px tall. Header and footer stay fixed; only the middle scrolls. Footer: "Scanned 18 min ago" with **Scan now** under it on the left, **Open Freeboard** on the right, never wrapping.
+
 ### Make room card and Toss button
 
 The Make room card beside Dinghy holds the whole Safe-pile decision in one place, in this order:
@@ -727,7 +735,17 @@ Worktrees get their own tab (Quick questions · Disk map · Worktrees · Logbook
 2. **One card per repository**, biggest first: name, count, size, path, a thin status bar, and **Select N ready**.
 3. **Rows:** checkbox, branch name in mono with Agent/Claude/Codex and Locked badges, size, last-used age, and a status dot with the reason in one plain sentence ("Idle 30 days, already in main (squash-merged).", "2 uncommitted files would be deleted."). Never a bare "will not touch".
 4. **Expanded row:** What I checked (✓/✕ for uncommitted files, idle time, lock, merge state), Where, After removal ("Only the folder goes. Branch X stays with its 3 commits. Reopen it with git worktree add …" or "Folder and branch go"), Would run (the exact commands), Make it removable (status and commit commands for dirty ones), and for Has your work the acknowledgment checkbox that makes it selectable.
-5. **Dock:** a sticky bar appears with a selection: "9 selected · 6.1 GB", Clear, **Remove 9 worktrees**. The run shows progress in the summary card, one worktree at a time with a 120 s limit; timeouts are listed with **Try N again**, and each removal is logged with whether the branch was kept.
+5. **Dock:** a sticky bar appears with a selection: "9 selected · 6.1 GB", Clear, **Remove 9 worktrees**. Removal runs as a queue in the same dock (below), one worktree at a time with a 120 s limit; timeouts are listed with **Try N again**, and each removal is logged with whether the branch was kept.
+
+**Removal queue.** Removing never locks the list. While a run is going:
+
+- Checkboxes and **Select N ready** stay active. The dock's main button becomes **+ Add N to queue** with the size; added worktrees go to the end of the queue.
+- The dock shows the worktree being removed now (spinner, branch, repository), "3 of 10 · 7 waiting", GB freed, and one progress bar (removed in accent, failed in red). **Show queue** opens the waiting list with × to take one out; **Pause** stops after the current worktree ("Paused. Nothing is half-removed.") and becomes **Resume**.
+- Rows show their place: a numbered badge and **Take out** while waiting, a spinner while removing, a struck-through "Removed. Branch kept." row with ✓ after, and "Timed out after 120 s. Still here, nothing changed." for failures. Removed rows stay visible until the dock is closed, so nothing jumps.
+- The summary card shows one line: "Removing in the background. Keep ticking worktrees; they join the queue."
+- When the queue is empty the dock turns into the result: "Done. 8 removed, 1 could not go", the failures by name, **Try 1 again**, and **Close**.
+
+**Counting uncommitted files:** run `git -C <worktree path> status --porcelain` inside each worktree (it respects `.gitignore`, so node\_modules and build output don't count). Identical large counts on several worktrees of one repository (for example 6,223 on each) mean the main checkout was read by mistake; treat that as "status can't be determined", not as work.
 
 ### Settings sheet
 
@@ -843,6 +861,18 @@ Until builds are signed and notarized, macOS blocks Freeboard on first launch ("
 On company-managed computers the **Open Anyway** button may be missing or the installer blocked by policy; the page tells the user to ask IT to allow Freeboard.
 
 Release requirement: sign the macOS build with a Developer ID certificate and notarize it (Tauri's bundler does both when the Apple signing variables are set), and sign the Windows installer. Once releases are signed and notarized, the macOS steps disappear for users and the page can drop them. Never tell users to turn Gatekeeper off or to run `spctl --master-disable`.
+
+### Installers
+
+The installers match the app: Dinghy, sky, sea, the same colours. Art lives in `src-tauri/installer/` (sources as SVG).
+
+| Platform | What the user sees | Config |
+| --- | --- | --- |
+| macOS DMG | A 660 × 400 window: "Drag Freeboard into Applications", the app icon left and Applications right with a dotted arrow between, Dinghy on the waves, and a strip with the first-launch path (System Settings → Privacy & Security → Open Anyway). No license window. | `bundle.macOS.dmg`: `background` (Retina TIFF from `tiffutil -cathidpicheck`), `windowSize` 660 × 400, `appPosition` 170, 180, `applicationFolderPosition` 490, 180. Build the DMG on a Mac, because CI ignores icon positions. |
+| Windows NSIS | Sidebar on Welcome and Finish (164 × 314 BMP) and a header strip (150 × 57 BMP); per-user install; installer in the system language from en, nl, de, fr, es. | `bundle.windows.nsis`: `headerImage`, `sidebarImage`, `installerIcon`, `installMode: "currentUser"`, `languages`, `displayLanguageSelector: false` |
+| Linux | No installer window (AppImage, .deb, .rpm) | App icon and desktop entry only |
+
+Do not attach a click-through license to the DMG: MIT needs no acceptance, and macOS draws that dialog itself with no styling. Ship `LICENSE` in the app bundle and show it in About.
 
 ### Milestones
 

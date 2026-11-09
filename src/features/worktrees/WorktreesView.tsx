@@ -308,7 +308,8 @@ export function WorktreesView({ view, onChanged, scanning }: { view: View | null
       {repos.map(({ repo, root, rows: all, bytes }) => {
         const list = all.filter((r) => shown(r, filter));
         if (!list.length) return null;
-        const ready = all.filter((r) => r.key === "ready");
+        // Rows already ticked are not offered again (prototype Version 20).
+        const ready = all.filter((r) => r.key === "ready" && !sel.has(r.id));
         return (
           <section className="wt-repo" key={repo}>
             <header className="wt-rh">
@@ -364,7 +365,7 @@ export function WorktreesView({ view, onChanged, scanning }: { view: View | null
             {t("wt.clear")}
           </button>
           <button className="btn primary" data-wt-act="remove" onClick={() => remove([...chosen].sort((a, b) => b.bytes - a.bytes).map((r) => r.id))}>
-            {chosen.length === 1 ? t("wt.remove1") : t("wt.removeN", { n: chosen.length })}
+            {chosen.length === 1 ? t("wt.remove1") : t("wt.removeN", { n: chosen.length })} <span className="num dim">{gb(chosenBytes)}</span>
           </button>
         </div>
       )}
