@@ -1,14 +1,16 @@
 // The Worktrees tab (prototype Version 19 `renderWT`, spec "Worktrees view"):
 // a summary card with the rule, a bar and four status tiles that filter, one
 // card per repository, a row per worktree that opens in place, and a dock to
-// remove the selected ones. Removal is the normal confirmed plan and run, one
-// worktree at a time with a 120 s limit each; its progress shows in the
-// summary card.
-import { useEffect, useRef, useState } from "react";
+// remove the selected ones. Removal runs as a queue in the dock (prototype
+// Version 20, spec "Removal queue"): one worktree at a time, each through its
+// own confirmed plan and run (checked again just before, 120 s limit), while
+// the list stays usable: ticked worktrees join the end of the queue, a
+// waiting one can be taken out, and Pause stops after the current one.
+import { Fragment, useEffect, useRef, useState } from "react";
 import { api, errorText, on } from "../../lib/api";
 import { gb } from "../../lib/format";
 import { track } from "../../lib/useBusy";
-import type { RunDetail, WorktreesView as View } from "../../lib/types";
+import type { WorktreesView as View } from "../../lib/types";
 import { t } from "../../i18n";
 import { tb } from "../../i18n/backend";
 import { WT_COLOR, WT_KEYS, acknowledgeable, branchGoes, checksOf, fixesOf, idleShort, reposOf, rowsOf, selectable, shown, statusLabel, tally, whyOf, type WtFilter, type WtRow } from "./worktreesModel";
@@ -22,15 +24,44 @@ const BRANCH_ICON = (
   </svg>
 );
 
-/** A removal run as the summary card shows it. */
-interface Run {
-  runId: string | null;
-  ids: string[];
-  detail: RunDetail | null;
-  error: string | null;
+/** The removal queue (spec "Removal queue"). */
+interface Queue {
+  /** Waiting, in order. */
+  queue: string[];
+  cur: string | null;
+  done: string[];
+  failed: { id: string; reason: string; short: string }[];
+  freed: number;
+  paused: boolean;
+  finished: boolean;
+  /** Rows as they were when queued, so removed ones stay visible until Close. */
+  rows: Record<string, WtRow>;
+  /** Worktrees whose files the user agreed to lose, as of queueing. */
+  acked: string[];
+  /** Row order when the queue started (removed rows keep their place). */
+  order: string[];
 }
 
-const FINAL = ["done", "moved_to_trash", "skipped", "failed", "canceled", "interrupted"];
+const REMOVED = ["done", "moved_to_trash"];
+
+/** One row's place in the queue, if it has one. */
+type QState = { k: "done" } | { k: "cur" } | { k: "queued"; pos: number } | { k: "failed"; reason: string } | null;
+
+function qStateOf(q: Queue | null, id: string): QState {
+  if (!q) return null;
+  if (q.done.includes(id)) return { k: "done" };
+  if (q.cur === id) return { k: "cur" };
+  const pos = q.queue.indexOf(id);
+  if (pos > -1) return { k: "queued", pos: pos + 1 };
+  const f = q.failed.find((x) => x.id === id);
+  return f ? { k: "failed", reason: f.reason } : null;
+}
+
+const inQueue = (q: Queue | null, id: string) => !!q && (q.cur === id || q.queue.includes(id) || q.done.includes(id));
+
+/** Why a removal did not happen, in the row's words. */
+const failShort = (reason: string | null) => (!reason || /^It took longer than/.test(reason) ? t("wt.q.timedoutS") : tb(reason));
+const failText = (reason: string | null) => (!reason || /^It took longer than/.test(reason) ? t("wt.q.timedout") : tb(reason));
 
 function Detail({ r, acked, onAck }: { r: WtRow; acked: boolean; onAck: (v: boolean) => void }) {
   if (!r.info) {
@@ -115,17 +146,38 @@ function Detail({ r, acked, onAck }: { r: WtRow; acked: boolean; onAck: (v: bool
   );
 }
 
-function Row({ r, open, onOpen, checked, onCheck, busy, current, acked, onAck }: { r: WtRow; open: boolean; onOpen: () => void; checked: boolean; onCheck: (v: boolean) => void; busy: boolean; current: boolean; acked: boolean; onAck: (v: boolean) => void }) {
+function Row({ r, open, onOpen, checked, onCheck, qs, onTakeOut, acked, onAck }: { r: WtRow; open: boolean; onOpen: () => void; checked: boolean; onCheck: (v: boolean) => void; qs: QState; onTakeOut: () => void; acked: boolean; onAck: (v: boolean) => void }) {
   const agent = r.info?.agent;
+  const done = qs?.k === "done";
+  const cls = `wt-row ${r.key}${open && !done ? " open" : ""}${qs?.k === "cur" ? " busy" : ""}${qs?.k === "queued" ? " queued" : ""}${done ? " removed" : ""}`;
+  let lead;
+  if (r.key === "main") lead = <span className="wt-cb" aria-hidden="true"></span>;
+  else if (done)
+    lead = (
+      <span className="wt-state ok" role="img" aria-label={t("wt.q.removedA")}>
+        {"✓"}
+      </span>
+    );
+  else if (qs?.k === "cur")
+    lead = (
+      <span className="wt-state">
+        <span className="spin"></span>
+      </span>
+    );
+  else if (qs?.k === "queued")
+    lead = (
+      <span className="wt-state q num" role="img" aria-label={t("wt.q.posA", { n: qs.pos })}>
+        {qs.pos}
+      </span>
+    );
+  else lead = <input type="checkbox" className="wt-cb" data-wt-sel={r.id} aria-label={t("wt.select", { x: r.name })} checked={checked && selectable(r, acked)} disabled={!selectable(r, acked)} onChange={(e) => onCheck(e.target.checked)} />;
+  const why = done ? (r.info && branchGoes(r.info) ? t("wt.q.removedGone") : t("wt.q.removedKept")) : qs?.k === "cur" ? t("wt.q.now1") : qs?.k === "queued" ? t("wt.q.pos", { n: qs.pos }) : qs?.k === "failed" ? qs.reason : whyOf(r);
+  const dot = done ? "var(--safe)" : qs?.k === "cur" || qs?.k === "queued" ? "var(--accent)" : qs?.k === "failed" ? "var(--risky)" : WT_COLOR[r.key];
   return (
-    <div className={`wt-row ${r.key}${open ? " open" : ""}${current ? " busy" : ""}`}>
+    <div className={cls}>
       <div className="wt-line">
-        {r.key === "main" ? (
-          <span className="wt-cb" aria-hidden="true"></span>
-        ) : (
-          <input type="checkbox" className="wt-cb" data-wt-sel={r.id} aria-label={t("wt.select", { x: r.name })} checked={checked && selectable(r, acked)} disabled={!selectable(r, acked) || busy} onChange={(e) => onCheck(e.target.checked)} />
-        )}
-        <button className="wt-main" data-wt-open={r.id} aria-expanded={open} onClick={onOpen}>
+        {lead}
+        <button className="wt-main" data-wt-open={r.id} aria-expanded={open && !done} disabled={done} onClick={onOpen}>
           <span className="wt-b">
             {BRANCH_ICON}
             <span className="mono">{r.name}</span>
@@ -133,16 +185,22 @@ function Row({ r, open, onOpen, checked, onCheck, busy, current, acked, onAck }:
             {r.info?.locked && <span className="wt-ag lock">{t("wt.locked")}</span>}
           </span>
           <span className="wt-why">
-            <span className="wt-dot" style={{ background: WT_COLOR[r.key] }}></span>
-            {current ? t("wt.removing1") : whyOf(r)}
+            <span className="wt-dot" style={{ background: dot }}></span>
+            {why}
           </span>
         </button>
-        <span className="wt-meta num">
-          <b>{gb(r.bytes)}</b>
-          <small>{r.info ? idleShort(r.info.idleDays) : ""}</small>
-        </span>
+        {qs?.k === "queued" ? (
+          <button className="link small wt-unq" data-wt-unq={r.id} onClick={onTakeOut}>
+            {t("wt.q.takeout")}
+          </button>
+        ) : (
+          <span className="wt-meta num">
+            <b>{gb(r.bytes)}</b>
+            <small>{done ? t("wt.q.freed") : r.info ? idleShort(r.info.idleDays) : ""}</small>
+          </span>
+        )}
       </div>
-      {open && <Detail r={r} acked={acked} onAck={onAck} />}
+      {open && !done && <Detail r={r} acked={acked} onAck={onAck} />}
     </div>
   );
 }
@@ -153,35 +211,79 @@ export function WorktreesView({ view, onChanged, scanning }: { view: View | null
   const [open, setOpen] = useState<Set<string>>(new Set());
   // Worktrees whose uncommitted files the user agreed to lose (in the row).
   const [acks, setAcks] = useState<Set<string>>(new Set());
-  const [run, setRun] = useState<Run | null>(null);
-  const runRef = useRef<Run | null>(null);
-  runRef.current = run;
+  const [q, setQ] = useState<Queue | null>(null);
+  const [qOpen, setQOpen] = useState(false);
+  const qRef = useRef<Queue | null>(null);
+  qRef.current = q;
   const changed = useRef(onChanged);
   changed.current = onChanged;
+  /** Runs waiting for their finish event. */
+  const waiters = useRef(new Map<string, () => void>());
 
-  // Follow the run: each item update and the finish reload its record.
   useEffect(() => {
-    const refresh = (runId: string) =>
-      void track(api.getRun(runId)).then((detail) => {
-        const r = runRef.current;
-        if (!r || r.runId !== runId) return;
-        setRun({ ...r, detail });
-        if (detail.state !== "running") changed.current();
-      });
-    const offs = [
-      on("cleanup_item_updated", (u) => runRef.current?.runId === u.runId && refresh(u.runId)),
-      on("cleanup_finished", (u) => runRef.current?.runId === u.runId && refresh(u.runId)),
-    ];
+    const offs = [on("cleanup_finished", (u) => waiters.current.get(u.runId)?.())];
     return () => offs.forEach((p) => p.then((off) => off()));
   }, []);
 
+  /** Apply a change to the queue at once, so the next step sees it. */
+  const update = (f: (q: Queue) => Queue) => {
+    if (!qRef.current) return;
+    qRef.current = f(qRef.current);
+    setQ(qRef.current);
+  };
+
+  /** Remove one worktree: its own confirmed plan and run, then the next. */
+  const step = async () => {
+    const cur = qRef.current;
+    if (!cur || cur.cur || cur.paused) return;
+    if (!cur.queue.length) {
+      if (!cur.finished) update((x) => ({ ...x, finished: true }));
+      return;
+    }
+    const id = cur.queue[0];
+    update((x) => ({ ...x, cur: id, queue: x.queue.slice(1) }));
+    let removed = false;
+    let reason: string | null = null;
+    try {
+      let plan = await track(api.createPlan([id]));
+      for (const a of plan.needsAckIds) if (qRef.current?.acked.includes(a)) plan = await track(api.acknowledgeItem(plan.id, a));
+      const runId = await track(api.runPlan(plan.id));
+      const finished = new Promise<void>((res) => waiters.current.set(runId, res));
+      let detail = await track(api.getRun(runId));
+      if (detail.state === "running") {
+        await finished;
+        detail = await track(api.getRun(runId));
+      }
+      waiters.current.delete(runId);
+      const items = detail.items.filter((i) => (i.parentId ?? i.itemId) === id);
+      removed = items.length > 0 && items.every((i) => REMOVED.includes(i.state));
+      reason = items.find((i) => !REMOVED.includes(i.state))?.reason ?? null;
+    } catch (e) {
+      reason = errorText(e);
+    }
+    update((x) => {
+      const bytes = x.rows[id]?.bytes ?? 0;
+      return removed
+        ? { ...x, cur: null, done: [...x.done, id], failed: x.failed.filter((f) => f.id !== id), freed: x.freed + bytes }
+        : { ...x, cur: null, failed: [...x.failed.filter((f) => f.id !== id), { id, reason: failText(reason), short: failShort(reason) }] };
+    });
+    changed.current();
+    void step();
+  };
+
   if (!view) return null;
-  const rows = rowsOf(view);
-  const { by, count, total, agents } = tally(rows);
+  const live = rowsOf(view);
+  const { by, count, total, agents } = tally(live);
+  // Removed rows stay visible, struck through, until the dock is closed.
+  const kept = q ? q.done.filter((id) => !live.some((r) => r.id === id)).map((id) => q.rows[id]) : [];
+  const place = (id: string) => {
+    const i = q ? q.order.indexOf(id) : -1;
+    return i < 0 ? Number.MAX_SAFE_INTEGER : i;
+  };
+  const rows = kept.length ? [...live, ...kept].sort((a, b) => place(a.id) - place(b.id)) : live;
   const repos = reposOf(rows);
-  const d = run?.detail ?? null;
-  const running = !!run && (!d || d.state === "running");
-  const chosen = rows.filter((r) => sel.has(r.id) && selectable(r, acks.has(r.id)));
+  const running = !!q && !q.finished;
+  const chosen = live.filter((r) => sel.has(r.id) && selectable(r, acks.has(r.id)) && !inQueue(q, r.id));
   const chosenBytes = chosen.reduce((n, r) => n + r.bytes, 0);
   const toggle = (set: Set<string>, id: string, on: boolean) => {
     const n = new Set(set);
@@ -190,75 +292,171 @@ export function WorktreesView({ view, onChanged, scanning }: { view: View | null
     return n;
   };
   const pick = (f: WtFilter) => setFilter(filter === f && f !== "all" ? "all" : f);
+  const rowOf = (id: string) => rows.find((r) => r.id === id) ?? q?.rows[id];
 
-  /** The normal confirmed plan and run, for the chosen worktrees, biggest first. */
-  const remove = (ids: string[]) => {
-    const start: Run = { runId: null, ids, detail: null, error: null };
-    setRun(start);
-    setSel(new Set());
-    void track(api.createPlan(ids))
-      // The plan records each acknowledgment the user gave in a row.
-      .then(async (plan) => {
-        for (const id of plan.needsAckIds) if (acks.has(id)) plan = await track(api.acknowledgeItem(plan.id, id));
-        return track(api.runPlan(plan.id));
-      })
-      .then((runId) => {
-        setRun({ ...start, runId });
-        return track(api.getRun(runId)).then((detail) => {
-          setRun((r) => (r && r.runId === runId ? { ...r, detail } : r));
-          if (detail.state !== "running") changed.current();
-        });
-      })
-      .catch((e) => setRun({ ...start, error: tb(errorText(e)) }));
+  /** Put worktrees at the end of the queue (biggest first), starting one if needed. */
+  const enqueue = (list: WtRow[]) => {
+    const ids = [...list].sort((a, b) => b.bytes - a.bytes).map((r) => r.id);
+    const snap = Object.fromEntries(list.map((r) => [r.id, r]));
+    const base = qRef.current;
+    const fresh = !base || base.finished;
+    const next: Queue = fresh
+      ? { queue: ids, cur: null, done: [], failed: [], freed: 0, paused: false, finished: false, rows: snap, acked: [...acks], order: rowsOf(view).map((r) => r.id) }
+      : { ...base, queue: [...base.queue, ...ids.filter((id) => !inQueue(base, id))], failed: base.failed.filter((f) => !ids.includes(f.id)), rows: { ...base.rows, ...snap }, acked: [...new Set([...base.acked, ...acks])] };
+    qRef.current = next;
+    setQ(next);
+    setSel((s) => new Set([...s].filter((id) => !ids.includes(id))));
+    void step();
   };
 
-  const items = d?.items ?? [];
-  const doneItems = items.filter((i) => i.state === "done");
-  const failed = items.filter((i) => i.state === "failed" || i.state === "interrupted" || i.state === "skipped");
-  const handled = items.filter((i) => FINAL.includes(i.state)).length;
-  const current = items.find((i) => i.state === "checking" || i.state === "running")?.itemId ?? null;
-  const freed = doneItems.reduce((n, i) => n + i.expectedBytes, 0);
-  const nameOf = (id: string) => rows.find((r) => r.id === id)?.name ?? items.find((i) => i.itemId === id)?.title ?? id;
+  const retry = () => {
+    const ids = q?.failed.map((f) => f.id) ?? [];
+    update((x) => ({ ...x, queue: [...x.queue, ...ids], failed: [], finished: false }));
+    void step();
+  };
 
-  const runBox = run && (
-    <div className="wt-run" role="status" aria-live="polite">
-      <div className="row between">
-        <b>{run.error ? t("wt.run.error") : running ? t("wt.run.now", { a: handled, b: run.ids.length }) : failed.length ? t("wt.run.doneF", { a: doneItems.length, b: failed.length }) : t("wt.run.done", { a: doneItems.length })}</b>
-        <span className="num">{t("cs.freed", { x: gb(freed) })}</span>
-      </div>
-      <div className="wt-prog">
-        <i style={{ width: ((run.ids.length ? handled / run.ids.length : 0) * 100).toFixed(1) + "%" }}></i>
-      </div>
-      {running && <p className="note">{t("wt.run.note")}</p>}
-      {run.error && <p className="note">{run.error}</p>}
-      {!running && failed.length > 0 && (
-        <>
-          <p className="note">
-            {failed.map((i, n) => (
-              <span key={i.itemId}>
-                {n > 0 && <br />}
-                <span className="mono">{nameOf(i.itemId)}</span>
-                {`: ${/^It took longer than/.test(i.reason ?? "") ? t("wt.timeout") : tb(i.reason ?? "")}`}
-              </span>
-            ))}
-          </p>
-          <div className="row">
-            <button className="btn small" data-wt-act="retry" onClick={() => remove(failed.map((i) => i.itemId))}>
-              {t("cs.retry", { n: failed.length })}
-            </button>
-            <button className="link small" data-wt-act="dismiss" onClick={() => setRun(null)}>
-              {t("cs.close")}
-            </button>
-          </div>
-        </>
-      )}
-      {!running && !failed.length && (
-        <button className="link small" data-wt-act="dismiss" onClick={() => setRun(null)}>
-          {t("cs.close")}
-        </button>
-      )}
-    </div>
+  const n = chosen.length;
+  const addBtn = n > 0 && (
+    <button className="btn primary" data-wt-act={running ? "enqueue" : "remove"} onClick={() => enqueue(chosen)}>
+      {running ? t("wt.q.add", { n }) : n === 1 ? t("wt.remove1") : t("wt.removeN", { n })} <span className="num dim">{gb(chosenBytes)}</span>
+    </button>
   );
+
+  let dock = null;
+  if (!q) {
+    dock = n > 0 && (
+      <div className="wt-dock" role="region" aria-label={t("wt.dock")}>
+        <span>
+          <b className="num">{n}</b>
+          {` ${t("wt.selected")} · `}
+          <b className="num">{gb(chosenBytes)}</b>
+        </span>
+        <button className="link small" data-wt-act="clear" onClick={() => setSel(new Set())}>
+          {t("wt.clear")}
+        </button>
+        {addBtn}
+      </div>
+    );
+  } else {
+    const handled = q.done.length + q.failed.length;
+    const all = handled + q.queue.length + (q.cur ? 1 : 0);
+    const wait = q.queue.length;
+    const cur = q.cur ? rowOf(q.cur) : null;
+    let head;
+    let sub;
+    if (q.finished) {
+      head = (
+        <>
+          <b>{t("wt.q.doneh")}</b>
+          {" " + (q.failed.length ? t("wt.q.doneF", { a: q.done.length, b: q.failed.length }) : t("wt.q.done", { a: q.done.length }))}
+        </>
+      );
+      sub = q.failed.length
+        ? q.failed.map((f, i) => (
+            <Fragment key={f.id}>
+              {i > 0 && " · "}
+              <span className="mono">{rowOf(f.id)?.name ?? f.id}</span>
+              {" " + f.short}
+            </Fragment>
+          ))
+        : t("wt.q.logbook");
+    } else if (q.paused && !q.cur) {
+      head = (
+        <>
+          <b>{t("wt.q.pausedh")}</b>
+          {" " + t("wt.q.paused", { a: handled, b: all })}
+        </>
+      );
+      sub = t("wt.q.nothalf", { n: wait });
+    } else {
+      head = (
+        <>
+          <span className="spin" aria-hidden="true"></span>
+          {t("wt.q.removing") + " "}
+          <span className="mono">{cur?.name ?? ""}</span> <span className="muted">{`(${cur?.repo ?? ""})`}</span>
+        </>
+      );
+      sub = t("wt.q.of", { a: handled + 1, b: all }) + " · " + (wait ? t("wt.q.waiting", { n: wait }) : t("wt.q.last")) + (q.paused ? " · " + t("wt.q.pausing") : "");
+    }
+    dock = (
+      <div className={`wt-dock run${q.finished ? " fin" : ""}`} role="region" aria-label={t("wt.q.region")}>
+        <div className="wt-dock-top">
+          <div className="wt-now" role="status" aria-live="polite">
+            <div>{head}</div>
+            <small className="num">{sub}</small>
+          </div>
+          <span className="num wt-freed">
+            <b>{gb(q.freed)}</b> {t("wt.q.freed")}
+          </span>
+        </div>
+        <div className="wt-prog2" aria-hidden="true">
+          <i className="ok" style={{ width: (all ? (q.done.length / all) * 100 : 0).toFixed(1) + "%" }}></i>
+          <i className="bad" style={{ width: (all ? (q.failed.length / all) * 100 : 0).toFixed(1) + "%" }}></i>
+        </div>
+        {qOpen && wait > 0 && (
+          <ol className="wt-qlist">
+            {q.queue.map((id, k) => {
+              const r = rowOf(id);
+              return (
+                <li key={id}>
+                  <span className="num qn">{k + 1}</span>
+                  <span className="mono">{r?.name ?? id}</span>
+                  <span className="muted">{r?.repo ?? ""}</span>
+                  <span className="num">{gb(r?.bytes ?? 0)}</span>
+                  <button className="icon-x small" data-wt-unq={id} aria-label={t("wt.q.takeoutA", { x: r?.name ?? id })} onClick={() => update((x) => ({ ...x, queue: x.queue.filter((y) => y !== id) }))}>
+                    {"×"}
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
+        )}
+        <div className="wt-dock-acts">
+          {n > 0 && !q.finished && <span className="note num">{t("wt.q.selected", { n })}</span>}
+          {q.finished ? (
+            <>
+              {q.failed.length > 0 && (
+                <button className="btn small" data-wt-act="retry" onClick={retry}>
+                  {t("cs.retry", { n: q.failed.length })}
+                </button>
+              )}
+              {addBtn}
+              <button
+                className="link small"
+                data-wt-act="dismiss"
+                onClick={() => {
+                  setQ(null);
+                  qRef.current = null;
+                  setQOpen(false);
+                }}
+              >
+                {t("cs.close")}
+              </button>
+            </>
+          ) : (
+            <>
+              {wait > 0 && (
+                <button className="link small" data-wt-act="qtoggle" aria-expanded={qOpen} onClick={() => setQOpen(!qOpen)}>
+                  {qOpen ? t("wt.q.hide") : t("wt.q.show")}
+                </button>
+              )}
+              <button
+                className="btn small"
+                data-wt-act={q.paused ? "resume" : "pause"}
+                onClick={() => {
+                  update((x) => ({ ...x, paused: !x.paused }));
+                  void step();
+                }}
+              >
+                {q.paused ? t("wt.q.resume") : t("wt.q.pause")}
+              </button>
+              {addBtn}
+            </>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -292,7 +490,12 @@ export function WorktreesView({ view, onChanged, scanning }: { view: View | null
             {t("wt.agents", { n: agents })}
           </button>
         </div>
-        {runBox}
+        {running && (
+          <p className="wt-hint">
+            <span className="spin" aria-hidden="true"></span>
+            {t("wt.q.bg")}
+          </p>
+        )}
       </div>
       {view.stale > 0 && (
         <div className="card stack" id="wt-stale">
@@ -305,11 +508,13 @@ export function WorktreesView({ view, onChanged, scanning }: { view: View | null
         </div>
       )}
       {!rows.length && !view.stale && <p className="muted">{t("wt.none")}</p>}
-      {repos.map(({ repo, root, rows: all, bytes }) => {
-        const list = all.filter((r) => shown(r, filter));
+      {repos.map(({ repo, root, rows: withGone }) => {
+        const all = withGone.filter((r) => live.includes(r));
+        const bytes = all.reduce((n, r) => n + r.bytes, 0);
+        const list = withGone.filter((r) => shown(r, filter));
         if (!list.length) return null;
         // Rows already ticked are not offered again (prototype Version 20).
-        const ready = all.filter((r) => r.key === "ready" && !sel.has(r.id));
+        const ready = all.filter((r) => r.key === "ready" && !sel.has(r.id) && !inQueue(q, r.id));
         return (
           <section className="wt-repo" key={repo}>
             <header className="wt-rh">
@@ -329,7 +534,7 @@ export function WorktreesView({ view, onChanged, scanning }: { view: View | null
                 </div>
               </div>
               {ready.length > 0 && (
-                <button className="btn small" data-wt-selrepo={repo} disabled={running} onClick={() => setSel(new Set([...sel, ...ready.map((r) => r.id)]))}>
+                <button className="btn small" data-wt-selrepo={repo} onClick={() => setSel(new Set([...sel, ...ready.map((r) => r.id)]))}>
                   {t("wt.selready", { n: ready.length })}
                 </button>
               )}
@@ -347,28 +552,14 @@ export function WorktreesView({ view, onChanged, scanning }: { view: View | null
                   setAcks(toggle(acks, r.id, v));
                   if (!v) setSel(toggle(sel, r.id, false));
                 }}
-                busy={running}
-                current={current === r.id}
+                qs={qStateOf(q, r.id)}
+                onTakeOut={() => update((x) => ({ ...x, queue: x.queue.filter((y) => y !== r.id) }))}
               />
             ))}
           </section>
         );
       })}
-      {chosen.length > 0 && !running && (
-        <div className="wt-dock" role="region" aria-label={t("wt.dock")}>
-          <span>
-            <b className="num">{chosen.length}</b>
-            {` ${t("wt.selected")} · `}
-            <b className="num">{gb(chosenBytes)}</b>
-          </span>
-          <button className="link small" data-wt-act="clear" onClick={() => setSel(new Set())}>
-            {t("wt.clear")}
-          </button>
-          <button className="btn primary" data-wt-act="remove" onClick={() => remove([...chosen].sort((a, b) => b.bytes - a.bytes).map((r) => r.id))}>
-            {chosen.length === 1 ? t("wt.remove1") : t("wt.removeN", { n: chosen.length })} <span className="num dim">{gb(chosenBytes)}</span>
-          </button>
-        </div>
-      )}
+      {dock}
     </>
   );
 }

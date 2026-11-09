@@ -24,6 +24,8 @@ import type { UpdateStage, UpdateStatus } from "./types";
 //   nothing=1          scanned and nothing found
 //   unavail=1          the last scan could not check Docker and pip
 //   scanning=1         a quick scan is running
+//   wtms=<ms>          each worktree removal takes this long (the removal
+//                      queue's "removing now" state; default instant)
 //   week=<GB>          free space used this week (default 21.6, the sum of
 //                      the prototype's GROWING); the menu bar window's pace
 //   update=<stage>     the version chip's state: idle (default), available
@@ -801,6 +803,17 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
       // Synchronous, so a capture never sees a half-finished run; `hold`
       // stops after that many items to show the progress sheet.
       const stop = holdAt ?? plan.planItems.length;
+      const wtms = params.has("wtms") ? parseInt(params.get("wtms")!, 10) : 0;
+      if (wtms > 0 && plan.items.every((i) => i.worktree)) {
+        // Worktree removals with a delay: "checking" now, the result later.
+        for (const i of detail.items) setItem(r, i, "checking");
+        setTimeout(() => {
+          for (const i of detail.items) i.state = "waiting";
+          while (r.next < plan.planItems.length) runEntry(r, r.next++);
+          finish(r, "finished");
+        }, wtms);
+        return detail.id;
+      }
       while (r.next < Math.min(stop, plan.planItems.length)) runEntry(r, r.next++);
       if (r.next >= plan.planItems.length) finish(r, "finished");
       return detail.id;

@@ -477,5 +477,16 @@ The user's screenshot showed "+63.7 GB this week" (one area's growth) next to "F
 
 ## 2026-11-09: Worktrees dock tolerance (prototype v20)
 
-The dock's main button now carries the selected size ("Remove 8 worktrees 3.9 GB") and Select N ready leaves out rows already ticked, as in Version 20. With one acknowledged worktree selected (`wt-ack-work`), 45 pixels differ in anti-aliasing across Clear and Remove, in both themes; `wt-selected` with the same dock matches exactly. The tolerance is 45 pixels for that entry only. Version 20's removal queue (adding to a running removal, Pause, Show queue) is not built yet.
+The dock's main button now carries the selected size ("Remove 8 worktrees 3.9 GB") and Select N ready leaves out rows already ticked, as in Version 20. With one acknowledged worktree selected (`wt-ack-work`), 45 pixels differ in anti-aliasing across Clear and Remove, in both themes; `wt-selected` with the same dock matches exactly. The tolerance is 45 pixels for that entry only.
 - 2026-11-09: Baselines regenerated from `docs/reference/freeboard-prototype.html` (SHA-256 `3a6629f3f001…`, chromium 156.0.8078.4, 444 captures). Rationale: Worktrees dock: the selected size on Remove N worktrees stays at full opacity (supplemental.css) for WCAG AA contrast.
+
+## 2026-11-09: The removal queue runs one plan per worktree (prototype v20)
+
+The Worktrees dock removes the queue one worktree at a time, each through its own plan and run: `create_plan` with one ID, the row's acknowledgment if it has uncommitted files, `run_plan`, then the next once `cleanup_finished` arrives. One plan per worktree is what lets the list stay usable: added worktrees go to the end, a waiting one can be taken out, and Pause stops after the current one, all without changing a plan that is already confirmed. Each removal still has the recheck just before it and the 120 s limit, and each is its own Logbook entry. Clicking Remove (or + Add to queue) is the confirmation, as the single plan's Remove button was before.
+
+The queue lives in the main window's interface. If that webview is destroyed (hidden for 60 seconds), the worktree being removed finishes in the core and the rest of the queue stops; nothing is half-removed, and the remaining ones are still listed.
+- 2026-11-09: Baselines regenerated from `docs/reference/freeboard-prototype.html` (SHA-256 `3a6629f3f001…`, chromium 156.0.8078.4, 448 captures). Rationale: Worktrees removal queue (prototype Version 20): the finished queue in the dock, removed rows struck through, the timed-out one with Try 1 again.
+
+## 2026-11-09: The finished queue is compared at desktop width only
+
+`wt-queue-done` compares the finished removal queue with the prototype. The dock's HTML matches the prototype's exactly. At phone width the timed-out worktree's name wraps onto a line of its own; the prototype renders in quirks mode, where a line holding only that code-font span gets no strut and is 18.75 px tall instead of 19.5 px, so the page is 1 px shorter. The app renders in standards mode, which is the correct behaviour, and no CSS reproduces the quirk (line-height and vertical-align on the span were tried). The entry is captured at 1120 × 900 only, where nothing wraps, with a 78-pixel tolerance for anti-aliasing in the dock's text.

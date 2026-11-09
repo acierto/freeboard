@@ -163,7 +163,7 @@ const idle = (p) => p.waitForFunction(() => document.documentElement.dataset.bus
   await p.click('[data-wt-sel="w7"]');
   await p.evaluate(() => (window.__FIXTURE_CALLS__ = []));
   await p.click('[data-wt-act="remove"]');
-  await p.waitForFunction(() => /^Done: 1 removed/.test(document.querySelector(".wt-run b")?.textContent ?? ""));
+  await p.waitForFunction(() => /^Done\. 1 removed/.test(document.querySelector(".wt-now")?.textContent ?? ""));
   const acked = (await p.evaluate(() => window.__FIXTURE_CALLS__)).filter((c) => c.cmd === "acknowledge_item");
   check("worktrees: the plan records the acknowledgment before it runs", acked.length === 1 && acked[0].args.itemId === "w7", JSON.stringify(acked));
   await p.click('[data-wt-act="dismiss"]');
@@ -177,16 +177,55 @@ const idle = (p) => p.waitForFunction(() => document.documentElement.dataset.bus
   check("worktrees: Select N ready selects that repository's ready ones", (await p.textContent(".wt-dock")).startsWith("8 selected · 3.9 GB") && (await p.textContent('[data-wt-act="remove"]')) === "Remove 8 worktrees 3.9 GB", await p.textContent(".wt-dock"));
   await p.evaluate(() => (window.__FIXTURE_CALLS__ = []));
   await p.click('[data-wt-act="remove"]');
-  await p.waitForSelector('.wt-run [data-wt-act="retry"]');
+  await p.waitForSelector('.wt-dock.fin [data-wt-act="retry"]');
   await idle(p);
   const sent = await p.evaluate(() => window.__FIXTURE_CALLS__);
-  check("worktrees: removal is one confirmed plan of those IDs, biggest first", JSON.stringify(sent.find((c) => c.cmd === "create_plan")?.args.itemIds) === '["w12","w13","w14","w15","w16","w17","w18","w20"]', JSON.stringify(sent.find((c) => c.cmd === "create_plan")?.args));
-  const run = await p.textContent(".wt-run");
-  check("worktrees: the result in the summary card, the timeout listed with Try 1 again", run.startsWith("Done: 7 removed, 1 could not go") && run.includes("worktree-agent-a447c27fa307f5ebd: timed out after 120 s") && run.includes("Try 1 again"), run);
-  check("worktrees: removed ones leave the list", !(await p.$('[data-wt-open="w12"]')) && (await p.textContent("#tab-wt")) === "Worktrees8", await p.textContent("#tab-wt"));
+  const order = sent.filter((c) => c.cmd === "create_plan").map((c) => c.args.itemIds.join(","));
+  check("worktrees: one confirmed plan per worktree, biggest first", JSON.stringify(order) === '["w12","w13","w14","w15","w16","w17","w18","w20"]', JSON.stringify(order));
+  const dockText = await p.textContent(".wt-dock");
+  check("worktrees: the result in the dock, the timeout named, with Try 1 again", dockText.startsWith("Done. 7 removed, 1 could not go") && dockText.includes("worktree-agent-a447c27fa307f5ebd timed out after 120 s") && dockText.includes("Try 1 again"), dockText);
+  check("worktrees: removed ones stay, struck through, until the dock is closed", (await p.$$(".wt-row.removed")).length === 7 && (await p.textContent('.wt-row.removed:has([data-wt-open="w12"]) .wt-why')).endsWith("Removed. Branch kept.") && (await p.textContent("#tab-wt")) === "Worktrees8", await p.textContent("#tab-wt"));
+  check("worktrees: the one that timed out says nothing changed", (await p.textContent('.wt-row:has([data-wt-open="w18"]) .wt-why')).endsWith("Timed out after 120 s. Still here, nothing changed."));
   await p.click('[data-wt-act="retry"]');
-  await p.waitForFunction(() => document.querySelector(".wt-run b")?.textContent === "Done: 1 removed");
-  check("worktrees: Try again removes the one that timed out", !(await p.$('[data-wt-open="w18"]')));
+  await p.waitForFunction(() => /^Done\. 8 removed/.test(document.querySelector(".wt-now")?.textContent ?? ""));
+  check("worktrees: Try again removes the one that timed out", !!(await p.$('.wt-row.removed:has([data-wt-open="w18"])')));
+  await p.click('[data-wt-act="dismiss"]');
+  check("worktrees: Close clears the dock and the removed rows", !(await p.$(".wt-dock")) && !(await p.$(".wt-row.removed")) && !(await p.$('[data-wt-open="w12"]')));
+  await ctx.close();
+}
+
+// The removal queue (prototype Version 20, spec "Removal queue"): the list
+// stays usable while worktrees are removed one at a time.
+{
+  const { p, ctx } = await page("wtms=700");
+  await p.click("#tab-wt");
+  await p.click('[data-wt-sel="w1"]');
+  await p.click('[data-wt-sel="w2"]');
+  await p.click('[data-wt-sel="w5"]');
+  await p.click('[data-wt-act="remove"]');
+  await p.waitForSelector(".wt-dock.run");
+  const now0 = await p.textContent(".wt-now");
+  check("queue: the dock names the one being removed, and how many wait", now0.startsWith("Removing worktree-agent-aeee3547468b1220d (loitr)") && (await p.textContent(".wt-now small")) === "1 of 3 · 2 waiting", now0);
+  check("queue: the summary card says it runs in the background", (await p.textContent(".wt-hint")) === "Removing in the background. Keep ticking worktrees; they join the queue.");
+  check("queue: waiting rows show their place and Take out", (await p.textContent('.wt-row.queued:has([data-wt-open="w2"]) .wt-state')) === "1" && !!(await p.$('.wt-row [data-wt-unq="w2"]')));
+  check("queue: checkboxes and Select N ready stay active", !(await p.isDisabled('[data-wt-sel="w12"]')) && !(await p.isDisabled('[data-wt-selrepo="sheltersync"]')));
+  await p.click('[data-wt-sel="w12"]');
+  check("queue: the main button becomes Add to queue", (await p.textContent('[data-wt-act="enqueue"]')) === "+ Add 1 to queue 0.6 GB", await p.textContent(".wt-dock"));
+  await p.click('[data-wt-act="enqueue"]');
+  check("queue: added ones go to the end", (await p.textContent('.wt-row.queued:has([data-wt-open="w12"]) .wt-state')) === "3", await p.textContent(".wt-now small"));
+  await p.click('[data-wt-act="qtoggle"]');
+  const ql = await p.$$eval(".wt-qlist li .mono", (l) => l.map((x) => x.textContent));
+  check("queue: Show queue lists the waiting ones", JSON.stringify(ql) === JSON.stringify(["docs/scaffolder-api-tags", "codex/ios-testflight-20261019", "marketing/website-concept-20261005"]), JSON.stringify(ql));
+  await p.click('.wt-qlist [data-wt-unq="w5"]');
+  check("queue: × takes one out", !(await p.$('.wt-row.queued:has([data-wt-open="w5"])')) && !!(await p.$('[data-wt-sel="w5"]')));
+  await p.click('[data-wt-act="pause"]');
+  check("queue: Pause stops after the current one", (await p.textContent(".wt-now small")).includes("pausing after this one"), await p.textContent(".wt-now small"));
+  await p.waitForFunction(() => document.querySelector(".wt-now b")?.textContent === "Paused.");
+  const paused = await p.textContent(".wt-now");
+  check("queue: paused, nothing half-removed", paused.startsWith("Paused. 1 of 3 done") && (await p.textContent(".wt-now small")) === "2 waiting. Nothing is half-removed." && (await p.textContent('[data-wt-act="resume"]')) === "Resume", paused);
+  await p.click('[data-wt-act="resume"]');
+  await p.waitForSelector(".wt-dock.fin", { timeout: 10000 });
+  check("queue: when empty it becomes the result", (await p.textContent(".wt-now")).startsWith("Done. 3 removed") && (await p.$$(".wt-row.removed")).length === 3, await p.textContent(".wt-now"));
   await ctx.close();
 }
 

@@ -50,6 +50,16 @@
       "threshold": 0,
       "maxDiffPixels": 45,
       "rationale": "Anti-aliasing only, in a 102 x 10 px strip across the dock's Clear link and the start of Remove 1 worktree (45 pixels, the same in both themes on every run); cropped side by side the two are indistinguishable, and the same dock with 8 selected (wt-selected) matches exactly. Recorded in docs/decisions.md, 2026-11-09."
+    },
+    "wt-queue-done--light--1120x900": {
+      "threshold": 0,
+      "maxDiffPixels": 78,
+      "rationale": "Anti-aliasing only, in the dock's first two lines (78 pixels, both themes, every run); the dock's HTML is identical to the prototype's (compared with outerHTML) and cropped side by side the two are indistinguishable. Recorded in docs/decisions.md, 2026-11-09."
+    },
+    "wt-queue-done--dark--1120x900": {
+      "threshold": 0,
+      "maxDiffPixels": 78,
+      "rationale": "Anti-aliasing only, in the dock's first two lines (78 pixels, both themes, every run); the dock's HTML is identical to the prototype's (compared with outerHTML) and cropped side by side the two are indistinguishable. Recorded in docs/decisions.md, 2026-11-09."
     }
   }
 }

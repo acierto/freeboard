@@ -604,6 +604,15 @@ ENTRIES.push(
   wtEntry("wt-open-kept", "Worktrees: an unmerged one opened (the branch stays, how to reopen it)", [{ click: '[data-wt-open="w5"]' }], [DESKTOP], [evalRef(noRefocus)]),
   wtEntry("wt-open-work", "Worktrees: one with uncommitted files opened (what would be lost, how to save it)", [{ click: '[data-wt-open="w3"]' }], [DESKTOP], [evalRef(noRefocus)]),
   wtEntry("wt-ack-work", "Worktrees: its files acknowledged, so it can be selected", [{ click: '[data-wt-open="w3"]' }, { click: '[data-wt-ack="w3"]' }, { click: '[data-wt-sel="w3"]' }], [DESKTOP], [evalRef(noRefocus)]),
+  {
+    // The removal queue's result (prototype Version 20): 7 removed, the slow
+    // one timed out, removed rows struck through until Close. Desktop only: at
+    // phone width the timed-out name wraps onto a line of its own, which the
+    // quirks-mode prototype draws 0.75 px shorter (docs/decisions.md).
+    ...wtEntry("wt-queue-done", "Worktrees: the removal queue finished, 7 removed and 1 timed out", [{ click: '[data-wt-selrepo="sheltersync"]' }, { click: '[data-wt-act="remove"]' }], [DESKTOP]),
+    ref: [WT_TAB, { click: '[data-wt-selrepo="sheltersync"]' }, { click: '[data-wt-act="remove"]' }, { clockRun: 5000 }, evalRef(noGitHubCheck), evalRef(forceForWork)],
+    impl: [WT_TAB, { click: '[data-wt-selrepo="sheltersync"]' }, { click: '[data-wt-act="remove"]' }, { waitFor: ".wt-dock.fin" }],
+  },
   wtEntry("wt-selected", "Worktrees: Select 8 ready in sheltersync, with the dock", [{ click: '[data-wt-selrepo="sheltersync"]' }], [DESKTOP, PHONE]),
 );
 

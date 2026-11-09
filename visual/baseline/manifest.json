@@ -20,8 +20,8 @@
   "locale": "en-US",
   "timezone": "UTC",
   "adapter": "scripts/visual/lib.mjs referenceHtml(): local fonts, data-theme, host reset (src/styles/reset.css), prototype-only controls hidden (.top-right .sim, .top-right [data-act=\"reset\"], .top > div > .note, .top-right .tray, .top-right [data-act=\"welcome\"])",
-  "acceptedAt": "2026-11-09T13:47:12.329Z",
-  "rationale": "Worktrees dock: the selected size on Remove N worktrees stays at full opacity (supplemental.css) for WCAG AA contrast.",
+  "acceptedAt": "2026-11-09T14:53:34.492Z",
+  "rationale": "Worktrees removal queue (prototype Version 20): the finished queue in the dock, removed rows struck through, the timed-out one with Try 1 again.",
   "entries": {
     "cleanup-confirm-ack--dark--1120x900": {
       "id": "cleanup-confirm-ack",
@@ -7502,6 +7502,74 @@
       "supplemental": true,
       "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
       "sha256": "5bce2917163b6f94ae0f45217249df06e3b7656d06d1438574ddffaae93a8f6f"
+    },
+    "wt-queue-done--dark--1120x900": {
+      "id": "wt-queue-done",
+      "surface": "Worktrees",
+      "state": "Worktrees: the removal queue finished, 7 removed and 1 timed out",
+      "theme": "dark",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
+      "sha256": "287e4183b12f7d680abefd9b02b440ebbb682673b5370f7b494fe3d6deae841d"
+    },
+    "wt-queue-done--dark--390x844": {
+      "id": "wt-queue-done",
+      "surface": "Worktrees",
+      "state": "Worktrees: the removal queue finished, 7 removed and 1 timed out",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
+      "sha256": "1bde9ad5315ce35990e4c07dde7deecdb9150f2a9469cbe8089200fef9c66d3b"
+    },
+    "wt-queue-done--light--1120x900": {
+      "id": "wt-queue-done",
+      "surface": "Worktrees",
+      "state": "Worktrees: the removal queue finished, 7 removed and 1 timed out",
+      "theme": "light",
+      "viewport": {
+        "width": 1120,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
+      "sha256": "f37c3bb0b0d0a11e5f719d6d239409f99032f24f555a7b1d6cacd97a050f6d01"
+    },
+    "wt-queue-done--light--390x844": {
+      "id": "wt-queue-done",
+      "surface": "Worktrees",
+      "state": "Worktrees: the removal queue finished, 7 removed and 1 timed out",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 1,
+      "reducedMotion": true,
+      "crop": "page",
+      "fixture": "",
+      "supplemental": true,
+      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
+      "sha256": "2d14445b63d53d248f56df6c4b630e2bdab7961d7d070173c894b69154d424ea"
     },
     "wt-selected--dark--1120x900": {
       "id": "wt-selected",

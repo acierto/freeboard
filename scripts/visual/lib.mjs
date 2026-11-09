@@ -169,6 +169,9 @@ async function runStep(page, side, step) {
     }, step.scroll);
   } else if (step.key) {
     await page.keyboard.press(step.key);
+  } else if (step.waitFor) {
+    // Wait in real time for a state that arrives over several commands.
+    await page.waitForSelector(step.waitFor, { timeout: 10000 });
   } else if (step.eval) {
     if (side !== "ref") throw new Error("eval steps are reference-only");
     await page.evaluate(([src, arg]) => (0, eval)("(" + src + ")")(arg), [step.eval, step.arg]);
