@@ -28,7 +28,7 @@ mod docker;
 mod dupes;
 mod files;
 #[cfg(unix)]
-mod git;
+pub(crate) mod git;
 #[cfg(unix)]
 mod mobile;
 #[cfg(unix)]

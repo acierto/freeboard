@@ -455,6 +455,9 @@ pub enum ItemState {
     Failed,
     Canceled,
     Interrupted,
+    /// Already gone before its turn (removed outside Freeboard since the
+    /// scan): nothing was done, nothing freed, and the item left the list.
+    Gone,
 }
 
 impl ItemState {
@@ -469,6 +472,7 @@ impl ItemState {
             ItemState::Failed => "failed",
             ItemState::Canceled => "canceled",
             ItemState::Interrupted => "interrupted",
+            ItemState::Gone => "gone",
         }
     }
     pub fn parse(s: &str) -> ItemState {
@@ -481,6 +485,7 @@ impl ItemState {
             "skipped" => ItemState::Skipped,
             "failed" => ItemState::Failed,
             "canceled" => ItemState::Canceled,
+            "gone" => ItemState::Gone,
             _ => ItemState::Interrupted,
         }
     }

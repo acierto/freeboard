@@ -754,7 +754,7 @@ pub fn probe(f: &Finding, ctx: &ScanContext) -> Probe {
         UNUSED => {
             let id = &resources[0];
             match snap.images.iter().find(|i| &i.id == id) {
-                None => Probe::Changed("The image no longer exists.".into()),
+                None => Probe::Gone("The image no longer exists.".into()),
                 Some(i) if snap.image_used(&i.id) => Probe::Changed("A container now uses this image.".into()),
                 Some(i) => {
                     let mut fp = vec![i.id.as_str()];
@@ -784,11 +784,12 @@ pub fn probe(f: &Finding, ctx: &ScanContext) -> Probe {
         }
         VOLUMES => {
             // One volume, or the unnamed group: every volume must still exist
-            // and still be unused, or nothing is removed.
+            // and still be unused, or nothing is removed. A single volume
+            // that is gone leaves the list; a group with one gone is changed.
             let group = resources.len() > 1;
             for name in resources {
                 if !snap.volumes.contains(name) {
-                    return Probe::Changed(if group { "A volume in this group no longer exists." } else { "The volume no longer exists." }.into());
+                    return if group { Probe::Changed("A volume in this group no longer exists.".into()) } else { Probe::Gone("The volume no longer exists.".into()) };
                 }
                 if snap.volume_used(name) {
                     return Probe::Changed(if group { "A container now uses a volume in this group." } else { "A container now uses this volume." }.into());

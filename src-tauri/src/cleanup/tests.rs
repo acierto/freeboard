@@ -336,6 +336,42 @@ fn inv04_worktree_edited_after_scan_is_skipped() {
 }
 
 #[test]
+fn worktree_removed_outside_freeboard_is_gone_and_leaves_the_list() {
+    let e = Env::new();
+    e.scan();
+    let wt = e.id("git.worktrees", "done");
+    let p = e.plan(&[wt.clone()]);
+    // Deleted by hand after the scan: Git lists it as prunable.
+    std::fs::remove_dir_all(repo_path(&e).join(".worktrees/done")).unwrap();
+    let r = e.run(&p);
+    let it = e.item(&r, &wt);
+    assert_eq!(it.state, ItemState::Gone);
+    assert_eq!(it.reason.as_deref(), Some("The worktree no longer exists."));
+    // Not a skip ("changed, scan again"): it left the list, nothing was freed.
+    assert_eq!(r.skipped, 0);
+    assert!(e.store.finding(&wt).unwrap().is_none(), "a gone worktree is no longer listed");
+    assert_eq!(persist::removed_crates(&r), 0);
+}
+
+#[test]
+fn image_removed_outside_freeboard_is_gone_and_leaves_the_list() {
+    let e = Env::new();
+    e.scan();
+    let img = e.image();
+    let p = e.plan(&[img.clone()]);
+    for f in ["images.jsonl", "images.json"] {
+        let s = std::fs::read_to_string(e.state(f)).unwrap();
+        std::fs::write(e.state(f), s.lines().filter(|l| !l.contains("sha256:ccc3")).collect::<Vec<_>>().join("\n") + "\n").unwrap();
+    }
+    let r = e.run(&p);
+    let it = e.item(&r, &img);
+    assert_eq!(it.state, ItemState::Gone);
+    assert_eq!(it.reason.as_deref(), Some("The image no longer exists."));
+    assert!(e.actions().is_empty(), "nothing is run for a gone image");
+    assert!(e.store.finding(&img).unwrap().is_none());
+}
+
+#[test]
 fn inv06_worktree_swapped_for_symlink_is_skipped() {
     let e = Env::new();
     e.scan();

@@ -321,7 +321,9 @@ export type ItemState =
   | "skipped"
   | "failed"
   | "canceled"
-  | "interrupted";
+  | "interrupted"
+  /** Already gone before its turn (removed outside Freeboard): nothing done, nothing freed, and it left the list. */
+  | "gone";
 
 export interface RunItem {
   /** The item, or for a split item the part, this row records. */

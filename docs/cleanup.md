@@ -28,7 +28,8 @@ restore policy", "Cleanup rules", "Pre-cleanup checks", "Trash". Code:
 4. Items run one at a time on a background thread. For each item the state
    is persisted as `checking`, the pre-cleanup checks run, then `running`,
    then the final state (`done`, `moved_to_trash`, `skipped`, `failed`,
-   `canceled`). Cancellation is checked only between items.
+   `canceled`, or `gone` for an item that was already removed outside
+   Freeboard). Cancellation is checked only between items.
 5. Free space is measured before and after. History stores the plan, each
    item snapshot and result, skip reasons, expected bytes and the measured
    change.
@@ -39,7 +40,7 @@ restore policy", "Cleanup rules", "Pre-cleanup checks", "Trash". Code:
 | --- | --- | --- |
 | All paths | Exists, canonical path and file identity unchanged (detects path-for-link swaps), not protected, not a link, same newest-mtime/file-count/size fingerprint | `detectors::files::probe_paths`, `guard` |
 | Project folder | Manifest and lockfile evidence unchanged, no process running in the project | `detectors::projects::probe` |
-| Worktree | Still clean, still pushed or merged, not locked, no new commits | `detectors::git::probe` |
+| Worktree | Still listed by Git (else gone), still clean, still pushed or merged, not locked, no new commits | `detectors::git::probe` |
 | Docker image or volume | Still exists and unused by every container, including stopped ones | `detectors::docker::probe` |
 | Docker container | Still stopped, unchanged since the scan | `detectors::docker::probe` |
 | Caches (pnpm, pip, Homebrew, simulators, Gradle) | Same location; resource set has not grown; Gradle daemon not running | `detectors::caches::probe` |
@@ -56,6 +57,19 @@ restore policy", "Cleanup rules", "Pre-cleanup checks", "Trash". Code:
 Changed items are skipped with a reason; unknown results (tool missing,
 timeout, daemon down) are skipped too. Skipped items stay in Suggestions with
 the reason until the next cleanup of that item succeeds.
+
+An item whose only target is already gone (`Probe::Gone`: a worktree Git no
+longer lists, an image or volume Docker no longer has, a single path that no
+longer exists) is recorded as `gone` instead: nothing runs, nothing counts as
+freed or skipped, and the item leaves Suggestions like a removed one (a gone
+part leaves its split item). A group with one target gone is a change. The
+Worktrees view also forgets a worktree whose folder is gone when it is shown
+(`AppCore::forget_gone_worktrees`), so a worktree deleted by hand does not
+wait for the next scan. Tests:
+`cleanup::tests::worktree_removed_outside_freeboard_is_gone_and_leaves_the_list`,
+`cleanup::tests::image_removed_outside_freeboard_is_gone_and_leaves_the_list`,
+`detectors::tests::git::probe_reports_a_removed_worktree_as_gone`,
+`app_core::tests::worktrees_view_forgets_a_worktree_whose_folder_is_gone`.
 
 ## Recovery policy
 

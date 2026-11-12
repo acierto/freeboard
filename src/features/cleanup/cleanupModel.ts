@@ -22,9 +22,11 @@ export const isCommand = (s: Pick<Suggestion, "action">) => s.action === "native
 /** The acknowledgment next to an item that needs its own confirmation. */
 export const ackText = (s: Suggestion) => (s.recoverable ? t("ack.what") : t("ack.lost"));
 
-const FINAL: ItemState[] = ["done", "moved_to_trash", "skipped", "failed", "canceled", "interrupted"];
+const FINAL: ItemState[] = ["done", "moved_to_trash", "skipped", "failed", "canceled", "interrupted", "gone"];
 export const isFinal = (s: ItemState) => FINAL.includes(s);
 const removed = (s: ItemState) => s === "done" || s === "moved_to_trash";
+/** It left the list: removed, moved to the Trash, or already gone. */
+const left = (s: ItemState) => removed(s) || s === "gone";
 
 /** A run's rows grouped by plan item: a split item has one row per part. */
 export function stepsOf(run: RunDetail | null, itemId: string): RunItem[] {
@@ -52,7 +54,7 @@ export function progressOf(plan: CleanupPlan, run: RunDetail | null): Progress {
     if (steps.length && steps.every((x) => isFinal(x.state))) {
       done++;
       current = itemName(s);
-      if (steps.some((x) => removed(x.state))) gone.add(s.id);
+      if (steps.some((x) => left(x.state))) gone.add(s.id);
     }
   }
   const active = plan.items.find((s) => stepsOf(run, s.id).some((x) => x.state === "checking" || x.state === "running"));
@@ -89,6 +91,8 @@ export function resultWord(i: RunItem, platform: Platform, trash: (p: Platform) 
       return t("c.movedto", { t: trash(platform) });
     case "skipped":
       return t("c.skipped") + why;
+    case "gone":
+      return t("c.gone") + why;
     case "failed":
       return t("c.notremoved") + why;
     case "canceled":

@@ -26,11 +26,19 @@ Every item needing confirmation SHALL require its own acknowledgment in the conf
 - **THEN** it rejects the run and nothing changes
 
 ### Requirement: Pre-cleanup checks
-Immediately before each item runs, Freeboard SHALL check its canonical path, protected-path rules, that no symlink was swapped in, and that its fingerprint is unchanged. It SHALL also check: worktrees are still clean, pushed or merged, unlocked and without new commits; project folders still have their manifest and no running process; Docker images and volumes are still unused by every container; containers are still stopped. A changed or unknown item SHALL be skipped with a reason, stay listed, and not block the rest of the plan.
+Immediately before each item runs, Freeboard SHALL check its canonical path, protected-path rules, that no symlink was swapped in, and that its fingerprint is unchanged. It SHALL also check: worktrees are still clean, pushed or merged, unlocked and without new commits; project folders still have their manifest and no running process; Docker images and volumes are still unused by every container; containers are still stopped. A changed or unknown item SHALL be skipped with a reason, stay listed, and not block the rest of the plan. An item whose only target is already gone (a worktree Git no longer lists, an image or volume Docker no longer has, a single path that no longer exists) SHALL be recorded as gone, not skipped: nothing runs, nothing is counted as freed, and the item leaves the list instead of waiting for the next scan. A group with one target gone is changed. The Worktrees view SHALL also drop a worktree whose folder no longer exists when it is shown.
 
 #### Scenario: Changes between scan and cleanup
 - **WHEN** after the scan a commit is added to a worktree, a file changes, a container starts using an image, and a path is replaced by a symlink
 - **THEN** each of those items is skipped with its reason, the other items run, and the skipped items stay listed as changed
+
+#### Scenario: Removed outside Freeboard before its turn
+- **WHEN** after the scan a listed worktree is removed by hand (or pruned) and a listed image is removed with Docker, and both are in a plan
+- **THEN** each is recorded as gone with its reason, no command runs for it, it does not count as skipped or as freed, it is no longer listed, and the Worktrees dock reports it as already gone with nothing to try again
+
+#### Scenario: Gone worktree on opening the view
+- **WHEN** a listed worktree's folder was deleted after the scan and the Worktrees view is opened
+- **THEN** that worktree is not listed and the others are unchanged
 
 ### Requirement: Protected paths and links
 Cleanup SHALL canonicalize each path and reject the filesystem root, home directory, system directories, application directories, repository roots, and `.git` files or directories. It SHALL never follow symlinks or junctions, and removing a link SHALL remove only the link.

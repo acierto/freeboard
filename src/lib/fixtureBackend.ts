@@ -20,6 +20,8 @@ import type { UpdateStage, UpdateStatus } from "./types";
 //                      (the prototype always skips old-experiment)
 //   notrash=1          moving to the Trash fails, as on a volume without one
 //   fail=<id,...>      these items fail once (the prototype's DEMO_FAIL)
+//   gone=<id,...>      these worktrees were removed outside Freeboard after
+//                      the scan: already gone when their turn comes
 //   fresh=1            set up but never scanned: nothing found, no Logbook
 //   nothing=1          scanned and nothing found
 //   unavail=1          the last scan could not check Docker and pip
@@ -285,6 +287,7 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
   // Items that fail once, as the prototype stages the Docker build cache
   // (its DEMO_FAIL); a retry then succeeds.
   const failOnce = new Set((params.get("fail") ?? "").split(",").filter(Boolean));
+  const goneIds = new Set((params.get("gone") ?? "").split(",").filter(Boolean));
   // How each blind spot was fixed: scanned (its space moves into real areas
   // and its items appear) or marked as the user's own files.
   const resolvedSpots = new Map<string, "scan" | "mine">();
@@ -611,6 +614,13 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
       if (changedIds.has(pi.suggestionId) || changedIds.has(step.id)) {
         setItem(r, row, "skipped", "A new commit appeared after the scan.");
         it.skipReason = "A new commit appeared after the scan.";
+        continue;
+      }
+      // Already gone (detectors::git::probe → Probe::Gone): nothing is run,
+      // nothing freed, and the item leaves the list.
+      if (goneIds.has(pi.suggestionId)) {
+        setItem(r, row, "gone", "The worktree no longer exists.");
+        gone.add(it.id);
         continue;
       }
       if (slowOnce.has(pi.suggestionId)) {

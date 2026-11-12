@@ -7,7 +7,7 @@ use crate::model::{WorktreeInfo, WtMerged, WtStatus};
 /// state. Commits are dated 30 days before `NOW` and everything is aged, so
 /// clean worktrees are idle; `fresh` is made last and used today. Returns the
 /// app path.
-fn repo(fx: &Fx) -> PathBuf {
+pub(crate) fn repo(fx: &Fx) -> PathBuf {
     let origin = fx.root.join("origin.git");
     std::fs::create_dir_all(&origin).unwrap();
     git(&origin, &["init", "--bare", "-q"]);
@@ -222,6 +222,22 @@ fn probe_detects_new_commit() {
     git(&p, &["add", "."]);
     git(&p, &["commit", "-q", "-m", "late"]);
     fx.with_ctx(ScanKind::Deep, |ctx| assert!(matches!(probe(&f, ctx), Probe::Changed(_))));
+}
+
+/// A worktree removed or pruned outside Freeboard is gone, not changed: the
+/// item leaves the list instead of asking for a new scan.
+#[test]
+fn probe_reports_a_removed_worktree_as_gone() {
+    let fx = Fx::new();
+    let app = repo(&fx);
+    let o = fx.scan(ScanKind::Deep, &[Box::new(Worktrees)]);
+    let f = leaves(&o).into_iter().find(|f| f.suggestion.title.ends_with(": pushed")).unwrap().clone();
+    // The folder deleted by hand: Git still knows it, as prunable.
+    std::fs::remove_dir_all(app.join(".worktrees/pushed")).unwrap();
+    fx.with_ctx(ScanKind::Deep, |ctx| assert_eq!(probe(&f, ctx), Probe::Gone("The worktree no longer exists.".into())));
+    // Pruned too: no trace of it in Git.
+    git(&app, &["worktree", "prune"]);
+    fx.with_ctx(ScanKind::Deep, |ctx| assert_eq!(probe(&f, ctx), Probe::Gone("The worktree no longer exists.".into())));
 }
 
 #[test]

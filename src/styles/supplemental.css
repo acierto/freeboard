@@ -81,3 +81,9 @@ html.tray-native, html.tray-native body { background: transparent; }
    6.6); the strike-through and the "Not installed" title carry the meaning.
    More specific than the prototype rule, which the reference loads after. */
 .ob-tools .ob-tool:not(.on) { opacity: 1; }
+
+/* Worktrees: a queued worktree that was already gone when its turn came
+   (removed outside Freeboard after the scan). Struck through like a removed
+   one, with a muted lead and a muted share of the dock's bar. */
+.wt-state.gone { background: var(--soft); color: var(--muted); }
+.wt-prog2 .gone { background: var(--muted); }

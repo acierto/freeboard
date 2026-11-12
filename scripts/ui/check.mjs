@@ -229,6 +229,27 @@ const idle = (p) => p.waitForFunction(() => document.documentElement.dataset.bus
   await ctx.close();
 }
 
+// Worktrees removed outside Freeboard after the scan: already gone when their
+// turn comes, so they leave the list instead of "could not go" (found on a
+// real Mac, 2026-11-12).
+{
+  const { p, ctx } = await page("gone=w2,w5");
+  await p.click("#tab-wt");
+  await p.click('[data-wt-sel="w1"]');
+  await p.click('[data-wt-sel="w2"]');
+  await p.click('[data-wt-sel="w5"]');
+  await p.click('[data-wt-act="remove"]');
+  await p.waitForSelector(".wt-dock.fin");
+  const now = await p.textContent(".wt-now");
+  check("gone: the result counts them apart from the ones that could not go", now.startsWith("Done. 1 removed, 2 already gone") && now.endsWith("Each removal is in the Logbook."), now);
+  check("gone: no Try again, since there is nothing to retry", !(await p.$('[data-wt-act="retry"]')));
+  check("gone: the rows stay, struck through, and say so", (await p.$$(".wt-row.removed.gone")).length === 2 && (await p.textContent('.wt-row.gone:has([data-wt-open="w2"]) .wt-why')).endsWith("Already gone. It was removed outside Freeboard.") && (await p.textContent('.wt-row.gone:has([data-wt-open="w2"]) .wt-meta small')) === "", await p.textContent('.wt-row.gone:has([data-wt-open="w2"])'));
+  check("gone: nothing counted as freed for them", (await p.textContent(".wt-freed")) === "3.6 GB freed", await p.textContent(".wt-freed"));
+  await p.click('[data-wt-act="dismiss"]');
+  check("gone: Close leaves them out of the list", !(await p.$('[data-wt-open="w2"]')) && !(await p.$('[data-wt-open="w5"]')) && !(await p.$('[data-wt-open="w1"]')));
+  await ctx.close();
+}
+
 // Worktrees found by an older version: the tab says so and offers a deep scan.
 {
   const { p, ctx } = await page("wtstale=141");

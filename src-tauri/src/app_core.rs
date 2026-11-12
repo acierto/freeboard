@@ -956,9 +956,10 @@ impl AppCore {
     }
 
     pub fn get_worktrees(&self) -> CmdResult<WorktreesView> {
+        let gone = self.forget_gone_worktrees()?;
         let findings = self.store.findings()?;
         let decided = self.decided_suggestions()?;
-        let items: Vec<Suggestion> = decided.into_iter().filter(|s| s.detector == crate::detectors::git::ID && s.worktree.is_some()).collect();
+        let items: Vec<Suggestion> = decided.into_iter().filter(|s| s.detector == crate::detectors::git::ID && s.worktree.is_some() && !gone.contains(&s.id)).collect();
         let m = self.measurement();
         let mut repos: Vec<WorktreeRepo> = Vec::new();
         for f in findings.iter().filter(|f| f.suggestion.detector == crate::detectors::git::ID) {
@@ -977,6 +978,28 @@ impl AppCore {
         }
         let stale = findings.iter().filter(|f| f.suggestion.detector == crate::detectors::git::ID && f.suggestion.worktree.is_none()).count() as u32;
         Ok(WorktreesView { repos, items, stale })
+    }
+
+    /// Worktrees whose folder is gone (removed outside Freeboard since the
+    /// scan) leave the list when the view is shown, rather than waiting for
+    /// the next scan; returns their IDs. A folder on an unmounted volume
+    /// counts as gone too and is listed again by the next scan.
+    fn forget_gone_worktrees(&self) -> CmdResult<Vec<String>> {
+        let gone: Vec<String> = self
+            .store
+            .findings()?
+            .into_iter()
+            .filter(|f| f.suggestion.detector == crate::detectors::git::ID && f.suggestion.worktree.is_some())
+            .filter(|f| matches!(&f.target, Target::Native { resources, .. } if resources.first().is_some_and(|p| std::fs::symlink_metadata(p).is_err())))
+            .map(|f| f.suggestion.id)
+            .collect();
+        for id in &gone {
+            let _ = self.store.clear_skip_note(id);
+            if let Err(e) = crate::cleanup::persist::delete_suggestion(&self.store.conn(), id) {
+                tracing::error!("could not forget a gone worktree: {e}");
+            }
+        }
+        Ok(gone)
     }
 
     fn decided_suggestions(&self) -> CmdResult<Vec<Suggestion>> {
@@ -1564,6 +1587,25 @@ pub(crate) mod tests {
             measure_outside_home: false,
         });
         (core, free, clock_v, sink)
+    }
+
+    /// A worktree whose folder was removed outside Freeboard leaves the
+    /// Worktrees view as soon as it is shown, not only after a new scan.
+    #[test]
+    fn worktrees_view_forgets_a_worktree_whose_folder_is_gone() {
+        use crate::detectors::tests::Fx;
+        let fx = Fx::new();
+        let app = crate::detectors::tests::git::repo(&fx);
+        let o = fx.scan(ScanKind::Deep, &[Box::new(crate::detectors::git::Worktrees)]);
+        let (core, ..) = core_with(50, &fx.home);
+        core.store.replace_findings("scan", &o.findings).unwrap();
+        let before = core.get_worktrees().unwrap();
+        let pushed = before.items.iter().find(|s| s.title.ends_with(": pushed")).unwrap().id.clone();
+        std::fs::remove_dir_all(app.join(".worktrees/pushed")).unwrap();
+        let after = core.get_worktrees().unwrap();
+        assert!(!after.items.iter().any(|s| s.id == pushed), "the gone worktree is not listed");
+        assert_eq!(after.items.len(), before.items.len() - 1, "the others stay");
+        assert!(core.store.finding(&pushed).unwrap().is_none(), "and it is forgotten, not kept for the next scan");
     }
 
     #[test]

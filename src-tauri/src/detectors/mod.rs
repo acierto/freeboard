@@ -73,6 +73,9 @@ pub enum Probe {
     Changed(String),
     /// The check failed or timed out; skip (unknown means less safe).
     Unknown(String),
+    /// The item's only target is already gone (removed outside Freeboard
+    /// since the scan): nothing to do, and the item leaves the list.
+    Gone(String),
 }
 
 /// Re-run the detector-specific checks for a single finding (pre-cleanup

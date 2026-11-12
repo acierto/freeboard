@@ -168,7 +168,8 @@ impl Detector for WindowsTemp {
 }
 
 /// Generic pre-cleanup path check for path targets: canonical path,
-/// protected-path rules, no symlink swap, same fingerprint.
+/// protected-path rules, no symlink swap, same fingerprint. An item whose
+/// only path is gone leaves the list; one of several paths gone is a change.
 pub fn probe_paths(f: &Finding, ctx: &ScanContext, guard: &Guard) -> Probe {
     let Target::Paths { paths } = &f.target else { return Probe::Unknown("Unexpected cleanup target.".into()) };
     let ex = walk::exclusions(ctx);
@@ -176,7 +177,8 @@ pub fn probe_paths(f: &Finding, ctx: &ScanContext, guard: &Guard) -> Probe {
     for p in paths {
         let path = Path::new(p);
         if std::fs::symlink_metadata(path).is_err() {
-            return Probe::Changed(format!("{} no longer exists.", display_path(ctx, path)));
+            let why = format!("{} no longer exists.", display_path(ctx, path));
+            return if paths.len() == 1 { Probe::Gone(why) } else { Probe::Changed(why) };
         }
         if let Err(e) = guard.check(path) {
             return Probe::Changed(format!("Refused: {e}."));

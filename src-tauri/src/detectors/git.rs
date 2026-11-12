@@ -515,7 +515,9 @@ impl Detector for Worktrees {
 
 /// Pre-cleanup check (spec "Pre-cleanup check", Worktree): still no
 /// uncommitted or untracked files, not locked unless the plan unlocks it (the
-/// lock is part of the fingerprint), not used since the scan.
+/// lock is part of the fingerprint), not used since the scan. A worktree Git
+/// no longer lists (removed or pruned outside Freeboard; a deleted folder is
+/// "prunable", which `linked` leaves out) is gone, not changed.
 pub fn probe(f: &Finding, ctx: &ScanContext) -> Probe {
     let Target::Native { cwd: Some(main), resources, .. } = &f.target else {
         return Probe::Unknown("Unexpected cleanup target.".into());
@@ -526,7 +528,7 @@ pub fn probe(f: &Finding, ctx: &ScanContext) -> Probe {
         Err(e) => return Probe::Unknown(format!("Git could not list worktrees: {e}")),
     };
     let Some(wt) = wts.into_iter().find(|w| std::fs::canonicalize(&w.path).ok().is_some_and(|c| c.to_string_lossy() == resources[0])) else {
-        return Probe::Changed("The worktree no longer exists.".into());
+        return Probe::Gone("The worktree no longer exists.".into());
     };
     let c = classify(ctx, &main, &wt, default_branch(ctx, &main).as_deref());
     // Held work never goes. Uncommitted files go only for an item that asked

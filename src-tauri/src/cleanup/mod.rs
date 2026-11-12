@@ -584,6 +584,19 @@ impl CleanupEngine {
                 };
                 match detectors::probe_with(f, &ctx, &self.guard) {
                     Probe::Unchanged => {}
+                    Probe::Gone(r) => {
+                        // Already removed outside Freeboard: nothing to do,
+                        // nothing freed. It leaves the list like a removed
+                        // item (a gone part leaves its split item).
+                        self.set_item(&job.run_id, id, ItemState::Gone, Some(&r));
+                        if is_part {
+                            removed_parts.push((entry.suggestion.id.clone(), id.to_string()));
+                        } else {
+                            let _ = self.store.clear_skip_note(id);
+                            let _ = persist::delete_suggestion(&self.store.conn(), id);
+                        }
+                        continue;
+                    }
                     Probe::Changed(r) | Probe::Unknown(r) => {
                         // A changed item is marked "Changed, scan again". A
                         // changed part is reported in the run, but does not

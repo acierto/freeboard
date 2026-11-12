@@ -30,6 +30,9 @@ interface Queue {
   queue: string[];
   cur: string | null;
   done: string[];
+  /** Already gone when their turn came (removed outside Freeboard since the
+   * scan): nothing freed, and they left the list. */
+  gone: string[];
   failed: { id: string; reason: string; short: string }[];
   freed: number;
   paused: boolean;
@@ -45,11 +48,12 @@ interface Queue {
 const REMOVED = ["done", "moved_to_trash"];
 
 /** One row's place in the queue, if it has one. */
-type QState = { k: "done" } | { k: "cur" } | { k: "queued"; pos: number } | { k: "failed"; reason: string } | null;
+type QState = { k: "done" } | { k: "gone" } | { k: "cur" } | { k: "queued"; pos: number } | { k: "failed"; reason: string } | null;
 
 function qStateOf(q: Queue | null, id: string): QState {
   if (!q) return null;
   if (q.done.includes(id)) return { k: "done" };
+  if (q.gone.includes(id)) return { k: "gone" };
   if (q.cur === id) return { k: "cur" };
   const pos = q.queue.indexOf(id);
   if (pos > -1) return { k: "queued", pos: pos + 1 };
@@ -57,7 +61,7 @@ function qStateOf(q: Queue | null, id: string): QState {
   return f ? { k: "failed", reason: f.reason } : null;
 }
 
-const inQueue = (q: Queue | null, id: string) => !!q && (q.cur === id || q.queue.includes(id) || q.done.includes(id));
+const inQueue = (q: Queue | null, id: string) => !!q && (q.cur === id || q.queue.includes(id) || q.done.includes(id) || q.gone.includes(id));
 
 /** Why a removal did not happen, in the row's words. */
 const failShort = (reason: string | null) => (!reason || /^It took longer than/.test(reason) ? t("wt.q.timedoutS") : tb(reason));
@@ -148,10 +152,18 @@ function Detail({ r, acked, onAck }: { r: WtRow; acked: boolean; onAck: (v: bool
 
 function Row({ r, open, onOpen, checked, onCheck, qs, onTakeOut, acked, onAck }: { r: WtRow; open: boolean; onOpen: () => void; checked: boolean; onCheck: (v: boolean) => void; qs: QState; onTakeOut: () => void; acked: boolean; onAck: (v: boolean) => void }) {
   const agent = r.info?.agent;
-  const done = qs?.k === "done";
-  const cls = `wt-row ${r.key}${open && !done ? " open" : ""}${qs?.k === "cur" ? " busy" : ""}${qs?.k === "queued" ? " queued" : ""}${done ? " removed" : ""}`;
+  const gone = qs?.k === "gone";
+  // Removed, or already gone: struck through until the dock is closed.
+  const done = qs?.k === "done" || gone;
+  const cls = `wt-row ${r.key}${open && !done ? " open" : ""}${qs?.k === "cur" ? " busy" : ""}${qs?.k === "queued" ? " queued" : ""}${done ? " removed" : ""}${gone ? " gone" : ""}`;
   let lead;
   if (r.key === "main") lead = <span className="wt-cb" aria-hidden="true"></span>;
+  else if (gone)
+    lead = (
+      <span className="wt-state gone" role="img" aria-label={t("wt.q.goneA")}>
+        {"–"}
+      </span>
+    );
   else if (done)
     lead = (
       <span className="wt-state ok" role="img" aria-label={t("wt.q.removedA")}>
@@ -171,8 +183,8 @@ function Row({ r, open, onOpen, checked, onCheck, qs, onTakeOut, acked, onAck }:
       </span>
     );
   else lead = <input type="checkbox" className="wt-cb" data-wt-sel={r.id} aria-label={t("wt.select", { x: r.name })} checked={checked && selectable(r, acked)} disabled={!selectable(r, acked)} onChange={(e) => onCheck(e.target.checked)} />;
-  const why = done ? (r.info && branchGoes(r.info) ? t("wt.q.removedGone") : t("wt.q.removedKept")) : qs?.k === "cur" ? t("wt.q.now1") : qs?.k === "queued" ? t("wt.q.pos", { n: qs.pos }) : qs?.k === "failed" ? qs.reason : whyOf(r);
-  const dot = done ? "var(--safe)" : qs?.k === "cur" || qs?.k === "queued" ? "var(--accent)" : qs?.k === "failed" ? "var(--risky)" : WT_COLOR[r.key];
+  const why = gone ? t("wt.q.gone") : done ? (r.info && branchGoes(r.info) ? t("wt.q.removedGone") : t("wt.q.removedKept")) : qs?.k === "cur" ? t("wt.q.now1") : qs?.k === "queued" ? t("wt.q.pos", { n: qs.pos }) : qs?.k === "failed" ? qs.reason : whyOf(r);
+  const dot = gone ? "var(--muted)" : done ? "var(--safe)" : qs?.k === "cur" || qs?.k === "queued" ? "var(--accent)" : qs?.k === "failed" ? "var(--risky)" : WT_COLOR[r.key];
   return (
     <div className={cls}>
       <div className="wt-line">
@@ -196,7 +208,7 @@ function Row({ r, open, onOpen, checked, onCheck, qs, onTakeOut, acked, onAck }:
         ) : (
           <span className="wt-meta num">
             <b>{gb(r.bytes)}</b>
-            <small>{done ? t("wt.q.freed") : r.info ? idleShort(r.info.idleDays) : ""}</small>
+            <small>{gone ? "" : done ? t("wt.q.freed") : r.info ? idleShort(r.info.idleDays) : ""}</small>
           </span>
         )}
       </div>
@@ -243,6 +255,7 @@ export function WorktreesView({ view, onChanged, scanning }: { view: View | null
     const id = cur.queue[0];
     update((x) => ({ ...x, cur: id, queue: x.queue.slice(1) }));
     let removed = false;
+    let gone = false;
     let reason: string | null = null;
     try {
       let plan = await track(api.createPlan([id]));
@@ -257,6 +270,8 @@ export function WorktreesView({ view, onChanged, scanning }: { view: View | null
       waiters.current.delete(runId);
       const items = detail.items.filter((i) => (i.parentId ?? i.itemId) === id);
       removed = items.length > 0 && items.every((i) => REMOVED.includes(i.state));
+      // Already gone when its turn came: it left the list, nothing was freed.
+      gone = items.length > 0 && items.every((i) => i.state === "gone");
       reason = items.find((i) => !REMOVED.includes(i.state))?.reason ?? null;
     } catch (e) {
       reason = errorText(e);
@@ -265,7 +280,9 @@ export function WorktreesView({ view, onChanged, scanning }: { view: View | null
       const bytes = x.rows[id]?.bytes ?? 0;
       return removed
         ? { ...x, cur: null, done: [...x.done, id], failed: x.failed.filter((f) => f.id !== id), freed: x.freed + bytes }
-        : { ...x, cur: null, failed: [...x.failed.filter((f) => f.id !== id), { id, reason: failText(reason), short: failShort(reason) }] };
+        : gone
+          ? { ...x, cur: null, gone: [...x.gone, id], failed: x.failed.filter((f) => f.id !== id) }
+          : { ...x, cur: null, failed: [...x.failed.filter((f) => f.id !== id), { id, reason: failText(reason), short: failShort(reason) }] };
     });
     changed.current();
     void step();
@@ -274,8 +291,9 @@ export function WorktreesView({ view, onChanged, scanning }: { view: View | null
   if (!view) return null;
   const live = rowsOf(view);
   const { by, count, total, agents } = tally(live);
-  // Removed rows stay visible, struck through, until the dock is closed.
-  const kept = q ? q.done.filter((id) => !live.some((r) => r.id === id)).map((id) => q.rows[id]) : [];
+  // Removed (or already gone) rows stay visible, struck through, until the
+  // dock is closed.
+  const kept = q ? [...q.done, ...q.gone].filter((id) => !live.some((r) => r.id === id)).map((id) => q.rows[id]) : [];
   const place = (id: string) => {
     const i = q ? q.order.indexOf(id) : -1;
     return i < 0 ? Number.MAX_SAFE_INTEGER : i;
@@ -301,7 +319,7 @@ export function WorktreesView({ view, onChanged, scanning }: { view: View | null
     const base = qRef.current;
     const fresh = !base || base.finished;
     const next: Queue = fresh
-      ? { queue: ids, cur: null, done: [], failed: [], freed: 0, paused: false, finished: false, rows: snap, acked: [...acks], order: rowsOf(view).map((r) => r.id) }
+      ? { queue: ids, cur: null, done: [], gone: [], failed: [], freed: 0, paused: false, finished: false, rows: snap, acked: [...acks], order: rowsOf(view).map((r) => r.id) }
       : { ...base, queue: [...base.queue, ...ids.filter((id) => !inQueue(base, id))], failed: base.failed.filter((f) => !ids.includes(f.id)), rows: { ...base.rows, ...snap }, acked: [...new Set([...base.acked, ...acks])] };
     qRef.current = next;
     setQ(next);
@@ -338,7 +356,7 @@ export function WorktreesView({ view, onChanged, scanning }: { view: View | null
       </div>
     );
   } else {
-    const handled = q.done.length + q.failed.length;
+    const handled = q.done.length + q.gone.length + q.failed.length;
     const all = handled + q.queue.length + (q.cur ? 1 : 0);
     const wait = q.queue.length;
     const cur = q.cur ? rowOf(q.cur) : null;
@@ -348,7 +366,14 @@ export function WorktreesView({ view, onChanged, scanning }: { view: View | null
       head = (
         <>
           <b>{t("wt.q.doneh")}</b>
-          {" " + (q.failed.length ? t("wt.q.doneF", { a: q.done.length, b: q.failed.length }) : t("wt.q.done", { a: q.done.length }))}
+          {" " +
+            (q.failed.length && q.gone.length
+              ? t("wt.q.doneFG", { a: q.done.length, b: q.failed.length, c: q.gone.length })
+              : q.failed.length
+                ? t("wt.q.doneF", { a: q.done.length, b: q.failed.length })
+                : q.gone.length
+                  ? t("wt.q.doneG", { a: q.done.length, c: q.gone.length })
+                  : t("wt.q.done", { a: q.done.length }))}
         </>
       );
       sub = q.failed.length
@@ -392,6 +417,7 @@ export function WorktreesView({ view, onChanged, scanning }: { view: View | null
         <div className="wt-prog2" aria-hidden="true">
           <i className="ok" style={{ width: (all ? (q.done.length / all) * 100 : 0).toFixed(1) + "%" }}></i>
           <i className="bad" style={{ width: (all ? (q.failed.length / all) * 100 : 0).toFixed(1) + "%" }}></i>
+          <i className="gone" style={{ width: (all ? (q.gone.length / all) * 100 : 0).toFixed(1) + "%" }}></i>
         </div>
         {qOpen && wait > 0 && (
           <ol className="wt-qlist">
