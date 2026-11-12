@@ -1591,6 +1591,8 @@ pub(crate) mod tests {
 
     /// A worktree whose folder was removed outside Freeboard leaves the
     /// Worktrees view as soon as it is shown, not only after a new scan.
+    /// Unix only, like the git test fixtures it uses.
+    #[cfg(unix)]
     #[test]
     fn worktrees_view_forgets_a_worktree_whose_folder_is_gone() {
         use crate::detectors::tests::Fx;
