@@ -20,8 +20,8 @@
   "locale": "en-US",
   "timezone": "UTC",
   "adapter": "scripts/visual/lib.mjs referenceHtml(): local fonts, data-theme, host reset (src/styles/reset.css), prototype-only controls hidden (.top-right .sim, .top-right [data-act=\"reset\"], .top > div > .note, .top-right .tray, .top-right [data-act=\"welcome\"])",
-  "acceptedAt": "2026-11-09T14:53:34.492Z",
-  "rationale": "Worktrees removal queue (prototype Version 20): the finished queue in the dock, removed rows struck through, the timed-out one with Try 1 again.",
+  "acceptedAt": "2026-11-12T12:42:03.651Z",
+  "rationale": "Worktrees: any opened row that needs no acknowledgment offers the force acknowledgment (decision 2026-11-12), added to the reference by forceForAll; wt-open-ready and wt-open-kept grow by that line.",
   "entries": {
     "cleanup-confirm-ack--dark--1120x900": {
       "id": "cleanup-confirm-ack",
@@ -7143,7 +7143,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
+      "note": "Rows with uncommitted files show the --force their removal runs; any other opened row offers the force acknowledgment (decision 2026-11-12). Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
       "sha256": "8ebdea8e597d3ab2decae965149eb773e8f51db51f27a1193cdbb2cdb10cd0b7"
     },
     "wt-ack-work--light--1120x900": {
@@ -7160,7 +7160,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
+      "note": "Rows with uncommitted files show the --force their removal runs; any other opened row offers the force acknowledgment (decision 2026-11-12). Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
       "sha256": "26b46cfc108694205071efad4280e630e0e67b4c38db69d74d1adf44b9f9cf44"
     },
     "wt-default--dark--1120x900": {
@@ -7177,7 +7177,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
+      "note": "Rows with uncommitted files show the --force their removal runs; any other opened row offers the force acknowledgment (decision 2026-11-12). Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
       "sha256": "11ef1eac38ee0a6d0349b25bd6820d763403bebb072c946bba9ca8c7ca760020"
     },
     "wt-default--dark--390x844": {
@@ -7194,7 +7194,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
+      "note": "Rows with uncommitted files show the --force their removal runs; any other opened row offers the force acknowledgment (decision 2026-11-12). Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
       "sha256": "adce5d0f2dd2adf3890600ba29a99c768f9f5b6b982bb8dfeea928c89b3accc8"
     },
     "wt-default--dark--760x900": {
@@ -7211,7 +7211,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
+      "note": "Rows with uncommitted files show the --force their removal runs; any other opened row offers the force acknowledgment (decision 2026-11-12). Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
       "sha256": "1c140876bcb049665f643ac6230796138b401cf72b3cc969cd10bfe51f2c4135"
     },
     "wt-default--light--1120x900": {
@@ -7228,7 +7228,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
+      "note": "Rows with uncommitted files show the --force their removal runs; any other opened row offers the force acknowledgment (decision 2026-11-12). Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
       "sha256": "bf7f2cdb961bc7b760e115ba34afb141dee310b8356a41809e530f3f580857b2"
     },
     "wt-default--light--390x844": {
@@ -7245,7 +7245,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
+      "note": "Rows with uncommitted files show the --force their removal runs; any other opened row offers the force acknowledgment (decision 2026-11-12). Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
       "sha256": "5310ec49146ea1ad2e930dea59ecea408f3629bf5a8f606fcdee45458402faa2"
     },
     "wt-default--light--760x900": {
@@ -7262,7 +7262,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
+      "note": "Rows with uncommitted files show the --force their removal runs; any other opened row offers the force acknowledgment (decision 2026-11-12). Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
       "sha256": "cbf5f3eef2e1ceee61a1ae50be9e971b86f0afb4fe628b8b2ba45a65b41943ea"
     },
     "wt-filter-agents--dark--1120x900": {
@@ -7279,7 +7279,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
+      "note": "Rows with uncommitted files show the --force their removal runs; any other opened row offers the force acknowledgment (decision 2026-11-12). Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
       "sha256": "cfd708f980521bd049ef5468be1f0122f18bb047d3b215b20073702b8ce37a9a"
     },
     "wt-filter-agents--light--1120x900": {
@@ -7296,7 +7296,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
+      "note": "Rows with uncommitted files show the --force their removal runs; any other opened row offers the force acknowledgment (decision 2026-11-12). Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
       "sha256": "0433686c964326cce737c2df58d91d4b741fce5f6f05f010ad20b24d65db6307"
     },
     "wt-filter-ready--dark--1120x900": {
@@ -7313,7 +7313,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
+      "note": "Rows with uncommitted files show the --force their removal runs; any other opened row offers the force acknowledgment (decision 2026-11-12). Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
       "sha256": "f5e344a3efd382a55f8eb96cf48645cabae3c8977c9bcc902ab9ff3b1d14e59b"
     },
     "wt-filter-ready--dark--390x844": {
@@ -7330,7 +7330,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
+      "note": "Rows with uncommitted files show the --force their removal runs; any other opened row offers the force acknowledgment (decision 2026-11-12). Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
       "sha256": "a8271e11808b38e10cee3f55a14e99d2a80d8caa44f7624c849815e64b71b18a"
     },
     "wt-filter-ready--light--1120x900": {
@@ -7347,7 +7347,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
+      "note": "Rows with uncommitted files show the --force their removal runs; any other opened row offers the force acknowledgment (decision 2026-11-12). Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
       "sha256": "2eaf1a5bb809c9789ce6261fb48ff118e8a3539285c247f69c500bf04d472dec"
     },
     "wt-filter-ready--light--390x844": {
@@ -7364,7 +7364,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
+      "note": "Rows with uncommitted files show the --force their removal runs; any other opened row offers the force acknowledgment (decision 2026-11-12). Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
       "sha256": "2d4b16524564de3668c838ed68477dc1c28a7c184df80e654cbe167663657a5d"
     },
     "wt-open-kept--dark--1120x900": {
@@ -7381,8 +7381,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
-      "sha256": "aaeadf193d6209304e42f33c54f2dc10c7cd5a70b624e8ecd52dc1f38c3c861c"
+      "note": "Rows with uncommitted files show the --force their removal runs; any other opened row offers the force acknowledgment (decision 2026-11-12). Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
+      "sha256": "5f981de05dc0e3619ee4332518588ab5f11943ecd962dde7d0b0d438d2521dca"
     },
     "wt-open-kept--light--1120x900": {
       "id": "wt-open-kept",
@@ -7398,8 +7398,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
-      "sha256": "14198ae95c3e8d717cb16ac60dce5397ba48ce4261efad992441faf2424b2c76"
+      "note": "Rows with uncommitted files show the --force their removal runs; any other opened row offers the force acknowledgment (decision 2026-11-12). Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
+      "sha256": "e54ed3ce15e9ad269751815c19da182bbc4eeab911c28caa00a66ecfa26ac46a"
     },
     "wt-open-ready--dark--1120x900": {
       "id": "wt-open-ready",
@@ -7415,8 +7415,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
-      "sha256": "d9c3a66f10718120873fae4ed621d069a1a8dacf3bb455389482e90cd34e3903"
+      "note": "Rows with uncommitted files show the --force their removal runs; any other opened row offers the force acknowledgment (decision 2026-11-12). Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
+      "sha256": "5e1f0915fa01d07a1035aa6474fe576a000aaffa1a1064495b912b463915659d"
     },
     "wt-open-ready--dark--390x844": {
       "id": "wt-open-ready",
@@ -7432,8 +7432,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
-      "sha256": "b8c1ef48a9c9eafeb55bb740913753998ae2bbb9e638a5c24d82c88ce65092e8"
+      "note": "Rows with uncommitted files show the --force their removal runs; any other opened row offers the force acknowledgment (decision 2026-11-12). Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
+      "sha256": "d00033535ddd796f5d58f1a258bedbb00ba717fb70ce47bac3237bbc05766457"
     },
     "wt-open-ready--light--1120x900": {
       "id": "wt-open-ready",
@@ -7449,8 +7449,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
-      "sha256": "6a5203e2158e801072432a4e6d16cac3e5a8c7608fb74fcae1b96ef3dd93f76e"
+      "note": "Rows with uncommitted files show the --force their removal runs; any other opened row offers the force acknowledgment (decision 2026-11-12). Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
+      "sha256": "607d597c358cd67d317b5e21f79d7276d99d3fd61abb13265fca0d34b3480a10"
     },
     "wt-open-ready--light--390x844": {
       "id": "wt-open-ready",
@@ -7466,8 +7466,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
-      "sha256": "ec260308d3309a5cbedeebade37ef86fc86593e598f0bea13322dade89f60106"
+      "note": "Rows with uncommitted files show the --force their removal runs; any other opened row offers the force acknowledgment (decision 2026-11-12). Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
+      "sha256": "1f521f2f224667f6ffd78220827fa31626a06a95d89392ae06e7900b4d7ca2c1"
     },
     "wt-open-work--dark--1120x900": {
       "id": "wt-open-work",
@@ -7483,7 +7483,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
+      "note": "Rows with uncommitted files show the --force their removal runs; any other opened row offers the force acknowledgment (decision 2026-11-12). Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
       "sha256": "a0683b95b76a6702ac471c9a72a6d0bc2a49a0a899f1a53ada2a61025404af1e"
     },
     "wt-open-work--light--1120x900": {
@@ -7500,7 +7500,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
+      "note": "Rows with uncommitted files show the --force their removal runs; any other opened row offers the force acknowledgment (decision 2026-11-12). Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
       "sha256": "5bce2917163b6f94ae0f45217249df06e3b7656d06d1438574ddffaae93a8f6f"
     },
     "wt-queue-done--dark--1120x900": {
@@ -7517,25 +7517,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
+      "note": "Rows with uncommitted files show the --force their removal runs; any other opened row offers the force acknowledgment (decision 2026-11-12). Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
       "sha256": "287e4183b12f7d680abefd9b02b440ebbb682673b5370f7b494fe3d6deae841d"
-    },
-    "wt-queue-done--dark--390x844": {
-      "id": "wt-queue-done",
-      "surface": "Worktrees",
-      "state": "Worktrees: the removal queue finished, 7 removed and 1 timed out",
-      "theme": "dark",
-      "viewport": {
-        "width": 390,
-        "height": 844
-      },
-      "deviceScaleFactor": 1,
-      "reducedMotion": true,
-      "crop": "page",
-      "fixture": "",
-      "supplemental": true,
-      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
-      "sha256": "1bde9ad5315ce35990e4c07dde7deecdb9150f2a9469cbe8089200fef9c66d3b"
     },
     "wt-queue-done--light--1120x900": {
       "id": "wt-queue-done",
@@ -7551,25 +7534,8 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
+      "note": "Rows with uncommitted files show the --force their removal runs; any other opened row offers the force acknowledgment (decision 2026-11-12). Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
       "sha256": "f37c3bb0b0d0a11e5f719d6d239409f99032f24f555a7b1d6cacd97a050f6d01"
-    },
-    "wt-queue-done--light--390x844": {
-      "id": "wt-queue-done",
-      "surface": "Worktrees",
-      "state": "Worktrees: the removal queue finished, 7 removed and 1 timed out",
-      "theme": "light",
-      "viewport": {
-        "width": 390,
-        "height": 844
-      },
-      "deviceScaleFactor": 1,
-      "reducedMotion": true,
-      "crop": "page",
-      "fixture": "",
-      "supplemental": true,
-      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
-      "sha256": "2d14445b63d53d248f56df6c4b630e2bdab7961d7d070173c894b69154d424ea"
     },
     "wt-selected--dark--1120x900": {
       "id": "wt-selected",
@@ -7585,7 +7551,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
+      "note": "Rows with uncommitted files show the --force their removal runs; any other opened row offers the force acknowledgment (decision 2026-11-12). Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
       "sha256": "dd7141b790149ba532d1391b583a9e04f15ca0d02c00770f7b9a8898a148b8f4"
     },
     "wt-selected--dark--390x844": {
@@ -7602,7 +7568,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
+      "note": "Rows with uncommitted files show the --force their removal runs; any other opened row offers the force acknowledgment (decision 2026-11-12). Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
       "sha256": "9fb58fd27d844df8703b15b52c10954ca8d4d745bbd136cd0a4461c378bff929"
     },
     "wt-selected--light--1120x900": {
@@ -7619,7 +7585,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
+      "note": "Rows with uncommitted files show the --force their removal runs; any other opened row offers the force acknowledgment (decision 2026-11-12). Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
       "sha256": "b8353d0aa60e7e1d8e1ad3daad196fe8678800375cf5aa663b112175b2f5b4c6"
     },
     "wt-selected--light--390x844": {
@@ -7636,7 +7602,7 @@
       "crop": "page",
       "fixture": "",
       "supplemental": true,
-      "note": "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
+      "note": "Rows with uncommitted files show the --force their removal runs; any other opened row offers the force acknowledgment (decision 2026-11-12). Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.",
       "sha256": "c3b7a0c137411f63d6367bcecd2c6f01438fd6ad709236690340c6979839e418"
     }
   }

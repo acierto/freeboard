@@ -22,6 +22,12 @@ import type { UpdateStage, UpdateStatus } from "./types";
 //   fail=<id,...>      these items fail once (the prototype's DEMO_FAIL)
 //   gone=<id,...>      these worktrees were removed outside Freeboard after
 //                      the scan: already gone when their turn comes
+//   wthold=<id>:<kind> this worktree is held (in_use, unknown, merging or
+//                      no_branch): Has your work, removable after the
+//                      acknowledgment that names the hold
+//   wtuse=<id,...>     a program opens these worktrees after the scan: the
+//                      removal is skipped unless the plan acknowledges
+//                      (forces) them
 //   fresh=1            set up but never scanned: nothing found, no Logbook
 //   nothing=1          scanned and nothing found
 //   unavail=1          the last scan could not check Docker and pip
@@ -40,7 +46,7 @@ import type { UpdateStage, UpdateStatus } from "./types";
 // cleaned in part keeps its other parts listed.
 
 import type { Backend } from "./api";
-import type { AppStatus, BlindSpot, CleanupPlan, DiskMap, EventMap, Goal, Group, PileState, PlaceChecked, Platform, RunDetail, RunItem, RunSummary, Settings, Suggestion, TidyRule, VolumeChoice, WorktreesView, WtStatus } from "./types";
+import type { AppStatus, BlindSpot, CleanupPlan, DiskMap, EventMap, Goal, Group, PileState, PlaceChecked, Platform, RunDetail, RunItem, RunSummary, Settings, Suggestion, TidyRule, VolumeChoice, WorktreeInfo, WorktreesView, WtStatus } from "./types";
 
 export const FIXTURE_MARKER = "FREEBOARD_FIXTURE_BACKEND";
 const G = 1e9;
@@ -192,7 +198,7 @@ const round1 = (n: number) => Math.round(n * 10) / 10;
 // The prototype's real repository and branch names. Merged pull requests
 // (prototype `merged: 'pr'`) are squash merges here: Freeboard does not ask
 // GitHub (invariant 12), and a merged pull request's content is in main.
-type WtRow = { id: string; repo: string; b: string; gb: number; idle: number; dirty?: number; ahead?: number; merged?: "yes" | "squash" | "no"; pushed?: boolean; path: string; locked?: boolean; slow?: boolean; files?: string[]; main?: boolean };
+type WtRow = { id: string; repo: string; b: string; gb: number; idle: number; dirty?: number; ahead?: number; merged?: "yes" | "squash" | "no"; pushed?: boolean; path: string; locked?: boolean; slow?: boolean; hold?: WorktreeInfo["hold"]; files?: string[]; main?: boolean };
 const WT: WtRow[] = [
   { id: "w1", repo: "loitr", b: "worktree-agent-aeee3547468b1220d", gb: 3.6, idle: 21, dirty: 0, ahead: 2, merged: "squash", pushed: false, path: ".claude/worktrees/agent-aeee3547" },
   { id: "w2", repo: "backstage", b: "docs/scaffolder-api-tags", gb: 2.8, idle: 40, dirty: 0, ahead: 0, merged: "no", pushed: true, path: ".worktrees/scaffolder-api-tags" },
@@ -218,14 +224,29 @@ const WT: WtRow[] = [
 const WT_ROOT: Record<string, string> = { loitr: "~/proj/loitr", backstage: "~/proj/backstage", freeboard: "~/proj/freeboard", leftyou: "~/proj/leftyou", knowback: "~/proj/knowback", sheltersync: "~/proj/sheltersync" };
 
 /** One worktree as the core describes it (detectors/git.rs `finding`). */
+const HOLD_REASON: Record<string, string> = {
+  in_use: "A running program has this worktree open.",
+  unknown: "Freeboard couldn't check whether a program has this worktree open.",
+  merging: "A merge, rebase or cherry-pick is in progress.",
+  no_branch: "Its commits are on no branch, so they would be lost.",
+};
+const HOLD_ACK: Record<string, string> = {
+  in_use: "a worktree a running program has open",
+  unknown: "a worktree whose use I couldn't check",
+  merging: "a worktree with a merge or rebase in progress",
+  no_branch: "2 commits on no branch",
+};
+
 function worktreeItem(w: WtRow): Suggestion {
   const root = WT_ROOT[w.repo];
   const dirty = w.dirty ?? 0;
   const merged = w.merged ?? "no";
-  const status: WtStatus = dirty ? "work" : w.locked || w.idle < 7 ? "look" : "ready";
+  const hold = w.hold ?? null;
+  const status: WtStatus = dirty || hold ? "work" : w.locked || w.idle < 7 ? "look" : "ready";
   const goes = merged !== "no";
-  const commands = [...(w.locked ? [`git -C ${root} worktree unlock ${w.path}`] : []), `git -C ${root} worktree remove ${dirty ? "--force " : ""}${w.path}`, ...(goes ? [`git -C ${root} branch ${merged === "yes" ? "-d" : "-D"} ${w.b}`] : [])];
-  const reason = dirty ? `${dirty} uncommitted file${dirty === 1 ? "" : "s"} would be deleted.` : "";
+  const forced = status === "work";
+  const commands = [...(w.locked ? [`git -C ${root} worktree unlock ${w.path}`] : []), `git -C ${root} worktree remove ${forced ? "--force " : ""}${w.path}`, ...(goes ? [`git -C ${root} branch ${merged === "yes" ? "-d" : "-D"} ${w.b}`] : [])];
+  const reason = hold ? HOLD_REASON[hold] : dirty ? `${dirty} uncommitted file${dirty === 1 ? "" : "s"} would be deleted.` : "";
   return {
     id: w.id,
     detector: "git.worktrees",
@@ -239,7 +260,7 @@ function worktreeItem(w: WtRow): Suggestion {
     lastUsedLabel: `Last commit ${w.idle} days ago`,
     risk: status === "work" ? "risky" : "review",
     action: "native_command",
-    actionLabel: `git worktree remove ${dirty ? "--force " : ""}${root}/${w.path}`,
+    actionLabel: `git worktree remove ${forced ? "--force " : ""}${root}/${w.path}`,
     reason,
     recovery: goes ? "Everything is already in main." : `The branch stays. Reopen it with git worktree add ${w.path} ${w.b}.`,
     recoverable: status !== "work",
@@ -251,7 +272,7 @@ function worktreeItem(w: WtRow): Suggestion {
     sizeIsEstimate: false,
     skipReason: null,
     decision: null,
-    ackName: dirty ? `${dirty} uncommitted file${dirty === 1 ? "" : "s"}` : null,
+    ackName: hold ? HOLD_ACK[hold] : dirty ? `${dirty} uncommitted file${dirty === 1 ? "" : "s"}` : null,
     riskWhy: [],
     safer: [],
     worktree: {
@@ -268,7 +289,7 @@ function worktreeItem(w: WtRow): Suggestion {
       merged,
       ahead: w.ahead ?? 0,
       pushed: !!w.pushed,
-      hold: null,
+      hold,
       commands,
       reopen: goes ? null : `git worktree add ${w.path} ${w.b}`,
     },
@@ -288,6 +309,7 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
   // (its DEMO_FAIL); a retry then succeeds.
   const failOnce = new Set((params.get("fail") ?? "").split(",").filter(Boolean));
   const goneIds = new Set((params.get("gone") ?? "").split(",").filter(Boolean));
+  const useIds = new Set((params.get("wtuse") ?? "").split(",").filter(Boolean));
   // How each blind spot was fixed: scanned (its space moves into real areas
   // and its items appear) or marked as the user's own files.
   const resolvedSpots = new Map<string, "scan" | "mine">();
@@ -327,7 +349,9 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
   });
   // The Worktrees view's worktrees (prototype Version 19 `WT`), served by
   // get_worktrees and removable through the normal plan and run.
-  items.push(...WT.filter((w) => !w.main).map(worktreeItem));
+  // wthold=<id>:<kind>: that worktree is held (prototype rows have no holds).
+  const [holdId, holdKind] = (params.get("wthold") ?? "").split(":");
+  items.push(...WT.filter((w) => !w.main).map((w) => worktreeItem(w.id === holdId && holdKind ? { ...w, hold: holdKind as WorktreeInfo["hold"] } : w)));
   // wtstale: also one worktree as an older version stored it (no facts).
   if (params.has("wtstale")) items.push({ ...worktreeItem(WT[1]), id: "w-old", title: "backstage: docs/old-format", worktree: null, blockedReason: "Blocked in v1. Push this branch first.", risk: "risky", action: "none" });
   const gone = new Set<string>();
@@ -623,6 +647,11 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
         gone.add(it.id);
         continue;
       }
+      // A program opened it after the scan: skipped, unless forced.
+      if (useIds.has(pi.suggestionId) && !r.plan.acknowledgedIds.includes(pi.suggestionId)) {
+        setItem(r, row, "skipped", "A running program has this worktree open.");
+        continue;
+      }
       if (slowOnce.has(pi.suggestionId)) {
         setItem(r, row, "failed", "It took longer than 2 minutes, so I stopped it.");
         continue;
@@ -779,7 +808,8 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
     acknowledge_item: (a) => {
       const p = plans.get(a.planId as string) ?? fail("unknown_id", "unknown plan");
       const plan = p as Plan;
-      if (!plan.needsAckIds.includes(a.itemId as string)) fail("unknown_id", "unknown item: " + a.itemId);
+      // An item that needs it, or any worktree (a force).
+      if (!plan.needsAckIds.includes(a.itemId as string) && !plan.items.some((s) => s.id === a.itemId && s.worktree)) fail("unknown_id", "unknown item: " + a.itemId);
       if (!plan.acknowledgedIds.includes(a.itemId as string)) plan.acknowledgedIds.push(a.itemId as string);
       plan.ready = plan.needsAckIds.every((id) => plan.acknowledgedIds.includes(id));
       return publicPlan(plan);

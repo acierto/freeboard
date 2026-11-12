@@ -585,16 +585,30 @@ function noGitHubCheck() {
       .replace("(squash merge, checked with git merge-tree)", "(squash merge, checked with git diff)");
   }
 }
+function forceForAll(label) {
+  // Any other opened worktree offers the force acknowledgment (decision
+  // 2026-11-12), with the prototype's own .ack label and checkbox, at the
+  // end of its detail like the acknowledgment for uncommitted files.
+  for (const d of document.querySelectorAll("#v-wt .wt-row.open:not(.work):not(.main) .wt-detail")) {
+    if (d.querySelector("label.ack")) continue;
+    const l = document.createElement("label");
+    l.className = "ack";
+    const i = document.createElement("input");
+    i.type = "checkbox";
+    l.append(i, " " + label);
+    d.append(l);
+  }
+}
 function noRefocus() {
   // The prototype re-renders the list when a row opens and focuses the new
   // button, which shows its focus ring after a mouse click; the app keeps the
   // same button, so a mouse click shows no ring (as everywhere else).
   if (document.activeElement?.closest?.("#v-wt")) document.activeElement.blur();
 }
-const WT_NOTE = "Rows with uncommitted files show the --force their removal runs. Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.";
+const WT_NOTE = "Rows with uncommitted files show the --force their removal runs; any other opened row offers the force acknowledgment (decision 2026-11-12). Merged pull requests read as squash merges (no GitHub check, invariant 12), the squash check names git diff.";
 const wtEntry = (id, state, steps, sizes = [DESKTOP, MID, PHONE], refOnly = []) => ({
   id, surface: "Worktrees", state, sizes, query: "",
-  ref: [WT_TAB, ...steps, evalRef(noGitHubCheck), evalRef(forceForWork), ...refOnly], impl: [WT_TAB, ...steps], clip: WT_CLIP, supplemental: true, note: WT_NOTE,
+  ref: [WT_TAB, ...steps, evalRef(noGitHubCheck), evalRef(forceForWork), evalRef(forceForAll, STR.en["wt.ack.force"]), ...refOnly], impl: [WT_TAB, ...steps], clip: WT_CLIP, supplemental: true, note: WT_NOTE,
 });
 ENTRIES.push(
   wtEntry("wt-default", "Worktrees: 20 in 6 repositories, 15 ready, by repository", []),

@@ -419,6 +419,9 @@ impl CleanupEngine {
         let acks = persist::acks(&self.store.conn(), &row.id)?;
         let items: Vec<Suggestion> = snap.entries.iter().map(|e| e.suggestion.clone()).collect();
         let needs_ack_ids: Vec<String> = items.iter().filter(|s| s.needs_confirmation).map(|s| s.id.clone()).collect();
+        // Any worktree may be acknowledged (forced) even when it needs no
+        // acknowledgment, so the plan shows those acknowledgments too.
+        let may_ack = |id: &String| needs_ack_ids.contains(id) || items.iter().any(|s| &s.id == id && s.worktree.is_some());
         let unrecoverable: Vec<&Suggestion> = items.iter().filter(|s| !s.recoverable).collect();
         let intact = digest(&row.snapshot) == row.digest;
         Ok(CleanupPlan {
@@ -432,7 +435,7 @@ impl CleanupEngine {
             unrecoverable_ids: unrecoverable.iter().map(|s| s.id.clone()).collect(),
             unrecoverable_bytes: unrecoverable.iter().map(|s| s.size_bytes).sum(),
             ready: intact && state == PlanState::Open && needs_ack_ids.iter().all(|i| acks.contains(i)),
-            acknowledged_ids: acks.into_iter().filter(|a| needs_ack_ids.contains(a)).collect(),
+            acknowledged_ids: acks.into_iter().filter(may_ack).collect(),
             needs_ack_ids,
             free_bytes_now: (self.free_space)(),
             items,
@@ -458,7 +461,10 @@ impl CleanupEngine {
             _ => return Err(CleanupError::AlreadyUsed),
         }
         let snap: PlanSnapshot = serde_json::from_str(&row.snapshot).map_err(|_| CleanupError::Altered)?;
-        if !snap.entries.iter().any(|e| e.suggestion.id == item_id && e.suggestion.needs_confirmation) {
+        // An item that needs it, or any worktree: acknowledging a worktree
+        // that needs no acknowledgment forces it (decision 2026-11-12), so
+        // one that a program opens after the scan still goes.
+        if !snap.entries.iter().any(|e| e.suggestion.id == item_id && (e.suggestion.needs_confirmation || e.suggestion.worktree.is_some())) {
             return Err(CleanupError::UnknownItem(item_id.into()));
         }
         persist::add_ack(&self.store.conn(), plan_id, item_id, now)?;
@@ -556,7 +562,21 @@ impl CleanupEngine {
         let no_progress = |_: &str, _: Option<&str>, _: u64| {};
         // Parts removed per split item, to update what stays listed.
         let mut removed_parts: Vec<(String, String)> = vec![];
-        let steps: Vec<(&PlanEntry, &Finding)> = job.snapshot.steps().collect();
+        // A worktree acknowledged in this plan runs as forced, whether or not
+        // it asked for the acknowledgment.
+        let acks = persist::acks(&self.store.conn(), &job.plan_id).unwrap_or_default();
+        let owned: Vec<(&PlanEntry, Finding)> = job
+            .snapshot
+            .steps()
+            .map(|(e, f)| {
+                let mut f = f.clone();
+                if f.suggestion.detector == git::ID && acks.contains(&f.suggestion.id) {
+                    f.suggestion.needs_confirmation = true;
+                }
+                (e, f)
+            })
+            .collect();
+        let steps: Vec<(&PlanEntry, &Finding)> = owned.iter().map(|(e, f)| (*e, f)).collect();
         let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             let mut canceled = false;
             for (i, (entry, f)) in steps.iter().enumerate() {
@@ -776,14 +796,16 @@ impl CleanupEngine {
                 Err(e) => return (ItemState::Failed, Some(action_error(&e, &runner))),
             }
         }
-        // Uncommitted files go only for an item the user acknowledged in this
-        // plan (the probe already confirmed they are the scanned ones).
-        let forced = f.suggestion.needs_confirmation && wt.is_some_and(|w| w.dirty > 0 && w.hold.is_none());
+        // --force only for a worktree the user acknowledged in this plan: one
+        // with uncommitted files or a hold (the plan requires it), or any
+        // other the user forced (the probe already confirmed the state is
+        // the one acknowledged at the scan).
+        let acks = persist::acks(&self.store.conn(), &job.plan_id).unwrap_or_default();
+        let forced = acks.iter().any(|a| a == &f.suggestion.id);
+        if f.suggestion.needs_confirmation && !forced {
+            return (ItemState::Failed, Some("Refused: it was not acknowledged.".into()));
+        }
         let removed = if forced {
-            let acks = persist::acks(&self.store.conn(), &job.plan_id).unwrap_or_default();
-            if !acks.iter().any(|a| a == &f.suggestion.id) {
-                return (ItemState::Failed, Some("Refused: its uncommitted files were not acknowledged.".into()));
-            }
             let cmd = Cmd::new("git", ["worktree", "remove", "--force", &path]).in_dir(Path::new(main));
             runner.run_acknowledged_removal(&cmd, &job.confirmed, &crate::runner::Acknowledged::new(&f.suggestion.id))
         } else {

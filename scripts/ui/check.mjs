@@ -250,6 +250,38 @@ const idle = (p) => p.waitForFunction(() => document.documentElement.dataset.bus
   await ctx.close();
 }
 
+// Held worktrees (a program has it open) are Has your work: removable after
+// the in-row acknowledgment that names the hold. Any other worktree can be
+// forced from its row, so one a program opens after the scan still goes on
+// Try again (decision 2026-11-12).
+{
+  const { p, ctx } = await page("wthold=w2:in_use&wtuse=w1");
+  await p.click("#tab-wt");
+  check("held: a worktree a program has open is Has your work and not selectable", (await p.isDisabled('[data-wt-sel="w2"]')) && (await p.textContent('.wt-row:has([data-wt-open="w2"]) .wt-why')).endsWith("A running program has this worktree open."), await p.textContent('.wt-row:has([data-wt-open="w2"]) .wt-why'));
+  await p.click('[data-wt-open="w2"]');
+  check("held: the row's acknowledgment names the hold and the command has --force", (await p.textContent('.wt-row.open .ack')).trim() === "I understand a program has it open and may lose unsaved work. Let me select it." && (await p.textContent(".wt-row.open .wt-cmd")) === "git -C ~/proj/backstage worktree remove --force .worktrees/scaffolder-api-tags", await p.textContent(".wt-row.open .ack"));
+  await p.click('[data-wt-ack="w2"]');
+  check("held: acknowledging makes it selectable", !(await p.isDisabled('[data-wt-sel="w2"]')));
+  await p.click('[data-wt-sel="w2"]');
+  await p.click('[data-wt-sel="w1"]');
+  await p.evaluate(() => (window.__FIXTURE_CALLS__ = []));
+  await p.click('[data-wt-act="remove"]');
+  await p.waitForSelector(".wt-dock.fin");
+  const dock1 = await p.textContent(".wt-now");
+  check("held: the acknowledged one goes; the one a program opened after the scan could not", dock1.startsWith("Done. 1 removed, 1 could not go") && dock1.includes("worktree-agent-aeee3547468b1220d A running program has this worktree open."), dock1);
+  const acked1 = (await p.evaluate(() => window.__FIXTURE_CALLS__)).filter((c) => c.cmd === "acknowledge_item").map((c) => c.args.itemId);
+  check("held: only the acknowledged one was acknowledged in its plan", JSON.stringify(acked1) === '["w2"]', JSON.stringify(acked1));
+  await p.click('[data-wt-open="w1"]');
+  check("force: a Ready row offers the force acknowledgment", (await p.textContent('.wt-row.open .ack')).trim() === "Remove it even if a program has it open by then (force). Let me try again.", await p.textContent(".wt-row.open .ack"));
+  await p.click('[data-wt-ack="w1"]');
+  await p.evaluate(() => (window.__FIXTURE_CALLS__ = []));
+  await p.click('[data-wt-act="retry"]');
+  await p.waitForFunction(() => /^Done\. 2 removed/.test(document.querySelector(".wt-now")?.textContent ?? ""));
+  const acked2 = (await p.evaluate(() => window.__FIXTURE_CALLS__)).filter((c) => c.cmd === "acknowledge_item").map((c) => c.args.itemId);
+  check("force: Try again with the force acknowledgment removes it", JSON.stringify(acked2) === '["w1"]' && !!(await p.$('.wt-row.removed:has([data-wt-open="w1"])')), JSON.stringify(acked2));
+  await ctx.close();
+}
+
 // Worktrees found by an older version: the tab says so and offers a deep scan.
 {
   const { p, ctx } = await page("wtstale=141");

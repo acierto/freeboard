@@ -403,7 +403,6 @@
   "Xcode regenerates this on the next build.": "Xcode erzeugt das beim nächsten Build neu.",
   "Xcode's simulator tools are not available.": "Die Simulator-Tools von Xcode sind nicht verfügbar.",
   "Your files": "Deine Dateien",
-  "Your work exists only here.": "Deine Arbeit gibt es nur hier.",
   "today": "heute",
   "{a} and {b}.": "{a} und {b}.",
   "{a} and {b}": "{a} und {b}",
@@ -463,7 +462,6 @@
   "{0} uncommitted files": "{0} nicht committete Dateien",
   "If you remove it anyway, they are deleted for good. The branch and its commits stay.": "Entfernst du ihn trotzdem, sind sie endgültig weg. Der Branch und seine Commits bleiben.",
   "Not recoverable: the uncommitted files are deleted. The branch and its commits stay.": "Nicht wiederherstellbar: Die nicht committeten Dateien werden gelöscht. Der Branch und seine Commits bleiben.",
-  "Refused: its uncommitted files were not acknowledged.": "Abgelehnt: Seine nicht committeten Dateien wurden nicht bestätigt.",
   "{0} is not an allowed acknowledged removal": "{0} ist kein erlaubtes bestätigtes Entfernen",
   "{app} cache": "Cache von {app}",
   "{app} is open. Quit it, then scan again.": "{app} ist geöffnet. Beende es und scanne dann erneut.",
@@ -605,5 +603,16 @@
   "Unknown system detector.": "Unbekannter System-Detektor.",
   "Your temporary folder": "Dein temporärer Ordner",
   "Downloads is read once you add it as a scan folder, so macOS does not ask for access you did not choose to give.": "Downloads wird gelesen, sobald du es als Scan-Ordner hinzufügst, damit macOS nicht nach einem Zugriff fragt, den du nicht geben wolltest.",
-  "That disk is not connected any more.": "Diese Festplatte ist nicht mehr angeschlossen."
+  "That disk is not connected any more.": "Diese Festplatte ist nicht mehr angeschlossen.",
+  "{0} commits on no branch": "{0} Commits auf keinem Branch",
+  "1 commit on no branch": "1 Commit auf keinem Branch",
+  "a worktree a running program has open": "einen Worktree, den ein laufendes Programm geöffnet hat",
+  "a worktree whose use I couldn't check": "einen Worktree, dessen Nutzung ich nicht prüfen konnte",
+  "a worktree with a merge or rebase in progress": "einen Worktree mit laufendem Merge oder Rebase",
+  "Not recoverable: its commits are on no branch and are lost with the folder.": "Nicht wiederherstellbar: seine Commits liegen auf keinem Branch und gehen mit dem Ordner verloren.",
+  "Not recoverable: the folder is deleted even if a program has it open. The branch and its commits stay.": "Nicht wiederherstellbar: der Ordner wird gelöscht, auch wenn ein Programm ihn geöffnet hat. Der Branch und seine Commits bleiben.",
+  "Not recoverable: the folder is deleted while a program has it open, and that program may lose unsaved work. The branch and its commits stay.": "Nicht wiederherstellbar: der Ordner wird gelöscht, während ein Programm ihn geöffnet hat, und dieses Programm kann ungespeicherte Arbeit verlieren. Der Branch und seine Commits bleiben.",
+  "Not recoverable: the merge, rebase or cherry-pick in progress is lost with the folder. The branch and its commits stay.": "Nicht wiederherstellbar: der laufende Merge, Rebase oder Cherry-Pick geht mit dem Ordner verloren. Der Branch und seine Commits bleiben.",
+  "Refused: it was not acknowledged.": "Abgelehnt: es wurde nicht bestätigt.",
+  "Your work exists only here.": "Deine Arbeit gibt es nur hier."
 }

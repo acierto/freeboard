@@ -139,8 +139,9 @@ fn worktree_state_matrix() {
     assert!(l.locked && l.commands[0].contains("worktree unlock"));
     assert!(by_branch(&o, "locked").blocked_reason.is_none());
 
-    // Has your work. Uncommitted files: removable only after the user's
-    // acknowledgment, with --force. Held states: never.
+    // Has your work. Uncommitted files, or a hold: removable only after the
+    // user's acknowledgment of what is lost, with --force (decision
+    // 2026-11-12).
     for (b, needle, files) in [("dirty", "1 uncommitted file would be deleted", 1), ("untracked", "1 uncommitted file would be deleted", 1)] {
         let s = by_branch(&o, b);
         assert_eq!(s.worktree.as_ref().unwrap().status, WtStatus::Work, "{b}");
@@ -150,11 +151,14 @@ fn worktree_state_matrix() {
         assert_eq!(s.worktree.as_ref().unwrap().dirty, files, "{b}");
         assert!(s.worktree.as_ref().unwrap().commands.iter().any(|c| c.contains("worktree remove --force")), "{b}");
     }
-    for (b, needle) in [("merging", "merge"), ("broken", "couldn't determine")] {
+    for (b, needle, hold, ack) in [("merging", "merge", "merging", "a worktree with a merge or rebase in progress"), ("broken", "couldn't determine", "unknown", "a worktree whose use I couldn't check")] {
         let s = by_branch(&o, b);
-        assert_eq!(s.worktree.as_ref().unwrap().status, WtStatus::Work, "{b}");
+        let w = s.worktree.as_ref().unwrap();
+        assert_eq!((w.status, w.hold.as_deref()), (WtStatus::Work, Some(hold)), "{b}");
         assert!(s.reason.contains(needle), "{b}: {}", s.reason);
-        assert!(s.blocked_reason.is_some() && !s.needs_confirmation && !s.recoverable, "{b}");
+        assert!(s.blocked_reason.is_none() && s.needs_confirmation && !s.recoverable, "{b}");
+        assert_eq!(s.ack_name.as_deref(), Some(ack), "{b}");
+        assert!(w.commands.iter().any(|c| c.contains("worktree remove --force")), "{b}");
     }
     assert_eq!(info(&o, "untracked").dirty_files, vec!["new.txt".to_string()]);
     assert_eq!(info(&o, "dirty").dirty_files, vec!["d.txt".to_string()]);
@@ -170,9 +174,10 @@ fn inv09_git_work_never_preselected_only_ready_and_look_selectable() {
         let w = s.worktree.as_ref().unwrap();
         assert!(!s.preselected(), "{}", s.title);
         let clean = w.status != WtStatus::Work;
-        let acknowledgeable = w.status == WtStatus::Work && w.hold.is_none() && w.dirty > 0;
+        // Every Work worktree is acknowledgeable: the files, or the hold.
+        let acknowledgeable = w.status == WtStatus::Work;
         assert_eq!(s.selectable(), clean || acknowledgeable, "{}", s.title);
-        // --force only where the user must acknowledge the files first.
+        // --force only where the user must acknowledge what is lost first.
         assert_eq!(s.needs_confirmation, acknowledgeable, "{}", s.title);
         assert_eq!(w.commands.iter().any(|c| c.contains("--force")), acknowledgeable, "{}", s.title);
         if clean {
@@ -196,6 +201,10 @@ fn process_open_worktree_is_blocked() {
     let w = by_branch(&o, "pushed");
     assert_eq!(w.risk, Risk::Risky);
     assert!(w.reason.contains("running program"), "{}", w.reason);
+    // Removable after the acknowledgment that names the hold.
+    assert_eq!(w.worktree.as_ref().unwrap().hold.as_deref(), Some("in_use"));
+    assert!(w.needs_confirmation && w.blocked_reason.is_none());
+    assert_eq!(w.ack_name.as_deref(), Some("a worktree a running program has open"));
 }
 
 #[test]

@@ -88,19 +88,38 @@ export function checksOf(w: WorktreeInfo): [ok: boolean, text: string][] {
 /** Does removal delete the branch too? */
 export const branchGoes = (w: WorktreeInfo) => w.commands.some((c) => / branch -[dD] /.test(c));
 
-/** Uncommitted files only (nothing held): removable after the user's
+/** Has your work (uncommitted files, or a hold): removable after the user's
  * acknowledgment in the row. */
 export const acknowledgeable = (r: WtRow) => r.key === "work" && !!r.item?.needsConfirmation;
+
+/** Any other worktree can be forced from the row: the acknowledgment then
+ * removes it even if a program has it open by its turn. */
+export const forceable = (r: WtRow) => !!r.info && r.key !== "work";
 
 /** Can it be selected? Ready and Needs a look can; Has your work only once
  * acknowledged; held work and main checkouts never. */
 export const selectable = (r: WtRow, acked = false) => r.key === "ready" || r.key === "look" || (acked && acknowledgeable(r));
 
+/** The worktree's folder as shown: inside the main checkout it is relative
+ * to it; elsewhere the core gives the full path (found on a real Mac,
+ * 2026-11-12: "~/proj/app/~/.codex/…" when the two were joined). */
+export const dirOf = (r: WtRow) => (!r.info || !r.info.relPath ? r.root : /^[~/]/.test(r.info.relPath) ? r.info.relPath : `${r.root}/${r.info.relPath}`);
+
+/** The in-row acknowledgment that makes it selectable (or forces it): what
+ * is lost, in the user's words (decision 2026-11-12). */
+export function ackLabel(r: WtRow): string {
+  const w = r.info;
+  if (!w) return "";
+  if (w.status !== "work") return t("wt.ack.force");
+  if (w.hold) return t("wt.ack." + w.hold);
+  return w.dirty === 1 ? t("wt.ack1") : t("wt.ackN", { n: w.dirty });
+}
+
 /** Steps that make a worktree with uncommitted files removable (prototype `wtFix`). */
 export function fixesOf(r: WtRow): [label: string, cmd: string][] {
   const w = r.info;
   if (!w || !w.dirty) return [];
-  const dir = `${r.root}/${w.relPath}`;
+  const dir = dirOf(r);
   return [
     [t("wt.fix.see"), `git -C ${dir} status --short`],
     [t("wt.fix.commit"), `git -C ${dir} commit -am "wip"`],

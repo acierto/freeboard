@@ -236,6 +236,68 @@ fn acknowledged_worktree_with_new_files_after_the_scan_stays() {
     assert!(repo_path(&e).join(".worktrees/wip/later.txt").exists());
 }
 
+/// A program with its working directory in the worktree: the fake lsof
+/// reports it on macOS, /proc finds the real one on Linux (as in the
+/// detector test). Kept alive while the child is.
+fn open_in(e: &Env, dir: &std::path::Path) -> std::process::Child {
+    e.fx.tool("lsof", &format!("printf 'p1\\nfcwd\\nn/\\np4242\\nfcwd\\nn{}\\n'; exit 0", std::fs::canonicalize(dir).unwrap().display()));
+    std::process::Command::new("sleep").arg("30").current_dir(dir).spawn().unwrap()
+}
+
+/// Decision 2026-11-12: a held worktree (a program has it open) is removable
+/// after the user acknowledges, in the row, what is lost. Never without.
+#[test]
+fn held_worktree_goes_only_after_the_acknowledgment() {
+    let e = Env::new();
+    let done = repo_path(&e).join(".worktrees/done");
+    let mut child = open_in(&e, &done);
+    e.scan();
+    let wt = e.id("git.worktrees", "done");
+    let s = e.store.finding(&wt).unwrap().unwrap().suggestion;
+    assert_eq!(s.worktree.as_ref().unwrap().hold.as_deref(), Some("in_use"), "{}", s.reason);
+    assert!(s.needs_confirmation && s.blocked_reason.is_none() && !s.recoverable && s.risk == Risk::Risky);
+    assert_eq!(s.ack_name.as_deref(), Some("a worktree a running program has open"));
+    assert!(s.worktree.as_ref().unwrap().commands.iter().any(|c| c.contains("worktree remove --force")));
+    let p = e.plan(&[wt.clone()]);
+    assert_eq!(p.needs_ack_ids, vec![wt.clone()]);
+    assert!(e.engine.run_plan(&p.id, NOW).is_err(), "no run without the acknowledgment");
+    assert!(done.exists());
+    e.engine.acknowledge_item(&p.id, &wt, NOW).unwrap();
+    let r = e.run(&p);
+    let _ = child.kill();
+    let _ = child.wait();
+    assert_eq!(e.item(&r, &wt).state, ItemState::Done, "{:?}", e.item(&r, &wt).reason);
+    assert!(!done.exists());
+}
+
+/// A Ready worktree that a program opens after the scan is skipped with the
+/// reason; acknowledging it in a new plan (force) removes it anyway.
+#[test]
+fn ready_worktree_opened_after_the_scan_is_skipped_unless_forced() {
+    let e = Env::new();
+    e.scan();
+    let wt = e.id("git.worktrees", "done");
+    let done = repo_path(&e).join(".worktrees/done");
+    let p = e.plan(&[wt.clone()]);
+    assert!(p.needs_ack_ids.is_empty());
+    let mut child = open_in(&e, &done);
+    let r = e.run(&p);
+    let it = e.item(&r, &wt);
+    assert_eq!(it.state, ItemState::Skipped, "{:?}", it.reason);
+    assert!(it.reason.as_deref().unwrap().contains("running program"), "{:?}", it.reason);
+    assert!(done.exists());
+    let p2 = e.plan(&[wt.clone()]);
+    let p2 = e.engine.acknowledge_item(&p2.id, &wt, NOW).unwrap();
+    assert_eq!(p2.acknowledged_ids, vec![wt.clone()], "the forced acknowledgment is shown");
+    assert!(p2.ready);
+    let r2 = e.run(&p2);
+    let _ = child.kill();
+    let _ = child.wait();
+    assert_eq!(e.item(&r2, &wt).state, ItemState::Done, "{:?}", e.item(&r2, &wt).reason);
+    assert!(!done.exists());
+    assert!(e.store.finding(&wt).unwrap().is_none());
+}
+
 /// Branches that exist in the repository.
 fn branches(e: &Env) -> String {
     let out = std::process::Command::new("git").args(["branch", "--list"]).current_dir(repo_path(e)).output().unwrap();

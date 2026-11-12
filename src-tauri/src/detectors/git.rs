@@ -6,8 +6,10 @@
 //! is pushed or merged, and its branch is deleted too only when its content
 //! is already in the default branch. Recently used or locked worktrees need a
 //! look (selectable by hand). Uncommitted files, a merge in progress, a
-//! program using it, commits on no branch, or an unreadable state are Work
-//! and are not removed. The main checkout is never an item.
+//! program using it, commits on no branch, or an unreadable state are Work:
+//! removable only after the user acknowledges, in the row, exactly what is
+//! lost (decision 2026-11-12), with `--force`. The main checkout is never an
+//! item.
 
 use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
@@ -366,7 +368,9 @@ fn finding(ctx: &ScanContext, main: &Path, wt: &WtEntry, c: Classified, default:
     if wt.locked {
         commands.push(format!("git -C {root} worktree unlock {rel}"));
     }
-    let forced = c.status == WtStatus::Work && c.hold.is_none() && c.dirty > 0;
+    // Work (uncommitted files or a hold): removable after the user's
+    // acknowledgment of what is lost, with --force.
+    let forced = c.status == WtStatus::Work;
     commands.push(format!("git -C {root} worktree remove {}{rel}", if forced { "--force " } else { "" }));
     if goes {
         let flag = if c.merged == WtMerged::Yes { "-d" } else { "-D" };
@@ -377,21 +381,38 @@ fn finding(ctx: &ScanContext, main: &Path, wt: &WtEntry, c: Classified, default:
         _ => None,
     };
     if forced {
-        // Uncommitted files: the user may remove it after acknowledging that
-        // these files are deleted for good. The branch and its commits stay.
+        // The user may remove it after acknowledging, by name, what is lost:
+        // the uncommitted files, or what the hold protects. The branch and
+        // its commits stay (except commits on no branch).
         s.risk = Risk::Risky;
         s.action_label = format!("git worktree remove --force {}", wt.path.display());
-        s.recovery = "Not recoverable: the uncommitted files are deleted. The branch and its commits stay.".into();
+        let (recovery, ack): (String, String) = match c.hold {
+            Some("in_use") => (
+                "Not recoverable: the folder is deleted while a program has it open, and that program may lose unsaved work. The branch and its commits stay.".into(),
+                "a worktree a running program has open".into(),
+            ),
+            Some("unknown") => (
+                "Not recoverable: the folder is deleted even if a program has it open. The branch and its commits stay.".into(),
+                "a worktree whose use I couldn't check".into(),
+            ),
+            Some("merging") => (
+                "Not recoverable: the merge, rebase or cherry-pick in progress is lost with the folder. The branch and its commits stay.".into(),
+                "a worktree with a merge or rebase in progress".into(),
+            ),
+            Some(_) => (
+                "Not recoverable: its commits are on no branch and are lost with the folder.".into(),
+                if c.ahead == 1 { "1 commit on no branch".into() } else { format!("{} commits on no branch", c.ahead) },
+            ),
+            None => (
+                "Not recoverable: the uncommitted files are deleted. The branch and its commits stay.".into(),
+                if c.dirty == 1 { "1 uncommitted file".into() } else { format!("{} uncommitted files", c.dirty) },
+            ),
+        };
+        s.recovery = recovery;
         s.recoverable = false;
         s.blocked_reason = None;
         s.needs_confirmation = true;
-        s.ack_name = Some(if c.dirty == 1 { "1 uncommitted file".into() } else { format!("{} uncommitted files", c.dirty) });
-    } else if c.status == WtStatus::Work {
-        s.risk = Risk::Risky;
-        s.action_label = "None".into();
-        s.recovery = "Your work exists only here.".into();
-        s.recoverable = false;
-        s.blocked_reason = c.blocked.clone();
+        s.ack_name = Some(ack);
     } else {
         // Nothing is lost: the branch keeps every commit, or its content is
         // already in the default branch. Never automatic (Review).
@@ -517,7 +538,10 @@ impl Detector for Worktrees {
 /// uncommitted or untracked files, not locked unless the plan unlocks it (the
 /// lock is part of the fingerprint), not used since the scan. A worktree Git
 /// no longer lists (removed or pruned outside Freeboard; a deleted folder is
-/// "prunable", which `linked` leaves out) is gone, not changed.
+/// "prunable", which `linked` leaves out) is gone, not changed. An
+/// acknowledged (forced) worktree goes whatever program has it open or lock
+/// it carries by then; only new commits or changed files since the scan,
+/// which the user has not seen, still stop it.
 pub fn probe(f: &Finding, ctx: &ScanContext) -> Probe {
     let Target::Native { cwd: Some(main), resources, .. } = &f.target else {
         return Probe::Unknown("Unexpected cleanup target.".into());
@@ -531,11 +555,14 @@ pub fn probe(f: &Finding, ctx: &ScanContext) -> Probe {
         return Probe::Gone("The worktree no longer exists.".into());
     };
     let c = classify(ctx, &main, &wt, default_branch(ctx, &main).as_deref());
-    // Held work never goes. Uncommitted files go only for an item that asked
-    // for the user's acknowledgment (the plan requires it), and only while
-    // they are exactly the ones found at the scan (the fingerprint).
-    let acknowledged = f.suggestion.needs_confirmation && c.hold.is_none() && c.dirty > 0;
-    if c.status == WtStatus::Work && !acknowledged {
+    // Acknowledged (the run cannot start without it): the state the user saw
+    // at the scan goes. Commits or files that appeared since were never
+    // acknowledged, so they stop it.
+    if f.suggestion.needs_confirmation {
+        let same = f.suggestion.worktree.as_ref().is_some_and(|w| w.ahead == c.ahead && w.dirty == c.dirty && w.dirty_files == c.dirty_files);
+        return if same { Probe::Unchanged } else { Probe::Changed("A new commit or change appeared after the scan.".into()) };
+    }
+    if c.status == WtStatus::Work {
         return Probe::Changed(c.reason);
     }
     if c.fingerprint != f.suggestion.fingerprint {

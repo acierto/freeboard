@@ -399,7 +399,6 @@
   "Xcode regenerates this on the next build.": "Xcode maakt dit opnieuw bij de volgende build.",
   "Xcode's simulator tools are not available.": "De simulatortools van Xcode zijn niet beschikbaar.",
   "Your files": "Jouw bestanden",
-  "Your work exists only here.": "Je werk staat alleen hier.",
   "today": "vandaag",
   "{a} and {b}.": "{a} en {b}.",
   "{a} and {b}": "{a} en {b}",
@@ -451,7 +450,6 @@
   "{0} uncommitted files": "{0} niet-gecommitte bestanden",
   "If you remove it anyway, they are deleted for good. The branch and its commits stay.": "Haal je hem toch weg, dan zijn ze voorgoed weg. De branch en zijn commits blijven.",
   "Not recoverable: the uncommitted files are deleted. The branch and its commits stay.": "Niet terug te halen: de niet-gecommitte bestanden worden verwijderd. De branch en zijn commits blijven.",
-  "Refused: its uncommitted files were not acknowledged.": "Geweigerd: de niet-gecommitte bestanden zijn niet bevestigd.",
   "{0} is not an allowed acknowledged removal": "{0} is geen toegestane bevestigde verwijdering",
   "{app} cache": "Cache van {app}",
   "{app} is open. Quit it, then scan again.": "{app} is open. Sluit het af en scan opnieuw.",
@@ -593,5 +591,16 @@
   "Unknown system detector.": "Onbekende systeemdetector.",
   "Your temporary folder": "Je tijdelijke map",
   "Downloads is read once you add it as a scan folder, so macOS does not ask for access you did not choose to give.": "Downloads wordt gelezen zodra je het als scanmap toevoegt, zodat macOS niet vraagt om toegang die je niet zelf wilde geven.",
-  "That disk is not connected any more.": "Die schijf is niet meer aangesloten."
+  "That disk is not connected any more.": "Die schijf is niet meer aangesloten.",
+  "{0} commits on no branch": "{0} commits op geen enkele branch",
+  "1 commit on no branch": "1 commit op geen enkele branch",
+  "a worktree a running program has open": "een worktree die een draaiend programma open heeft",
+  "a worktree whose use I couldn't check": "een worktree waarvan ik het gebruik niet kon nagaan",
+  "a worktree with a merge or rebase in progress": "een worktree met een lopende merge of rebase",
+  "Not recoverable: its commits are on no branch and are lost with the folder.": "Niet terug te halen: zijn commits staan op geen enkele branch en gaan met de map verloren.",
+  "Not recoverable: the folder is deleted even if a program has it open. The branch and its commits stay.": "Niet terug te halen: de map wordt verwijderd, ook als een programma hem open heeft. De branch en zijn commits blijven.",
+  "Not recoverable: the folder is deleted while a program has it open, and that program may lose unsaved work. The branch and its commits stay.": "Niet terug te halen: de map wordt verwijderd terwijl een programma hem open heeft, en dat programma kan niet-opgeslagen werk verliezen. De branch en zijn commits blijven.",
+  "Not recoverable: the merge, rebase or cherry-pick in progress is lost with the folder. The branch and its commits stay.": "Niet terug te halen: de lopende merge, rebase of cherry-pick gaat met de map verloren. De branch en zijn commits blijven.",
+  "Refused: it was not acknowledged.": "Geweigerd: het is niet bevestigd.",
+  "Your work exists only here.": "Je werk staat alleen hier."
 }

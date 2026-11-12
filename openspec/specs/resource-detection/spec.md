@@ -41,7 +41,7 @@ Risk SHALL come from the detector's rules, not from size or age alone. Safe mean
 
 #### Scenario: Unknown status
 - **WHEN** `git status` fails for a worktree
-- **THEN** the worktree is Risky and blocked with a reason
+- **THEN** the worktree is Risky with a reason and is not selectable until the user acknowledges it
 
 ### Requirement: Detector coverage
 Freeboard SHALL implement every detector in the specification's detector summary, on the listed platforms, with the listed default risk and action. The detectors are: docker.build_cache, docker.dangling_images, docker.disk_slack, docker.unused_images, docker.stopped_containers, docker.volumes, git.worktrees, project.dependencies, project.build_output, cache.pnpm, cache.pip, cache.npm, cache.homebrew, cache.jetbrains, cache.electron_apps, cache.playwright, cache.cargo, cache.gradle, cache.xcode, ai.ollama, ai.huggingface, ai.lm_studio, mobile.ios_backups, mobile.android_avd, mobile.simulators, tools.node_versions, tools.rust_toolchains, apps.unused, files.duplicates, files.large_media, files.installers, files.windows_temp, system.snapshots and system.stale_temp. Before relying on a CLI flag or output format, the implementation SHALL check it against the installed tool. If a tool has no safe, supported way to act, the item SHALL be shown for information and kept out of cleanup.
@@ -62,11 +62,19 @@ Docker detectors SHALL run only after `docker version` succeeds. An image SHALL 
 - **THEN** it is not suggested as an unused image
 
 ### Requirement: Git worktree states
-Freeboard SHALL discover repositories under the configured folders, read linked worktrees, and never suggest the main worktree. Clean and merged worktrees, and clean, pushed but unmerged worktrees, SHALL be Review. Worktrees with uncommitted or untracked files, unpushed commits or no upstream, a lock, a merge or rebase in progress, an open process, or an unknown status SHALL be Risky and blocked. Squash-merged branches SHALL show as pushed, not merged.
+Freeboard SHALL discover repositories under the configured folders, read linked worktrees, and never suggest the main worktree. Clean worktrees SHALL be Review, whether or not their branch is pushed or merged, since the branch and its commits stay. Worktrees with uncommitted or untracked files, a merge or rebase in progress, an open process, commits on no branch, or an unknown status SHALL be Risky ("Has your work") and never selected until the user acknowledges, in the row, exactly what is lost (the files, the program that has it open, the merge in progress, the commits on no branch, or that its use could not be checked); the acknowledged removal uses `git worktree remove --force`. A worktree that needs no acknowledgment MAY be acknowledged anyway (forced), so one that a program opens after the scan still goes. Squash-merged branches SHALL show as pushed, not merged.
 
 #### Scenario: Worktree fixture states
 - **WHEN** fixture repositories cover each state above
-- **THEN** each worktree gets the listed risk, and every Risky one is blocked with a reason
+- **THEN** each worktree gets the listed risk, every Risky one names what its acknowledgment gives up, and none is selected by default
+
+#### Scenario: Held worktree removed after the acknowledgment
+- **WHEN** a program has a worktree open, the user acknowledges that in the row and confirms the removal
+- **THEN** the worktree is removed with `--force` and its branch stays; without the acknowledgment the plan does not run
+
+#### Scenario: Opened after the scan
+- **WHEN** a clean worktree is confirmed for removal and a program opens it before its turn
+- **THEN** it is skipped with that reason, and a new plan with the user's force acknowledgment removes it
 
 ### Requirement: Project ownership evidence
 Generated folders SHALL be suggested only with evidence: `node_modules` with `package.json` and a lockfile (Safe); `target` with `Cargo.toml` (Safe); `.venv` with `pyproject.toml` or `requirements.txt` (Review); `dist`, `build` or `.next` with a project manifest and the folder ignored by Git (Safe). A project SHALL count as inactive when no source file changed for 30 days. Projects with a running process SHALL be skipped. Freeboard SHALL NOT scan inside generated folders. Dependencies SHALL be split into one part per project.

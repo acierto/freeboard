@@ -110,9 +110,10 @@ An app not opened for a year is moved to the Trash, never deleted. `Guard::check
 
 Only `docker builder prune` and `docker image prune` may carry `--force`
 (the runner enforces this); `image prune` is not used at all. Banned commands
-(`git worktree remove --force`, `git clean`, `docker system prune`,
-`docker volume prune`, `npm cache clean`) are refused by the runner even
-with a confirmed plan.
+(`git clean`, `docker system prune`, `docker volume prune`, `npm cache clean`)
+are refused by the runner even with a confirmed plan. `git worktree remove
+--force <path>` runs only through `Runner::run_acknowledged_removal`, for a
+worktree the confirmed plan records as acknowledged by the user.
 
 ## Linked worktree removal (task 4.1, decided 2026-11-04)
 
@@ -121,20 +122,31 @@ The source protects repository roots (invariant 5) but also lists
 root (it holds a `.git` file). The user decided that **linked worktree roots
 are the one exception**. Everything else stays protected:
 
-- Only Review worktrees (clean and merged, or clean and pushed but not merged,
-  which includes squash merges) are selectable. Dirty, untracked, unpushed,
-  no-upstream, locked, merging/rebasing, process-open and unknown worktrees
-  stay Risky and blocked.
+- Clean worktrees (Ready, or Needs a look when used recently or locked) are
+  selectable; the branch and its commits always stay. Worktrees with
+  uncommitted files, a merge or rebase in progress, a program that has them
+  open, commits on no branch, or an unreadable state are Has your work: Risky,
+  never selected by default, and selectable only after the user ticks the
+  row's acknowledgment, which names what is lost (`ack_name`). Any other
+  worktree can be acknowledged too, as a force, so one that a program opens
+  after the scan still goes on Try again (decision 2026-11-12).
 - Immediately before acting, `detectors::git::probe` re-lists the worktrees and
-  re-classifies this one; a new commit, an edit, or any state change skips it.
+  re-classifies this one. Without an acknowledgment, a new commit, an edit, or
+  any state change (a program opening it, a lock) skips it. With one, only
+  commits or files that appeared since the scan skip it: the user never saw
+  those.
 - `Guard::check_linked_worktree` then requires: same canonical path as the
   scan, not a link, not the main worktree, a `.git` *file* whose `gitdir:`
   points into `<main>/.git/worktrees/`, and none of the other protected-path
   rules. The generic `Guard::check` still treats every repository root as
   protected.
-- The command is `git worktree remove <path>` run in the main worktree,
-  **never** with `--force`, so Git itself also refuses a worktree with local
-  changes. The branch is kept; recovery is `git worktree add <path> <branch>`.
+- The command is `git worktree remove <path>` run in the main worktree, so
+  Git itself also refuses a worktree with local changes. For an acknowledged
+  worktree it is `git worktree remove --force <path>`, through the runner's
+  one exception (`run_acknowledged_removal`, which takes the `Acknowledged`
+  token the engine creates only for an item recorded in `plan_acks`). The
+  branch is kept unless its content is already in the default branch;
+  recovery is `git worktree add <path> <branch>`.
 
 Tests: `guard::tests::linked_worktree_exception_is_narrow`,
 `guard::tests::linked_worktree_symlink_is_refused`,
@@ -142,7 +154,9 @@ Tests: `guard::tests::linked_worktree_exception_is_narrow`,
 `cleanup::tests::inv04_worktree_with_new_commit_after_scan_is_skipped`,
 `cleanup::tests::inv04_worktree_edited_after_scan_is_skipped`,
 `cleanup::tests::inv06_worktree_swapped_for_symlink_is_skipped`,
-`cleanup::tests::inv09_unpushed_worktree_cannot_be_planned`.
+`cleanup::tests::inv09_worktree_with_uncommitted_files_needs_the_acknowledgment`,
+`cleanup::tests::held_worktree_goes_only_after_the_acknowledgment`,
+`cleanup::tests::ready_worktree_opened_after_the_scan_is_skipped_unless_forced`.
 
 ## Trash
 

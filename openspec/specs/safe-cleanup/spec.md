@@ -58,7 +58,7 @@ One exception applies, for `apps.unused` on macOS only: a single top-level, non-
 - **THEN** the run is rejected
 
 ### Requirement: Restricted commands
-Commands SHALL run as an executable plus an argument array, without a shell. `git worktree remove --force`, `git clean`, `docker system prune` (any form) and `docker volume prune` SHALL be refused. Force flags SHALL be allowed only for `docker builder prune` and `docker image prune` after plan confirmation. The npm cache SHALL be removed as a folder through the normal checks, not with `npm cache clean --force`.
+Commands SHALL run as an executable plus an argument array, without a shell. `git clean`, `docker system prune` (any form) and `docker volume prune` SHALL be refused. Force flags SHALL be allowed only for `docker builder prune` and `docker image prune` after plan confirmation, and for exactly `git worktree remove --force <path>` for a worktree the confirmed plan records as acknowledged by the user. The npm cache SHALL be removed as a folder through the normal checks, not with `npm cache clean --force`.
 
 #### Scenario: Banned command
 - **WHEN** any code path asks the runner for a banned command or another force flag

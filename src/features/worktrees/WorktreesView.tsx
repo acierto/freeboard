@@ -13,7 +13,7 @@ import { track } from "../../lib/useBusy";
 import type { WorktreesView as View } from "../../lib/types";
 import { t } from "../../i18n";
 import { tb } from "../../i18n/backend";
-import { WT_COLOR, WT_KEYS, acknowledgeable, branchGoes, checksOf, fixesOf, idleShort, reposOf, rowsOf, selectable, shown, statusLabel, tally, whyOf, type WtFilter, type WtRow } from "./worktreesModel";
+import { WT_COLOR, WT_KEYS, ackLabel, acknowledgeable, branchGoes, checksOf, dirOf, fixesOf, forceable, idleShort, reposOf, rowsOf, selectable, shown, statusLabel, tally, whyOf, type WtFilter, type WtRow } from "./worktreesModel";
 
 const BRANCH_ICON = (
   <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
@@ -76,7 +76,7 @@ function Detail({ r, acked, onAck }: { r: WtRow; acked: boolean; onAck: (v: bool
     );
   }
   const w = r.info;
-  const dir = r.root + (w.relPath ? "/" + w.relPath : "");
+  const dir = dirOf(r);
   const fixes = fixesOf(r);
   const files = w.dirtyFiles.slice(0, 3);
   const more = w.dirty - files.length;
@@ -140,10 +140,10 @@ function Detail({ r, acked, onAck }: { r: WtRow; acked: boolean; onAck: (v: bool
           )}
         </div>
       </div>
-      {acknowledgeable(r) && (
+      {(acknowledgeable(r) || forceable(r)) && (
         <label className="ack">
           <input type="checkbox" data-wt-ack={r.id} checked={acked} onChange={(e) => onAck(e.target.checked)} />
-          {" " + (w.dirty === 1 ? t("wt.ack1") : t("wt.ackN", { n: w.dirty }))}
+          {" " + ackLabel(r)}
         </label>
       )}
     </div>
@@ -259,7 +259,9 @@ export function WorktreesView({ view, onChanged, scanning }: { view: View | null
     let reason: string | null = null;
     try {
       let plan = await track(api.createPlan([id]));
-      for (const a of plan.needsAckIds) if (qRef.current?.acked.includes(a)) plan = await track(api.acknowledgeItem(plan.id, a));
+      // The row's acknowledgment: required for Has your work, a force for
+      // the others (it then goes even if a program has it open by now).
+      if (qRef.current?.acked.includes(id)) plan = await track(api.acknowledgeItem(plan.id, id));
       const runId = await track(api.runPlan(plan.id));
       const finished = new Promise<void>((res) => waiters.current.set(runId, res));
       let detail = await track(api.getRun(runId));
@@ -329,7 +331,8 @@ export function WorktreesView({ view, onChanged, scanning }: { view: View | null
 
   const retry = () => {
     const ids = q?.failed.map((f) => f.id) ?? [];
-    update((x) => ({ ...x, queue: [...x.queue, ...ids], failed: [], finished: false }));
+    // Acknowledgments ticked since (a force on one that could not go) count.
+    update((x) => ({ ...x, queue: [...x.queue, ...ids], failed: [], finished: false, acked: [...new Set([...x.acked, ...acks])] }));
     void step();
   };
 
