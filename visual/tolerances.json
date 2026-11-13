@@ -60,6 +60,36 @@
       "threshold": 0,
       "maxDiffPixels": 78,
       "rationale": "Anti-aliasing only, in the dock's first two lines (78 pixels, both themes, every run); the dock's HTML is identical to the prototype's (compared with outerHTML) and cropped side by side the two are indistinguishable. Recorded in docs/decisions.md, 2026-11-09."
+    },
+    "settings-background--light--1120x900": {
+      "threshold": 0,
+      "maxDiffPixels": 80,
+      "rationale": "Only the rounded corners of two rows differ, by anti-aliasing: the Postgres databases section (supplemental) now sits above In the background, so the group is drawn at a different place in the scrolled sheet. Every text and box is at the same pixel on both sides (the Postgres section is kept to whole pixels for that). Recorded in docs/decisions.md, 2026-11-13."
+    },
+    "settings-background--light--760x900": {
+      "threshold": 0,
+      "maxDiffPixels": 80,
+      "rationale": "Only the rounded corners of two rows differ, by anti-aliasing: the Postgres databases section (supplemental) now sits above In the background, so the group is drawn at a different place in the scrolled sheet. Every text and box is at the same pixel on both sides (the Postgres section is kept to whole pixels for that). Recorded in docs/decisions.md, 2026-11-13."
+    },
+    "settings-background--light--390x844": {
+      "threshold": 0,
+      "maxDiffPixels": 80,
+      "rationale": "Only the rounded corners of two rows differ, by anti-aliasing: the Postgres databases section (supplemental) now sits above In the background, so the group is drawn at a different place in the scrolled sheet. Every text and box is at the same pixel on both sides (the Postgres section is kept to whole pixels for that). Recorded in docs/decisions.md, 2026-11-13."
+    },
+    "settings-background--dark--1120x900": {
+      "threshold": 0,
+      "maxDiffPixels": 80,
+      "rationale": "Only the rounded corners of two rows differ, by anti-aliasing: the Postgres databases section (supplemental) now sits above In the background, so the group is drawn at a different place in the scrolled sheet. Every text and box is at the same pixel on both sides (the Postgres section is kept to whole pixels for that). Recorded in docs/decisions.md, 2026-11-13."
+    },
+    "settings-background--dark--760x900": {
+      "threshold": 0,
+      "maxDiffPixels": 80,
+      "rationale": "Only the rounded corners of two rows differ, by anti-aliasing: the Postgres databases section (supplemental) now sits above In the background, so the group is drawn at a different place in the scrolled sheet. Every text and box is at the same pixel on both sides (the Postgres section is kept to whole pixels for that). Recorded in docs/decisions.md, 2026-11-13."
+    },
+    "settings-background--dark--390x844": {
+      "threshold": 0,
+      "maxDiffPixels": 80,
+      "rationale": "Only the rounded corners of two rows differ, by anti-aliasing: the Postgres databases section (supplemental) now sits above In the background, so the group is drawn at a different place in the scrolled sheet. Every text and box is at the same pixel on both sides (the Postgres section is kept to whole pixels for that). Recorded in docs/decisions.md, 2026-11-13."
     }
   }
 }

@@ -5,7 +5,7 @@
 //! The commands are only shown, for the user to run in their own terminal.
 //! Freeboard never runs them; they are read-only or make a copy.
 
-use crate::detectors::{caches, docker, files, git, projects};
+use crate::detectors::{caches, docker, files, git, postgres, projects};
 use crate::model::{Risk, SaferStep, Suggestion};
 
 fn step(label: &str, command: impl Into<String>) -> SaferStep {
@@ -75,6 +75,25 @@ fn notes(s: &Suggestion) -> (Vec<String>, Vec<SaferStep>) {
                 step("Look inside one (use a name from that list)", "docker run --rm -v VOLUME_NAME:/data alpine ls -la /data"),
             ],
         ),
+        postgres::ID => {
+            // The action label is `dropdb [-h H] [-p P] [-U U] <name>`; the
+            // same connection options make the copy.
+            let rest = s.action_label.trim_start_matches("dropdb ");
+            let name = rest.rsplit(' ').next().unwrap_or(rest);
+            let mut why = vec![
+                "No undo. Postgres deletes a database outright; it never goes to the Trash.".to_string(),
+                "Freeboard can\u{2019}t tell whether it holds data that exists nowhere else, such as test data you made by hand.".into(),
+            ];
+            if s.reason.contains("still there") {
+                why.push("Its worktree is still there and may expect to find it.".into());
+            }
+            let safer = if s.blocked_reason.is_some() {
+                vec![]
+            } else {
+                vec![step("Save a copy, then remove it", format!("mkdir -p ~/Backups && pg_dump -Fc -f ~/Backups/{name}.dump {rest}"))]
+            };
+            (why, safer)
+        }
         docker::UNUSED => (
             vec![
                 "Docker can pull or build them again, but that takes time and network.".into(),

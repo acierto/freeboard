@@ -14,7 +14,7 @@ detector failing never stops the others; its error is reported with a kind
 | Kind | Detectors | Notes |
 | --- | --- | --- |
 | Quick | docker.\*, cache.\*, files.\* | Tool reports and known cache locations. |
-| Deep | all, plus git.worktrees, project.dependencies, project.build_output | One discovery walk of the configured scan folders per scan, shared by the deep detectors. |
+| Deep | all, plus git.worktrees, postgres.worktree_dbs, project.dependencies, project.build_output | One discovery walk of the configured scan folders per scan, shared by the deep detectors. |
 
 Discovery (`scan/walk.rs`) reads directory entries only. It never follows
 symlinks, junctions or reparse points, never descends into `.git` or
@@ -42,6 +42,7 @@ the size as an estimate (the interface shows "about").
 | `docker.volumes` | Volumes no container mounts | Risky, individual acknowledgment | `docker volume rm <name>` | All | `inv10_volumes_never_preselected_and_need_ack` |
 | `docker.disk_slack` | Docker Desktop's disk image (`Docker.raw`, `docker_data.vhdx`) on disk minus the total of `docker system df`, when 1 GB or more. macOS reads it only with Full Disk Access (otherwise unavailable, "permission"). Information only: no action, `Target::None`, shown as blocked with how Docker Desktop can shrink it | Review | None | macOS, Windows | `tests::docker::disk_slack_is_information_only`, `disk_slack_reads_docker_usage_and_needs_the_daemon` |
 | `git.worktrees` | Linked worktrees | Review or Risky; removal disabled | `git worktree remove <path>` (not run, see cleanup.md) | All | `tests::git::worktree_state_matrix` |
+| `postgres.worktree_dbs` | Per-worktree copies of a database (`<base>_wt<N>`, never a template) on a Postgres server on this computer: libpq's default, the servers in Settings → Postgres databases, and the localhost entries of `~/.pgpass` (host, port and user only; psql reads the password). One constant read-only query. Tied after the scan to the worktree named `wt<N>`, whose row then shows the database that stays behind. Blocked while it has connections. Silent when psql is missing or no server runs; reported as unavailable when a server refuses Freeboard | Risky, individual acknowledgment | `dropdb [-h -p -U] -w <name>` | All | `tests::postgres::lists_worktree_databases_and_links_them_to_their_worktree`, `probe_rechecks_the_same_database`, `runner_allows_only_the_constant_query_and_one_worktree_database` |
 | `project.dependencies` | `node_modules`, `.venv` | Safe / Review | Delete / Trash | All | `tests::projects::ownership_evidence_table` |
 | `project.build_output` | `target`, `dist`, `build`, `.next` | Safe | Delete | All | `ownership_evidence_table` |
 | `cache.pnpm` | Store files no project links to | Safe | `pnpm store prune` | All | `tests::caches::pnpm_reports_only_unreferenced_packages` |
@@ -96,6 +97,7 @@ read-only commands only.
 | tmutil | macOS 27 | `tmutil listlocalsnapshots /` prints `Snapshots for disk /:` then `com.apple.TimeMachine.<YYYY-MM-DD-HHMMSS>.local` lines; `tmutil latestbackup` prints the backup's path, or with no destination `Failed to mount backup destination, error: ...` and still exits 0 (checked live 2026-11-08; this Mac has no snapshots or destination, so the backup path shape is from Apple's documentation). |
 | nvm | 0.40 (`~/.nvm`) | `versions/node/v<major>.<minor>.<patch>/` folders and `alias/default` holding a version or alias (`24.18.0` here); checked live 2026-11-08. |
 | rustup | 1.29.2 | `rustup toolchain list` prints one toolchain per line, flags in parentheses (`stable-aarch64-apple-darwin (active, default)`); checked live 2026-11-08. |
+| psql / dropdb | 16 (Homebrew) | `psql -X -w -A -t -q -0 -F <US> [-h -p -U] -d postgres -c <QUERY>`: a server row (`S`, port, data folder or empty without the right to read it) and one row per database (`D`, name, oid, size or empty without CONNECT, open connections), fields split by U+001F, rows by NUL. A missing server prints `connection refused` or `No such file or directory` on stderr. Not checked against a live server: fixtures and a fake psql only. |
 | ps / lsof | macOS | `ps -A -o args=` (Gradle daemon check); `lsof -a -d cwd -Fp +D <dir>` (processes in a folder; exit 1 means none). Linux reads `/proc/*/cwd`. |
 
 ## Limitations

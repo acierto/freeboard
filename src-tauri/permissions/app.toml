@@ -45,6 +45,7 @@ commands.allow = [
   "get_tidy_rules",
   "get_volumes",
   "set_volume_watched",
+  "check_postgres",
   "create_disk_report",
   "list_logbook",
   # Tray view (no arguments): close it, or open the main window on the pile.

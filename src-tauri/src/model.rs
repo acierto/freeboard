@@ -220,6 +220,17 @@ pub struct WorktreeInfo {
     pub commands: Vec<String>,
     /// How to get the worktree back when the branch stays.
     pub reopen: Option<String>,
+    /// Its own copy of a Postgres database (`<base>_wt<N>`), which stays
+    /// behind when the folder goes (detectors::postgres::link_worktrees).
+    #[serde(default)]
+    pub database: Option<WtDatabase>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WtDatabase {
+    pub name: String,
+    pub size_bytes: u64,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

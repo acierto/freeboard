@@ -13,6 +13,7 @@ import { LANGS, LANG_NAMES, ago as agoIn, fx, lang, t, tn, unitGB, type Lang, ty
 import { track } from "../../lib/useBusy";
 import type { DeepScanSchedule, FolderDetails, FolderInfo, FolderList, Platform, QuickScanSchedule, ScanKind, Settings, SettingsPatch, VolumeChoice } from "../../lib/types";
 import { displayPath } from "./Folders";
+import { PostgresSection } from "./Postgres";
 
 const MAX = 60;
 const pct = (v: number) => Math.min(100, (v / MAX) * 100);
@@ -388,6 +389,7 @@ export function SettingsSheet({
           </div>
         </section>
 
+        <PostgresSection settings={settings} platform={platform} onChange={onChange} />
         <Background settings={settings} onChange={onChange} />
       </div>
       <div className="st-foot">

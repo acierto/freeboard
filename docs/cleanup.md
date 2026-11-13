@@ -98,6 +98,7 @@ confirmed plan:
 | Homebrew | `brew cleanup` | Skipped if `brew cleanup --dry-run` lists any path that was not in the plan. |
 | Ollama models | `ollama rm <model>` | One model per part; the name passes `safe_model_name`. |
 | Rust toolchains | `rustup toolchain uninstall <name>` | One toolchain per part; the name passes `safe_toolchain`. |
+| Worktree databases | `dropdb [-h <local host>] [-p <port>] [-U <user>] -w <name>` | One database per item; the name must be `<base>_wt<N>` and not a template, the host this computer. Skipped if it was dropped and made again (new oid) or anything connected since the scan. |
 | Time Machine snapshots | `tmutil deletelocalsnapshots <YYYY-MM-DD-HHMMSS>` | One snapshot per part, by date; a mount point (which would delete every snapshot) is refused. |
 
 ## Keep me tidy plans

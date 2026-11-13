@@ -89,6 +89,8 @@ export interface WorktreeInfo {
   /** The exact commands removal runs. */
   commands: string[];
   reopen: string | null;
+  /** Its own copy of a Postgres database, which stays when the folder goes. */
+  database?: { name: string; sizeBytes: number } | null;
 }
 
 export interface WorktreeRepo {
@@ -427,6 +429,28 @@ export interface Settings {
   menuBarFreeSpace: boolean;
   /** Settings → Language: "system" follows the operating system. */
   language: LanguagePref;
+  /** Settings → Postgres databases: local servers besides the default one. */
+  postgresServers: PostgresServer[];
+}
+
+/** A Postgres server on this computer. No password: psql reads it from
+ * ~/.pgpass, and Freeboard never stores one. */
+export interface PostgresServer {
+  host: "localhost" | "127.0.0.1" | "::1";
+  port: number;
+  /** Empty: the operating-system user name. */
+  user: string;
+}
+
+/** One server after Settings → Check. Empty host and user: libpq's default. */
+export interface PostgresCheck {
+  host: string;
+  port: string;
+  user: string;
+  state: "ok" | "absent" | "refused" | "no_psql";
+  message: string | null;
+  databases: number;
+  bytes: number;
 }
 
 /** Settings the interface may change directly. Folder lists change only
@@ -448,6 +472,7 @@ export type SettingsPatch = Partial<
     | "onboardingComplete"
     | "menuBarFreeSpace"
     | "language"
+    | "postgresServers"
   >
 >;
 

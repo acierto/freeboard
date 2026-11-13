@@ -450,6 +450,7 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
     menuBarFreeSpace: true,
     // lang=de: a language chosen in Settings; otherwise the system's.
     language: (params.get("lang") as LanguagePref | null) ?? "system",
+    postgresServers: [],
   };
 
   const status = (): AppStatus => {
@@ -1034,6 +1035,16 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
       hasMore: false,
     }),
     get_volumes: () => volumes,
+    // The default socket has no server; each added server answers, the
+    // first with two worktree databases.
+    check_postgres: () => [
+      { host: "", port: "", user: "", state: "absent", message: null, databases: 0, bytes: 0 },
+      ...settings.postgresServers.map((s, i) =>
+        i === 0
+          ? { host: s.host, port: String(s.port), user: s.user, state: "ok", message: null, databases: 2, bytes: bytes(6.3) }
+          : { host: s.host, port: String(s.port), user: s.user, state: "refused", message: `password authentication failed for user "${s.user || "you"}"`, databases: 0, bytes: 0 },
+      ),
+    ],
     set_volume_watched: (a) => {
       volumes = volumes.map((v) => (v.id === a.volumeId ? { ...v, watched: !!a.watched } : v));
       return volumes;

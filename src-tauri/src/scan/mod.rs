@@ -170,6 +170,7 @@ pub fn run_scan(ctx: &ScanContext, detectors: &[Box<dyn Detector>]) -> ScanOutco
             f.suggestion.full_size_bytes = f.suggestion.size_bytes;
         }
     }
+    crate::detectors::postgres::link_worktrees(&mut out.findings);
     sort_findings(&mut out.findings);
     out
 }

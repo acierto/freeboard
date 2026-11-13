@@ -87,3 +87,17 @@ html.tray-native, html.tray-native body { background: transparent; }
    one, with a muted lead and a muted share of the dock's bar. */
 .wt-state.gone { background: var(--soft); color: var(--muted); }
 .wt-prog2 .gone { background: var(--muted); }
+
+/* Settings → Postgres databases */
+.pg-add { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; margin: 8px 0; }
+.pg-add label { display: flex; flex-direction: column; gap: 2px; }
+.pg-add input, .pg-add select { font: inherit; }
+.pg-example { margin: 4px 0; padding: 6px 10px; border-radius: 12px; background: var(--card); white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12.5px; line-height: 20px; }
+.pg-checks { margin: 6px 0 0; padding-left: 18px; }
+.pg-checks .ok { color: inherit; }
+.pg-checks .no { color: var(--muted); }
+/* Whole-pixel line heights, so the sections after this one keep the
+   prototype's pixel positions whatever the text wraps to. */
+.pg-sec h3, .pg-sec p, .pg-sec small, .pg-sec b, .pg-sec .st-sub, .pg-sec .path, .pg-sec li { line-height: 20px; }
+.pg-sec .btn { line-height: 20px; }
+.pg-add input, .pg-add select { height: 30px; box-sizing: border-box; padding: 0 8px; border: 2px solid var(--line); border-radius: 10px; background: var(--soft); color: var(--ink); }

@@ -130,7 +130,7 @@ impl Acknowledged {
     }
 }
 
-const PROGRAMS: &[&str] = &["docker", "git", "pnpm", "pip", "pip3", "brew", "xcrun", "npm", "lsof", "ps", "tmutil", "ollama", "rustup", "mdls"];
+const PROGRAMS: &[&str] = &["docker", "git", "pnpm", "pip", "pip3", "brew", "xcrun", "npm", "lsof", "ps", "tmutil", "ollama", "rustup", "mdls", "psql", "dropdb"];
 
 fn is_force_flag(a: &str) -> bool {
     if a == "--force" || a.starts_with("--force=") || a == "-f" {
@@ -235,6 +235,8 @@ fn read_only_allowed(cmd: &Cmd) -> bool {
             }
             ok && i < a.len() && a[i..].iter().all(|p| p.starts_with('/'))
         }
+        // Exactly the scan's one constant query, to this computer only.
+        "psql" => crate::detectors::postgres::psql_read_ok(&a),
         "lsof" => true,
         "ps" => true,
         _ => false,
@@ -270,6 +272,8 @@ fn action_allowed(cmd: &Cmd) -> bool {
         "tmutil" => a.len() == 2 && a[0] == "deletelocalsnapshots" && crate::detectors::system::safe_date(a[1]),
         // One toolchain by name per part.
         "rustup" => a.len() == 3 && a[..2] == ["toolchain", "uninstall"] && crate::detectors::tools::safe_toolchain(a[2]),
+        // One worktree database (`<base>_wt<N>`) on this computer.
+        "dropdb" => crate::detectors::postgres::dropdb_ok(&a),
         "ollama" => a.len() == 2 && a[0] == "rm" && crate::detectors::ai::safe_model_name(a[1]),
         "xcrun" => {
             a == ["simctl", "delete", "unavailable"]
@@ -391,7 +395,16 @@ impl Runner {
         let mut dirs: Vec<PathBuf> = std::env::split_paths(&self.path_var()).collect();
         if self.search_path.is_none() && cfg!(target_os = "macos") {
             // GUI apps on macOS start with a minimal PATH.
-            for d in ["/opt/homebrew/bin", "/usr/local/bin", "/Applications/Docker.app/Contents/Resources/bin"] {
+            // psql and dropdb: Homebrew's libpq is keg-only (not linked into
+            // bin), and Postgres.app keeps its own.
+            for d in [
+                "/opt/homebrew/bin",
+                "/usr/local/bin",
+                "/Applications/Docker.app/Contents/Resources/bin",
+                "/opt/homebrew/opt/libpq/bin",
+                "/usr/local/opt/libpq/bin",
+                "/Applications/Postgres.app/Contents/Versions/latest/bin",
+            ] {
                 dirs.push(PathBuf::from(d));
             }
         }

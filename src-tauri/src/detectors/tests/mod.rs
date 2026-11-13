@@ -32,6 +32,8 @@ pub(crate) mod git;
 #[cfg(unix)]
 mod mobile;
 #[cfg(unix)]
+mod postgres;
+#[cfg(unix)]
 mod projects;
 #[cfg(unix)]
 mod scan;

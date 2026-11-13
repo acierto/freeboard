@@ -442,6 +442,7 @@ fn finding(ctx: &ScanContext, main: &Path, wt: &WtEntry, c: Classified, default:
         hold: c.hold.map(str::to_string),
         commands,
         reopen,
+        database: None,
     });
     Finding {
         parts: vec![],

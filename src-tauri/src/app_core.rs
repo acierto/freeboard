@@ -1222,6 +1222,11 @@ impl AppCore {
         self.get_volumes()
     }
 
+    /// Settings → Postgres databases → Check: each server's state, read-only.
+    pub fn check_postgres(&self) -> CmdResult<Vec<crate::detectors::postgres::ServerCheck>> {
+        Ok(crate::detectors::postgres::check(&self.runner, &self.home, self.platform, &self.settings().postgres_servers))
+    }
+
     pub fn get_settings(&self) -> CmdResult<Settings> {
         Ok(self.settings())
     }

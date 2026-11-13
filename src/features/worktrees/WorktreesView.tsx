@@ -123,6 +123,11 @@ function Detail({ r, acked, onAck }: { r: WtRow; acked: boolean; onAck: (v: bool
               </>
             )}
           </p>
+          {w.database && (
+            <p className="wt-after">
+              {t("wt.db")} <span className="mono">{w.database.name}</span> ({gb(w.database.sizeBytes)})
+            </p>
+          )}
           <div className="rx-sub">{t("f.run")}</div>
           <code className="mono wt-cmd">{w.commands.join("\n")}</code>
           {fixes.length > 0 && (

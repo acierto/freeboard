@@ -76,6 +76,22 @@ Freeboard SHALL discover repositories under the configured folders, read linked 
 - **WHEN** a clean worktree is confirmed for removal and a program opens it before its turn
 - **THEN** it is skipped with that reason, and a new plan with the user's force acknowledgment removes it
 
+### Requirement: Worktree databases
+Freeboard SHALL list, in deep scans, each database named `<base>_wt<N>` on a Postgres server on this computer (the default server, the servers the user adds in Settings, and the localhost lines of the user's pgpass file), read with one constant read-only query through `psql` (never a template database, never a remote server, never storing a password). Each SHALL be Risky, never preselected, acknowledged by name, and blocked while it has open connections. A database SHALL be tied to the worktree whose folder or branch is named `wt<N>`; that worktree's row SHALL show the database, which stays when the folder goes. Removal SHALL run `dropdb` for that one database after the pre-cleanup check finds the same database (same oid) with no connections.
+Source: user decision 2026-11-13 (a Postgres disk held 29 GB of worktree databases that removing worktrees left behind).
+
+#### Scenario: Worktree database found and tied to its worktree
+- **WHEN** a local server has `crystal_wt49`, `crystal_wt8` (one connection), `crystal_template` and `app`, and the repository has a worktree `wt49`
+- **THEN** only `crystal_wt49` and `crystal_wt8` are listed, both Risky; `crystal_wt8` is blocked; `crystal_wt49` names worktree `wt49`, whose row shows the database
+
+#### Scenario: Servers set in Settings
+- **WHEN** the user adds local servers (host `localhost`, `127.0.0.1` or `::1`, a port, an optional user) in Settings → Postgres databases, and one of them refuses the password
+- **THEN** a deep scan lists the worktree databases of every server that answers, Check servers shows each server as connected (with its worktree databases and their size), refused (with psql's reason), not running, or psql missing, and a remote host is refused by Settings
+
+#### Scenario: Database changed before removal
+- **WHEN** the database gains a connection, is made again, or is dropped after the scan
+- **THEN** the pre-cleanup check skips it as changed, or as gone
+
 ### Requirement: Project ownership evidence
 Generated folders SHALL be suggested only with evidence: `node_modules` with `package.json` and a lockfile (Safe); `target` with `Cargo.toml` (Safe); `.venv` with `pyproject.toml` or `requirements.txt` (Review); `dist`, `build` or `.next` with a project manifest and the folder ignored by Git (Safe). A project SHALL count as inactive when no source file changed for 30 days. Projects with a running process SHALL be skipped. Freeboard SHALL NOT scan inside generated folders. Dependencies SHALL be split into one part per project.
 

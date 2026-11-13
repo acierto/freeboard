@@ -1,4 +1,5 @@
 .venv in data-tools
+1 connection is open to it. Stop what uses it, then scan again.
 1 container
 1 installer and disk image that you have not opened recently.
 1 uncommitted file would be deleted.
@@ -11,6 +12,9 @@
 3 images no container uses
 8 installers and disk images that you have not opened recently.
 A Gradle daemon is running. Stop it with gradle --stop, then scan again.
+A copy of the crystal database made for worktree 49. Freeboard found no worktree named wt49 in your scan folders.
+A copy of the crystal database made for worktree 8. Freeboard found no worktree named wt8 in your scan folders.
+A copy of the crystal database made for worktree wt49 in app, which is still there. Removing it breaks that worktree's local setup.
 A merge, rebase or cherry-pick is in progress.
 A merge, rebase or cherry-pick is in progress. Your work may exist only here.
 A running program has this worktree open.
@@ -38,6 +42,8 @@ Created 71 days ago
 Created 94 days ago. Docker does not record later use
 Created by Docker for containers that no longer exist
 Data you saved inside these simulators, such as test accounts and photos, is removed with them.
+Database crystal_wt49
+Database crystal_wt8
 Delete the 3 folders
 Delete the folder
 Dependencies and build caches that Gradle downloads or rebuilds.
@@ -57,6 +63,7 @@ Files Git ignores, such as .env files and local settings, are removed with the w
 Files a container wrote outside its volumes are removed with it.
 Freeboard can't tell whether you still need these files.
 Freeboard can’t see inside it, so it can’t tell whether this is the only copy of some data.
+Freeboard can’t tell whether it holds data that exists nowhere else, such as test data you made by hand.
 Freeboard couldn't check for a running Gradle daemon, so this is blocked.
 Freeboard couldn't check whether a program has this worktree open.
 Freeboard couldn't check whether a program has this worktree open. Your work may exist only here.
@@ -73,6 +80,7 @@ Idle 30 days, nothing uncommitted. The branch stays, so you can reopen it anytim
 If you remove it anyway, they are deleted for good. The branch and its commits stay.
 Installers in Downloads
 It belongs to the Compose project billing, which may expect to find it again.
+Its worktree is still there and may expect to find it.
 Last changed 120 days ago
 Last changed today
 Last commit 30 days ago
@@ -91,6 +99,7 @@ Newest created 64 days ago
 No container uses them, but one may still hold the only copy of some data.
 No container uses them. Docker doesn't name or describe them, so it can't tell what is inside; one may still hold the only copy of some data.
 No undo. Docker deletes a volume outright; it never goes to the Trash.
+No undo. Postgres deletes a database outright; it never goes to the Trash.
 None
 Not attached to a container
 Not attached to a container, but it may hold the only copy of this data.
@@ -99,6 +108,7 @@ Not opened in 120+ days
 Not opened in 200+ days
 Not opened in 40+ days
 Not recoverable.
+Not recoverable. If your project makes these copies from a template, it can make a fresh one, without the changes made since.
 Not recoverable: the uncommitted files are deleted. The branch and its commits stay.
 Not used by any container
 Not used by any current build
@@ -110,6 +120,8 @@ Old versions and downloads of installed packages (1 items).
 Older than 14 days
 Only the folder goes. The branch stays with all its commits, so nothing is lost.
 Packages in the store that no project links to.
+Postgres does not record when a database was last used
+Postgres on this computer, port 5432
 Project idle for 120 days
 Project idle for 20 days
 Project idle for 60 days

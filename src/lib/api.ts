@@ -25,6 +25,7 @@ import type {
   TidyRule,
   TidyRuleId,
   VolumeChoice,
+  PostgresCheck,
   PileState,
   PlanSource,
   RunDetail,
@@ -103,6 +104,7 @@ export const api = {
   /** Other disks to watch: listed by the backend, switched by ID only. */
   getVolumes: () => call<VolumeChoice[]>("get_volumes"),
   setVolumeWatched: (volumeId: string, watched: boolean) => call<VolumeChoice[]>("set_volume_watched", { volumeId, watched }),
+  checkPostgres: () => call<PostgresCheck[]>("check_postgres"),
   /** Keep me tidy rules: off until turned on; each covers named Safe detectors only. */
   getTidyRules: () => call<TidyRule[]>("get_tidy_rules"),
   setTidyRule: (ruleId: TidyRuleId, enabled: boolean) => call<TidyRule[]>("set_tidy_rule", { ruleId, enabled }),

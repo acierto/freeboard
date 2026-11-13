@@ -154,8 +154,24 @@ The full list of rules, and the test that covers each, is in [Safety traceabilit
 | Pause deep scans on battery | On |
 | Start at login | On |
 | Notifications | On |
+| Postgres servers | The default server only |
 
 Quick scans read tool reports and known cache locations (under 10 seconds). Deep scans also walk your scan folders for worktrees and project dependencies; they run at low priority and never follow symbolic links.
+
+## Worktree databases (Postgres)
+
+Some projects give every worktree its own copy of a database, named like `myapp_wt3`: a name, then `_wt` and the worktree's number. Removing the worktree leaves that copy on the Postgres server. A deep scan lists each copy as its own Risky item, removed with `dropdb`, and the worktree's row in the Worktrees view says which database stays behind. Freeboard ties `myapp_wt3` to a worktree folder named `wt3` or ending in `-wt3` or `_wt3`. Templates and all other databases are left alone, and a database something is connected to can't be removed.
+
+Freeboard always checks the default server (the local socket, as your user name, like `psql` with no options). Add other servers on this computer in **Settings → Postgres databases**: host (`localhost`, `127.0.0.1` or `::1`), port and user, as many as you need. Remote servers are never checked.
+
+Freeboard never stores passwords. If a server asks for one, add a line for it to `~/.pgpass` (on Windows `%APPDATA%\postgresql\pgpass.conf`) and make the file private with `chmod 600 ~/.pgpass`. `psql` reads the password from there. Each line is `host:port:database:user:password`, and `*` matches any value:
+
+```
+localhost:5432:*:dev:your-password
+127.0.0.1:5433:*:app:another-password
+```
+
+This example is a Postgres from a package manager on port 5432 with user `dev`, and one in Docker published on port 5433 with user `app`; add both servers in Settings with the same host, port and user. Localhost lines in the password file are checked too, even when they are not in Settings. **Check servers** tries every server now and says whether it answered, refused (and why), or isn't running.
 
 ## FAQ
 

@@ -64,6 +64,23 @@ impl<'de> Deserialize<'de> for Goal {
     }
 }
 
+/// A Postgres server on this computer to look in for worktree databases
+/// (Settings → Postgres databases). No password: psql reads it from the
+/// user's own pgpass file, and Freeboard never stores one.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PostgresServer {
+    /// `localhost`, `127.0.0.1` or `::1`.
+    pub host: String,
+    pub port: u16,
+    /// Empty: the operating-system user name, as psql does.
+    #[serde(default)]
+    pub user: String,
+}
+
+/// At most this many servers.
+pub const MAX_POSTGRES_SERVERS: usize = 10;
+
 /// The interface language: the system's, or one chosen in Settings.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -119,6 +136,9 @@ pub struct Settings {
     /// Settings → Language; "system" follows the operating system.
     #[serde(default)]
     pub language: Language,
+    /// Settings → Postgres databases: local servers besides the default one.
+    #[serde(default)]
+    pub postgres_servers: Vec<PostgresServer>,
 }
 
 fn yes() -> bool {
@@ -145,6 +165,7 @@ impl Default for Settings {
             onboarding_complete: false,
             menu_bar_free_space: true,
             language: Language::System,
+            postgres_servers: Vec::new(),
         }
     }
 }
@@ -170,6 +191,7 @@ pub struct SettingsPatch {
     pub onboarding_complete: Option<bool>,
     pub menu_bar_free_space: Option<bool>,
     pub language: Option<Language>,
+    pub postgres_servers: Option<Vec<PostgresServer>>,
 }
 
 /// The subset of settings the interface may change with `update_settings`.
@@ -192,6 +214,7 @@ pub struct UiSettingsPatch {
     pub onboarding_complete: Option<bool>,
     pub menu_bar_free_space: Option<bool>,
     pub language: Option<Language>,
+    pub postgres_servers: Option<Vec<PostgresServer>>,
 }
 
 impl From<UiSettingsPatch> for SettingsPatch {
@@ -211,6 +234,7 @@ impl From<UiSettingsPatch> for SettingsPatch {
             onboarding_complete: p.onboarding_complete,
             menu_bar_free_space: p.menu_bar_free_space,
             language: p.language,
+            postgres_servers: p.postgres_servers,
             ..Default::default()
         }
     }
@@ -249,6 +273,17 @@ impl Settings {
         if !(1..=3650).contains(&self.old_installer_days) {
             return Err(SettingsError::OutOfRange("oldInstallerDays"));
         }
+        let mut servers = std::collections::HashSet::new();
+        if self.postgres_servers.len() > MAX_POSTGRES_SERVERS
+            || !self.postgres_servers.iter().all(|s| {
+                ["localhost", "127.0.0.1", "::1"].contains(&s.host.as_str())
+                    && s.port > 0
+                    && (s.user.is_empty() || crate::detectors::postgres::safe_user(&s.user))
+                    && servers.insert((s.host.clone(), s.port, s.user.clone()))
+            })
+        {
+            return Err(SettingsError::OutOfRange("postgresServers"));
+        }
         for p in self
             .scan_folders
             .iter()
@@ -284,7 +319,8 @@ impl Settings {
             extra_volumes,
             onboarding_complete,
             menu_bar_free_space,
-            language
+            language,
+            postgres_servers
         );
         s.validate()?;
         Ok(s)

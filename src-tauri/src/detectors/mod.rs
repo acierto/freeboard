@@ -13,6 +13,7 @@ pub mod dupes;
 pub mod files;
 pub mod git;
 pub mod mobile;
+pub mod postgres;
 pub mod projects;
 pub mod system;
 pub mod tools;
@@ -34,6 +35,7 @@ pub fn all() -> Vec<Box<dyn Detector>> {
         Box::new(docker::Volumes),
         Box::new(docker::DiskSlack),
         Box::new(git::Worktrees),
+        Box::new(postgres::WorktreeDatabases),
         Box::new(projects::Dependencies),
         Box::new(projects::BuildOutput),
         Box::new(caches::Pnpm),
@@ -92,6 +94,8 @@ pub fn probe_with(finding: &Finding, ctx: &ScanContext, guard: &Guard) -> Probe 
         docker::probe(finding, ctx)
     } else if det == git::ID {
         git::probe(finding, ctx)
+    } else if det == postgres::ID {
+        postgres::probe(finding, ctx)
     } else if det.starts_with("project.") {
         projects::probe(finding, ctx, guard)
     } else if [app_caches::JETBRAINS, app_caches::ELECTRON, app_caches::PLAYWRIGHT].contains(&det) {

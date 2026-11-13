@@ -34,5 +34,10 @@
   "{bytes} B",
   "{prefix} {0}{more}",
   "{prog} cache purge",
-  "{repo}: {label}"
+  "{repo}: {label}",
+  "CASE WHEN has_database_privilege(d.oid, 'CONNECT') THEN pg_database_size(d.oid)::text ELSE '' END,",
+  "coalesce(s.numbackends, 0)::text",
+  "FROM pg_database d LEFT JOIN pg_stat_database s ON s.datid = d.oid",
+  "UNION ALL SELECT ' ', d.datname, d.oid::text,",
+  "WHERE NOT d.datistemplate AND d.datallowconn"
 ]

@@ -163,6 +163,11 @@ pub async fn set_volume_watched(core: Core<'_>, volume_id: String, watched: bool
 }
 
 #[tauri::command]
+pub async fn check_postgres(core: Core<'_>) -> CmdResult<Vec<crate::detectors::postgres::ServerCheck>> {
+    core.check_postgres()
+}
+
+#[tauri::command]
 pub async fn get_tidy_rules(core: Core<'_>) -> CmdResult<Vec<crate::rules::TidyRule>> {
     core.get_tidy_rules()
 }
