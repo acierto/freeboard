@@ -594,6 +594,9 @@ pub struct EmptyTrashResult {
 // Events (names from the source "Events" table).
 
 pub const EV_STATUS_CHANGED: &str = "status_changed";
+/// A volume's free space moved since the previous sample (same payload as
+/// `status_changed`), so open windows show what the menu bar shows.
+pub const EV_FREE_SPACE_CHANGED: &str = "free_space_changed";
 pub const EV_SCAN_PROGRESS: &str = "scan_progress";
 pub const EV_SCAN_FINISHED: &str = "scan_finished";
 pub const EV_CLEANUP_ITEM_UPDATED: &str = "cleanup_item_updated";

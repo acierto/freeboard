@@ -37,7 +37,7 @@ Freeboard SHALL notify once on entering Low, and on entering Critical then every
 - **THEN** no notification is sent
 
 ### Requirement: Forecast
-Freeboard SHALL compute daily change with a linear fit over the last 14 days of samples, excluding jumps caused by cleanups. It SHALL show "About N days left" only when at least 3 days of samples exist and free space is falling, and SHALL show no forecast otherwise.
+Freeboard SHALL compute daily change with a linear fit over the last 14 days of samples, excluding jumps caused by cleanups. The rate SHALL be shown as a positive amount of space used per day. It SHALL show "About N days left" only when at least 3 days of samples exist and free space is falling, and SHALL show no forecast otherwise.
 
 #### Scenario: Not enough history
 - **WHEN** only 2 days of samples exist
@@ -49,6 +49,10 @@ Freeboard SHALL compute daily change with a linear fit over the last 14 days of 
 
 ### Requirement: Tray status
 The tray icon SHALL show a neutral, amber or red ring for Healthy, Low or Critical, and the tray view SHALL show status as text, free space and the current pile total.
+
+#### Scenario: Windows show the menu bar's free space
+- **WHEN** a sample finds free space changed while the status stays the same
+- **THEN** the menu bar title is updated and a `free_space_changed` event carries the volume, status and free bytes, so an open window shows the same figure; a window shown again re-reads free space
 
 #### Scenario: Status change updates tray
 - **WHEN** status changes from Healthy to Low

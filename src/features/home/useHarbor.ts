@@ -43,8 +43,14 @@ export function useHarbor() {
 
   useEffect(() => {
     void load();
+    const refreshStatus = () =>
+      void track(api.getStatus())
+        .then((status) => setData((d) => d && { ...d, status }))
+        .catch(() => undefined);
     const offs = [
-      on("status_changed", () => void track(api.getStatus()).then((status) => setData((d) => d && { ...d, status }))),
+      on("status_changed", refreshStatus),
+      // The menu bar shows every sample; so must the windows.
+      on("free_space_changed", refreshStatus),
       // A changed pile can mean changed decisions or parts: reload suggestions too.
       on("pile_changed", (pile) => {
         setData((d) => d && { ...d, pile });
@@ -61,10 +67,14 @@ export function useHarbor() {
     ];
     // Access granted in System Settings shows up when Freeboard is back in
     // front: the backend re-checks blind spots on every read (design D5).
-    const recheck = () =>
+    // Free space is re-read too: a window shown again must not open on an
+    // older figure than the menu bar's.
+    const recheck = () => {
+      refreshStatus();
       void track(api.getBlindSpots())
         .then((spots) => setData((d) => d && { ...d, spots }))
         .catch(() => undefined);
+    };
     window.addEventListener("focus", recheck);
     return () => {
       window.removeEventListener("focus", recheck);

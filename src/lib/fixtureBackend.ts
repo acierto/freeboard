@@ -459,7 +459,7 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
     return {
       volumes: [{ id: "home", name: "Macintosh HD", mountPoint: "/", freeBytes: free, totalBytes: TOTAL_GB * G, status: s, purgeableBytes: null, snapshotCount: null }],
       status: s,
-      forecast: params.get("forecast") === "none" ? null : { bytesPerDay: RATE_GB * G, daysLeft: freeGb / RATE_GB },
+      forecast: params.get("forecast") === "none" ? null : { bytesPerDay: -RATE_GB * G, daysLeft: freeGb / RATE_GB },
       pace: params.get("forecast") === "none" ? null : { weekBytes: bytes(weekGb), bytesPerDay: bytes(weekGb) / 7 },
       trashBytes: trashBytes(),
       trend: [],
@@ -883,7 +883,7 @@ export function createFixtureBackend(params: URLSearchParams): Backend {
       const n = held.length;
       freeGb += b / G;
       held.length = 0;
-      setTimeout(() => emit("status_changed", { volume: "home", status: status().status, freeBytes: bytes(freeGb) }), 0);
+      setTimeout(() => emit("free_space_changed", { volume: "home", status: status().status, freeBytes: bytes(freeGb) }), 0);
       return { emptied: n, failed: 0, bytes: b, freeBytesAfter: bytes(freeGb) };
     },
     get_status: () => status(),

@@ -794,6 +794,7 @@ Changes apply immediately; there is no Save button.
 | Event | Payload |
 | --- | --- |
 | `status_changed` | Volume, status, free bytes |
+| `free_space_changed` | Volume, status, free bytes (each sample that moved free space) |
 | `scan_progress` | Scan ID, phase, detector, current count |
 | `scan_finished` | Scan ID, detector errors, totals |
 | `pile_changed` | `PileState` |

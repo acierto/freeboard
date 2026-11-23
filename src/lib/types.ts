@@ -546,6 +546,8 @@ export interface Navigate {
 
 export interface EventMap {
   status_changed: StatusChanged;
+  /** Free space moved since the last sample (every five minutes at most). */
+  free_space_changed: StatusChanged;
   scan_progress: ScanProgress;
   scan_finished: ScanFinished;
   pile_changed: PileState;

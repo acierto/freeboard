@@ -38,7 +38,8 @@ export function bubbleText(mood: Mood, freeBytes: number, pileBytes: number): st
 
 export function forecastText(f: Forecast | null): string {
   if (!f) return "";
-  return t("h.forecast", { r: gb(f.bytesPerDay), n: Math.max(1, Math.round(f.daysLeft)) });
+  // The core reports the fall in free space as a negative rate.
+  return t("h.forecast", { r: gb(Math.abs(f.bytesPerDay)), n: Math.max(1, Math.round(f.daysLeft)) });
 }
 
 /** The small line in the Toss button. */

@@ -347,9 +347,20 @@ impl AppCore {
         let s = self.settings();
         let readings = self.volumes.read(&self.home, &s.extra_volumes);
         let paused = self.notifications_paused.load(Ordering::Relaxed);
-        let tick = self.monitor.lock().unwrap().tick(now, &s, readings, &self.store, paused)?;
+        let (tick, before) = {
+            let mut m = self.monitor.lock().unwrap();
+            let before: std::collections::HashMap<String, u64> = m.latest().iter().map(|v| (v.id.clone(), v.free_bytes)).collect();
+            (m.tick(now, &s, readings, &self.store, paused)?, before)
+        };
         for c in &tick.changes {
             self.emit(EV_STATUS_CHANGED, c);
+        }
+        // The menu bar is updated on every sample below; open windows only
+        // heard about status changes and kept showing an older free space.
+        for v in &tick.volumes {
+            if before.get(&v.id) != Some(&v.free_bytes) {
+                self.emit(EV_FREE_SPACE_CHANGED, &StatusChanged { volume: v.id.clone(), status: v.status, free_bytes: v.free_bytes });
+            }
         }
         let safe = self.safe_bytes();
         let lang = crate::i18n::resolve(s.language);
@@ -1666,6 +1677,12 @@ pub(crate) mod tests {
         assert_eq!(core.get_status().unwrap().status, DiskStatus::Low);
         assert_eq!(shell.0.lock().unwrap().as_slice(), ["Disk space is low"]);
         assert_eq!(sink.events(EV_STATUS_CHANGED).len(), 2);
+        // Free space is announced on every sample that moved it (the menu bar
+        // is updated each time; open windows must not fall behind): the first
+        // sample and the drop to 19 GB, not the nine unchanged ones.
+        let moved = sink.events(EV_FREE_SPACE_CHANGED);
+        assert_eq!(moved.len(), 2);
+        assert_eq!(moved[1]["freeBytes"], serde_json::json!(19 * GB));
         assert_eq!(core.take_pending_view().as_deref(), Some("home"), "a notification click opens the home view (spec Disk status)");
         assert_eq!(core.take_pending_view(), None);
     }
